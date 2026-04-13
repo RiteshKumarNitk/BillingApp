@@ -23,6 +23,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
   late TextEditingController _phoneController;
   late TextEditingController _upiController;
   late TextEditingController _footerController;
+  late TextEditingController _taxRateController;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
     _phoneController = TextEditingController();
     _upiController = TextEditingController();
     _footerController = TextEditingController();
+    _taxRateController = TextEditingController();
 
     // Load shop data
     context.read<ShopBloc>().add(LoadShopEvent());
@@ -46,6 +48,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
       _phoneController.text = shop.phoneNumber;
       _upiController.text = shop.upiId;
       _footerController.text = shop.footerText;
+      _taxRateController.text = shop.defaultTaxRate.toString();
     }
   }
 
@@ -57,6 +60,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
     _phoneController.dispose();
     _upiController.dispose();
     _footerController.dispose();
+    _taxRateController.dispose();
     super.dispose();
   }
 
@@ -69,6 +73,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
         phoneNumber: _phoneController.text,
         upiId: _upiController.text,
         footerText: _footerController.text,
+        defaultTaxRate: double.tryParse(_taxRateController.text) ?? 0.0,
       );
 
       context.read<ShopBloc>().add(UpdateShopEvent(shop));
@@ -172,6 +177,26 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
                       hint: 'Thank you, Visit again!!!',
                       maxLines: 2,
                       maxLength: 60,
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Tax Configuration',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: AppTheme.primaryColor.withValues(alpha: 0.8),
+                        )),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Set default tax rate for all transactions.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    ),
+                    const SizedBox(height: 16),
+                    const InputLabel(text: 'Default Tax Rate (%)'),
+                    _buildTextField(
+                      controller: _taxRateController,
+                      hint: 'e.g. 18 for 18% GST',
+                      keyboardType: TextInputType.number,
                     ),
                   ],
                 ),

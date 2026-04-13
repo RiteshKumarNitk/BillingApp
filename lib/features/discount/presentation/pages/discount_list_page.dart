@@ -25,6 +25,10 @@ class _DiscountListPageState extends State<DiscountListPage> {
         title: const Text('Active Discounts'),
         centerTitle: true,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/dashboard'),
+        ),
       ),
       body: BlocBuilder<DiscountBloc, DiscountState>(
         builder: (context, state) {

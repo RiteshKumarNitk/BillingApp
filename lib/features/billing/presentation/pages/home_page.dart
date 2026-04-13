@@ -69,9 +69,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scan Bill'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/dashboard'),
+        ),
+      ),
       body: BlocListener<BillingBloc, BillingState>(
         listenWhen: (previous, current) =>
-            previous.errorMessage != current.errorMessage && current.errorMessage != null,
+            previous.errorMessage != current.errorMessage &&
+            current.errorMessage != null,
         listener: (context, state) {
           if (state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(

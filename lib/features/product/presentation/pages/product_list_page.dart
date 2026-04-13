@@ -53,16 +53,13 @@ class _ProductListPageState extends State<ProductListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        title: const Text('Products'),
+        centerTitle: true,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.chevron_left,
-              size: 28, color: Theme.of(context).primaryColor),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/dashboard'),
         ),
-        title: const Text('Product Management',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        centerTitle: true,
       ),
       body: Column(
         children: [

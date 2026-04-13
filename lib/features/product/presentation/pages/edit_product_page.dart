@@ -106,7 +106,7 @@ class _EditProductPageState extends State<EditProductPage> {
           leading: IconButton(
             icon: Icon(Icons.chevron_left,
                 size: 32, color: Theme.of(context).primaryColor),
-            onPressed: () => context.pop(),
+            onPressed: () => context.go('/dashboard'),
           ),
           title: const Text('Edit Product',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

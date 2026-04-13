@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +31,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.initState();
     context.read<CustomerBloc>().add(const LoadAllCustomers());
     context.read<DiscountBloc>().add(const LoadTodayDiscounts());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final shopState = context.read<ShopBloc>().state;
+      if (shopState is ShopLoaded) {
+        final taxRate = shopState.shop.defaultTaxRate;
+        context.read<BillingBloc>().add(SetTaxRateEvent(taxRate));
+      }
+    });
   }
 
   @override
@@ -193,7 +202,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       if (value == null) {
                                         context
                                             .read<BillingBloc>()
-                                            .add(ClearCartEvent());
+                                            .add(SetCustomerEvent(
+                                              customerId: 'walkin',
+                                              customerName: 'Walk-in Customer',
+                                              customerPhone: '',
+                                            ));
                                       } else {
                                         final customer = customerState.customers
                                             .firstWhere((c) => c.id == value);
@@ -249,32 +262,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   ],
                                 );
                               },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Tax Rate
-                            _buildSectionTitle('Tax Rate (%)'),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    initialValue: _taxRate.toString(),
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      hintText: '0',
-                                      suffixText: '%',
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _taxRate = double.tryParse(value) ?? 0;
-                                      });
-                                      context
-                                          .read<BillingBloc>()
-                                          .add(SetTaxRateEvent(_taxRate));
-                                    },
-                                  ),
-                                ),
-                              ],
                             ),
                             const SizedBox(height: 16),
 
@@ -428,9 +415,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     final billingState =
                                         context.read<BillingBloc>().state;
+                                    final shopState =
+                                        context.read<ShopBloc>().state;
+
                                     context
                                         .read<BillingBloc>()
                                         .add(ConfirmOrderEvent(
@@ -447,17 +437,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                     context
                                         .read<SalesHistoryBloc>()
                                         .add(const LoadAllTransactionsEvent());
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Order confirmed successfully!'),
-                                        backgroundColor: Colors.green,
+
+                                    // Show success dialog with options
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (ctx) => _buildSuccessDialog(
+                                        context,
+                                        billingState,
+                                        shopState,
                                       ),
                                     );
-                                    context
-                                        .read<BillingBloc>()
-                                        .add(ClearCartEvent());
-                                    context.go('/');
                                   },
                                   icon: const Icon(Icons.check_circle),
                                   label: const Text('Confirm Order'),
@@ -584,6 +575,141 @@ class _CheckoutPageState extends State<CheckoutPage> {
           fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
         ),
       ),
+    );
+  }
+
+  Widget _buildSuccessDialog(
+      BuildContext ctx, BillingState billingState, ShopState shopState) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: const BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check, color: Colors.white, size: 40),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Order Confirmed!',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Total: ₹${billingState.totalAmount.toStringAsFixed(2)}',
+            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'What would you like to do?',
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final pdfFile =
+                        await _generatePdfFile(billingState, shopState);
+                    if (pdfFile != null) {
+                      final phone = billingState.customerPhone ?? '';
+                      if (phone.isNotEmpty) {
+                        await PdfGenerator.shareInvoice(pdfFile, phone);
+                      } else {
+                        await PdfGenerator.shareInvoice(pdfFile, '');
+                      }
+                    }
+                  },
+                  icon: Icon(Icons.send, color: Colors.green),
+                  label: const Text('Send to Customer'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    if (shopState is ShopLoaded) {
+                      context.read<BillingBloc>().add(PrintReceiptEvent(
+                          shopName: shopState.shop.name,
+                          address1: shopState.shop.addressLine1,
+                          address2: shopState.shop.addressLine2,
+                          phone: shopState.shop.phoneNumber,
+                          footer: shopState.shop.footerText));
+                    }
+                  },
+                  icon: const Icon(Icons.print),
+                  label: const Text('Print Receipt'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.read<BillingBloc>().add(ClearCartEvent());
+                context.go('/dashboard');
+              },
+              child: const Text('Back to Dashboard'),
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(ctx).padding.bottom + 8),
+        ],
+      ),
+    );
+  }
+
+  Future<File?> _generatePdfFile(
+      BillingState billingState, ShopState shopState) async {
+    if (shopState is! ShopLoaded) return null;
+
+    final transactionId = const Uuid().v4();
+    final items = billingState.cartItems
+        .map((item) => TransactionItem(
+              productId: item.product.id,
+              productName: item.product.name,
+              price: item.product.price,
+              quantity: item.quantity,
+              total: item.total,
+            ))
+        .toList();
+
+    return await PdfGenerator.generateInvoice(
+      shopName: shopState.shop.name,
+      address1: shopState.shop.addressLine1,
+      address2: shopState.shop.addressLine2,
+      phone: shopState.shop.phoneNumber,
+      items: items,
+      subtotal: billingState.subtotal,
+      taxAmount: billingState.taxAmount,
+      discountAmount: billingState.discountAmount,
+      totalAmount: billingState.totalAmount,
+      customerName: billingState.customerName,
+      customerPhone: billingState.customerPhone,
+      transactionId: transactionId,
     );
   }
 }

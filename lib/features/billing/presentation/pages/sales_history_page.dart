@@ -31,7 +31,7 @@ class _SalesHistoryPageState extends State<SalesHistoryPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/dashboard'),
         ),
       ),
       body: BlocBuilder<SalesHistoryBloc, SalesHistoryState>(
@@ -161,8 +161,7 @@ class _SalesHistoryPageState extends State<SalesHistoryPage> {
     );
   }
 
-  void _showTransactionDetails(
-      BuildContext context, Transaction transaction) {
+  void _showTransactionDetails(BuildContext context, Transaction transaction) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -176,7 +175,8 @@ class _SalesHistoryPageState extends State<SalesHistoryPage> {
                 'Date: ${DateFormat('MMM dd, yyyy HH:mm').format(transaction.timestamp)}',
               ),
               const SizedBox(height: 16),
-              const Text('Items:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Items:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               ..._buildItemsList(transaction.items),
               const SizedBox(height: 16),
               Container(
@@ -209,7 +209,8 @@ class _SalesHistoryPageState extends State<SalesHistoryPage> {
                         const Text('Total:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text('₹${transaction.totalAmount.toStringAsFixed(2)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ],

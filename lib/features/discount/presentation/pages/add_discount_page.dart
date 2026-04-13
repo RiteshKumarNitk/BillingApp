@@ -98,7 +98,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
         leading: IconButton(
           icon: Icon(Icons.chevron_left,
               size: 28, color: Theme.of(context).primaryColor),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/dashboard'),
         ),
         title: const Text('Add Discount',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

@@ -50,7 +50,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
         leading: IconButton(
           icon: Icon(Icons.chevron_left,
               size: 28, color: Theme.of(context).primaryColor),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/dashboard'),
         ),
         title: const Text('Add Customer',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

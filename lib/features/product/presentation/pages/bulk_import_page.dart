@@ -255,7 +255,7 @@ class _BulkImportPageState extends State<BulkImportPage> {
         leading: IconButton(
           icon: Icon(Icons.chevron_left,
               size: 28, color: Theme.of(context).primaryColor),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/dashboard'),
         ),
         title: const Text('Bulk Import',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

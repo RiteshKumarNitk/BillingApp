@@ -51,7 +51,7 @@ class _ScannerPageState extends State<ScannerPage> {
           leading: IconButton(
             icon: Icon(Icons.chevron_left,
                 size: 28, color: Theme.of(context).primaryColor),
-            onPressed: () => context.pop(),
+            onPressed: () => context.go('/dashboard'),
           ),
           title: const Text('Scan Barcode',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
