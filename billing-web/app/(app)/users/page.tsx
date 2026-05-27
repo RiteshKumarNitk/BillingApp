@@ -39,7 +39,12 @@ export default async function UsersPage() {
           </div>
         </header>
 
-        <UsersClient initialUsers={users} roles={roles} currentUserId={session.user.id} />
+        <UsersClient 
+          initialUsers={users} 
+          roles={roles} 
+          currentUserId={session.user.id} 
+          isSuperAdmin={session.user.role === 'SUPERADMIN'}
+        />
       </div>
     </div>
   );

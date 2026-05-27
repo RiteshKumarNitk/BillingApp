@@ -27,8 +27,38 @@ export async function getTenantUsers() {
   });
 }
 
-export async function createTenantUser(data: { name: string, email: string, password: string, tenantRoleId: string, phone?: string }) {
+export async function createTenantUser(data: { name: string, email: string, password: string, tenantRoleId?: string, phone?: string, isSuperAdminUser?: boolean }) {
   const session = await getServerSession(authOptions);
+  
+  if (data.isSuperAdminUser) {
+    if (session?.user?.role !== 'SUPERADMIN') throw new Error("Unauthorized");
+    
+    if (!data.name || !data.email || !data.password) {
+      throw new Error("Missing required fields");
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
+    if (existingUser) {
+      throw new Error("A user with this email already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        phone: data.phone?.trim() || null,
+        password: hashedPassword,
+        role: 'SUPERADMIN'
+      }
+    });
+
+    revalidatePath('/users');
+    return { id: user.id, name: user.name, email: user.email };
+  }
+
+  // Tenant user creation path
   if (!session?.user?.tenantId) throw new Error("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
