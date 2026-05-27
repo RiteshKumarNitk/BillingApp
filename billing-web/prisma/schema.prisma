@@ -70,11 +70,12 @@ model User {
 model Product {
   id                  String              @id @default(uuid())
   name                String
-  barcode             String              @unique
+  barcode             String?             @unique
+  unit                String              @default("PIECE")
   purchasePrice       Float
   mrp                 Float
   salePrice           Float
-  stock               Int
+  stock               Int                 @default(0)
   expiryDate          DateTime?
   manufacturingDate   DateTime?
   batchNumber         String?

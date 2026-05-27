@@ -58,7 +58,7 @@ export default function BillingPage() {
   const addToCart = (product: any) => {
     // Check if item already in cart
     const existingItemIndex = cart.findIndex(item => item.productId === product.id);
-    
+
     if (existingItemIndex >= 0) {
       // Increase quantity
       const newCart = [...cart];
@@ -93,7 +93,7 @@ export default function BillingPage() {
   // Update quantity
   const updateQuantity = (itemId: string, quantity: number) => {
     if (quantity < 1) return;
-    
+
     const newCart = cart.map(item => {
       if (item.id === itemId) {
         return {
@@ -194,7 +194,7 @@ export default function BillingPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Search and Product List */}  
+        {/* Left Column: Search and Product List */}
         <section className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow p-4">
             <div className="mb-4">
@@ -208,7 +208,7 @@ export default function BillingPage() {
                   value={searchTerm}
                   onChange={handleSearchChange}
                   placeholder="Type item name or barcode..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
                 {searchLoading && (
                   <span className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -238,8 +238,8 @@ export default function BillingPage() {
                         <h3 className="font-medium text-gray-900">{product.name}</h3>
                         <p className="text-sm text-gray-600">Barcode: {product.barcode}</p>
                         <p className="text-sm text-gray-500">
-                          MRP: ${product.mrp.toFixed(2)} | 
-                          Sale Price: ${product.salePrice.toFixed(2)}
+                          MRP: RS{product.mrp.toFixed(2)} |
+                          Sale Price: RS{product.salePrice.toFixed(2)}
                         </p>
                       </div>
                       <button
@@ -310,11 +310,11 @@ export default function BillingPage() {
                             const value = parseFloat(e.target.value) || 0;
                             updateSalePrice(item.id, value);
                           }}
-                          className="w-24 px-2 py-1 border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-24 px-2 py-1 border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                         />
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">${parseFloat(item.itemTotal).toFixed(2)}</p>
+                        <p className="font-semibold">₹{parseFloat(item.itemTotal).toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
@@ -335,7 +335,7 @@ export default function BillingPage() {
               <div className="border-t pt-4">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -349,16 +349,16 @@ export default function BillingPage() {
                       const value = parseFloat(e.target.value) || 0;
                       setDiscount(value);
                     }}
-                    className="w-20 text-center border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-20 text-center border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
-                  <span>-${discountAmount.toFixed(2)}</span>
+                  <span>- ₹{discountAmount.toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="border-t pt-4">
                 <div className="flex justify-between text-xl font-bold text-gray-800">
                   <span>Net Amount:</span>
-                  <span>${netAmount.toFixed(2)}</span>
+                  <span>₹{netAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>

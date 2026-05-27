@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import PrintInvoiceButton from './PrintInvoiceButton';
 
 export const dynamic = 'force-static'; // This is a demo page, in real app you might want to fetch on request

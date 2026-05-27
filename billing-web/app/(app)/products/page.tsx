@@ -87,7 +87,7 @@ export default function ProductsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or barcode..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             />
           </div>
 
@@ -99,7 +99,7 @@ export default function ProductsPage() {
               id="category-filter"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             >
               <option value="">All Categories</option>
               {categories.map(category => (
@@ -133,41 +133,43 @@ export default function ProductsPage() {
       ) : (
         <div className="space-y-4">
           {products.map(product => (
-            <div key={product.id} className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-medium text-gray-900">{product.name}</h3>
-                  <p className="text-sm text-gray-600">
-                    Barcode: {product.barcode || 'N/A'}
-                  </p>
-                  <div className="mt-2 space-x-3 text-sm">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                      ${product.mrp.toFixed(2)} MRP
+            <div key={product.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start gap-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                    {product.category && (
+                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                        {product.category}
+                      </span>
+                    )}
+                  </div>
+                  {product.barcode && (
+                    <p className="text-xs text-gray-400 mt-0.5">Barcode: {product.barcode}</p>
+                  )}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+                      MRP ₹{product.mrp.toFixed(2)}
                     </span>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                      ${product.salePrice.toFixed(2)} Sale
+                    <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                      Sale ₹{product.salePrice.toFixed(2)}
                     </span>
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
-                      ${product.purchasePrice.toFixed(2)} Cost
+                    <span className="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">
+                      Cost ₹{product.purchasePrice.toFixed(2)}
                     </span>
                   </div>
-                  {product.category && (
-                    <p className="mt-1 text-xs text-gray-500">
-                      Category: {product.category}
-                    </p>
-                  )}
-                  <p className="mt-1 text-sm font-medium">
-                    Stock: 
-                    <span className={`
-                      ${product.stock <= 5 ? 'text-red-600 font-bold' : 
-                        product.stock <= 10 ? 'text-yellow-600' : 
-                        'text-green-600'}
-                    `}>
-                      {product.stock}
+                  <p className="mt-2 text-sm font-medium flex items-center gap-1.5">
+                    <span className="text-gray-500">Stock:</span>
+                    <span className={`font-bold ${
+                      product.stock <= 5 ? 'text-red-600' :
+                      product.stock <= (product.minStockThreshold || 10) ? 'text-amber-600' :
+                      'text-green-600'
+                    }`}>
+                      {product.stock} {product.unit || 'PIECE'}
                     </span>
-                    {product.stock <= 5 && (
-                      <span className="ml-1 text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">
-                        LOW
+                    {product.stock <= (product.minStockThreshold || 10) && (
+                      <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
+                        {product.stock <= 5 ? '⚠ CRITICAL' : 'LOW'}
                       </span>
                     )}
                   </p>

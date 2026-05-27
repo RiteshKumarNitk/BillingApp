@@ -3,6 +3,8 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
+import { revalidatePath } from "next/cache";
+import { randomUUID } from "crypto";
 
 export async function searchProducts(searchTerm: string) {
   const session = await getServerSession(authOptions);
@@ -73,4 +75,91 @@ export async function getProductCategories() {
   });
 
   return distinctCategories.map(c => c.category).filter(Boolean) as string[];
+}
+
+export async function createProduct(data: any) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.tenantId) {
+    throw new Error("Unauthorized");
+  }
+
+  const tenantId = session.user.tenantId;
+
+  if (!data.name) {
+    throw new Error("Product name is required");
+  }
+
+  // Auto-generate barcode if not provided
+  const barcode = data.barcode?.trim() || null;
+
+  const product = await prisma.product.create({
+    data: {
+      name: data.name.trim(),
+      barcode: barcode,
+      unit: data.unit || 'PIECE',
+      purchasePrice: parseFloat(data.purchasePrice) || 0,
+      mrp: parseFloat(data.mrp) || 0,
+      salePrice: parseFloat(data.salePrice) || 0,
+      stock: parseInt(data.stock, 10) || 0,
+      minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
+      expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+      manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
+      batchNumber: data.batchNumber?.trim() || null,
+      category: data.category || null,
+      tenant: { connect: { id: tenantId } },
+    }
+  });
+
+  revalidatePath('/products');
+  return product;
+}
+
+export async function updateProduct(productId: string, data: any) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.tenantId) {
+    throw new Error("Unauthorized");
+  }
+
+  const tenantId = session.user.tenantId;
+
+  const barcode = data.barcode?.trim() || null;
+
+  const product = await prisma.product.update({
+    where: { id: productId, tenantId: tenantId },
+    data: {
+      name: data.name?.trim(),
+      barcode: barcode,
+      unit: data.unit || 'PIECE',
+      purchasePrice: parseFloat(data.purchasePrice) || 0,
+      mrp: parseFloat(data.mrp) || 0,
+      salePrice: parseFloat(data.salePrice) || 0,
+      stock: parseInt(data.stock, 10) || 0,
+      minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
+      expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+      manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
+      batchNumber: data.batchNumber?.trim() || null,
+      category: data.category || null,
+    }
+  });
+
+  revalidatePath('/products');
+  return product;
+}
+
+export async function deleteProduct(productId: string) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.tenantId) {
+    throw new Error("Unauthorized");
+  }
+
+  const tenantId = session.user.tenantId;
+
+  await prisma.product.delete({
+    where: { id: productId, tenantId }
+  });
+
+  revalidatePath('/products');
 }

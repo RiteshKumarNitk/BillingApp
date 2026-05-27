@@ -165,7 +165,7 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
                     required
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                   />
                 </div>
                 <div>
@@ -175,7 +175,7 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                   />
                 </div>
                 <div>
@@ -184,7 +184,7 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
                     type="tel"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                     placeholder="+91..."
                   />
                 </div>
@@ -195,7 +195,7 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                   />
                 </div>
                 <div>
@@ -209,7 +209,7 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
                       required
                       value={roleId}
                       onChange={e => setRoleId(e.target.value)}
-                      className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white"
+                      className="w-full rounded-lg border-gray-300 border px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white text-gray-900"
                     >
                       <option value="" disabled>Select a role...</option>
                       {roles.map(role => (
