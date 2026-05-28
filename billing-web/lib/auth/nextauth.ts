@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
           let tenantRole = null;
           if (user.tenantRoleId) {
             console.log('[NEXTAUTH] Finding tenant role with id:', user.tenantRoleId);
-            tenantRole = await prisma.role.findUnique({
+            tenantRole = await (prisma as any).role.findUnique({
               where: { id: user.tenantRoleId }
             });
             console.log('[NEXTAUTH] Found tenant role:', !!tenantRole ? tenantRole.id : 'null');
