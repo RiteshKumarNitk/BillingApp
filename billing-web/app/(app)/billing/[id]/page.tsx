@@ -105,7 +105,7 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {transaction.items.map((item) => (
+              {transaction.items.map((item: any) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item.name}
