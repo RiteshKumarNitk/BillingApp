@@ -13,6 +13,8 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
     notFound();
   }
 
+  const tenantAny = tenant as any;
+
   return (
     <div className="p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -33,11 +35,11 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Email Address</dt>
-            <dd className="mt-1 text-sm text-gray-900">{tenant.email}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenantAny.email}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Domain</dt>
-            <dd className="mt-1 text-sm text-gray-900">{tenant.domain}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenantAny.domain}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Status</dt>
@@ -45,26 +47,26 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                 tenant.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               }`}>
-                {tenant.status}
+                {tenantAny.status}
               </span>
             </dd>
           </div>
-          {tenant.phone && (
+          {tenantAny.phone && (
             <div className="sm:col-span-1">
               <dt className="text-sm font-medium text-gray-500">Phone</dt>
-              <dd className="mt-1 text-sm text-gray-900">{tenant.phone}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{tenantAny.phone}</dd>
             </div>
           )}
-          {tenant.gstin && (
+          {tenantAny.gstin && (
             <div className="sm:col-span-1">
               <dt className="text-sm font-medium text-gray-500">GSTIN</dt>
-              <dd className="mt-1 text-sm text-gray-900">{tenant.gstin}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{tenantAny.gstin}</dd>
             </div>
           )}
-          {tenant.address && (
+          {tenantAny.address && (
             <div className="sm:col-span-2">
               <dt className="text-sm font-medium text-gray-500">Address</dt>
-              <dd className="mt-1 text-sm text-gray-900">{tenant.address}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{tenantAny.address}</dd>
             </div>
           )}
         </dl>

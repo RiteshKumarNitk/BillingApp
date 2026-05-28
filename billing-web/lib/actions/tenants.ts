@@ -44,20 +44,20 @@ export async function createTenant(data: any) {
   }
 
   // Create tenant
-  const tenant = await prisma.tenant.create({
-    data: {
-      name: data.name,
-      domain: domain,
-      dbConnectionString: '',
-      status: 'ACTIVE',
-      contactPerson: data.contactPerson || null,
-      email: data.email,
-      phone: data.phone || null,
-      address: data.address || null,
-      gstin: data.gstin || null,
-      subscriptionPlan: data.subscriptionPlan || 'FREE'
-    }
-  });
+  const tenantCreateData: any = {
+    name: data.name,
+    domain: domain,
+    dbConnectionString: '',
+    status: 'ACTIVE',
+    contactPerson: data.contactPerson || null,
+    email: data.email,
+    phone: data.phone || null,
+    address: data.address || null,
+    gstin: data.gstin || null,
+    subscriptionPlan: data.subscriptionPlan || 'FREE'
+  };
+
+  const tenant = await prisma.tenant.create({ data: tenantCreateData });
 
   // Create default roles
   let ownerRoleId = null;
@@ -68,7 +68,7 @@ export async function createTenant(data: any) {
   ];
 
   for (const roleData of rolesData) {
-    const role = await prisma.role.create({
+    const role = await (prisma as any).role.create({
       data: {
         name: roleData.name,
         permissions: roleData.permissions,
@@ -83,17 +83,17 @@ export async function createTenant(data: any) {
   // Create tenant owner user
   const hashedPassword = await bcrypt.hash(data.password, 10);
   
-  await prisma.user.create({
-    data: {
-      name: data.contactPerson || 'Admin User',
-      email: data.email,
-      phone: data.phone || null,
-      password: hashedPassword,
-      tenantId: tenant.id,
-      tenantRoleId: ownerRoleId,
-      role: 'ADMIN' // Global role for tenant admin
-    }
-  });
+  const createUserData: any = {
+    name: data.contactPerson || 'Admin User',
+    email: data.email,
+    phone: data.phone || null,
+    password: hashedPassword,
+    tenantId: tenant.id,
+    tenantRoleId: ownerRoleId,
+    role: 'ADMIN' // Global role for tenant admin
+  };
+
+  await prisma.user.create({ data: createUserData });
 
   revalidatePath('/tenants');
   return tenant;
@@ -102,18 +102,17 @@ export async function createTenant(data: any) {
 export async function updateTenant(tenantId: string, data: any) {
   await requireSuperAdmin();
 
-  const tenant = await prisma.tenant.update({
-    where: { id: tenantId },
-    data: {
-      name: data.name,
-      contactPerson: data.contactPerson || null,
-      email: data.email,
-      phone: data.phone || null,
-      address: data.address || null,
-      gstin: data.gstin || null,
-      subscriptionPlan: data.subscriptionPlan || 'FREE'
-    }
-  });
+  const updateTenantData: any = {
+    name: data.name,
+    contactPerson: data.contactPerson || null,
+    email: data.email,
+    phone: data.phone || null,
+    address: data.address || null,
+    gstin: data.gstin || null,
+    subscriptionPlan: data.subscriptionPlan || 'FREE'
+  };
+
+  const tenant = await prisma.tenant.update({ where: { id: tenantId }, data: updateTenantData });
 
   // If a new password was provided, update the tenant's admin user
   if (data.password && data.password.trim() !== '') {
@@ -121,12 +120,12 @@ export async function updateTenant(tenantId: string, data: any) {
     
     // Find the primary admin for this tenant and update their password
     // We assume the admin has role 'ADMIN' or is the first user
-    const adminUser = await prisma.user.findFirst({
+    const adminUser = await (prisma as any).user.findFirst({
       where: { tenantId, role: 'ADMIN' }
     });
     
     if (adminUser) {
-      await prisma.user.update({
+      await (prisma as any).user.update({
         where: { id: adminUser.id },
         data: { password: hashedPassword }
       });

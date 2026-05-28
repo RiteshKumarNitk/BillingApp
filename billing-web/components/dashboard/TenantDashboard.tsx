@@ -55,7 +55,7 @@ export default async function TenantDashboard({
     GROUP BY DATE("createdAt")
     ORDER BY DATE("createdAt")
   `;
-  const salesData = rawSalesData.map((item) => ({
+  const salesData = rawSalesData.map((item: { date: string | Date; total: string | number }) => ({
     date: format(new Date(item.date), 'MM/dd'),
     total: Number(item.total)
   }));
@@ -73,7 +73,7 @@ export default async function TenantDashboard({
     ORDER BY total DESC
     LIMIT 5
   `;
-  const categoryData = rawCategoryData.map((item) => ({
+  const categoryData = rawCategoryData.map((item: { category?: string; total: string | number }) => ({
     name: item.category || 'Uncategorized',
     value: Number(item.total)
   }));
@@ -100,10 +100,10 @@ export default async function TenantDashboard({
     ORDER BY soldCount DESC
     LIMIT 5
   `;
-  const topProducts = topProductsRaw.map((p) => ({
+  const topProducts = topProductsRaw.map((p: any) => ({
     ...p,
-    soldCount: Number(p.soldcount),
-    revenue: Number(p.revenue)
+    soldCount: Number(p.soldcount ?? p.soldCount ?? 0),
+    revenue: Number(p.revenue ?? p.revenue)
   }));
 
   return (
@@ -190,7 +190,7 @@ export default async function TenantDashboard({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {recentTransactions.map((tx) => (
+                  {recentTransactions.map((tx: { id: string; createdAt: string | Date; user?: { name?: string } | null; netAmount: number; status: string }) => (
                     <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                         {format(new Date(tx.createdAt), 'MMM dd, h:mm a')}
@@ -231,7 +231,7 @@ export default async function TenantDashboard({
           <section className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
             <h2 className="mb-6 text-xl font-bold text-gray-800">Top Products</h2>
             <div className="space-y-4">
-              {topProducts.map((product, index) => (
+              {topProducts.map((product: { id: string; name: string; soldCount: number; revenue: number }, index: number) => (
                 <div key={product.id} className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md">
                   <div className="flex items-center gap-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold">

@@ -74,7 +74,7 @@ export async function getProductCategories() {
     distinct: ['category'],
   });
 
-  return distinctCategories.map(c => c.category).filter(Boolean) as string[];
+  return distinctCategories.map((c: { category?: string | null }) => c.category).filter(Boolean) as string[];
 }
 
 export async function createProduct(data: any) {
@@ -93,23 +93,23 @@ export async function createProduct(data: any) {
   // Auto-generate barcode if not provided
   const barcode = data.barcode?.trim() || null;
 
-  const product = await prisma.product.create({
-    data: {
-      name: data.name.trim(),
-      barcode: barcode,
-      unit: data.unit || 'PIECE',
-      purchasePrice: parseFloat(data.purchasePrice) || 0,
-      mrp: parseFloat(data.mrp) || 0,
-      salePrice: parseFloat(data.salePrice) || 0,
-      stock: parseInt(data.stock, 10) || 0,
-      minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
-      expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-      manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
-      batchNumber: data.batchNumber?.trim() || null,
-      category: data.category || null,
-      tenant: { connect: { id: tenantId } },
-    }
-  });
+  const createData: any = {
+    name: data.name.trim(),
+    barcode: barcode,
+    unit: data.unit || 'PIECE',
+    purchasePrice: parseFloat(data.purchasePrice) || 0,
+    mrp: parseFloat(data.mrp) || 0,
+    salePrice: parseFloat(data.salePrice) || 0,
+    stock: parseInt(data.stock, 10) || 0,
+    minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
+    expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+    manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
+    batchNumber: data.batchNumber?.trim() || null,
+    category: data.category || null,
+    tenant: { connect: { id: tenantId } },
+  };
+
+  const product = await prisma.product.create({ data: createData });
 
   revalidatePath('/products');
   return product;
@@ -126,23 +126,22 @@ export async function updateProduct(productId: string, data: any) {
 
   const barcode = data.barcode?.trim() || null;
 
-  const product = await prisma.product.update({
-    where: { id: productId, tenantId: tenantId },
-    data: {
-      name: data.name?.trim(),
-      barcode: barcode,
-      unit: data.unit || 'PIECE',
-      purchasePrice: parseFloat(data.purchasePrice) || 0,
-      mrp: parseFloat(data.mrp) || 0,
-      salePrice: parseFloat(data.salePrice) || 0,
-      stock: parseInt(data.stock, 10) || 0,
-      minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
-      expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-      manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
-      batchNumber: data.batchNumber?.trim() || null,
-      category: data.category || null,
-    }
-  });
+  const updateData: any = {
+    name: data.name?.trim(),
+    barcode: barcode,
+    unit: data.unit || 'PIECE',
+    purchasePrice: parseFloat(data.purchasePrice) || 0,
+    mrp: parseFloat(data.mrp) || 0,
+    salePrice: parseFloat(data.salePrice) || 0,
+    stock: parseInt(data.stock, 10) || 0,
+    minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
+    expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+    manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
+    batchNumber: data.batchNumber?.trim() || null,
+    category: data.category || null,
+  };
+
+  const product = await prisma.product.update({ where: { id: productId, tenantId: tenantId }, data: updateData });
 
   revalidatePath('/products');
   return product;

@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     const netAmount = subtotal - discountValue;
 
     // Use transaction to ensure stock is updated correctly
-    const transaction = await prisma.$transaction(async (tx: typeof prisma) => {
+    const transaction = await prisma.$transaction(async (tx: any) => {
       // 1. Create transaction
       const newTransaction = await tx.transaction.create({
         data: {

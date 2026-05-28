@@ -22,17 +22,16 @@ export async function PUT(request: NextRequest) {
 
     const { name, contactPerson, email, phone, address, gstin } = await request.json();
 
-    const updatedTenant = await prisma.tenant.update({
-      where: { id: tenantId },
-      data: {
-        name,
-        contactPerson,
-        email,
-        phone,
-        address,
-        gstin,
-      }
-    });
+    const updateData: any = {
+      name,
+      contactPerson,
+      email,
+      phone,
+      address,
+      gstin,
+    };
+
+    const updatedTenant = await prisma.tenant.update({ where: { id: tenantId }, data: updateData });
 
     return NextResponse.json({ message: 'Settings updated successfully', tenant: updatedTenant });
   } catch (error: any) {

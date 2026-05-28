@@ -13,14 +13,14 @@ export async function getTenantUsers() {
 
   if (session.user.role === 'SUPERADMIN') {
     // Superadmin can see all users in the system
-    return await prisma.user.findMany({
+    return await (prisma as any).user.findMany({
       include: { tenantRole: true, tenant: true },
       orderBy: { createdAt: 'desc' }
     });
   }
 
   // Regular tenant users only see users in their tenant
-  return await prisma.user.findMany({
+  return await (prisma as any).user.findMany({
     where: { tenantId: session.user.tenantId },
     include: { tenantRole: true },
     orderBy: { createdAt: 'desc' }
@@ -44,16 +44,16 @@ export async function createTenantUser(data: { name: string, email: string, pass
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    const user = await prisma.user.create({
-      data: {
-        name: data.name.trim(),
-        email: data.email.trim().toLowerCase(),
-        phone: data.phone?.trim() || null,
-        password: hashedPassword,
-        role: 'SUPERADMIN',
-        tenant: { connect: { id: session.user.tenantId } }
-      }
-    });
+    const createUserData: any = {
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone?.trim() || null,
+      password: hashedPassword,
+      role: 'SUPERADMIN',
+      tenant: { connect: { id: session.user.tenantId } }
+    };
+
+    const user = await prisma.user.create({ data: createUserData });
 
     revalidatePath('/users');
     return { id: user.id, name: user.name, email: user.email };
@@ -74,24 +74,24 @@ export async function createTenantUser(data: { name: string, email: string, pass
   }
 
   // Verify the role belongs to this tenant
-  const role = await prisma.role.findUnique({
+  const role = await (prisma as any).role.findUnique({
     where: { id: data.tenantRoleId, tenantId: session.user.tenantId }
   });
   if (!role) throw new Error("Invalid role selected");
 
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
-  const user = await prisma.user.create({
-    data: {
-      name: data.name.trim(),
-      email: data.email.trim().toLowerCase(),
-      phone: data.phone?.trim() || null,
-      password: hashedPassword,
-      role: 'USER',
-      tenant: { connect: { id: session.user.tenantId } },
-      tenantRole: { connect: { id: role.id } }
-    }
-  });
+  const createTenantUserData: any = {
+    name: data.name.trim(),
+    email: data.email.trim().toLowerCase(),
+    phone: data.phone?.trim() || null,
+    password: hashedPassword,
+    role: 'USER',
+    tenant: { connect: { id: session.user.tenantId } },
+    tenantRole: { connect: { id: role.id } }
+  };
+
+  const user = await prisma.user.create({ data: createTenantUserData });
 
   revalidatePath('/users');
   return { id: user.id, name: user.name, email: user.email };

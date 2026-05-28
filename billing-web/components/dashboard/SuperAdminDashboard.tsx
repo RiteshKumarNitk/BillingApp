@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
+
+type TenantRow = {
+  id: string;
+  name: string;
+  createdAt: string | Date;
+  status: string;
+};
 import { format } from 'date-fns';
 import { 
   Building,
@@ -95,7 +102,7 @@ export default async function SuperAdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {recentTenants.map((tenant) => (
+                  {recentTenants.map((tenant: TenantRow) => (
                     <tr key={tenant.id} className="hover:bg-gray-50 transition-colors">
                       <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                         {tenant.name}

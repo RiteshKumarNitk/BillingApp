@@ -22,19 +22,19 @@ export async function POST(request: NextRequest) {
     let isNewTenant = false;
 
     if (!tenant) {
-      tenant = await prisma.tenant.create({
-        data: {
-          name: tenantName,
-          domain: `${tenantName.toLowerCase().replace(/\s+/g, '')}.example.com`,
-          dbConnectionString: '',
-          status: 'ACTIVE',
-          contactPerson: name,
-          email: email,
-          phone: phone || null,
-          address: address || null,
-          gstin: gstin || null
-        }
-      });
+      const tenantCreateData: any = {
+        name: tenantName,
+        domain: `${tenantName.toLowerCase().replace(/\s+/g, '')}.example.com`,
+        dbConnectionString: '',
+        status: 'ACTIVE',
+        contactPerson: name,
+        email: email,
+        phone: phone || null,
+        address: address || null,
+        gstin: gstin || null
+      };
+
+      tenant = await prisma.tenant.create({ data: tenantCreateData });
       isNewTenant = true;
     }
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       ];
 
       for (const roleData of rolesData) {
-        const role = await prisma.role.create({
+        const role = await (prisma as any).role.create({
           data: {
             name: roleData.name,
             permissions: roleData.permissions,
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // If tenant already exists, try to find the Owner role
-      const ownerRole = await prisma.role.findFirst({
+      const ownerRole = await (prisma as any).role.findFirst({
         where: { name: 'Owner', tenantId: tenant.id }
       });
       if (ownerRole) {
@@ -89,16 +89,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        tenantId: tenant.id,
-        tenantRoleId: ownerRoleId,
-        role: 'ADMIN' // Keeps global role as ADMIN
-      }
-    });
+    const createUserData: any = {
+      name,
+      email,
+      password: hashedPassword,
+      tenantId: tenant.id,
+      tenantRoleId: ownerRoleId,
+      role: 'ADMIN' // Keeps global role as ADMIN
+    };
+
+    const user = await prisma.user.create({ data: createUserData });
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
