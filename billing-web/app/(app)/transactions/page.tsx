@@ -45,7 +45,7 @@ export default async function TransactionsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {transactions.map((tx) => (
+            {transactions.map((tx: any) => (
               <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                   {tx.id.substring(0, 8).toUpperCase()}
