@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getMobileUserFromAuthHeader } from '@/lib/auth/mobile';
+import { corsResponse } from '@/lib/cors';
 
 export async function GET(request: Request) {
   try {
     const user = getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -43,13 +43,13 @@ export async function GET(request: Request) {
       prisma.product.count({ where }),
     ]);
 
-    return NextResponse.json({
+    return corsResponse({
       products,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     });
   } catch (error: any) {
     console.error('Mobile products GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -57,13 +57,13 @@ export async function POST(request: Request) {
   try {
     const user = getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const data = await request.json();
 
     if (!data.name) {
-      return NextResponse.json({ error: 'Product name is required' }, { status: 400 });
+      return corsResponse({ error: 'Product name is required' }, { status: 400 });
     }
 
     const barcode = data.barcode?.trim() || null;
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     if (barcode) {
       const existing = await prisma.product.findUnique({ where: { barcode } });
       if (existing) {
-        return NextResponse.json({ error: 'Barcode already exists' }, { status: 409 });
+        return corsResponse({ error: 'Barcode already exists' }, { status: 409 });
       }
     }
 
@@ -93,9 +93,11 @@ export async function POST(request: Request) {
 
     const product = await prisma.product.create({ data: createData });
 
-    return NextResponse.json({ product }, { status: 201 });
+    return corsResponse({ product }, { status: 201 });
   } catch (error: any) {
     console.error('Mobile products POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export { OPTIONS } from '@/lib/cors';

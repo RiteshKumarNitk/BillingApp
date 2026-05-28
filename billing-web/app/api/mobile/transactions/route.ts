@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getMobileUserFromAuthHeader } from '@/lib/auth/mobile';
+import { corsResponse } from '@/lib/cors';
 
 export async function GET(request: Request) {
   try {
     const user = getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -28,13 +28,13 @@ export async function GET(request: Request) {
       prisma.transaction.count({ where: { tenantId: user.tenantId } }),
     ]);
 
-    return NextResponse.json({
+    return corsResponse({
       transactions,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     });
   } catch (error: any) {
     console.error('Mobile transactions GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -42,13 +42,13 @@ export async function POST(request: Request) {
   try {
     const user = getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { items, discount } = await request.json();
 
     if (!items || !items.length) {
-      return NextResponse.json({ error: 'No items provided' }, { status: 400 });
+      return corsResponse({ error: 'No items provided' }, { status: 400 });
     }
 
     const discountValue = parseFloat(discount) || 0;
@@ -96,9 +96,11 @@ export async function POST(request: Request) {
       return newTransaction;
     });
 
-    return NextResponse.json({ transaction }, { status: 201 });
+    return corsResponse({ transaction }, { status: 201 });
   } catch (error: any) {
     console.error('Mobile transactions POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export { OPTIONS } from '@/lib/cors';

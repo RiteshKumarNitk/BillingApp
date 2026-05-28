@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
   // Allow access to auth routes, API routes, and public assets without authentication
   if (
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/mobile') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/auth') ||
     pathname === '/' ||
@@ -70,6 +71,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api/auth|api/mobile|_next/static|_next/image|favicon.ico).*)',
   ],
 };
