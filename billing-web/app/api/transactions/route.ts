@@ -107,9 +107,9 @@ export async function POST(request: NextRequest) {
         status: 'COMPLETED',
         items: {
           create: transactionItemsData.map(item => ({
-            productId: item.productId,
+            product: { connect: { id: item.productId } },
             name: item.name,
-            barcode: item.barcode,
+            barcode: item.barcode || '',
             purchasePrice: item.purchasePrice,
             mrp: item.mrp,
             salePrice: item.salePrice,

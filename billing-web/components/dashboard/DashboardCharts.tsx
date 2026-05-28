@@ -52,7 +52,7 @@ export default function DashboardCharts({
               <BarChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ formatter: (value) => `₹${value}`, fill: "#6B7280" }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(value) => `₹${value}`} tick={{ fill: "#6B7280" }} axisLine={false} tickLine={false} />
                 <Tooltip
                   formatter={(value) => `₹${value}`}
                   contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
@@ -82,7 +82,7 @@ export default function DashboardCharts({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E7EB" />
-                <XAxis type="number" tick={{ formatter: (value) => `₹${value}`, fill: "#6B7280" }} axisLine={false} tickLine={false} />
+                <XAxis type="number" tickFormatter={(value) => `₹${value}`} tick={{ fill: "#6B7280" }} axisLine={false} tickLine={false} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
                 <Tooltip
                   formatter={(value) => `₹${value}`}

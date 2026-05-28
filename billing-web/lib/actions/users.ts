@@ -50,7 +50,8 @@ export async function createTenantUser(data: { name: string, email: string, pass
         email: data.email.trim().toLowerCase(),
         phone: data.phone?.trim() || null,
         password: hashedPassword,
-        role: 'SUPERADMIN'
+        role: 'SUPERADMIN',
+        tenant: { connect: { id: session.user.tenantId } }
       }
     });
 
@@ -86,9 +87,9 @@ export async function createTenantUser(data: { name: string, email: string, pass
       email: data.email.trim().toLowerCase(),
       phone: data.phone?.trim() || null,
       password: hashedPassword,
-      tenantId: session.user.tenantId,
-      tenantRoleId: role.id,
-      role: 'USER' // Global role is just USER
+      role: 'USER',
+      tenant: { connect: { id: session.user.tenantId } },
+      tenantRole: { connect: { id: role.id } }
     }
   });
 

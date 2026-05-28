@@ -65,7 +65,7 @@ export default function BillingPage() {
       newCart[existingItemIndex] = {
         ...newCart[existingItemIndex],
         quantity: newCart[existingItemIndex].quantity + 1,
-        itemTotal: parseFloat((newCart[existingItemIndex].quantity + 1) * newCart[existingItemIndex].salePrice).toFixed(2)
+        itemTotal: ((newCart[existingItemIndex].quantity + 1) * newCart[existingItemIndex].salePrice).toFixed(2)
       };
       setCart(newCart);
     } else {
@@ -99,7 +99,7 @@ export default function BillingPage() {
         return {
           ...item,
           quantity,
-          itemTotal: parseFloat((quantity * item.salePrice)).toFixed(2)
+          itemTotal: (quantity * item.salePrice).toFixed(2)
         };
       }
       return item;
@@ -114,7 +114,7 @@ export default function BillingPage() {
         return {
           ...item,
           salePrice,
-          itemTotal: parseFloat((item.quantity * salePrice)).toFixed(2)
+          itemTotal: (item.quantity * salePrice).toFixed(2)
         };
       }
       return item;

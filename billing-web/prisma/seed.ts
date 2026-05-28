@@ -84,9 +84,9 @@ async function main() {
         items: {
           create: [
             {
-              productId: prod1.id,
+              product: { connect: { id: prod1.id } },
               name: prod1.name,
-              barcode: prod1.barcode,
+              barcode: prod1.barcode || '',
               purchasePrice: prod1.purchasePrice,
               mrp: prod1.mrp,
               salePrice: prod1.salePrice,
@@ -94,9 +94,9 @@ async function main() {
               itemTotal: 99.99
             },
             {
-              productId: prod2.id,
+              product: { connect: { id: prod2.id } },
               name: prod2.name,
-              barcode: prod2.barcode,
+              barcode: prod2.barcode || '',
               purchasePrice: prod2.purchasePrice,
               mrp: prod2.mrp,
               salePrice: prod2.salePrice,
