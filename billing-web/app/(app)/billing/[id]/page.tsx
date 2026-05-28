@@ -44,7 +44,7 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
   };
 
   // Calculate totals from items (should match transaction totals, but we recalculate for safety)
-  const subtotal = transaction.items.reduce((sum, item) => sum + item.itemTotal, 0);
+  const subtotal = transaction.items.reduce((sum: number, item: any) => sum + item.itemTotal, 0);
   const discountAmount = (subtotal * transaction.discount) / 100;
   const netAmount = subtotal - discountAmount;
 
