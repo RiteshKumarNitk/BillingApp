@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 import { getMobileUserFromAuthHeader } from '@/lib/auth/mobile';
 
 export async function GET(request: Request) {
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     const netAmount = subtotal - discountValue;
 
     // Use transaction to ensure stock is updated correctly
-    const transaction = await prisma.$transaction(async (tx) => {
+    const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Create transaction
       const newTransaction = await tx.transaction.create({
         data: {

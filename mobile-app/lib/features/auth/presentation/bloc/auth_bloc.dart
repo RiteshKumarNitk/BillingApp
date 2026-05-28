@@ -11,7 +11,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         final response = await apiClient.login(event.email, event.password);
-        if (response != null && response['user'] != null) {
+        if (response['user'] != null) {
           emit(AuthSuccess(response['user']));
         } else {
           emit(const AuthFailure('Invalid response from server'));
