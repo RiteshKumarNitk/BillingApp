@@ -41,7 +41,7 @@ export default async function TenantsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {tenants.map(tenant => (
+          {tenants.map((tenant: any) => (
             <div key={tenant.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start gap-4">
                 
