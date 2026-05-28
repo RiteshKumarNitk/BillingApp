@@ -125,9 +125,24 @@ exports.Prisma.TenantScalarFieldEnum = {
   name: 'name',
   domain: 'domain',
   dbConnectionString: 'dbConnectionString',
+  contactPerson: 'contactPerson',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  gstin: 'gstin',
+  subscriptionPlan: 'subscriptionPlan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   status: 'status'
+};
+
+exports.Prisma.RoleScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  name: 'name',
+  permissions: 'permissions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -135,8 +150,10 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   name: 'name',
+  phone: 'phone',
   role: 'role',
   tenantId: 'tenantId',
+  tenantRoleId: 'tenantRoleId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -145,6 +162,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
   barcode: 'barcode',
+  unit: 'unit',
   purchasePrice: 'purchasePrice',
   mrp: 'mrp',
   salePrice: 'salePrice',
@@ -202,6 +220,7 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   Tenant: 'Tenant',
+  Role: 'Role',
   User: 'User',
   Product: 'Product',
   Transaction: 'Transaction',

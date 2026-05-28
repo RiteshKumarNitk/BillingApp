@@ -10,28 +10,57 @@ datasource db {
 }
 
 model Tenant {
-  id                 String   @id @default(uuid())
+  id                 String @id @default(uuid())
   name               String
-  domain             String   @unique
+  domain             String @unique
   dbConnectionString String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  status             String   @default("ACTIVE")
+
+  // Business Details
+  contactPerson    String?
+  email            String?
+  phone            String?
+  address          String?
+  gstin            String?
+  subscriptionPlan String  @default("FREE")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status    String   @default("ACTIVE")
 
   users        User[]
+  roles        Role[]
   products     Product[]
   transactions Transaction[]
 }
 
+model Role {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  permissions String[] // e.g. ["CREATE_PRODUCT", "CREATE_BILL"]
+
+  users User[]
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, name])
+}
+
 model User {
-  id       String @id @default(uuid())
-  email    String @unique
+  id       String  @id @default(uuid())
+  email    String  @unique
   password String
   name     String
-  role     String @default("ADMIN")
-  tenantId String
+  phone    String?
+  role     String  @default("ADMIN") // Global role (SUPERADMIN or ADMIN)
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  tenantRoleId String?
+  tenantRole   Role?   @relation(fields: [tenantRoleId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,11 +71,12 @@ model User {
 model Product {
   id                String    @id @default(uuid())
   name              String
-  barcode           String    @unique
+  barcode           String?   @unique
+  unit              String    @default("PIECE")
   purchasePrice     Float
   mrp               Float
   salePrice         Float
-  stock             Int
+  stock             Int       @default(0)
   expiryDate        DateTime?
   manufacturingDate DateTime?
   batchNumber       String?
