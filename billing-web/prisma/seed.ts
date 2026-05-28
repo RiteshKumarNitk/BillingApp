@@ -111,6 +111,73 @@ async function main() {
     console.log('Dummy products and transactions created!');
   }
 
+  // 4. Create a demo tenant with all mobile-related data
+  const demoCount = await prisma.tenant.count({ where: { domain: 'demo.example.com' } });
+  if (demoCount === 0) {
+    console.log('Creating demo tenant with mobile data...');
+
+    const demoPassword = await bcrypt.hash('demo123', 10);
+    const demoRole = await prisma.role.create({
+      data: {
+        name: 'Owner',
+        tenant: { connect: { id: systemTenant.id } },
+        permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT'],
+      }
+    });
+
+    // Demo customers
+    const customers = [
+      { name: 'Ravi Kumar', phone: '9876543210', totalSpent: 15000, loyaltyPoints: 150 },
+      { name: 'Priya Sharma', phone: '9876543211', totalSpent: 8500, loyaltyPoints: 85 },
+      { name: 'Amit Singh', phone: '9876543212', totalSpent: 22000, loyaltyPoints: 220 },
+    ];
+    for (const c of customers) {
+      await prisma.customer.create({
+        data: { ...c, tenantId: systemTenant.id, lastPurchaseDate: new Date() }
+      });
+    }
+
+    // Demo discounts
+    await prisma.discount.create({
+      data: {
+        name: 'Summer Sale',
+        description: '10% off on all products',
+        discountPercentage: 10,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        isActive: true,
+        tenantId: systemTenant.id,
+      }
+    });
+
+    // Demo shop
+    await prisma.shop.create({
+      data: {
+        name: 'Demo General Store',
+        addressLine1: '123 Main Street',
+        phoneNumber: '9876543210',
+        upiId: 'demo@upi',
+        footerText: 'Thank you! Visit again.',
+        defaultTaxRate: 5,
+        tenantId: systemTenant.id,
+      }
+    });
+
+    // Demo employee
+    await prisma.employee.create({
+      data: {
+        name: 'Cashier Demo',
+        email: 'cashier@demo.com',
+        password: demoPassword,
+        role: 'CASHIER',
+        isActive: true,
+        tenantId: systemTenant.id,
+      }
+    });
+
+    console.log('Demo tenant created with customers, discounts, shop, and employees!');
+  }
+
   console.log('Seeding completed successfully!');
 }
 

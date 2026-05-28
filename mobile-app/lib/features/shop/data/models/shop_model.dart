@@ -58,4 +58,28 @@ class ShopModel extends Shop {
   }
 
   Shop toEntity() => this;
+
+  factory ShopModel.fromJson(Map<String, dynamic> json) {
+    return ShopModel(
+      name: json['name'] ?? '',
+      addressLine1: json['addressLine1'] ?? '',
+      addressLine2: json['addressLine2'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      upiId: json['upiId'] ?? '',
+      footerText: json['footerText'] ?? '',
+      defaultTaxRate: (json['defaultTaxRate'] ?? 0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'addressLine1': addressLine1,
+      'addressLine2': addressLine2,
+      'phoneNumber': phoneNumber,
+      'upiId': upiId,
+      'footerText': footerText,
+      'defaultTaxRate': defaultTaxRate,
+    };
+  }
 }

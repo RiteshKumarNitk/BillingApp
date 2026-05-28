@@ -90,4 +90,31 @@ class DiscountModel extends Discount {
       isActive: isActive,
     );
   }
+
+  factory DiscountModel.fromJson(Map<String, dynamic> json) {
+    return DiscountModel(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'] ?? '',
+      discountPercentage: (json['discountPercentage'] ?? 0).toDouble(),
+      applicableCategory: json['applicableCategory'],
+      minimumQuantity: json['minimumQuantity'],
+      startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : DateTime.now(),
+      endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : DateTime.now(),
+      isActive: json['isActive'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+      'discountPercentage': discountPercentage,
+      'applicableCategory': applicableCategory,
+      'minimumQuantity': minimumQuantity,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'isActive': isActive,
+    };
+  }
 }

@@ -31,6 +31,10 @@ model Tenant {
   roles              Role[]
   products           Product[]
   transactions       Transaction[]
+  customers          Customer[]
+  discounts          Discount[]
+  employees          Employee[]
+  shop               Shop?
 }
 
 model Role {
@@ -92,6 +96,71 @@ model Product {
   updatedAt           DateTime            @updatedAt
 }
 
+model Customer {
+  id              String    @id @default(uuid())
+  name            String
+  phone           String?
+  email           String?
+  address         String?
+  loyaltyPoints   Int       @default(0)
+  totalSpent      Float     @default(0)
+  lastPurchaseDate DateTime?
+  createdDate     DateTime  @default(now())
+
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Discount {
+  id                  String    @id @default(uuid())
+  name                String
+  description         String?
+  discountPercentage  Float
+  applicableCategory  String?
+  minimumQuantity     Int       @default(1)
+  startDate           DateTime?
+  endDate             DateTime?
+  isActive            Boolean   @default(true)
+
+  tenantId            String
+  tenant              Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Employee {
+  id                  String    @id @default(uuid())
+  name                String
+  email               String?
+  phone               String?
+  password            String?
+  role                String    @default("CASHIER")
+  isActive            Boolean   @default(true)
+  monthlySalesTarget  Float     @default(0)
+  createdDate         DateTime  @default(now())
+
+  tenantId            String
+  tenant              Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Shop {
+  id              String   @id @default(uuid())
+  name            String?
+  addressLine1    String?
+  addressLine2    String?
+  phoneNumber     String?
+  upiId           String?
+  footerText      String?
+  defaultTaxRate  Float    @default(0)
+
+  tenantId        String   @unique
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+}
+
 model Transaction {
   id            String              @id @default(uuid())
 
@@ -102,7 +171,17 @@ model Transaction {
 
   totalAmount   Float
   discount      Float               @default(0)
+  discountType  String              @default("PERCENTAGE")
+  taxAmount     Float               @default(0)
   netAmount     Float
+
+  paymentMethod   String?
+  amountReceived  Float?
+  changeAmount    Float?
+  customerId      String?
+  customerName    String?
+  customerPhone   String?
+  notes           String?
 
   items         TransactionItem[]
 

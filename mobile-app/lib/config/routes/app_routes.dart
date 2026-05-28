@@ -17,6 +17,9 @@ import '../../features/discount/presentation/pages/discount_list_page.dart';
 import '../../features/discount/presentation/pages/add_discount_page.dart';
 import '../../features/product/presentation/pages/expiry_alert_page.dart';
 import '../../features/product/domain/entities/product.dart';
+import '../../features/users/presentation/pages/user_list_page.dart';
+import '../../features/roles/presentation/pages/role_list_page.dart';
+import '../../features/employee/presentation/pages/employee_list_page.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 
@@ -108,6 +111,18 @@ final router = GoRouter(
     GoRoute(
       path: '/expiry-alerts',
       builder: (context, state) => const ExpiryAlertListPage(),
+    ),
+    GoRoute(
+      path: '/users',
+      builder: (context, state) => const UserListPage(),
+    ),
+    GoRoute(
+      path: '/roles',
+      builder: (context, state) => const RoleListPage(),
+    ),
+    GoRoute(
+      path: '/employees',
+      builder: (context, state) => const EmployeeListPage(),
     ),
   ],
 );

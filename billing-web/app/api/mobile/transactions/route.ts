@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { items, discount } = await request.json();
+    const { items, discount, taxAmount, paymentMethod, amountReceived, changeAmount, customerId, customerName, customerPhone, notes } = await request.json();
 
     if (!items || !items.length) {
       return corsResponse({ error: 'No items provided' }, { status: 400 });
@@ -71,7 +71,8 @@ export async function POST(request: Request) {
       };
     });
 
-    const netAmount = Math.max(0, subtotal - discountValue);
+    const taxValue = parseFloat(taxAmount) || 0;
+    const netAmount = Math.max(0, subtotal - discountValue + taxValue);
 
     const transaction = await prisma.$transaction(async (tx: any) => {
       const newTransaction = await tx.transaction.create({
@@ -80,7 +81,16 @@ export async function POST(request: Request) {
           userId: user.id,
           totalAmount: subtotal,
           discount: discountValue,
+          discountType: 'PERCENTAGE',
+          taxAmount: taxValue,
           netAmount,
+          paymentMethod: paymentMethod || null,
+          amountReceived: amountReceived ? parseFloat(amountReceived) : null,
+          changeAmount: changeAmount ? parseFloat(changeAmount) : null,
+          customerId: customerId || null,
+          customerName: customerName || null,
+          customerPhone: customerPhone || null,
+          notes: notes || null,
           items: { create: transactionItemsData },
         },
         include: { items: true }

@@ -177,6 +177,57 @@ exports.Prisma.ProductScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CustomerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  loyaltyPoints: 'loyaltyPoints',
+  totalSpent: 'totalSpent',
+  lastPurchaseDate: 'lastPurchaseDate',
+  createdDate: 'createdDate',
+  tenantId: 'tenantId'
+};
+
+exports.Prisma.DiscountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  discountPercentage: 'discountPercentage',
+  applicableCategory: 'applicableCategory',
+  minimumQuantity: 'minimumQuantity',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  tenantId: 'tenantId'
+};
+
+exports.Prisma.EmployeeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  password: 'password',
+  role: 'role',
+  isActive: 'isActive',
+  monthlySalesTarget: 'monthlySalesTarget',
+  createdDate: 'createdDate',
+  tenantId: 'tenantId'
+};
+
+exports.Prisma.ShopScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  phoneNumber: 'phoneNumber',
+  upiId: 'upiId',
+  footerText: 'footerText',
+  defaultTaxRate: 'defaultTaxRate',
+  tenantId: 'tenantId'
+};
+
 exports.Prisma.TransactionScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -184,7 +235,16 @@ exports.Prisma.TransactionScalarFieldEnum = {
   status: 'status',
   totalAmount: 'totalAmount',
   discount: 'discount',
+  discountType: 'discountType',
+  taxAmount: 'taxAmount',
   netAmount: 'netAmount',
+  paymentMethod: 'paymentMethod',
+  amountReceived: 'amountReceived',
+  changeAmount: 'changeAmount',
+  customerId: 'customerId',
+  customerName: 'customerName',
+  customerPhone: 'customerPhone',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -223,6 +283,10 @@ exports.Prisma.ModelName = {
   Role: 'Role',
   User: 'User',
   Product: 'Product',
+  Customer: 'Customer',
+  Discount: 'Discount',
+  Employee: 'Employee',
+  Shop: 'Shop',
   Transaction: 'Transaction',
   TransactionItem: 'TransactionItem'
 };

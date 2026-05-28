@@ -106,4 +106,59 @@ class EmployeeModel extends Employee {
       monthlySalesTarget: monthlySalesTarget,
     );
   }
+
+  factory EmployeeModel.fromJson(Map<String, dynamic> json) {
+    final roleStr = json['role'] ?? 'CASHIER';
+    EmployeeRole role;
+    switch (roleStr.toString().toUpperCase()) {
+      case 'ADMIN':
+        role = EmployeeRole.admin;
+        break;
+      case 'MANAGER':
+        role = EmployeeRole.manager;
+        break;
+      case 'INVENTORY':
+        role = EmployeeRole.inventory;
+        break;
+      default:
+        role = EmployeeRole.cashier;
+    }
+    return EmployeeModel(
+      id: json['id'],
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      password: '',
+      role: role,
+      isActive: json['isActive'] ?? true,
+      createdDate: json['createdDate'] != null ? DateTime.parse(json['createdDate']) : DateTime.now(),
+      monthlySalesTarget: (json['monthlySalesTarget'] ?? 0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    String roleStr;
+    switch (role) {
+      case EmployeeRole.admin:
+        roleStr = 'ADMIN';
+        break;
+      case EmployeeRole.manager:
+        roleStr = 'MANAGER';
+        break;
+      case EmployeeRole.inventory:
+        roleStr = 'INVENTORY';
+        break;
+      case EmployeeRole.cashier:
+        roleStr = 'CASHIER';
+        break;
+    }
+    return {
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'role': roleStr,
+      'isActive': isActive,
+      'monthlySalesTarget': monthlySalesTarget,
+    };
+  }
 }

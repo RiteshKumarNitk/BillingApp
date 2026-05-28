@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../features/billing/data/repositories/transaction_repository_impl.dart';
 import '../../features/billing/domain/repositories/transaction_repository.dart';
 import '../../features/billing/domain/usecases/transaction_usecases.dart';
@@ -44,12 +45,13 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // Core Services
-  sl.registerLazySingleton(() => ApiClient());
+  final apiClient = ApiClient();
+  sl.registerLazySingleton(() => apiClient);
 
   // Features - Auth
   sl.registerFactory(() => AuthBloc(apiClient: sl()));
+
   // Features - Billing
-  // Bloc
   sl.registerFactory(
     () => BillingBloc(
       getProductByBarcodeUseCase: sl(),
@@ -64,21 +66,18 @@ Future<void> init() async {
       getDailySalesUseCase: sl(),
     ),
   );
-  // Features - Billing
-  // Use cases
+
   sl.registerLazySingleton(() => SaveTransactionUseCase(sl()));
   sl.registerLazySingleton(() => GetAllTransactionsUseCase(sl()));
   sl.registerLazySingleton(() => GetTransactionsByDateUseCase(sl()));
   sl.registerLazySingleton(() => RefundTransactionUseCase(sl()));
   sl.registerLazySingleton(() => GetDailySalesUseCase(sl()));
 
-  // Repository
   sl.registerLazySingleton<TransactionRepository>(
-    () => TransactionRepositoryImpl(),
+    () => TransactionRepositoryImpl(apiClient),
   );
 
   // Features - Product
-  // Bloc
   sl.registerFactory(
     () => ProductBloc(
       getProductsUseCase: sl(),
@@ -94,6 +93,17 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerLazySingleton(() => GetProductsUseCase(sl()));
+  sl.registerLazySingleton(() => AddProductUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProductUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteProductUseCase(sl()));
+  sl.registerLazySingleton(() => GetProductByBarcodeUseCase(sl()));
+
+  sl.registerLazySingleton<ProductRepository>(
+    () => ProductRepositoryImpl(apiClient: apiClient),
+  );
+
+  // Features - Shop
   sl.registerFactory(
     () => ShopBloc(
       getShopUseCase: sl(),
@@ -101,41 +111,22 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(
-    () => PrinterBloc(
-      repository: sl(),
-    ),
-  );
-
-  // Use cases
-  sl.registerLazySingleton(() => GetProductsUseCase(sl()));
-  sl.registerLazySingleton(() => AddProductUseCase(sl()));
-  sl.registerLazySingleton(() => UpdateProductUseCase(sl()));
-  sl.registerLazySingleton(() => DeleteProductUseCase(sl()));
-  sl.registerLazySingleton(() => GetProductByBarcodeUseCase(sl()));
-
-  // Repository
-  sl.registerLazySingleton<ProductRepository>(
-    () => ProductRepositoryImpl(),
-  );
-
-  // Features - Shop
-  // Use cases
   sl.registerLazySingleton(() => GetShopUseCase(sl()));
   sl.registerLazySingleton(() => UpdateShopUseCase(sl()));
 
-  // Repository
   sl.registerLazySingleton<ShopRepository>(
-    () => ShopRepositoryImpl(),
+    () => ShopRepositoryImpl(apiClient),
   );
 
   // Features - Settings / Printer
   sl.registerLazySingleton<PrinterRepository>(
     () => PrinterRepositoryImpl(),
   );
+  sl.registerFactory(
+    () => PrinterBloc(repository: sl()),
+  );
 
   // Features - Customer
-  // Bloc
   sl.registerFactory(
     () => CustomerBloc(
       getAllCustomersUseCase: sl(),
@@ -143,47 +134,40 @@ Future<void> init() async {
       saveCustomerUseCase: sl(),
     ),
   );
-  // Use cases
   sl.registerLazySingleton(() => GetAllCustomersUseCase(sl()));
   sl.registerLazySingleton(() => SearchCustomersUseCase(sl()));
   sl.registerLazySingleton(() => SaveCustomerUseCase(sl()));
-  // Repository
   sl.registerLazySingleton<ICustomerRepository>(
-    () => CustomerRepositoryImpl(HiveDatabase.customerBox),
+    () => CustomerRepositoryImpl(HiveDatabase.customerBox, apiClient),
   );
 
   // Features - Employee
-  // Repository
   sl.registerLazySingleton<IEmployeeRepository>(
-    () => EmployeeRepositoryImpl(HiveDatabase.employeeBox),
+    () => EmployeeRepositoryImpl(HiveDatabase.employeeBox, apiClient),
   );
+  sl.registerLazySingleton(() => AuthenticateEmployeeUseCase(sl()));
 
   // Features - Discount
-  // Bloc
   sl.registerFactory(
     () => DiscountBloc(
       getTodayDiscountsUseCase: sl(),
       saveDiscountUseCase: sl(),
     ),
   );
-  // Use cases
   sl.registerLazySingleton(() => GetTodayDiscountsUseCase(sl()));
   sl.registerLazySingleton(() => SaveDiscountUseCase(sl()));
-  // Repository
   sl.registerLazySingleton<IDiscountRepository>(
-    () => DiscountRepositoryImpl(HiveDatabase.discountBox),
+    () => DiscountRepositoryImpl(HiveDatabase.discountBox, apiClient),
   );
 
   // Features - Product Expiry Alerts
-  // Use cases
   sl.registerLazySingleton(() => GetExpiringAlertsUseCase(sl()));
   sl.registerLazySingleton(() => GetLowStockProductsUseCase(sl()));
   sl.registerLazySingleton(() => CreateExpiryAlertUseCase(sl()));
-  // Repository
   sl.registerLazySingleton<IExpiryAlertRepository>(
     () => ExpiryAlertRepositoryImpl(HiveDatabase.expiryAlertBox),
   );
 
-  // Features - Employee - Additional use cases
+  // Features - Employee (additional)
   sl.registerLazySingleton(() => AuthenticateEmployeeUseCase(sl()));
 }

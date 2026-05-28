@@ -82,4 +82,28 @@ class CustomerModel extends Customer {
       totalSpent: totalSpent,
     );
   }
+
+  factory CustomerModel.fromJson(Map<String, dynamic> json) {
+    return CustomerModel(
+      id: json['id'],
+      name: json['name'],
+      phone: json['phone'] ?? '',
+      email: json['email'] ?? '',
+      loyaltyPoints: (json['loyaltyPoints'] ?? 0).toDouble(),
+      createdDate: json['createdDate'] != null ? DateTime.parse(json['createdDate']) : DateTime.now(),
+      lastPurchaseDate: json['lastPurchaseDate'] != null ? DateTime.parse(json['lastPurchaseDate']) : DateTime.now(),
+      totalSpent: (json['totalSpent'] ?? 0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'phone': phone,
+      'email': email,
+      'loyaltyPoints': loyaltyPoints,
+      'totalSpent': totalSpent,
+      'lastPurchaseDate': lastPurchaseDate.toIso8601String(),
+    };
+  }
 }
