@@ -2,13 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter/foundation.dart';
-
 class ApiClient {
-  // Use 10.0.2.2 for Android emulator, localhost for web/desktop
-  static const String baseUrl = kIsWeb 
-      ? 'http://localhost:3000/api/mobile' 
-      : 'http://10.0.2.2:3000/api/mobile';
+  // Production API URL
+  static const String baseUrl = 'https://billing-app-jade-beta.vercel.app/api/mobile';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
