@@ -24,9 +24,6 @@ export const authOptions: NextAuthOptions = {
           const user = await (prisma as any).user.findUnique({
             where: {
               email: credentials.email,
-            },
-            include: {
-              tenantRole: true
             }
           });
           console.log('[NEXTAUTH] Found user:', !!user ? user.id : 'null');
@@ -46,6 +43,16 @@ export const authOptions: NextAuthOptions = {
           if (!tenant || tenant.status !== 'ACTIVE') {
             console.log('[NEXTAUTH] Returning null because tenant inactive/missing');
             return null;
+          }
+
+          // Fetch tenant role separately if tenantRoleId exists
+          let tenantRole = null;
+          if (user.tenantRoleId) {
+            console.log('[NEXTAUTH] Finding tenant role with id:', user.tenantRoleId);
+            tenantRole = await prisma.role.findUnique({
+              where: { id: user.tenantRoleId }
+            });
+            console.log('[NEXTAUTH] Found tenant role:', !!tenantRole ? tenantRole.id : 'null');
           }
 
           // Check password
@@ -69,8 +76,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             tenantId: user.tenantId,
-            tenantRoleName: user.tenantRole?.name,
-            permissions: user.tenantRole?.permissions || []
+            tenantRoleName: tenantRole?.name,
+            permissions: tenantRole?.permissions || []
           };
         } catch (error) {
           console.error('[NEXTAUTH] Error during authorization:', error);
