@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
+import { ToastProvider } from "@/components/ui/Toast";
 
 export default async function AppLayout({
   children,
@@ -27,7 +28,9 @@ export default async function AppLayout({
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopNav user={session.user} />
         <main className="flex-1 overflow-y-auto p-6">
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </main>
       </div>
     </div>

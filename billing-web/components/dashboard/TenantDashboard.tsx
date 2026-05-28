@@ -1,13 +1,17 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
-import { format, subDays } from 'date-fns';
-import { 
-  TrendingUp, 
-  Package, 
-  ShoppingCart, 
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import {
+  TrendingUp,
+  Package,
+  ShoppingCart,
   AlertTriangle,
   ArrowRight,
-  Plus
+  Plus,
+  Receipt,
+  BarChart3,
+  Clock,
+  DollarSign
 } from 'lucide-react';
 import DashboardCharts from './DashboardCharts';
 
@@ -19,8 +23,8 @@ export default async function TenantDashboard({
   tenantId: string;
 }) {
   const timeRange = (searchParams?.timeRange as string) || "7d";
-  
-  // 1. Fetch Stats
+
+  // 1. Fetch Overall Stats
   const totalSalesResult = await prisma.transaction.aggregate({
     _sum: { netAmount: true },
     where: { tenantId }
@@ -34,12 +38,30 @@ export default async function TenantDashboard({
   });
   const lowStockProducts = await prisma.product.count({
     where: {
-      stock: { lt: 10 },
+      stock: { lte: 10 },
       tenantId
     }
   });
 
-  // 2. Fetch Sales Data
+  // 2. Today's Sales
+  const todayStart = startOfDay(new Date());
+  const todayEnd = endOfDay(new Date());
+  const todaySalesResult = await prisma.transaction.aggregate({
+    _sum: { netAmount: true },
+    where: {
+      tenantId,
+      createdAt: { gte: todayStart, lte: todayEnd }
+    }
+  });
+  const todaySales = todaySalesResult._sum.netAmount || 0;
+  const todayTransactions = await prisma.transaction.count({
+    where: {
+      tenantId,
+      createdAt: { gte: todayStart, lte: todayEnd }
+    }
+  });
+
+  // 3. Fetch Sales Data for Charts
   let days = 7;
   if (timeRange === '30d') days = 30;
   else if (timeRange === '90d') days = 90;
@@ -47,7 +69,7 @@ export default async function TenantDashboard({
   const startDate = subDays(new Date(), days);
 
   const rawSalesData = await prisma.$queryRaw<any[]>`
-    SELECT 
+    SELECT
       DATE("createdAt") as date,
       SUM("netAmount") as total
     FROM "Transaction"
@@ -60,9 +82,9 @@ export default async function TenantDashboard({
     total: Number(item.total)
   }));
 
-  // 3. Fetch Category Data
+  // 4. Fetch Category Data
   const rawCategoryData = await prisma.$queryRaw<any[]>`
-    SELECT 
+    SELECT
       p."category",
       SUM(ti."itemTotal") as total
     FROM "TransactionItem" ti
@@ -78,7 +100,7 @@ export default async function TenantDashboard({
     value: Number(item.total)
   }));
 
-  // 4. Fetch Recent Transactions
+  // 5. Fetch Recent Transactions
   const recentTransactions = await prisma.transaction.findMany({
     take: 5,
     orderBy: { createdAt: 'desc' },
@@ -86,9 +108,9 @@ export default async function TenantDashboard({
     include: { user: true }
   });
 
-  // 5. Fetch Top Products
+  // 6. Fetch Top Products
   const topProductsRaw = await prisma.$queryRaw<any[]>`
-    SELECT 
+    SELECT
       p."id", p."name", p."stock", p."salePrice",
       SUM(ti."quantity") as soldCount,
       SUM(ti."itemTotal") as revenue
@@ -106,6 +128,18 @@ export default async function TenantDashboard({
     revenue: Number(p.revenue ?? p.revenue)
   }));
 
+  // 7. Fetch Low Stock Products
+  const lowStockItems: Array<{ id: string; name: string; stock: number; minStockThreshold: number | null; unit: string }> =
+    await (prisma as any).product.findMany({
+      where: {
+        stock: { lte: 10 },
+        tenantId
+      },
+      orderBy: { stock: 'asc' },
+      take: 5,
+      select: { id: true, name: true, stock: true, minStockThreshold: true, unit: true }
+    });
+
   return (
     <div className="font-sans">
       <div className="mx-auto max-w-7xl">
@@ -113,17 +147,17 @@ export default async function TenantDashboard({
         <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-            <p className="mt-1 text-sm text-gray-500">Overview of your store's performance</p>
+            <p className="mt-1 text-sm text-gray-500">Your store at a glance</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link 
-              href="/products" 
+            <Link
+              href="/products"
               className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
             >
               Inventory
             </Link>
-            <Link 
-              href="/billing" 
+            <Link
+              href="/billing"
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -132,44 +166,51 @@ export default async function TenantDashboard({
           </div>
         </header>
 
-        {/* Stats Grid */}
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total Revenue" 
+        {/* Stats Grid - 5 cards */}
+        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <StatCard
+            title="Total Revenue"
             value={`₹${totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-            icon={<TrendingUp className="h-6 w-6 text-indigo-600" />}
+            icon={<TrendingUp className="h-5 w-5 text-indigo-600" />}
             trend="+12.5%"
             trendUp={true}
             gradient="from-indigo-500/20 to-indigo-500/5"
           />
-          <StatCard 
-            title="Transactions" 
-            value={totalTransactions.toLocaleString()}
-            icon={<ShoppingCart className="h-6 w-6 text-emerald-600" />}
-            trend="+5.2%"
-            trendUp={true}
+          <StatCard
+            title="Today's Sales"
+            value={`₹${todaySales.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            subtitle={`${todayTransactions} bills today`}
+            icon={<DollarSign className="h-5 w-5 text-emerald-600" />}
             gradient="from-emerald-500/20 to-emerald-500/5"
           />
-          <StatCard 
-            title="Total Products" 
-            value={totalProducts.toLocaleString()}
-            icon={<Package className="h-6 w-6 text-blue-600" />}
+          <StatCard
+            title="Transactions"
+            value={totalTransactions.toLocaleString()}
+            icon={<ShoppingCart className="h-5 w-5 text-blue-600" />}
+            trend="+5.2%"
+            trendUp={true}
             gradient="from-blue-500/20 to-blue-500/5"
           />
-          <StatCard 
-            title="Low Stock Alerts" 
+          <StatCard
+            title="Total Products"
+            value={totalProducts.toLocaleString()}
+            icon={<Package className="h-5 w-5 text-violet-600" />}
+            gradient="from-violet-500/20 to-violet-500/5"
+          />
+          <StatCard
+            title="Low Stock Alerts"
             value={lowStockProducts.toString()}
-            icon={<AlertTriangle className={`h-6 w-6 ${lowStockProducts > 0 ? 'text-rose-600' : 'text-gray-400'}`} />}
+            icon={<AlertTriangle className={`h-5 w-5 ${lowStockProducts > 0 ? 'text-rose-600' : 'text-gray-400'}`} />}
             gradient={lowStockProducts > 0 ? "from-rose-500/20 to-rose-500/5" : "from-gray-500/20 to-gray-500/5"}
             alert={lowStockProducts > 0}
           />
         </div>
 
-        {/* Charts Component */}
+        {/* Charts */}
         <DashboardCharts salesData={salesData} categoryData={categoryData} />
 
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Recent Transactions List */}
+          {/* Recent Transactions */}
           <section className="lg:col-span-2 rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800">Recent Transactions</h2>
@@ -177,7 +218,7 @@ export default async function TenantDashboard({
                 View all <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            
+
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -190,69 +231,110 @@ export default async function TenantDashboard({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {recentTransactions.map((tx: { id: string; createdAt: string | Date; user?: { name?: string } | null; netAmount: number; status: string }) => (
-                    <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                        {format(new Date(tx.createdAt), 'MMM dd, h:mm a')}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                        {tx.user?.name || 'Unknown'}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-gray-900">
-                        ${tx.netAmount.toFixed(2)}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-center">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                          ${tx.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}
-                        `}>
-                          {tx.status}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                        <Link href={`/billing/${tx.id}`} className="text-indigo-600 hover:text-indigo-900 transition-colors">
-                          View Invoice
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                  {recentTransactions.length === 0 && (
+                  {recentTransactions.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                      <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
                         No transactions found.
                       </td>
                     </tr>
+                  ) : (
+                    recentTransactions.map((tx: { id: string; createdAt: string | Date; user?: { name?: string } | null; netAmount: number; status: string }) => (
+                      <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                          {format(new Date(tx.createdAt), 'MMM dd, h:mm a')}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                          {tx.user?.name || 'Unknown'}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-gray-900">
+                          ₹{tx.netAmount.toFixed(2)}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-center">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                            ${tx.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}
+                          `}>
+                            {tx.status}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                          <Link href={`/billing/${tx.id}`} className="text-indigo-600 hover:text-indigo-900 transition-colors">
+                            View Invoice
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
             </div>
           </section>
 
-          {/* Top Products */}
-          <section className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
-            <h2 className="mb-6 text-xl font-bold text-gray-800">Top Products</h2>
-            <div className="space-y-4">
-              {topProducts.map((product: { id: string; name: string; soldCount: number; revenue: number }, index: number) => (
-                <div key={product.id} className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold">
-                      #{index + 1}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 truncate max-w-[120px] sm:max-w-[150px]">{product.name}</p>
-                      <p className="text-xs text-gray-500">{product.soldCount} units sold</p>
-                    </div>
+          {/* Right Column: Top Products + Low Stock */}
+          <section className="flex flex-col gap-6">
+            {/* Top Products */}
+            <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+              <h2 className="mb-6 text-xl font-bold text-gray-800">Top Products</h2>
+              <div className="space-y-4">
+                {topProducts.length === 0 ? (
+                  <div className="text-center text-sm text-gray-500 py-8">
+                    Not enough data to determine top products.
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-gray-900">${product.revenue.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-              {topProducts.length === 0 && (
-                <div className="text-center text-sm text-gray-500 py-8">
-                  Not enough data to determine top products.
-                </div>
-              )}
+                ) : (
+                  topProducts.map((product: { id: string; name: string; soldCount: number; revenue: number }, index: number) => (
+                    <div key={product.id} className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold">
+                          #{index + 1}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 truncate max-w-[120px] sm:max-w-[150px]">{product.name}</p>
+                          <p className="text-xs text-gray-500">{product.soldCount} units sold</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">₹{product.revenue.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
+
+            {/* Low Stock Products Widget */}
+            {lowStockItems.length > 0 && (
+              <div className="rounded-2xl border border-rose-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-rose-800 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5" />
+                    Low Stock Alert
+                  </h2>
+                  <Link href="/products?lowStock=true" className="text-xs font-medium text-rose-600 hover:text-rose-700">
+                    View all
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {lowStockItems.map((item: { id: string; name: string; stock: number; minStockThreshold: number | null; unit: string }) => (
+                    <Link
+                      key={item.id}
+                      href={`/products/${item.id}`}
+                      className="flex items-center justify-between rounded-lg bg-white border border-rose-100 p-3 hover:border-rose-200 transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">{item.name}</p>
+                        <p className="text-xs text-gray-500">
+                          Threshold: {item.minStockThreshold ?? 10} {item.unit}
+                        </p>
+                      </div>
+                      <div className={`text-right font-bold text-sm ${
+                        item.stock === 0 ? 'text-red-600' : item.stock <= 5 ? 'text-orange-600' : 'text-amber-600'
+                      }`}>
+                        {item.stock} {item.unit}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         </div>
       </div>
@@ -260,17 +342,19 @@ export default async function TenantDashboard({
   );
 }
 
-function StatCard({ 
-  title, 
-  value, 
-  icon, 
-  trend, 
-  trendUp, 
+function StatCard({
+  title,
+  value,
+  subtitle,
+  icon,
+  trend,
+  trendUp,
   gradient,
   alert
-}: { 
-  title: string; 
-  value: string; 
+}: {
+  title: string;
+  value: string;
+  subtitle?: string;
   icon: React.ReactNode;
   trend?: string;
   trendUp?: boolean;
@@ -295,6 +379,9 @@ function StatCard({
             </span>
           )}
         </div>
+        {subtitle && (
+          <p className="mt-1 text-xs text-gray-400">{subtitle}</p>
+        )}
       </div>
     </div>
   );
