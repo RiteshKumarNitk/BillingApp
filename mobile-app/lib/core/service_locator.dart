@@ -37,9 +37,17 @@ import '../../features/discount/domain/usecases/save_discount_usecase.dart';
 import '../../features/product/domain/usecases/create_expiry_alert_usecase.dart';
 import 'data/hive_database.dart';
 
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import 'network/api_client.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  // Core Services
+  sl.registerLazySingleton(() => ApiClient());
+
+  // Features - Auth
+  sl.registerFactory(() => AuthBloc(apiClient: sl()));
   // Features - Billing
   // Bloc
   sl.registerFactory(

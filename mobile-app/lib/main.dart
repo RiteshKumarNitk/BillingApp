@@ -14,6 +14,8 @@ import 'features/customer/presentation/bloc/customer_bloc.dart';
 import 'features/discount/presentation/bloc/discount_bloc.dart';
 import 'features/product/presentation/bloc/expiry_alert_bloc.dart';
 
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveDatabase.init();
@@ -28,6 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<AuthBloc>(create: (context) => di.sl<AuthBloc>()),
         BlocProvider<ProductBloc>(
             create: (context) => di.sl<ProductBloc>()..add(LoadProducts())),
         BlocProvider<ShopBloc>(

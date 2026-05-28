@@ -89,4 +89,34 @@ class ProductModel extends Product {
       minStockThreshold: minStockThreshold,
     );
   }
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      id: json['id'],
+      name: json['name'],
+      barcode: json['barcode'] ?? '',
+      price: (json['salePrice'] ?? json['price'] ?? 0.0).toDouble(),
+      stock: json['stock'] ?? 0,
+      expiryDate: json['expiryDate'] != null ? DateTime.parse(json['expiryDate']) : null,
+      manufacturingDate: json['manufacturingDate'] != null ? DateTime.parse(json['manufacturingDate']) : null,
+      batchNumber: json['batchNumber'],
+      category: json['category'],
+      minStockThreshold: json['minStockThreshold'] ?? 10,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'barcode': barcode,
+      'salePrice': price,
+      'stock': stock,
+      'expiryDate': expiryDate?.toIso8601String(),
+      'manufacturingDate': manufacturingDate?.toIso8601String(),
+      'batchNumber': batchNumber,
+      'category': category,
+      'minStockThreshold': minStockThreshold,
+    };
+  }
 }

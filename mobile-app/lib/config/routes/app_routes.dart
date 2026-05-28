@@ -18,12 +18,18 @@ import '../../features/discount/presentation/pages/add_discount_page.dart';
 import '../../features/product/presentation/pages/expiry_alert_page.dart';
 import '../../features/product/domain/entities/product.dart';
 
+import '../../features/auth/presentation/pages/login_page.dart';
+
 final router = GoRouter(
   initialLocation: '/splash',
   routes: [
     GoRoute(
       path: '/splash',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginPage(),
     ),
     GoRoute(
       path: '/dashboard',
