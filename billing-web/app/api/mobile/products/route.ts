@@ -11,22 +11,42 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
-    
+    const category = searchParams.get('category');
+    const lowStock = searchParams.get('lowStock');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+
     let where: any = { tenantId: user.tenantId };
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { barcode: { contains: search } }
       ];
     }
+    if (category) {
+      where.category = category;
+    }
+    if (lowStock === 'true') {
+      where.stock = { lte: 10 };
+    }
 
-    const products = await prisma.product.findMany({
-      where,
-      orderBy: { name: 'asc' },
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      products,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     });
-
-    return NextResponse.json({ products });
   } catch (error: any) {
     console.error('Mobile products GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -41,16 +61,23 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    
+
     if (!data.name) {
       return NextResponse.json({ error: 'Product name is required' }, { status: 400 });
     }
 
     const barcode = data.barcode?.trim() || null;
 
+    if (barcode) {
+      const existing = await prisma.product.findUnique({ where: { barcode } });
+      if (existing) {
+        return NextResponse.json({ error: 'Barcode already exists' }, { status: 409 });
+      }
+    }
+
     const createData: any = {
       name: data.name.trim(),
-      barcode: barcode,
+      barcode,
       unit: data.unit || 'PIECE',
       purchasePrice: parseFloat(data.purchasePrice) || 0,
       mrp: parseFloat(data.mrp) || 0,

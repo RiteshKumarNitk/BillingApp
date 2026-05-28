@@ -33,7 +33,7 @@ export async function searchProducts(searchTerm: string) {
   return results;
 }
 
-export async function getFilteredProducts(searchTerm: string, categoryFilter: string) {
+export async function getFilteredProducts(searchTerm: string, categoryFilter: string, lowStockOnly?: boolean, page?: number, limit?: number) {
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.tenantId) {
@@ -52,13 +52,24 @@ export async function getFilteredProducts(searchTerm: string, categoryFilter: st
   if (categoryFilter) {
     where.category = categoryFilter;
   }
+  if (lowStockOnly) {
+    where.stock = { lte: 10 };
+  }
 
-  const results = await prisma.product.findMany({
-    where,
-    orderBy: { createdAt: 'desc' }
-  });
+  const skip = page && limit ? (page - 1) * limit : undefined;
+  const take = limit;
 
-  return results;
+  const [results, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return { products: results, total };
 }
 
 export async function getProductCategories() {
