@@ -31,16 +31,24 @@ export default async function TenantsPage({
   }
   if (statusFilter) where.status = statusFilter;
 
-  const [tenants, total] = await Promise.all([
-    prisma.tenant.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: ITEMS_PER_PAGE,
-      include: { _count: { select: { users: true } } },
-    }),
-    prisma.tenant.count({ where }),
-  ]);
+  let tenants: any[] = [];
+  let total = 0;
+  try {
+    const result = await Promise.all([
+      prisma.tenant.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: ITEMS_PER_PAGE,
+        include: { _count: { select: { users: true } } },
+      }),
+      prisma.tenant.count({ where }),
+    ]);
+    tenants = result[0];
+    total = result[1];
+  } catch (e) {
+    console.error("Failed to fetch tenants:", e);
+  }
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 

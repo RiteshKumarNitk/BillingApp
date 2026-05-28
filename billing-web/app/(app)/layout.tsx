@@ -18,9 +18,14 @@ export default async function AppLayout({
   }
 
   // Fetch tenant info
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: session.user.tenantId }
-  });
+  let tenant: any = null;
+  try {
+    tenant = await prisma.tenant.findUnique({
+      where: { id: session.user.tenantId }
+    });
+  } catch (e) {
+    console.error("Failed to fetch tenant:", e);
+  }
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
