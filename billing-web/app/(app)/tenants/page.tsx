@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { redirect } from "next/navigation";
 import { Building2, Mail, Phone, User, Plus, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import StatusSelect from './StatusSelect';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -89,16 +90,7 @@ export default async function TenantsPage({
             />
           </div>
           <div className="relative">
-            <select
-              name="status"
-              defaultValue={statusFilter}
-              onChange={(e) => e.target.form?.submit()}
-              className="pl-4 pr-8 py-2.5 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-gray-900 text-sm appearance-none bg-white"
-            >
-              <option value="">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            <StatusSelect defaultValue={statusFilter} />
           </div>
           <button type="submit" className="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium transition-colors">
             Search
