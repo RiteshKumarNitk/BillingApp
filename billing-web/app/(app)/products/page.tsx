@@ -142,6 +142,9 @@ export default function ProductsPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 border border-gray-200">
+                          {product.productType || 'SIMPLE'}
+                        </span>
                         {product.category && (
                           <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
                             {product.category}
@@ -151,29 +154,40 @@ export default function ProductsPage() {
                       {product.barcode && (
                         <p className="text-xs text-gray-400 mt-0.5 font-mono">#{product.barcode}</p>
                       )}
+                      
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">₹{product.salePrice.toFixed(2)}</span>
-                        <span className="px-2.5 py-1 bg-gray-50 text-gray-500 rounded-full text-xs font-medium line-through">₹{product.mrp.toFixed(2)}</span>
-                        {product.purchasePrice > 0 && (
-                          <span className="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">Cost ₹{product.purchasePrice.toFixed(2)}</span>
+                        {product.productType === 'VARIANT' ? (
+                          <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                            {product.variants?.length || 0} Variants
+                          </span>
+                        ) : product.productType === 'SERVICE' ? (
+                          <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">₹{product.salePrice.toFixed(2)}</span>
+                        ) : (
+                          <>
+                            <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">₹{product.salePrice.toFixed(2)}</span>
+                            {product.mrp > 0 && <span className="px-2.5 py-1 bg-gray-50 text-gray-500 rounded-full text-xs font-medium line-through">₹{product.mrp.toFixed(2)}</span>}
+                          </>
                         )}
                       </div>
-                      <p className="mt-2 text-sm flex items-center gap-1.5">
-                        <span className="text-gray-500">Stock:</span>
-                        <span className={`font-bold ${
-                          product.stock <= 5 ? 'text-red-600' :
-                          product.stock <= (product.minStockThreshold || 10) ? 'text-amber-600' : 'text-green-600'
-                        }`}>
-                          {product.stock} {product.unit || 'pcs'}
-                        </span>
-                        {product.stock <= (product.minStockThreshold || 10) && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            product.stock <= 5 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+
+                      {product.productType !== 'SERVICE' && (
+                        <p className="mt-2 text-sm flex items-center gap-1.5">
+                          <span className="text-gray-500">Stock:</span>
+                          <span className={`font-bold ${
+                            product.stock <= 5 ? 'text-red-600' :
+                            product.stock <= (product.minStockThreshold || 10) ? 'text-amber-600' : 'text-green-600'
                           }`}>
-                            {product.stock <= 5 ? 'CRITICAL' : 'LOW'}
+                            {product.stock} {product.unit || 'pcs'}
                           </span>
-                        )}
-                      </p>
+                          {product.stock <= (product.minStockThreshold || 10) && (
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              product.stock <= 5 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                            }`}>
+                              {product.stock <= 5 ? 'CRITICAL' : 'LOW'}
+                            </span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex-shrink-0">

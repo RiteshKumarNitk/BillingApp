@@ -161,20 +161,51 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  barcode: 'barcode',
+  category: 'category',
+  productType: 'productType',
   unit: 'unit',
+  allowDecimal: 'allowDecimal',
+  barcode: 'barcode',
   purchasePrice: 'purchasePrice',
   mrp: 'mrp',
   salePrice: 'salePrice',
   stock: 'stock',
+  minStockThreshold: 'minStockThreshold',
   expiryDate: 'expiryDate',
   manufacturingDate: 'manufacturingDate',
   batchNumber: 'batchNumber',
-  category: 'category',
-  minStockThreshold: 'minStockThreshold',
   tenantId: 'tenantId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductVariantScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  name: 'name',
+  barcode: 'barcode',
+  purchasePrice: 'purchasePrice',
+  mrp: 'mrp',
+  salePrice: 'salePrice',
+  stock: 'stock'
+};
+
+exports.Prisma.ProductBatchScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  batchNumber: 'batchNumber',
+  manufacturingDate: 'manufacturingDate',
+  expiryDate: 'expiryDate',
+  stock: 'stock'
+};
+
+exports.Prisma.ProductSerialScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  serialNumber: 'serialNumber',
+  status: 'status',
+  purchaseDate: 'purchaseDate',
+  warrantyMonths: 'warrantyMonths'
 };
 
 exports.Prisma.CustomerScalarFieldEnum = {
@@ -259,7 +290,10 @@ exports.Prisma.TransactionItemScalarFieldEnum = {
   mrp: 'mrp',
   salePrice: 'salePrice',
   quantity: 'quantity',
-  itemTotal: 'itemTotal'
+  itemTotal: 'itemTotal',
+  variantId: 'variantId',
+  batchId: 'batchId',
+  serialId: 'serialId'
 };
 
 exports.Prisma.SortOrder = {
@@ -283,6 +317,9 @@ exports.Prisma.ModelName = {
   Role: 'Role',
   User: 'User',
   Product: 'Product',
+  ProductVariant: 'ProductVariant',
+  ProductBatch: 'ProductBatch',
+  ProductSerial: 'ProductSerial',
   Customer: 'Customer',
   Discount: 'Discount',
   Employee: 'Employee',

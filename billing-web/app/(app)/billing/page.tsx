@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { searchProducts } from '@/lib/actions/products';
 import { useToast } from '@/components/ui/Toast';
 import { Search, Camera, Plus, Minus, Trash2, Barcode, X, ShoppingCart, AlertCircle } from 'lucide-react';
+import ProductSelectionModal from './ProductSelectionModal';
 
 export default function BillingPage() {
   const router = useRouter();
@@ -23,12 +24,9 @@ export default function BillingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<number | null>(null);
 
-  const fetchProducts = useCallback(async (term: string) => {
-    if (!term.trim()) {
-      setProducts([]);
-      return;
-    }
+  const [selectedComplexProduct, setSelectedComplexProduct] = useState<any>(null);
 
+  const fetchProducts = useCallback(async (term: string) => {
     setSearchLoading(true);
     try {
       const results = await searchProducts(term);
@@ -39,6 +37,10 @@ export default function BillingPage() {
       setSearchLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchProducts('');
+  }, [fetchProducts]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -63,44 +65,73 @@ export default function BillingPage() {
   };
 
   const addToCart = (product: any) => {
-    if (product.stock <= 0) {
+    if (product.stock <= 0 && product.productType !== 'SERVICE') {
       addToast('error', `${product.name} is out of stock!`);
       return;
     }
 
-    const existingItemIndex = cart.findIndex(item => item.productId === product.id);
+    if (['VARIANT', 'BATCH', 'SERIAL', 'WEIGHT'].includes(product.productType)) {
+      setSelectedComplexProduct(product);
+      return;
+    }
+
+    // Direct add for SIMPLE and SERVICE
+    confirmAddToCart(product, {
+      quantity: 1,
+      salePrice: product.salePrice,
+      titleOverride: product.name,
+      purchasePrice: product.purchasePrice,
+      mrp: product.mrp
+    });
+  };
+
+  const confirmAddToCart = (product: any, selectionData: any) => {
+    const { 
+      variantId, batchId, serialId, quantity, salePrice, 
+      titleOverride, purchasePrice, mrp 
+    } = selectionData;
+
+    // For Serials, they are unique, so we don't group them
+    const existingItemIndex = product.productType === 'SERIAL' ? -1 : cart.findIndex(item => 
+      item.productId === product.id && 
+      item.variantId === variantId && 
+      item.batchId === batchId
+    );
 
     if (existingItemIndex >= 0) {
       const newCart = [...cart];
-      const newQty = newCart[existingItemIndex].quantity + 1;
-      if (newQty > product.stock) {
-        addToast('error', `Insufficient stock for ${product.name}`);
-        return;
-      }
+      const newQty = newCart[existingItemIndex].quantity + quantity;
+      
       newCart[existingItemIndex] = {
         ...newCart[existingItemIndex],
         quantity: newQty,
         itemTotal: (newQty * newCart[existingItemIndex].salePrice).toFixed(2)
       };
       setCart(newCart);
-      addToast('success', `${product.name} quantity increased`);
+      addToast('success', `${titleOverride} quantity updated`);
     } else {
       const newItem = {
         id: Math.random().toString(36).substr(2, 9),
         productId: product.id,
-        name: product.name,
+        name: titleOverride || product.name,
         barcode: product.barcode,
-        purchasePrice: product.purchasePrice,
-        mrp: product.mrp,
-        salePrice: product.salePrice,
-        quantity: 1,
-        itemTotal: product.salePrice.toFixed(2),
+        purchasePrice: purchasePrice || product.purchasePrice,
+        mrp: mrp || product.mrp,
+        salePrice: salePrice || product.salePrice,
+        quantity: quantity,
+        itemTotal: ((salePrice || product.salePrice) * quantity).toFixed(2),
         maxStock: product.stock,
         stock: product.stock,
+        variantId,
+        batchId,
+        serialId,
+        productType: product.productType
       };
       setCart([...cart, newItem]);
-      addToast('success', `${product.name} added to cart`);
+      addToast('success', `${newItem.name} added to cart`);
     }
+    
+    setSelectedComplexProduct(null);
   };
 
   const removeFromCart = (itemId: string) => {
@@ -168,7 +199,14 @@ export default function BillingPage() {
       const itemsToSend = cart.map(item => ({
         productId: item.productId,
         quantity: item.quantity,
-        salePrice: item.salePrice
+        salePrice: item.salePrice,
+        variantId: item.variantId,
+        batchId: item.batchId,
+        serialId: item.serialId,
+        titleOverride: item.name,
+        purchasePrice: item.purchasePrice,
+        mrp: item.mrp,
+        productType: item.productType
       }));
 
       const response = await fetch('/api/transactions', {
@@ -567,6 +605,13 @@ export default function BillingPage() {
           </div>
         </section>
       </div>
+      {selectedComplexProduct && (
+        <ProductSelectionModal
+          product={selectedComplexProduct}
+          onClose={() => setSelectedComplexProduct(null)}
+          onConfirm={(data) => confirmAddToCart(selectedComplexProduct, data)}
+        />
+      )}
     </div>
   );
 }

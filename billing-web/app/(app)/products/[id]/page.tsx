@@ -7,7 +7,14 @@ import ProductBarcode from './ProductBarcode';
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: productId } = await params;
 
-  const product = await prisma.product.findUnique({ where: { id: productId } });
+  const product = await prisma.product.findUnique({ 
+    where: { id: productId },
+    include: {
+      variants: true,
+      batches: true,
+      serials: true
+    }
+  });
 
   if (!product) notFound();
 
@@ -100,6 +107,95 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
           </div>
+
+          {/* Complex Inventory Details */}
+          {p.variants?.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Selling Variants</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-gray-600">
+                  <thead className="bg-gray-50 text-gray-900 font-medium">
+                    <tr>
+                      <th className="px-4 py-3 rounded-l-xl">Variant Name</th>
+                      <th className="px-4 py-3">Sale Price</th>
+                      <th className="px-4 py-3">Stock</th>
+                      <th className="px-4 py-3 rounded-r-xl">Barcode</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {p.variants.map((v: any) => (
+                      <tr key={v.id} className="hover:bg-gray-50/50">
+                        <td className="px-4 py-3 font-medium text-gray-900">{v.name}</td>
+                        <td className="px-4 py-3">₹{v.salePrice.toFixed(2)}</td>
+                        <td className="px-4 py-3">{v.stock}</td>
+                        <td className="px-4 py-3 text-gray-400 font-mono text-xs">{v.barcode || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {p.batches?.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Batches</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-gray-600">
+                  <thead className="bg-gray-50 text-gray-900 font-medium">
+                    <tr>
+                      <th className="px-4 py-3 rounded-l-xl">Batch No.</th>
+                      <th className="px-4 py-3">Stock</th>
+                      <th className="px-4 py-3">Mfg Date</th>
+                      <th className="px-4 py-3 rounded-r-xl">Exp Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {p.batches.map((b: any) => (
+                      <tr key={b.id} className="hover:bg-gray-50/50">
+                        <td className="px-4 py-3 font-medium text-gray-900">{b.batchNumber}</td>
+                        <td className="px-4 py-3">{b.stock}</td>
+                        <td className="px-4 py-3">{formatDate(b.manufacturingDate)}</td>
+                        <td className={`px-4 py-3 ${b.expiryDate && new Date(b.expiryDate) < new Date() ? 'text-red-600 font-medium' : ''}`}>
+                          {formatDate(b.expiryDate)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {p.serials?.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Serials</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-gray-600">
+                  <thead className="bg-gray-50 text-gray-900 font-medium">
+                    <tr>
+                      <th className="px-4 py-3 rounded-l-xl">Serial No.</th>
+                      <th className="px-4 py-3 rounded-r-xl">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {p.serials.map((s: any) => (
+                      <tr key={s.id} className="hover:bg-gray-50/50">
+                        <td className="px-4 py-3 font-mono text-gray-900">{s.serialNumber}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                            s.status === 'AVAILABLE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {s.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">

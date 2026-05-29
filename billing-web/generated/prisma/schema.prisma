@@ -73,27 +73,74 @@ model User {
 }
 
 model Product {
-  id                String    @id @default(uuid())
-  name              String
-  barcode           String?   @unique
-  unit              String    @default("PIECE")
-  purchasePrice     Float
-  mrp               Float
-  salePrice         Float
-  stock             Int       @default(0)
+  id          String  @id @default(uuid())
+  name        String
+  category    String?
+  productType String  @default("SIMPLE") // SIMPLE, WEIGHT, VARIANT, BATCH, SERIAL, SERVICE, RECIPE
+
+  // Base configuration
+  unit         String  @default("PIECE")
+  allowDecimal Boolean @default(false)
+
+  // Legacy / Base fields
+  barcode           String? @unique
+  purchasePrice     Float   @default(0)
+  mrp               Float   @default(0)
+  salePrice         Float   @default(0)
+  stock             Float   @default(0)
+  minStockThreshold Float   @default(10)
+
+  // Batch legacy fields (kept for backward compatibility, but new models use ProductBatch)
   expiryDate        DateTime?
   manufacturingDate DateTime?
   batchNumber       String?
-  category          String?
-  minStockThreshold Int       @default(10)
 
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   transactionItems TransactionItem[]
+  variants         ProductVariant[]
+  batches          ProductBatch[]
+  serials          ProductSerial[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  name      String // e.g., "500 Gram", "XL", "Red"
+  barcode   String?
+
+  purchasePrice Float
+  mrp           Float
+  salePrice     Float
+  stock         Float @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductBatch {
+  id                String    @id @default(uuid())
+  productId         String
+  batchNumber       String
+  manufacturingDate DateTime?
+  expiryDate        DateTime?
+  stock             Float     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductSerial {
+  id             String    @id @default(uuid())
+  productId      String
+  serialNumber   String    @unique
+  status         String    @default("AVAILABLE") // AVAILABLE, SOLD
+  purchaseDate   DateTime?
+  warrantyMonths Int?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Customer {
@@ -208,6 +255,11 @@ model TransactionItem {
   mrp           Float
   salePrice     Float
 
-  quantity  Int
+  quantity  Float
   itemTotal Float
+
+  // Optional relations for complex product types
+  variantId String?
+  batchId   String?
+  serialId  String?
 }

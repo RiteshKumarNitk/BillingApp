@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -23,6 +23,11 @@ export default function DashboardCharts({
   const router = useRouter();
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") || "7d";
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleTimeRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -46,8 +51,8 @@ export default function DashboardCharts({
             <option value="90d">Last 90 Days</option>
           </select>
         </div>
-        <div className="h-72">
-          {salesData.length > 0 ? (
+        <div className="h-72 w-full min-w-0">
+          {!isMounted ? null : salesData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -77,8 +82,8 @@ export default function DashboardCharts({
       {/* Category Distribution Chart */}
       <section className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
         <h2 className="mb-6 text-xl font-bold text-gray-800">Sales by Category</h2>
-        <div className="h-72">
-          {categoryData.length > 0 ? (
+        <div className="h-72 w-full min-w-0">
+          {!isMounted ? null : categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E7EB" />

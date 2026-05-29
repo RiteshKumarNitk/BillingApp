@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
-import { randomUUID } from "crypto";
 
 export async function searchProducts(searchTerm: string) {
   const session = await getServerSession(authOptions);
@@ -16,7 +15,16 @@ export async function searchProducts(searchTerm: string) {
   const tenantId = session.user.tenantId;
 
   if (!searchTerm.trim()) {
-    return [];
+    const results = await prisma.product.findMany({
+      where: { tenantId },
+      include: {
+        variants: true,
+        batches: true,
+        serials: true
+      },
+      take: 50
+    });
+    return results;
   }
 
   const results = await prisma.product.findMany({
@@ -26,6 +34,11 @@ export async function searchProducts(searchTerm: string) {
         { name: { contains: searchTerm, mode: 'insensitive' } },
         { barcode: { contains: searchTerm } }
       ]
+    },
+    include: {
+      variants: true,
+      batches: true,
+      serials: true
     },
     take: 10
   });
@@ -53,6 +66,7 @@ export async function getFilteredProducts(searchTerm: string, categoryFilter: st
     where.category = categoryFilter;
   }
   if (lowStockOnly) {
+    // Basic low stock check. For complex types, this might need refinement in the future.
     where.stock = { lte: 10 };
   }
 
@@ -62,6 +76,11 @@ export async function getFilteredProducts(searchTerm: string, categoryFilter: st
   const [results, total] = await Promise.all([
     prisma.product.findMany({
       where,
+      include: {
+        variants: true,
+        batches: true,
+        serials: true
+      },
       orderBy: { createdAt: 'desc' },
       skip,
       take,
@@ -101,24 +120,56 @@ export async function createProduct(data: any) {
     throw new Error("Product name is required");
   }
 
-  // Auto-generate barcode if not provided
   const barcode = data.barcode?.trim() || null;
+  const productType = data.productType || 'SIMPLE';
 
   const createData: any = {
     name: data.name.trim(),
-    barcode: barcode,
+    category: data.category || null,
+    productType,
     unit: data.unit || 'PIECE',
+    allowDecimal: data.allowDecimal === true,
+    barcode: barcode,
     purchasePrice: parseFloat(data.purchasePrice) || 0,
     mrp: parseFloat(data.mrp) || 0,
     salePrice: parseFloat(data.salePrice) || 0,
-    stock: parseInt(data.stock, 10) || 0,
-    minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
-    expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-    manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
-    batchNumber: data.batchNumber?.trim() || null,
-    category: data.category || null,
+    stock: parseFloat(data.stock) || 0,
+    minStockThreshold: parseFloat(data.minStockThreshold) || 10,
     tenant: { connect: { id: tenantId } },
   };
+
+  // Conditionally add nested relations
+  if ((productType === 'VARIANT' || productType === 'WEIGHT') && data.variants && data.variants.length > 0) {
+    createData.variants = {
+      create: data.variants.map((v: any) => ({
+        name: v.name,
+        barcode: v.barcode || null,
+        purchasePrice: parseFloat(v.purchasePrice) || 0,
+        mrp: parseFloat(v.mrp) || 0,
+        salePrice: parseFloat(v.salePrice) || 0,
+        stock: parseFloat(v.stock) || 0,
+      }))
+    };
+  } else if (productType === 'BATCH' && data.batches && data.batches.length > 0) {
+    createData.batches = {
+      create: data.batches.map((b: any) => ({
+        batchNumber: b.batchNumber,
+        manufacturingDate: b.manufacturingDate ? new Date(b.manufacturingDate) : null,
+        expiryDate: b.expiryDate ? new Date(b.expiryDate) : null,
+        stock: parseFloat(b.stock) || 0,
+      }))
+    };
+    // Sum up the stock for the master record
+    createData.stock = data.batches.reduce((sum: number, b: any) => sum + (parseFloat(b.stock) || 0), 0);
+  } else if (productType === 'SERIAL' && data.serials && data.serials.length > 0) {
+    createData.serials = {
+      create: data.serials.map((s: any) => ({
+        serialNumber: s.serialNumber,
+        status: 'AVAILABLE',
+      }))
+    };
+    createData.stock = data.serials.length;
+  }
 
   const product = await prisma.product.create({ data: createData });
 
@@ -136,21 +187,58 @@ export async function updateProduct(productId: string, data: any) {
   const tenantId = session.user.tenantId;
 
   const barcode = data.barcode?.trim() || null;
+  const productType = data.productType || 'SIMPLE';
 
   const updateData: any = {
     name: data.name?.trim(),
-    barcode: barcode,
+    category: data.category || null,
+    productType,
     unit: data.unit || 'PIECE',
+    allowDecimal: data.allowDecimal === true,
+    barcode: barcode,
     purchasePrice: parseFloat(data.purchasePrice) || 0,
     mrp: parseFloat(data.mrp) || 0,
     salePrice: parseFloat(data.salePrice) || 0,
-    stock: parseInt(data.stock, 10) || 0,
-    minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
-    expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-    manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
-    batchNumber: data.batchNumber?.trim() || null,
-    category: data.category || null,
+    stock: parseFloat(data.stock) || 0,
+    minStockThreshold: parseFloat(data.minStockThreshold) || 10,
   };
+
+  // Handling updates for complex types is more intricate (needs delete/re-create or upsert)
+  // For this v1, we will replace the nested records for simplicity.
+  
+  if ((productType === 'VARIANT' || productType === 'WEIGHT') && data.variants) {
+    updateData.variants = {
+      deleteMany: {},
+      create: data.variants.map((v: any) => ({
+        name: v.name,
+        barcode: v.barcode || null,
+        purchasePrice: parseFloat(v.purchasePrice) || 0,
+        mrp: parseFloat(v.mrp) || 0,
+        salePrice: parseFloat(v.salePrice) || 0,
+        stock: parseFloat(v.stock) || 0,
+      }))
+    };
+  } else if (productType === 'BATCH' && data.batches) {
+    updateData.batches = {
+      deleteMany: {},
+      create: data.batches.map((b: any) => ({
+        batchNumber: b.batchNumber,
+        manufacturingDate: b.manufacturingDate ? new Date(b.manufacturingDate) : null,
+        expiryDate: b.expiryDate ? new Date(b.expiryDate) : null,
+        stock: parseFloat(b.stock) || 0,
+      }))
+    };
+    updateData.stock = data.batches.reduce((sum: number, b: any) => sum + (parseFloat(b.stock) || 0), 0);
+  } else if (productType === 'SERIAL' && data.serials) {
+    updateData.serials = {
+      deleteMany: {},
+      create: data.serials.map((s: any) => ({
+        serialNumber: s.serialNumber,
+        status: s.status || 'AVAILABLE',
+      }))
+    };
+    updateData.stock = data.serials.filter((s:any) => s.status !== 'SOLD').length;
+  }
 
   const product = await prisma.product.update({ where: { id: productId, tenantId: tenantId }, data: updateData });
 

@@ -9,7 +9,8 @@ import {
   Users,
   Building,
   Settings,
-  Shield
+  Shield,
+  Tag
 } from 'lucide-react';
 
 export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
@@ -33,6 +34,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Billing', href: '/billing', icon: Receipt },
       { name: 'Products', href: '/products', icon: Package },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
+      { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
       { name: 'Digital Menu QR', href: '/settings/menu', icon: Package },
     ];
     

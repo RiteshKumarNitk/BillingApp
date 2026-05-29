@@ -182,50 +182,63 @@ export default function BulkInventoryPage() {
                           {product.name}
                         </div>
                         {product.barcode && <div className="text-[10px] text-gray-400 font-mono mt-0.5">{product.barcode}</div>}
+                        <div className="text-[10px] text-indigo-500 font-semibold mt-1">
+                          {product.productType || 'SIMPLE'}
+                        </div>
                       </td>
-                      <td className="px-6 py-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={getDisplayValue(product, 'purchasePrice')}
-                          onChange={(e) => handleEdit(product.id, 'purchasePrice', e.target.value)}
-                          className={`w-24 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
-                            editedProducts[product.id]?.purchasePrice !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
-                          }`}
-                        />
-                      </td>
-                      <td className="px-6 py-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={getDisplayValue(product, 'mrp')}
-                          onChange={(e) => handleEdit(product.id, 'mrp', e.target.value)}
-                          className={`w-24 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
-                            editedProducts[product.id]?.mrp !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
-                          }`}
-                        />
-                      </td>
-                      <td className="px-6 py-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={getDisplayValue(product, 'salePrice')}
-                          onChange={(e) => handleEdit(product.id, 'salePrice', e.target.value)}
-                          className={`w-24 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
-                            editedProducts[product.id]?.salePrice !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
-                          }`}
-                        />
-                      </td>
-                      <td className="px-6 py-3">
-                        <input
-                          type="number"
-                          value={getDisplayValue(product, 'stock')}
-                          onChange={(e) => handleEdit(product.id, 'stock', e.target.value)}
-                          className={`w-20 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
-                            editedProducts[product.id]?.stock !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
-                          }`}
-                        />
-                      </td>
+                      {['VARIANT', 'BATCH', 'SERIAL'].includes(product.productType) || (product.productType === 'WEIGHT' && product.variants?.length > 0) ? (
+                        <td colSpan={4} className="px-6 py-3 text-center text-sm text-gray-500 bg-gray-50/50">
+                          Complex product. Please <a href={`/products/${product.id}/edit`} className="text-indigo-600 font-medium hover:underline">edit individually</a> to manage variants or batches.
+                        </td>
+                      ) : (
+                        <>
+                          <td className="px-6 py-3">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={getDisplayValue(product, 'purchasePrice')}
+                              onChange={(e) => handleEdit(product.id, 'purchasePrice', e.target.value)}
+                              className={`w-24 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                                editedProducts[product.id]?.purchasePrice !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                              }`}
+                            />
+                          </td>
+                          <td className="px-6 py-3">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={getDisplayValue(product, 'mrp')}
+                              onChange={(e) => handleEdit(product.id, 'mrp', e.target.value)}
+                              className={`w-24 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                                editedProducts[product.id]?.mrp !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                              }`}
+                            />
+                          </td>
+                          <td className="px-6 py-3">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={getDisplayValue(product, 'salePrice')}
+                              onChange={(e) => handleEdit(product.id, 'salePrice', e.target.value)}
+                              className={`w-24 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                                editedProducts[product.id]?.salePrice !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                              }`}
+                            />
+                          </td>
+                          <td className="px-6 py-3">
+                            <input
+                              type="number"
+                              value={getDisplayValue(product, 'stock')}
+                              onChange={(e) => handleEdit(product.id, 'stock', e.target.value)}
+                              disabled={product.productType === 'SERVICE'}
+                              className={`w-20 px-2 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                                product.productType === 'SERVICE' ? 'bg-gray-100 cursor-not-allowed opacity-50' :
+                                editedProducts[product.id]?.stock !== undefined ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                              }`}
+                            />
+                          </td>
+                        </>
+                      )}
                     </tr>
                   );
                 })
