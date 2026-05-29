@@ -24,7 +24,11 @@ export default async function MenuSettingsPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Digital Menu & QR Code</h1>
       <p className="text-gray-500 mb-8">Generate and print the static QR code for your public digital menu.</p>
       
-      <MenuSettingsClient tenantId={tenant.id} address={tenant.address || ""} />
+      <MenuSettingsClient 
+        tenantId={tenant.id} 
+        address={tenant.address || ""} 
+        initialTheme={tenant.menuTheme || "DEFAULT"} 
+      />
     </div>
   );
 }

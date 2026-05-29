@@ -2214,6 +2214,7 @@ export namespace Prisma {
     address: string | null
     gstin: string | null
     subscriptionPlan: string | null
+    menuTheme: string | null
     createdAt: Date | null
     updatedAt: Date | null
     status: string | null
@@ -2230,6 +2231,7 @@ export namespace Prisma {
     address: string | null
     gstin: string | null
     subscriptionPlan: string | null
+    menuTheme: string | null
     createdAt: Date | null
     updatedAt: Date | null
     status: string | null
@@ -2246,6 +2248,7 @@ export namespace Prisma {
     address: number
     gstin: number
     subscriptionPlan: number
+    menuTheme: number
     createdAt: number
     updatedAt: number
     status: number
@@ -2264,6 +2267,7 @@ export namespace Prisma {
     address?: true
     gstin?: true
     subscriptionPlan?: true
+    menuTheme?: true
     createdAt?: true
     updatedAt?: true
     status?: true
@@ -2280,6 +2284,7 @@ export namespace Prisma {
     address?: true
     gstin?: true
     subscriptionPlan?: true
+    menuTheme?: true
     createdAt?: true
     updatedAt?: true
     status?: true
@@ -2296,6 +2301,7 @@ export namespace Prisma {
     address?: true
     gstin?: true
     subscriptionPlan?: true
+    menuTheme?: true
     createdAt?: true
     updatedAt?: true
     status?: true
@@ -2385,6 +2391,7 @@ export namespace Prisma {
     address: string | null
     gstin: string | null
     subscriptionPlan: string
+    menuTheme: string
     createdAt: Date
     updatedAt: Date
     status: string
@@ -2418,6 +2425,7 @@ export namespace Prisma {
     address?: boolean
     gstin?: boolean
     subscriptionPlan?: boolean
+    menuTheme?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
@@ -2443,6 +2451,7 @@ export namespace Prisma {
     address?: boolean
     gstin?: boolean
     subscriptionPlan?: boolean
+    menuTheme?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
@@ -2459,6 +2468,7 @@ export namespace Prisma {
     address?: boolean
     gstin?: boolean
     subscriptionPlan?: boolean
+    menuTheme?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
@@ -2475,12 +2485,13 @@ export namespace Prisma {
     address?: boolean
     gstin?: boolean
     subscriptionPlan?: boolean
+    menuTheme?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "contactPerson" | "email" | "phone" | "address" | "gstin" | "subscriptionPlan" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "contactPerson" | "email" | "phone" | "address" | "gstin" | "subscriptionPlan" | "menuTheme" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     roles?: boolean | Tenant$rolesArgs<ExtArgs>
@@ -2518,6 +2529,7 @@ export namespace Prisma {
       address: string | null
       gstin: string | null
       subscriptionPlan: string
+      menuTheme: string
       createdAt: Date
       updatedAt: Date
       status: string
@@ -2962,6 +2974,7 @@ export namespace Prisma {
     readonly address: FieldRef<"Tenant", 'String'>
     readonly gstin: FieldRef<"Tenant", 'String'>
     readonly subscriptionPlan: FieldRef<"Tenant", 'String'>
+    readonly menuTheme: FieldRef<"Tenant", 'String'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly status: FieldRef<"Tenant", 'String'>
@@ -17831,6 +17844,7 @@ export namespace Prisma {
     address: 'address',
     gstin: 'gstin',
     subscriptionPlan: 'subscriptionPlan',
+    menuTheme: 'menuTheme',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     status: 'status'
@@ -18144,6 +18158,7 @@ export namespace Prisma {
     address?: StringNullableFilter<"Tenant"> | string | null
     gstin?: StringNullableFilter<"Tenant"> | string | null
     subscriptionPlan?: StringFilter<"Tenant"> | string
+    menuTheme?: StringFilter<"Tenant"> | string
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     status?: StringFilter<"Tenant"> | string
@@ -18168,6 +18183,7 @@ export namespace Prisma {
     address?: SortOrderInput | SortOrder
     gstin?: SortOrderInput | SortOrder
     subscriptionPlan?: SortOrder
+    menuTheme?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -18195,6 +18211,7 @@ export namespace Prisma {
     address?: StringNullableFilter<"Tenant"> | string | null
     gstin?: StringNullableFilter<"Tenant"> | string | null
     subscriptionPlan?: StringFilter<"Tenant"> | string
+    menuTheme?: StringFilter<"Tenant"> | string
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     status?: StringFilter<"Tenant"> | string
@@ -18219,6 +18236,7 @@ export namespace Prisma {
     address?: SortOrderInput | SortOrder
     gstin?: SortOrderInput | SortOrder
     subscriptionPlan?: SortOrder
+    menuTheme?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -18241,6 +18259,7 @@ export namespace Prisma {
     address?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     gstin?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     subscriptionPlan?: StringWithAggregatesFilter<"Tenant"> | string
+    menuTheme?: StringWithAggregatesFilter<"Tenant"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     status?: StringWithAggregatesFilter<"Tenant"> | string
@@ -19288,6 +19307,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -19312,6 +19332,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -19336,6 +19357,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19360,6 +19382,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19384,6 +19407,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -19400,6 +19424,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19416,6 +19441,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -20686,6 +20712,7 @@ export namespace Prisma {
     address?: SortOrder
     gstin?: SortOrder
     subscriptionPlan?: SortOrder
+    menuTheme?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -20702,6 +20729,7 @@ export namespace Prisma {
     address?: SortOrder
     gstin?: SortOrder
     subscriptionPlan?: SortOrder
+    menuTheme?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -20718,6 +20746,7 @@ export namespace Prisma {
     address?: SortOrder
     gstin?: SortOrder
     subscriptionPlan?: SortOrder
+    menuTheme?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -23336,6 +23365,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23359,6 +23389,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23414,6 +23445,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23437,6 +23469,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23460,6 +23493,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23483,6 +23517,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23597,6 +23632,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23620,6 +23656,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23688,6 +23725,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23711,6 +23749,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23872,6 +23911,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23895,6 +23935,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24375,6 +24416,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24398,6 +24440,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24437,6 +24480,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24460,6 +24504,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24483,6 +24528,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24506,6 +24552,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24545,6 +24592,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24568,6 +24616,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24591,6 +24640,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24614,6 +24664,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24653,6 +24704,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24676,6 +24728,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24699,6 +24752,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24722,6 +24776,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24761,6 +24816,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24784,6 +24840,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24847,6 +24904,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24870,6 +24928,7 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
+    menuTheme?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24956,6 +25015,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24979,6 +25039,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string

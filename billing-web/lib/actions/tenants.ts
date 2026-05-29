@@ -158,3 +158,18 @@ export async function toggleTenantStatus(tenantId: string) {
   
   return newStatus;
 }
+
+export async function updateTenantTheme(theme: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    throw new Error("Unauthorized");
+  }
+  
+  await prisma.tenant.update({
+    where: { id: session.user.tenantId },
+    data: { menuTheme: theme }
+  });
+  
+  revalidatePath('/settings/menu');
+  return true;
+}

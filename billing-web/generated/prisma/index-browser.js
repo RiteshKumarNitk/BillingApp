@@ -131,6 +131,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   address: 'address',
   gstin: 'gstin',
   subscriptionPlan: 'subscriptionPlan',
+  menuTheme: 'menuTheme',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   status: 'status'

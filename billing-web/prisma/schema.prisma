@@ -22,6 +22,7 @@ model Tenant {
   address            String?
   gstin              String?
   subscriptionPlan   String        @default("FREE")
+  menuTheme          String        @default("DEFAULT")
 
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
