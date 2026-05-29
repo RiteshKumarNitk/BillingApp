@@ -31,7 +31,9 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
     navLinks = [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Billing', href: '/billing', icon: Receipt },
-      { name: 'Inventory', href: '/products', icon: Package },
+      { name: 'Products', href: '/products', icon: Package },
+      { name: 'Bulk Inventory', href: '/inventory', icon: Package },
+      { name: 'Digital Menu QR', href: '/settings/menu', icon: Package },
     ];
     
     if (hasManageUsers) {

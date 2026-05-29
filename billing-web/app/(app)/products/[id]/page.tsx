@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { Package, Barcode, Tag, Calendar, AlertTriangle, ArrowLeft, Pencil, DollarSign, Box } from 'lucide-react';
+import ProductBarcode from './ProductBarcode';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: productId } = await params;
@@ -102,6 +103,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <div className="space-y-6">
+          {p.barcode && (
+            <ProductBarcode barcode={p.barcode} name={p.name} />
+          )}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Tag className="w-5 h-5 text-indigo-600" />
