@@ -22,6 +22,9 @@ class TransactionRepositoryImpl implements TransactionRepository {
                   'name': item.productName,
                   'salePrice': item.price,
                   'quantity': item.quantity,
+                  'variantId': item.variantId,
+                  'mrp': item.mrp,
+                  'purchasePrice': item.purchasePrice,
                 })
             .toList(),
         'discount': transaction.discountAmount,

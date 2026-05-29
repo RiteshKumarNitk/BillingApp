@@ -6,6 +6,9 @@ class TransactionItem extends Equatable {
   final double price;
   final double quantity;
   final double total;
+  final String? variantId;
+  final double mrp;
+  final double purchasePrice;
 
   const TransactionItem({
     required this.productId,
@@ -13,10 +16,13 @@ class TransactionItem extends Equatable {
     required this.price,
     required this.quantity,
     required this.total,
+    this.variantId,
+    this.mrp = 0.0,
+    this.purchasePrice = 0.0,
   });
 
   @override
-  List<Object?> get props => [productId, productName, price, quantity, total];
+  List<Object?> get props => [productId, productName, price, quantity, total, variantId, mrp, purchasePrice];
 }
 
 class Transaction extends Equatable {

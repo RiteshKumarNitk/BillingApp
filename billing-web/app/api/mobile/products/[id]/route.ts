@@ -37,7 +37,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         purchasePrice: data.purchasePrice !== undefined ? parseFloat(data.purchasePrice) : undefined,
         mrp: data.mrp !== undefined ? parseFloat(data.mrp) : undefined,
         salePrice: data.salePrice !== undefined ? parseFloat(data.salePrice) : undefined,
-        stock: data.stock !== undefined ? parseInt(data.stock) : undefined,
+        stock: data.stock !== undefined ? parseFloat(data.stock) : undefined,
         minStockThreshold: data.minStockThreshold !== undefined ? parseInt(data.minStockThreshold) : undefined,
         expiryDate: data.expiryDate ? new Date(data.expiryDate) : data.expiryDate === null ? null : undefined,
         manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : data.manufacturingDate === null ? null : undefined,

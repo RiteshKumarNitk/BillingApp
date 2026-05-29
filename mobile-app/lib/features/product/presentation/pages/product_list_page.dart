@@ -56,10 +56,6 @@ class _ProductListPageState extends State<ProductListPage> {
         title: const Text('Products'),
         centerTitle: true,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/dashboard'),
-        ),
       ),
       body: Column(
         children: [

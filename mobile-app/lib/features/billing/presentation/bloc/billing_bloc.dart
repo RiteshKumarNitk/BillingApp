@@ -189,6 +189,9 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           price: item.unitPrice,
           quantity: item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity.toDouble(),
           total: item.total,
+          variantId: item.variantId,
+          mrp: item.product.mrp,
+          purchasePrice: item.product.purchasePrice,
         );
       }).toList();
 
@@ -294,6 +297,9 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           price: item.unitPrice,
           quantity: item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity.toDouble(),
           total: item.total,
+          variantId: item.variantId,
+          mrp: item.product.mrp,
+          purchasePrice: item.product.purchasePrice,
         );
       }).toList();
 

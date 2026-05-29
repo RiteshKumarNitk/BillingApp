@@ -83,6 +83,9 @@ class ApiClient {
     if (response['token'] != null) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', response['token']);
+      if (response['user'] != null && response['user']['tenantId'] != null) {
+        await prefs.setString('tenant_id', response['user']['tenantId']);
+      }
     }
     
     return response;
@@ -141,7 +144,7 @@ class ApiClient {
   }
 
   // ================== Transaction API ==================
-  Future<Map<String, dynamic>> getTransactions({int page = 1, int limit = 50}) async {
+  Future<Map<String, dynamic>> getTransactions({int page = 1, int limit = 1000}) async {
     return await get('/transactions?page=$page&limit=$limit');
   }
 

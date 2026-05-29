@@ -29,10 +29,6 @@ class _SalesHistoryPageState extends State<SalesHistoryPage> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/dashboard'),
-        ),
       ),
       body: BlocBuilder<SalesHistoryBloc, SalesHistoryState>(
         builder: (context, state) {

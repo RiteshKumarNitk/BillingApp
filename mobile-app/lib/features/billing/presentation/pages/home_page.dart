@@ -78,10 +78,6 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/dashboard'),
-        ),
         actions: [
           IconButton(
             icon: Icon(_isCameraOn ? Icons.videocam_off : Icons.qr_code_scanner),

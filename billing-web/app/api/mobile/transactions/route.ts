@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
     let subtotal = 0;
     const transactionItemsData = items.map((item: any) => {
-      const qty = parseInt(item.quantity) || 1;
+      const qty = parseFloat(item.quantity) || 1;
       const price = parseFloat(item.salePrice) || 0;
       const itemTotal = price * qty;
       subtotal += itemTotal;
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
         salePrice: price,
         quantity: qty,
         itemTotal,
+        variantId: item.variantId || null,
       };
     });
 
@@ -97,10 +98,17 @@ export async function POST(request: Request) {
       });
 
       for (const item of transactionItemsData) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } }
-        });
+        if (item.variantId) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { decrement: item.quantity } }
+          });
+        } else {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } }
+          });
+        }
       }
 
       return newTransaction;

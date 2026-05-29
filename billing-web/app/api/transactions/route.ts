@@ -61,18 +61,19 @@ export async function POST(request: NextRequest) {
         titleOverride, purchasePrice, mrp, productType
       } = item;
 
-      // Note: we're skipping deep stock validation here for brevity in complex items
-      const itemTotal = quantity * salePrice;
+      const parsedQuantity = parseFloat(quantity) || 1;
+      const parsedSalePrice = parseFloat(salePrice) || 0;
+      const itemTotal = parsedQuantity * parsedSalePrice;
       totalAmount += itemTotal;
 
       transactionItemsData.push({
         productId,
         name: titleOverride || 'Product',
         barcode: '',
-        purchasePrice: purchasePrice || 0,
-        mrp: mrp || 0,
-        salePrice,
-        quantity,
+        purchasePrice: parseFloat(purchasePrice) || 0,
+        mrp: parseFloat(mrp) || 0,
+        salePrice: parsedSalePrice,
+        quantity: parsedQuantity,
         itemTotal,
         variantId,
         batchId,

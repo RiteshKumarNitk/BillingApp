@@ -39,6 +39,11 @@ export async function GET(request: Request) {
         orderBy: { name: 'asc' },
         skip,
         take: limit,
+        include: {
+          variants: true,
+          batches: true,
+          serials: true,
+        }
       }),
       prisma.product.count({ where }),
     ]);
@@ -82,7 +87,7 @@ export async function POST(request: Request) {
       purchasePrice: parseFloat(data.purchasePrice) || 0,
       mrp: parseFloat(data.mrp) || 0,
       salePrice: parseFloat(data.salePrice) || 0,
-      stock: parseInt(data.stock, 10) || 0,
+      stock: parseFloat(data.stock) || 0,
       minStockThreshold: parseInt(data.minStockThreshold, 10) || 10,
       expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
       manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,

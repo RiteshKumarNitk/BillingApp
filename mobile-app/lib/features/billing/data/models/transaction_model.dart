@@ -25,18 +25,36 @@ class TransactionItemModel extends TransactionItem {
   @HiveField(4)
   final double total;
 
+  @override
+  @HiveField(5)
+  final String? variantId;
+
+  @override
+  @HiveField(6)
+  final double mrp;
+
+  @override
+  @HiveField(7)
+  final double purchasePrice;
+
   const TransactionItemModel({
     required this.productId,
     required this.productName,
     required this.price,
     required this.quantity,
     required this.total,
+    this.variantId,
+    this.mrp = 0.0,
+    this.purchasePrice = 0.0,
   }) : super(
     productId: productId,
     productName: productName,
     price: price,
     quantity: quantity,
     total: total,
+    variantId: variantId,
+    mrp: mrp,
+    purchasePrice: purchasePrice,
   );
 
   factory TransactionItemModel.fromEntity(TransactionItem item) {
@@ -46,6 +64,9 @@ class TransactionItemModel extends TransactionItem {
       price: item.price,
       quantity: item.quantity,
       total: item.total,
+      variantId: item.variantId,
+      mrp: item.mrp,
+      purchasePrice: item.purchasePrice,
     );
   }
 
@@ -56,6 +77,9 @@ class TransactionItemModel extends TransactionItem {
       price: price,
       quantity: quantity,
       total: total,
+      variantId: variantId,
+      mrp: mrp,
+      purchasePrice: purchasePrice,
     );
   }
 }

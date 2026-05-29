@@ -1,137 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../features/billing/presentation/pages/home_page.dart';
+import '../../../../features/product/presentation/pages/product_list_page.dart';
+import '../../../../features/billing/presentation/pages/sales_history_page.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    const HomePage(),
+    const ProductListPage(),
+    const SalesHistoryPage(),
+    const _MenuPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 140,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppTheme.primaryColor,
-            foregroundColor: Colors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'Billing App',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppTheme.primaryColor,
-                      AppTheme.primaryColor.withValues(alpha: 0.8),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppTheme.primaryColor,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.point_of_sale),
+            label: 'Billing',
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1.0,
-              ),
-              delegate: SliverChildListDelegate([
-                _DashboardCard(
-                  icon: Icons.qr_code_scanner,
-                  title: 'Scan Bill',
-                  subtitle: 'Start new billing',
-                  color: AppTheme.primaryColor,
-                  onTap: () => context.go('/'),
-                ),
-                _DashboardCard(
-                  icon: Icons.analytics,
-                  title: 'Reports',
-                  subtitle: 'Sales history',
-                  color: Colors.orange,
-                  onTap: () => context.push('/sales-history'),
-                ),
-                _DashboardCard(
-                  icon: Icons.inventory_2,
-                  title: 'Products',
-                  subtitle: 'Manage inventory',
-                  color: Colors.teal,
-                  onTap: () => context.push('/products'),
-                ),
-                _DashboardCard(
-                  icon: Icons.people,
-                  title: 'Customers',
-                  subtitle: 'Customer list',
-                  color: Colors.blue,
-                  onTap: () => context.push('/customers'),
-                ),
-                _DashboardCard(
-                  icon: Icons.local_offer,
-                  title: 'Discounts',
-                  subtitle: 'Offers & deals',
-                  color: Colors.purple,
-                  onTap: () => context.push('/discounts'),
-                ),
-                _DashboardCard(
-                  icon: Icons.warning_amber,
-                  title: 'Expiry Alerts',
-                  subtitle: 'Stock expiry',
-                  color: Colors.red,
-                  onTap: () => context.push('/expiry-alerts'),
-                ),
-                _DashboardCard(
-                  icon: Icons.settings,
-                  title: 'Settings',
-                  subtitle: 'Configuration',
-                  color: Colors.grey[700]!,
-                  onTap: () => context.push('/settings'),
-                ),
-                _DashboardCard(
-                  icon: Icons.document_scanner,
-                  title: 'Bulk Import',
-                  subtitle: 'OCR Scan',
-                  color: Colors.cyan,
-                  onTap: () => context.push('/products/bulk-import'),
-                ),
-                _DashboardCard(
-                  icon: Icons.store,
-                  title: 'Shop',
-                  subtitle: 'Business details',
-                  color: Colors.brown,
-                  onTap: () => context.push('/shop'),
-                ),
-                _DashboardCard(
-                  icon: Icons.group,
-                  title: 'Team',
-                  subtitle: 'Manage members',
-                  color: Colors.indigo,
-                  onTap: () => context.push('/users'),
-                ),
-                _DashboardCard(
-                  icon: Icons.shield,
-                  title: 'Roles',
-                  subtitle: 'Permissions',
-                  color: Colors.deepPurple,
-                  onTap: () => context.push('/roles'),
-                ),
-                _DashboardCard(
-                  icon: Icons.badge,
-                  title: 'Employees',
-                  subtitle: 'Staff management',
-                  color: Colors.blueGrey,
-                  onTap: () => context.push('/employees'),
-                ),
-              ]),
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.inventory_2),
+            label: 'Products',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: 'Reports',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu),
+            label: 'Menu',
           ),
         ],
       ),
@@ -139,77 +63,106 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
-class _DashboardCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _DashboardCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
+class _MenuPage extends StatelessWidget {
+  const _MenuPage();
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.15),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(icon, color: color, size: 28),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[500],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('More Options', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: AppTheme.primaryColor,
+        foregroundColor: Colors.white,
+      ),
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildMenuCategory(context, 'Business', [
+            _MenuItem(icon: Icons.store, title: 'Shop Details', route: '/shop', color: Colors.brown),
+            _MenuItem(icon: Icons.qr_code_2, title: 'Digital Menu QR', route: '/digital-menu', color: Colors.green),
+            _MenuItem(icon: Icons.people, title: 'Customers', route: '/customers', color: Colors.blue),
+            _MenuItem(icon: Icons.local_offer, title: 'Discounts', route: '/discounts', color: Colors.purple),
+          ]),
+          const SizedBox(height: 16),
+          _buildMenuCategory(context, 'Inventory Tools', [
+            _MenuItem(icon: Icons.qr_code, title: 'Barcode Labels', route: '/barcode-labels', color: Colors.teal),
+            _MenuItem(icon: Icons.warning_amber, title: 'Expiry Alerts', route: '/expiry-alerts', color: Colors.red),
+            _MenuItem(icon: Icons.document_scanner, title: 'Bulk Import', route: '/products/bulk-import', color: Colors.cyan),
+          ]),
+          const SizedBox(height: 16),
+          _buildMenuCategory(context, 'Team Management', [
+            _MenuItem(icon: Icons.group, title: 'Users (Web Auth)', route: '/users', color: Colors.indigo),
+            _MenuItem(icon: Icons.badge, title: 'Employees (App PIN)', route: '/employees', color: Colors.blueGrey),
+            _MenuItem(icon: Icons.shield, title: 'Roles', route: '/roles', color: Colors.deepPurple),
+          ]),
+          const SizedBox(height: 16),
+          _buildMenuCategory(context, 'System', [
+            _MenuItem(icon: Icons.settings, title: 'Settings', route: '/settings', color: Colors.grey[700]!),
+          ]),
+        ],
       ),
     );
   }
+
+  Widget _buildMenuCategory(BuildContext context, String title, List<_MenuItem> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 8),
+          child: Text(
+            title.toUpperCase(),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: items.asMap().entries.map((entry) {
+              final isLast = entry.key == items.length - 1;
+              final item = entry.value;
+              return Column(
+                children: [
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: item.color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(item.icon, color: item.color, size: 20),
+                    ),
+                    title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w500)),
+                    trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                    onTap: () => context.push(item.route),
+                  ),
+                  if (!isLast) const Divider(height: 1, indent: 56),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MenuItem {
+  final IconData icon;
+  final String title;
+  final String route;
+  final Color color;
+
+  _MenuItem({required this.icon, required this.title, required this.route, required this.color});
 }

@@ -22,13 +22,16 @@ class TransactionItemModelAdapter extends TypeAdapter<TransactionItemModel> {
       price: fields[2] as double,
       quantity: fields[3] as double,
       total: fields[4] as double,
+      variantId: fields[5] as String?,
+      mrp: fields[6] as double,
+      purchasePrice: fields[7] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, TransactionItemModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.productId)
       ..writeByte(1)
@@ -38,7 +41,13 @@ class TransactionItemModelAdapter extends TypeAdapter<TransactionItemModel> {
       ..writeByte(3)
       ..write(obj.quantity)
       ..writeByte(4)
-      ..write(obj.total);
+      ..write(obj.total)
+      ..writeByte(5)
+      ..write(obj.variantId)
+      ..writeByte(6)
+      ..write(obj.mrp)
+      ..writeByte(7)
+      ..write(obj.purchasePrice);
   }
 
   @override

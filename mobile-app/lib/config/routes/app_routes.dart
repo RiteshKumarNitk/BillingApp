@@ -8,6 +8,8 @@ import '../../features/product/presentation/pages/add_product_page.dart';
 import '../../features/product/presentation/pages/edit_product_page.dart';
 import '../../features/product/presentation/pages/bulk_import_page.dart';
 import '../../features/shop/presentation/pages/shop_details_page.dart';
+import '../../features/product/presentation/pages/barcode_labels_page.dart';
+import '../../features/shop/presentation/pages/digital_menu_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/billing/presentation/pages/scanner_page.dart';
 import '../../features/billing/presentation/pages/checkout_page.dart';
@@ -39,18 +41,16 @@ final router = GoRouter(
       builder: (context, state) => const DashboardScreen(),
     ),
     GoRoute(
+      path: '/scanner',
+      builder: (context, state) => const ScannerPage(),
+    ),
+    GoRoute(
+      path: '/checkout',
+      builder: (context, state) => const CheckoutPage(),
+    ),
+    GoRoute(
       path: '/',
-      builder: (context, state) => const HomePage(),
-      routes: [
-        GoRoute(
-          path: 'scanner',
-          builder: (context, state) => const ScannerPage(),
-        ),
-        GoRoute(
-          path: 'checkout',
-          builder: (context, state) => const CheckoutPage(),
-        ),
-      ],
+      redirect: (context, state) => '/dashboard',
     ),
     GoRoute(
       path: '/settings',
@@ -87,6 +87,14 @@ final router = GoRouter(
     GoRoute(
       path: '/shop',
       builder: (context, state) => const ShopDetailsPage(),
+    ),
+    GoRoute(
+      path: '/digital-menu',
+      builder: (context, state) => const DigitalMenuPage(),
+    ),
+    GoRoute(
+      path: '/barcode-labels',
+      builder: (context, state) => const BarcodeLabelsPage(),
     ),
     GoRoute(
       path: '/customers',
