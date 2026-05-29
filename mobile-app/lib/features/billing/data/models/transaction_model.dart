@@ -19,7 +19,7 @@ class TransactionItemModel extends TransactionItem {
 
   @override
   @HiveField(3)
-  final int quantity;
+  final double quantity;
 
   @override
   @HiveField(4)
@@ -102,6 +102,30 @@ class TransactionModel extends Transaction {
   @HiveField(9)
   final String? notes;
 
+  @override
+  @HiveField(10)
+  final double discountAmount;
+
+  @override
+  @HiveField(11)
+  final double amountReceived;
+
+  @override
+  @HiveField(12)
+  final double changeAmount;
+
+  @override
+  @HiveField(13)
+  final String? customerId;
+
+  @override
+  @HiveField(14)
+  final String? customerName;
+
+  @override
+  @HiveField(15)
+  final String? customerPhone;
+
   const TransactionModel({
     required this.id,
     required this.timestamp,
@@ -113,6 +137,12 @@ class TransactionModel extends Transaction {
     this.isRefunded = false,
     this.refundId,
     this.notes,
+    this.discountAmount = 0.0,
+    this.amountReceived = 0.0,
+    this.changeAmount = 0.0,
+    this.customerId,
+    this.customerName,
+    this.customerPhone,
   }) : super(
     id: id,
     timestamp: timestamp,
@@ -124,6 +154,12 @@ class TransactionModel extends Transaction {
     isRefunded: isRefunded,
     refundId: refundId,
     notes: notes,
+    discountAmount: discountAmount,
+    amountReceived: amountReceived,
+    changeAmount: changeAmount,
+    customerId: customerId,
+    customerName: customerName,
+    customerPhone: customerPhone,
   );
 
   factory TransactionModel.fromEntity(Transaction transaction) {
@@ -140,6 +176,12 @@ class TransactionModel extends Transaction {
       isRefunded: transaction.isRefunded,
       refundId: transaction.refundId,
       notes: transaction.notes,
+      discountAmount: transaction.discountAmount,
+      amountReceived: transaction.amountReceived,
+      changeAmount: transaction.changeAmount,
+      customerId: transaction.customerId,
+      customerName: transaction.customerName,
+      customerPhone: transaction.customerPhone,
     );
   }
 
@@ -155,6 +197,12 @@ class TransactionModel extends Transaction {
       isRefunded: isRefunded,
       refundId: refundId,
       notes: notes,
+      discountAmount: discountAmount,
+      amountReceived: amountReceived,
+      changeAmount: changeAmount,
+      customerId: customerId,
+      customerName: customerName,
+      customerPhone: customerPhone,
     );
   }
 }

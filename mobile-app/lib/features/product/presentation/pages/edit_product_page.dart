@@ -21,12 +21,12 @@ class _EditProductPageState extends State<EditProductPage> {
   final _formKey = GlobalKey<FormState>();
   late String _name;
   late double _price;
-  late int _stock;
+  late double _stock;
   late String _category;
   DateTime? _expiryDate;
   DateTime? _manufacturingDate;
   late String _batchNumber;
-  late int _minStockThreshold;
+  late double _minStockThreshold;
 
   final List<String> _categories = [
     'Groceries',
@@ -43,7 +43,7 @@ class _EditProductPageState extends State<EditProductPage> {
   void initState() {
     super.initState();
     _name = widget.product.name;
-    _price = widget.product.price;
+    _price = widget.product.salePrice;
     _stock = widget.product.stock;
     _category = widget.product.category ?? '';
     _expiryDate = widget.product.expiryDate;
@@ -84,13 +84,21 @@ class _EditProductPageState extends State<EditProductPage> {
         id: widget.product.id,
         name: _name,
         barcode: widget.product.barcode,
-        price: _price,
+        productType: widget.product.productType,
+        unit: widget.product.unit,
+        allowDecimal: widget.product.allowDecimal,
+        mrp: widget.product.mrp,
+        salePrice: _price,
+        purchasePrice: widget.product.purchasePrice,
         stock: _stock,
         expiryDate: _expiryDate,
         manufacturingDate: _manufacturingDate,
         batchNumber: _batchNumber.isEmpty ? null : _batchNumber,
         category: _category.isEmpty ? null : _category,
         minStockThreshold: _minStockThreshold,
+        variants: widget.product.variants,
+        batches: widget.product.batches,
+        serials: widget.product.serials,
       );
 
       context.read<ProductBloc>().add(UpdateProduct(updatedProduct));
@@ -186,7 +194,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       prefixText: 'Units: ',
                     ),
                     onSaved: (value) =>
-                        _stock = int.tryParse(value ?? '0') ?? 0,
+                        _stock = double.tryParse(value ?? '0') ?? 0,
                   ),
                   const SizedBox(height: 24),
                   const InputLabel(text: 'Category'),
@@ -277,7 +285,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       prefixText: 'Alert when stock below: ',
                     ),
                     onSaved: (value) =>
-                        _minStockThreshold = int.tryParse(value ?? '10') ?? 10,
+                        _minStockThreshold = double.tryParse(value ?? '10') ?? 10,
                   ),
                   const SizedBox(height: 40),
                 ],

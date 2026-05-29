@@ -4,7 +4,7 @@ class TransactionItem extends Equatable {
   final String productId;
   final String productName;
   final double price;
-  final int quantity;
+  final double quantity;
   final double total;
 
   const TransactionItem({

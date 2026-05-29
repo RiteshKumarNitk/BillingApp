@@ -19,25 +19,28 @@ class AddProductPage extends StatefulWidget {
 
 class _AddProductPageState extends State<AddProductPage> {
   final _formKey = GlobalKey<FormState>();
+  
+  // Base fields
+  String _productType = 'SIMPLE';
   String _name = '';
   String _barcode = '';
-  double _price = 0.0;
-  int _stock = 0;
-  DateTime? _expiryDate;
-  DateTime? _manufacturingDate;
-  String _batchNumber = '';
   String _category = '';
-  int _minStockThreshold = 10;
+  
+  // Pricing & Stock
+  double _mrp = 0.0;
+  double _salePrice = 0.0;
+  double _purchasePrice = 0.0;
+  double _stock = 0.0;
+  double _minStockThreshold = 10.0;
+
+  // Complex Types
+  final List<ProductVariant> _variants = [];
+  final List<ProductBatch> _batches = [];
+  final List<ProductSerial> _serials = [];
 
   final List<String> _categories = [
-    'Groceries',
-    'Dairy',
-    'Beverages',
-    'Snacks',
-    'Household',
-    'Personal Care',
-    'Medicines',
-    'Other',
+    'Vegetables', 'Fruits', 'Grocery', 'FMCG', 'Medical',
+    'Dairy', 'Hardware', 'Clothing', 'Electronics', 'Restaurant', 'Other'
   ];
 
   void _scanBarcode() async {
@@ -49,32 +52,17 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  void _selectExpiryDate() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _expiryDate ?? DateTime.now().add(const Duration(days: 180)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-    );
-    if (date != null) {
-      setState(() {
-        _expiryDate = date;
-      });
-    }
-  }
-
-  void _selectManufacturingDate() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _manufacturingDate ?? DateTime.now(),
-      firstDate: DateTime.now().subtract(const Duration(days: 365 * 2)),
-      lastDate: DateTime.now(),
-    );
-    if (date != null) {
-      setState(() {
-        _manufacturingDate = date;
-      });
-    }
+  void _addVariant() {
+    setState(() {
+      _variants.add(ProductVariant(
+        id: const Uuid().v4(),
+        name: 'Variant ${_variants.length + 1}',
+        mrp: _mrp,
+        salePrice: _salePrice,
+        purchasePrice: _purchasePrice,
+        stock: 0,
+      ));
+    });
   }
 
   void _submit() {
@@ -82,30 +70,35 @@ class _AddProductPageState extends State<AddProductPage> {
       _formKey.currentState!.save();
 
       final productState = context.read<ProductBloc>().state;
-      final existingProduct =
-          productState.products.where((p) => p.barcode == _barcode).firstOrNull;
+      if (_barcode.isNotEmpty) {
+        final existingProduct =
+            productState.products.where((p) => p.barcode == _barcode).firstOrNull;
 
-      if (existingProduct != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Product with barcode "$_barcode" already exists!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
+        if (existingProduct != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Product with barcode "$_barcode" already exists!'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
       }
 
       final product = Product(
         id: const Uuid().v4(),
         name: _name,
         barcode: _barcode,
-        price: _price,
+        productType: _productType,
+        mrp: _mrp,
+        salePrice: _salePrice,
+        purchasePrice: _purchasePrice,
         stock: _stock,
-        expiryDate: _expiryDate,
-        manufacturingDate: _manufacturingDate,
-        batchNumber: _batchNumber.isEmpty ? null : _batchNumber,
         category: _category.isEmpty ? null : _category,
         minStockThreshold: _minStockThreshold,
+        variants: _productType == 'VARIANT' ? _variants : const [],
+        batches: _productType == 'BATCH' ? _batches : const [],
+        serials: _productType == 'SERIAL' ? _serials : const [],
       );
 
       context.read<ProductBloc>().add(AddProduct(product));
@@ -116,199 +109,256 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.chevron_left,
-                size: 28, color: Theme.of(context).primaryColor),
-            onPressed: () => context.go('/dashboard'),
-          ),
-          title: const Text('Add Product',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          centerTitle: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.chevron_left,
+              size: 28, color: Theme.of(context).primaryColor),
+          onPressed: () => context.go('/dashboard'),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const InputLabel(text: 'Barcode'),
+        title: const Text('Add Product',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const InputLabel(text: 'Product Type'),
+                DropdownButtonFormField<String>(
+                  value: _productType,
+                  decoration: const InputDecoration(hintText: 'Select Type'),
+                  items: const [
+                    DropdownMenuItem(value: 'SIMPLE', child: Text('Simple Product')),
+                    DropdownMenuItem(value: 'WEIGHT', child: Text('Weight Based (Loose Items)')),
+                    DropdownMenuItem(value: 'VARIANT', child: Text('Variant Based (Sizes, Colors)')),
+                    DropdownMenuItem(value: 'BATCH', child: Text('Batch Managed (Medicines)')),
+                    DropdownMenuItem(value: 'SERIAL', child: Text('Serial Managed (Electronics)')),
+                    DropdownMenuItem(value: 'SERVICE', child: Text('Service (No Inventory)')),
+                  ],
+                  onChanged: (value) => setState(() => _productType = value!),
+                ),
+                const SizedBox(height: 24),
+
+                const InputLabel(text: 'Product Name *'),
+                TextFormField(
+                  decoration: const InputDecoration(hintText: 'e.g. Basmati Rice'),
+                  textCapitalization: TextCapitalization.words,
+                  validator: AppValidators.required('Please enter a name'),
+                  onSaved: (value) => _name = value!,
+                ),
+                const SizedBox(height: 24),
+
+                const InputLabel(text: 'Barcode (Optional)'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        key: ValueKey(_barcode),
+                        initialValue: _barcode,
+                        decoration: const InputDecoration(hintText: 'Scan or enter barcode'),
+                        onSaved: (value) => _barcode = value ?? '',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryColor),
+                        onPressed: _scanBarcode,
+                        padding: const EdgeInsets.all(14),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                const InputLabel(text: 'Category'),
+                DropdownButtonFormField<String>(
+                  value: _category.isEmpty ? null : _category,
+                  decoration: const InputDecoration(hintText: 'Select category'),
+                  items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
+                  onChanged: (value) => setState(() => _category = value ?? ''),
+                  onSaved: (value) => _category = value ?? '',
+                ),
+                const SizedBox(height: 32),
+
+                // Pricing Section (Only if not Variant, or maybe base pricing for variant)
+                if (_productType != 'VARIANT') ...[
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text('Pricing & Inventory', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                  
                   Row(
                     children: [
                       Expanded(
-                        child: TextFormField(
-                          key: ValueKey(_barcode),
-                          initialValue: _barcode,
-                          decoration: const InputDecoration(
-                            hintText: 'Scan or enter barcode',
-                          ),
-                          validator:
-                              AppValidators.required('Please enter a barcode'),
-                          onSaved: (value) => _barcode = value!,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const InputLabel(text: 'Sale Price *'),
+                            TextFormField(
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(prefixText: '₹ ', hintText: '0.00'),
+                              validator: AppValidators.price,
+                              onSaved: (value) => _salePrice = double.parse(value!),
+                              onChanged: (value) => _salePrice = double.tryParse(value) ?? 0,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.qr_code_scanner,
-                              color: AppTheme.primaryColor),
-                          onPressed: _scanBarcode,
-                          padding: const EdgeInsets.all(14),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const InputLabel(text: 'MRP (Optional)'),
+                            TextFormField(
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(prefixText: '₹ ', hintText: '0.00'),
+                              onSaved: (value) => _mrp = double.tryParse(value ?? '0') ?? 0,
+                              onChanged: (value) => _mrp = double.tryParse(value) ?? 0,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  const Text('Tap the icon to open camera scanner',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF4C669A))),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Product Name'),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. Basmati Rice',
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                    validator: AppValidators.required('Please enter a name'),
-                    onSaved: (value) => _name = value!,
-                  ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Price'),
-                  TextFormField(
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      hintText: '0.00',
-                      prefixText: '₹ ',
-                      prefixStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black),
-                    ),
-                    validator: AppValidators.price,
-                    onSaved: (value) => _price = double.parse(value!),
-                  ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Initial Stock'),
-                  TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: '0',
-                      prefixText: 'Units: ',
-                    ),
-                    onSaved: (value) =>
-                        _stock = int.tryParse(value ?? '0') ?? 0,
-                  ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Category'),
-                  DropdownButtonFormField<String>(
-                    value: _category.isEmpty ? null : _category,
-                    decoration: const InputDecoration(
-                      hintText: 'Select category',
-                    ),
-                    items: _categories.map((cat) {
-                      return DropdownMenuItem(value: cat, child: Text(cat));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _category = value ?? '';
-                      });
-                    },
-                    onSaved: (value) => _category = value ?? '',
-                  ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Manufacturing Date'),
-                  InkWell(
-                    onTap: _selectManufacturingDate,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _manufacturingDate != null
-                                ? '${_manufacturingDate!.day}/${_manufacturingDate!.month}/${_manufacturingDate!.year}'
-                                : 'Select date',
-                            style: TextStyle(
-                              color: _manufacturingDate != null
-                                  ? Colors.black
-                                  : Colors.grey,
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const InputLabel(text: 'Purchase Price'),
+                            TextFormField(
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(prefixText: '₹ ', hintText: '0.00'),
+                              onSaved: (value) => _purchasePrice = double.tryParse(value ?? '0') ?? 0,
                             ),
+                          ],
+                        ),
+                      ),
+                      if (_productType != 'SERVICE') ...[
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const InputLabel(text: 'Current Stock'),
+                              TextFormField(
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                decoration: const InputDecoration(hintText: '0'),
+                                onSaved: (value) => _stock = double.tryParse(value ?? '0') ?? 0,
+                              ),
+                            ],
                           ),
-                          const Icon(Icons.calendar_today, size: 20),
-                        ],
-                      ),
-                    ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Expiry Date'),
-                  InkWell(
-                    onTap: _selectExpiryDate,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _expiryDate != null
-                                ? '${_expiryDate!.day}/${_expiryDate!.month}/${_expiryDate!.year}'
-                                : 'Select date',
-                            style: TextStyle(
-                              color: _expiryDate != null
-                                  ? Colors.black
-                                  : Colors.grey,
-                            ),
-                          ),
-                          const Icon(Icons.calendar_today, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Batch Number'),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Optional',
-                    ),
-                    onSaved: (value) => _batchNumber = value ?? '',
-                  ),
-                  const SizedBox(height: 24),
-                  const InputLabel(text: 'Low Stock Alert Threshold'),
-                  TextFormField(
-                    keyboardType: TextInputType.number,
-                    initialValue: '10',
-                    decoration: const InputDecoration(
-                      hintText: '10',
-                      prefixText: 'Alert when stock below: ',
-                    ),
-                    onSaved: (value) =>
-                        _minStockThreshold = int.tryParse(value ?? '10') ?? 10,
-                  ),
-                  const SizedBox(height: 40),
                 ],
-              ),
+
+                // Variants Section
+                if (_productType == 'VARIANT') ...[
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Product Variants', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        TextButton.icon(
+                          onPressed: _addVariant, 
+                          icon: const Icon(Icons.add), 
+                          label: const Text('Add Variant')
+                        )
+                      ],
+                    ),
+                  ),
+                  if (_variants.isEmpty)
+                    const Text('Add at least one variant to continue.', style: TextStyle(color: Colors.red)),
+                  
+                  ..._variants.asMap().entries.map((entry) {
+                    int idx = entry.key;
+                    ProductVariant variant = entry.value;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Variant #${idx + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => setState(() => _variants.removeAt(idx)),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            initialValue: variant.name,
+                            decoration: const InputDecoration(labelText: 'Variant Name (e.g. Small, Red)'),
+                            onChanged: (val) => _variants[idx] = ProductVariant(id: variant.id, name: val, mrp: variant.mrp, salePrice: variant.salePrice, stock: variant.stock, barcode: variant.barcode),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: variant.salePrice.toString(),
+                                  decoration: const InputDecoration(labelText: 'Sale Price (₹)'),
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  onChanged: (val) => _variants[idx] = ProductVariant(id: variant.id, name: variant.name, mrp: variant.mrp, salePrice: double.tryParse(val) ?? 0, stock: variant.stock, barcode: variant.barcode),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: variant.stock.toString(),
+                                  decoration: const InputDecoration(labelText: 'Stock'),
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  onChanged: (val) => _variants[idx] = ProductVariant(id: variant.id, name: variant.name, mrp: variant.mrp, salePrice: variant.salePrice, stock: double.tryParse(val) ?? 0, barcode: variant.barcode),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  })
+                ],
+
+                const SizedBox(height: 40),
+              ],
             ),
           ),
         ),
-        bottomNavigationBar: PrimaryButton(
-          onPressed: _submit,
-          icon: Icons.add_circle,
-          label: 'Add Product',
-        ));
+      ),
+      bottomNavigationBar: PrimaryButton(
+        onPressed: _productType == 'VARIANT' && _variants.isEmpty 
+            ? null 
+            : _submit,
+        icon: Icons.add_circle,
+        label: 'Add Product',
+      ),
+    );
   }
 }

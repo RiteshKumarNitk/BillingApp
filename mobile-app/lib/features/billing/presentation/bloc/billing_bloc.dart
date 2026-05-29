@@ -43,7 +43,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
         errorMessage: 'Product not found: ${event.barcode}',
       )),
       (product) {
-        add(AddProductToCartEvent(product));
+        add(AddProductToCartEvent(CartItem(
+          product: product,
+          unitPrice: product.salePrice,
+        )));
       },
     );
   }
@@ -53,17 +56,26 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     // Clear error when adding
     final cleanState = state.copyWith(errorType: ErrorType.none);
 
-    final existingIndex = cleanState.cartItems
-        .indexWhere((item) => item.product.id == event.product.id);
+    final existingIndex = cleanState.cartItems.indexWhere((item) =>
+        item.product.id == event.item.product.id &&
+        item.variantId == event.item.variantId);
+
     if (existingIndex >= 0) {
       final existingItem = cleanState.cartItems[existingIndex];
       final backendItems = List<CartItem>.from(cleanState.cartItems);
-      backendItems[existingIndex] =
-          existingItem.copyWith(quantity: existingItem.quantity + 1);
+
+      if (event.item.product.productType == 'WEIGHT') {
+        backendItems[existingIndex] = existingItem.copyWith(
+            weightQuantity:
+                existingItem.weightQuantity + event.item.weightQuantity);
+      } else {
+        backendItems[existingIndex] =
+            existingItem.copyWith(quantity: existingItem.quantity + event.item.quantity);
+      }
       emit(cleanState.copyWith(cartItems: backendItems));
     } else {
-      final newItem = CartItem(product: event.product);
-      emit(cleanState.copyWith(cartItems: [...cleanState.cartItems, newItem]));
+      emit(cleanState.copyWith(
+          cartItems: [...cleanState.cartItems, event.item]));
     }
   }
 
@@ -83,7 +95,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     }
 
     final index = state.cartItems
-        .indexWhere((item) => item.product.id == event.productId);
+        .indexWhere((item) => item.product.id == event.productId); // TODO: pass variantId in event if needed
     if (index >= 0) {
       final items = List<CartItem>.from(state.cartItems);
       items[index] = items[index].copyWith(quantity: event.quantity);
@@ -136,9 +148,9 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     try {
       final items = state.cartItems
           .map((item) => {
-                'name': item.product.name,
-                'qty': item.quantity,
-                'price': item.product.price,
+                'name': item.variantName != null ? '${item.product.name} - ${item.variantName}' : item.product.name,
+                'qty': item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity,
+                'price': item.unitPrice,
                 'total': item.total,
               })
           .toList();
@@ -172,10 +184,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     try {
       final transactionItems = state.cartItems.map((item) {
         return TransactionItem(
-          productId: item.product.id,
-          productName: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
+          productId: item.variantId ?? item.product.id,
+          productName: item.variantName != null ? '${item.product.name} - ${item.variantName}' : item.product.name,
+          price: item.unitPrice,
+          quantity: item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity.toDouble(),
           total: item.total,
         );
       }).toList();
@@ -201,15 +213,28 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       for (var item in state.cartItems) {
         final product = HiveDatabase.productBox.get(item.product.id);
         if (product != null) {
-          int newStock = product.stock - item.quantity;
+          double newStock = product.stock - (item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity);
           if (newStock < 0) newStock = 0;
 
           final updatedProduct = ProductModel(
             id: product.id,
             name: product.name,
             barcode: product.barcode,
-            price: product.price,
+            productType: product.productType,
+            unit: product.unit,
+            allowDecimal: product.allowDecimal,
+            mrp: product.mrp,
+            salePrice: product.salePrice,
+            purchasePrice: product.purchasePrice,
             stock: newStock,
+            expiryDate: product.expiryDate,
+            manufacturingDate: product.manufacturingDate,
+            batchNumber: product.batchNumber,
+            category: product.category,
+            minStockThreshold: product.minStockThreshold,
+            variants: product.variants,
+            batches: product.batches,
+            serials: product.serials,
           );
 
           await HiveDatabase.productBox.put(item.product.id, updatedProduct);
@@ -264,10 +289,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     try {
       final transactionItems = state.cartItems.map((item) {
         return TransactionItem(
-          productId: item.product.id,
-          productName: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
+          productId: item.variantId ?? item.product.id,
+          productName: item.variantName != null ? '${item.product.name} - ${item.variantName}' : item.product.name,
+          price: item.unitPrice,
+          quantity: item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity.toDouble(),
           total: item.total,
         );
       }).toList();

@@ -190,50 +190,74 @@ class _ProductListPageState extends State<ProductListPage> {
                                       fontSize: 16),
                                 ),
                                 const SizedBox(height: 4),
-                                if (product.category != null &&
-                                    product.category!.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[50],
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      product.category!,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.blue[700]),
-                                    ),
-                                  ),
+                                Wrap(
+                                  spacing: 8,
+                                  children: [
+                                    if (product.category != null &&
+                                        product.category!.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[50],
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          product.category!,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.blue[700]),
+                                        ),
+                                      ),
+                                    if (product.productType != 'SIMPLE')
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.purple[50],
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          product.productType,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.purple[700]),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
                                     Text(
-                                      '₹${product.price.toStringAsFixed(2)}',
+                                      '₹${product.salePrice.toStringAsFixed(2)}',
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           color: Colors.grey[600]),
                                     ),
                                     const SizedBox(width: 12),
-                                    Icon(Icons.inventory_2,
-                                        size: 14,
-                                        color: product.isLowStock
-                                            ? Colors.red
-                                            : Colors.grey),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${product.stock}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: product.isLowStock
-                                            ? Colors.red
-                                            : Colors.grey,
-                                        fontWeight: product.isLowStock
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
+                                    if (product.productType != 'SERVICE') ...[
+                                      Icon(Icons.inventory_2,
+                                          size: 14,
+                                          color: product.isLowStock
+                                              ? Colors.red
+                                              : Colors.grey),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        product.productType == 'VARIANT'
+                                            ? '${product.variants.length} Variants'
+                                            : '${product.stock}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: product.isLowStock
+                                              ? Colors.red
+                                              : Colors.grey,
+                                          fontWeight: product.isLowStock
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ],
                                 ),
                               ],

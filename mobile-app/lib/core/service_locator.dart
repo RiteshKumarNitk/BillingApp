@@ -169,5 +169,4 @@ Future<void> init() async {
   );
 
   // Features - Employee (additional)
-  sl.registerLazySingleton(() => AuthenticateEmployeeUseCase(sl()));
 }

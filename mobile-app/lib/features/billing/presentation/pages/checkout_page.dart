@@ -74,10 +74,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final transactionId = const Uuid().v4();
     final items = billingState.cartItems
         .map((item) => TransactionItem(
-              productId: item.product.id,
-              productName: item.product.name,
-              price: item.product.price,
-              quantity: item.quantity,
+              productId: item.variantId ?? item.product.id,
+              productName: item.variantName != null ? '${item.product.name} - ${item.variantName}' : item.product.name,
+              price: item.unitPrice,
+              quantity: item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity.toDouble(),
               total: item.total,
             ))
         .toList();
@@ -305,7 +305,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           _buildDataCell('${item.quantity}',
                                               TextAlign.center),
                                           _buildDataCell(
-                                              '₹${item.product.price.toStringAsFixed(2)}',
+                                              '₹${item.unitPrice.toStringAsFixed(2)}',
                                               TextAlign.right),
                                           _buildDataCell(
                                               '₹${item.total.toStringAsFixed(2)}',
@@ -689,10 +689,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final transactionId = const Uuid().v4();
     final items = billingState.cartItems
         .map((item) => TransactionItem(
-              productId: item.product.id,
-              productName: item.product.name,
-              price: item.product.price,
-              quantity: item.quantity,
+              productId: item.variantId ?? item.product.id,
+              productName: item.variantName != null ? '${item.product.name} - ${item.variantName}' : item.product.name,
+              price: item.unitPrice,
+              quantity: item.product.productType == 'WEIGHT' ? item.weightQuantity : item.quantity.toDouble(),
               total: item.total,
             ))
         .toList();

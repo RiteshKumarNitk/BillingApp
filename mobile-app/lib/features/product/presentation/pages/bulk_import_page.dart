@@ -228,8 +228,10 @@ class _BulkImportPageState extends State<BulkImportPage> {
         id: parsed.id,
         name: parsed.name,
         barcode: parsed.barcode.isEmpty ? const Uuid().v4() : parsed.barcode,
-        price: parsed.price,
-        stock: parsed.stock,
+        salePrice: parsed.price,
+        mrp: parsed.price,
+        purchasePrice: 0.0,
+        stock: parsed.stock.toDouble(),
       );
 
       context.read<ProductBloc>().add(AddProduct(product));

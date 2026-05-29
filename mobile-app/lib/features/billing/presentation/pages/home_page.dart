@@ -8,6 +8,8 @@ import '../../../billing/presentation/bloc/billing_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../domain/entities/cart_item.dart';
+import '../../../product/presentation/bloc/product_bloc.dart';
+import '../../../product/domain/entities/product.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,8 +24,9 @@ class _HomePageState extends State<HomePage> {
     returnImage: false,
   );
 
-  bool _isCameraOn = true;
+  bool _isCameraOn = false; // Default to false to match web flow
   bool _isFlashOn = false;
+  final TextEditingController _searchController = TextEditingController();
 
   // Cooldown mapping to prevent rapid firing of the same barcode
   final Map<String, DateTime> _lastScanTimes = {};
@@ -31,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _scannerController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -70,7 +74,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan Bill'),
+        title: const Text('New Bill'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -78,6 +82,21 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/dashboard'),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(_isCameraOn ? Icons.videocam_off : Icons.qr_code_scanner),
+            onPressed: () {
+              setState(() {
+                _isCameraOn = !_isCameraOn;
+              });
+              if (_isCameraOn) {
+                _scannerController.start();
+              } else {
+                _scannerController.stop();
+              }
+            },
+          )
+        ],
       ),
       body: BlocListener<BillingBloc, BillingState>(
         listenWhen: (previous, current) =>
@@ -94,23 +113,23 @@ class _HomePageState extends State<HomePage> {
             );
           }
         },
-        child: Stack(
+        child: Column(
           children: [
-            // SCANNER VIEW (TOP 50%)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: MediaQuery.of(context).size.height * 0.4,
-              child: _buildScannerSection(),
+            // Search Bar Area
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: _buildSearchBar(),
             ),
 
-            // BOTTOM PANEL (BOTTOM 50% + OVERLAP)
-            Positioned(
-              top: (MediaQuery.of(context).size.height * 0.4) - 24, // overlap
-              left: 0,
-              right: 0,
-              bottom: 0,
+            // Scanner View (Collapsible)
+            if (_isCameraOn)
+              SizedBox(
+                height: 250,
+                child: _buildScannerSection(),
+              ),
+
+            // Bottom Panel for Cart Items
+            Expanded(
               child: _buildBottomPanel(),
             ),
           ],
@@ -133,6 +152,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildSearchBar() {
+    return BlocBuilder<ProductBloc, ProductState>(
+      builder: (context, state) {
+        return Autocomplete<Product>(
+          optionsBuilder: (TextEditingValue textEditingValue) {
+            if (textEditingValue.text.isEmpty) {
+              return const Iterable<Product>.empty();
+            }
+            return state.products.where((Product product) {
+              return product.name
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase()) ||
+                  product.barcode.contains(textEditingValue.text);
+            });
+          },
+          displayStringForOption: (Product option) => option.name,
+          onSelected: (Product selection) {
+            context.read<BillingBloc>().add(AddProductToCartEvent(CartItem(
+              product: selection,
+              unitPrice: selection.salePrice,
+            )));
+            _searchController.clear();
+          },
+          fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                hintText: 'Search products by name or barcode...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildScannerSection() {
     return Container(
       color: Colors.black,
@@ -143,7 +205,7 @@ class _HomePageState extends State<HomePage> {
             controller: _scannerController,
             onDetect: _onDetect,
           ),
-          if (!_isCameraOn) _buildCameraOffState(),
+          // Removed _buildCameraOffState reference
 
           // Overlay Actions (Top Right)
           Positioned(
@@ -214,59 +276,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCameraOffState() {
-    return Container(
-      color: const Color(0xFF1E293B), // slate-800
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: const BoxDecoration(
-              color: Color(0xFF334155), // slate-700
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child:
-                const Icon(Icons.videocam_off, color: Colors.white, size: 32),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Camera is turned off',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              'Turn on your camera to start scanning barcodes and items automatically.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            icon: const Icon(Icons.videocam),
-            label: const Text('Turn on Camera',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            onPressed: () {
-              setState(() => _isCameraOn = true);
-              _scannerController.start();
-            },
-          )
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildOverlayButton(
       {required IconData icon, required VoidCallback onPressed, Color? color}) {
@@ -353,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Scanned Items',
+                        const Text('Cart Items',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w600)),
                         Text('$totalItems items total',

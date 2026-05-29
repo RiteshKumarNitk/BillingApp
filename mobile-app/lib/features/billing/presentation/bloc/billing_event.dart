@@ -14,10 +14,10 @@ class ScanBarcodeEvent extends BillingEvent {
 }
 
 class AddProductToCartEvent extends BillingEvent {
-  final Product product;
-  const AddProductToCartEvent(this.product);
+  final CartItem item;
+  const AddProductToCartEvent(this.item);
   @override
-  List<Object> get props => [product];
+  List<Object> get props => [item];
 }
 
 class RemoveProductFromCartEvent extends BillingEvent {

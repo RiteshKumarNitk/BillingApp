@@ -20,7 +20,7 @@ class TransactionItemModelAdapter extends TypeAdapter<TransactionItemModel> {
       productId: fields[0] as String,
       productName: fields[1] as String,
       price: fields[2] as double,
-      quantity: fields[3] as int,
+      quantity: fields[3] as double,
       total: fields[4] as double,
     );
   }
@@ -73,13 +73,19 @@ class TransactionModelAdapter extends TypeAdapter<TransactionModel> {
       isRefunded: fields[7] as bool,
       refundId: fields[8] as String?,
       notes: fields[9] as String?,
+      discountAmount: fields[10] as double,
+      amountReceived: fields[11] as double,
+      changeAmount: fields[12] as double,
+      customerId: fields[13] as String?,
+      customerName: fields[14] as String?,
+      customerPhone: fields[15] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TransactionModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -99,7 +105,19 @@ class TransactionModelAdapter extends TypeAdapter<TransactionModel> {
       ..writeByte(8)
       ..write(obj.refundId)
       ..writeByte(9)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(10)
+      ..write(obj.discountAmount)
+      ..writeByte(11)
+      ..write(obj.amountReceived)
+      ..writeByte(12)
+      ..write(obj.changeAmount)
+      ..writeByte(13)
+      ..write(obj.customerId)
+      ..writeByte(14)
+      ..write(obj.customerName)
+      ..writeByte(15)
+      ..write(obj.customerPhone);
   }
 
   @override
