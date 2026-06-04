@@ -22,8 +22,6 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const t = tenant as any;
-
   return (
     <div className="p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -52,15 +50,15 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Email Address</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.email || '-'}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.email || '-'}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Contact Person</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.contactPerson || '-'}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.contactPerson || '-'}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Phone</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.phone || '-'}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.phone || '-'}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Domain</dt>
@@ -80,43 +78,43 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
             <dt className="text-sm font-medium text-gray-500">Subscription Plan</dt>
             <dd className="mt-1 text-sm text-gray-900">
               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                {t.subscriptionPlan}
+                {tenant.subscriptionPlan}
               </span>
             </dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">GSTIN</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.gstin || '-'}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.gstin || '-'}</dd>
           </div>
           <div className="sm:col-span-2">
             <dt className="text-sm font-medium text-gray-500">Address</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.address || '-'}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.address || '-'}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Created At</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.createdAt.toLocaleDateString()}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.createdAt.toLocaleDateString()}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
-            <dd className="mt-1 text-sm text-gray-900">{t.updatedAt.toLocaleDateString()}</dd>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.updatedAt.toLocaleDateString()}</dd>
           </div>
         </dl>
       </div>
 
-      <div className="mt-6 bg-white shadow rounded-lg p-6">
+      <div className="mt-6 bg-white shadow rounded-lg p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Overview</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <div className="text-2xl font-bold text-indigo-600">{tenant._count.users}</div>
-            <div className="text-sm text-gray-500">Users</div>
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg text-center">
+            <div className="text-xl sm:text-2xl font-bold text-indigo-600">{tenant._count.users}</div>
+            <div className="text-xs sm:text-sm text-gray-500">Users</div>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <div className="text-2xl font-bold text-indigo-600">{tenant._count.products}</div>
-            <div className="text-sm text-gray-500">Products</div>
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg text-center">
+            <div className="text-xl sm:text-2xl font-bold text-indigo-600">{tenant._count.products}</div>
+            <div className="text-xs sm:text-sm text-gray-500">Products</div>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <div className="text-2xl font-bold text-indigo-600">{tenant._count.transactions}</div>
-            <div className="text-sm text-gray-500">Transactions</div>
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg text-center">
+            <div className="text-xl sm:text-2xl font-bold text-indigo-600">{tenant._count.transactions}</div>
+            <div className="text-xs sm:text-sm text-gray-500">Transactions</div>
           </div>
         </div>
       </div>

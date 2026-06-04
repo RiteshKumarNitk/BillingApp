@@ -69,6 +69,8 @@ export async function POST(request: Request) {
         quantity: qty,
         itemTotal,
         variantId: item.variantId || null,
+        batchId: item.batchId || null,
+        serialId: item.serialId || null,
       };
     });
 
@@ -102,6 +104,16 @@ export async function POST(request: Request) {
           await tx.productVariant.update({
             where: { id: item.variantId },
             data: { stock: { decrement: item.quantity } }
+          });
+        } else if (item.batchId) {
+          await tx.productBatch.update({
+            where: { id: item.batchId },
+            data: { stock: { decrement: item.quantity } }
+          });
+        } else if (item.serialId) {
+          await tx.productSerial.update({
+            where: { id: item.serialId },
+            data: { status: 'SOLD' }
           });
         } else {
           await tx.product.update({

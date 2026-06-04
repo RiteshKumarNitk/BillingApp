@@ -1,15 +1,20 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth';
 import PrintInvoiceButton from './PrintInvoiceButton';
-
-export const dynamic = 'force-static'; // This is a demo page, in real app you might want to fetch on request
 
 export default async function BillPreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: transactionId } = await params;
 
-  // Fetch the transaction with related data
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    redirect('/auth/login');
+  }
+
+  // Fetch the transaction with related data, scoped to tenant
   const transaction = await prisma.transaction.findUnique({
-    where: { id: transactionId },
+    where: { id: transactionId, tenantId: session.user.tenantId },
     include: {
       items: {
         include: {

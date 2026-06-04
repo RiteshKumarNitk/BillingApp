@@ -105,7 +105,7 @@ export default function BillingPage() {
       newCart[existingItemIndex] = {
         ...newCart[existingItemIndex],
         quantity: newQty,
-        itemTotal: (newQty * newCart[existingItemIndex].salePrice).toFixed(2)
+        itemTotal: newQty * newCart[existingItemIndex].salePrice
       };
       setCart(newCart);
       addToast('success', `${titleOverride} quantity updated`);
@@ -119,7 +119,7 @@ export default function BillingPage() {
         mrp: mrp || product.mrp,
         salePrice: salePrice || product.salePrice,
         quantity: quantity,
-        itemTotal: ((salePrice || product.salePrice) * quantity).toFixed(2),
+        itemTotal: (salePrice || product.salePrice) * quantity,
         maxStock: product.stock,
         stock: product.stock,
         variantId,
@@ -154,7 +154,7 @@ export default function BillingPage() {
         return {
           ...item,
           quantity,
-          itemTotal: (quantity * item.salePrice).toFixed(2)
+          itemTotal: quantity * item.salePrice
         };
       }
       return item;
@@ -168,7 +168,7 @@ export default function BillingPage() {
         return {
           ...item,
           salePrice,
-          itemTotal: (item.quantity * salePrice).toFixed(2)
+          itemTotal: item.quantity * salePrice
         };
       }
       return item;
@@ -252,7 +252,13 @@ export default function BillingPage() {
 
   const scanBarcode = () => {
     if ('BarcodeDetector' in window) {
-      const detector = new (window as any).BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code'] });
+      // Browser BarcodeDetector API (Chrome, Edge) - not in standard TS DOM types
+      const BarcodeDetectorCtor = (window as unknown as {
+        BarcodeDetector: new (opts: { formats: string[] }) => {
+          detect(video: HTMLVideoElement): Promise<{ rawValue: string }[]>;
+        };
+      }).BarcodeDetector;
+      const detector = new BarcodeDetectorCtor({ formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code'] });
       const detect = async () => {
         if (!videoRef.current || !scanning) return;
         try {
@@ -303,12 +309,12 @@ export default function BillingPage() {
 
   return (
     <div>
-      <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <header className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Create New Bill</h1>
-          <p className="text-gray-600">Search or scan items and add them to the bill</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Create New Bill</h1>
+          <p className="text-sm sm:text-base text-gray-600">Search or scan items and add them to the bill</p>
         </div>
-        <div className="flex items-center gap-3 text-sm text-gray-500">
+        <div className="hidden sm:flex items-center gap-3 text-sm text-gray-500">
           <kbd className="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl+K</kbd>
           <span>Focus search</span>
         </div>
@@ -324,10 +330,10 @@ export default function BillingPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column: Search */}
         <section className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-4 space-y-4">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-4 space-y-4">
             {/* Barcode Scanner */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -414,7 +420,7 @@ export default function BillingPage() {
             )}
 
             {!searchLoading && products.length > 0 && (
-              <ul className="space-y-2 max-h-[calc(100vh-28rem)] overflow-y-auto">
+              <ul className="space-y-2 max-h-[50vh] lg:max-h-[calc(100vh-28rem)] overflow-y-auto">
                 {products.map(product => (
                   <li
                     key={product.id}
@@ -454,7 +460,7 @@ export default function BillingPage() {
 
         {/* Middle Column: Cart */}
         <section className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800">
                 Cart
@@ -482,7 +488,7 @@ export default function BillingPage() {
             )}
 
             {cart.length > 0 && (
-              <div className="space-y-3 max-h-[calc(100vh-24rem)] overflow-y-auto">
+              <div className="space-y-3 max-h-[50vh] lg:max-h-[calc(100vh-24rem)] overflow-y-auto">
                 {cart.map(item => (
                   <div key={item.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                     <div className="flex justify-between items-start mb-2">
@@ -517,17 +523,17 @@ export default function BillingPage() {
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <div className="relative">
                           <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
                           <input
                             type="number"
                             value={item.salePrice}
                             onChange={(e) => updateSalePrice(item.id, parseFloat(e.target.value) || 0)}
-                            className="w-20 pl-5 pr-2 py-1.5 text-sm border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            className="w-16 sm:w-20 pl-5 pr-1 sm:pr-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                           />
                         </div>
-                        <span className="font-semibold text-gray-900 min-w-[5rem] text-right">
+                        <span className="font-semibold text-gray-900 min-w-[3.5rem] sm:min-w-[5rem] text-xs sm:text-sm text-right">
                           ₹{parseFloat(item.itemTotal).toFixed(2)}
                         </span>
                       </div>
@@ -541,7 +547,7 @@ export default function BillingPage() {
 
         {/* Right Column: Order Summary */}
         <section className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h2>
 
             <div className="space-y-4">

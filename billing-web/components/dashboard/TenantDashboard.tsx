@@ -130,7 +130,7 @@ export default async function TenantDashboard({
 
   // 7. Fetch Low Stock Products
   const lowStockItems: Array<{ id: string; name: string; stock: number; minStockThreshold: number | null; unit: string }> =
-    await (prisma as any).product.findMany({
+    await prisma.product.findMany({
       where: {
         stock: { lte: 10 },
         tenantId

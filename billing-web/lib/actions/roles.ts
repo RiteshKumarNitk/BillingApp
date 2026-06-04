@@ -10,7 +10,7 @@ export async function getRoles() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) throw new Error("Unauthorized");
 
-  const roles = await (prisma as any).role.findMany({
+  const roles = await prisma.role.findMany({
     where: { tenantId: session.user.tenantId },
     include: { _count: { select: { users: true } } },
     orderBy: { createdAt: 'asc' }
@@ -28,15 +28,13 @@ export async function createRole(name: string, permissions: string[]) {
   if (!name.trim()) throw new Error("Role name is required");
 
   // Filter out invalid permissions just in case
-  const validPermissions = permissions.filter(p => Object.keys(PERMISSIONS).includes(p));
-
-  const role = await (prisma as any).role.create({
-    data: {
-      name: name.trim(),
-      permissions: validPermissions,
-      tenantId: session.user.tenantId
-    }
-  });
+  const validPermissions = permissions.filter(p => Object.keys(PERMISSIONS).includes(p));  const role = await prisma.role.create({
+      data: {
+        name: name.trim(),
+        permissions: validPermissions,
+        tenantId: session.user.tenantId
+      }
+    });
 
   revalidatePath('/roles');
   return role;
@@ -51,14 +49,14 @@ export async function updateRole(roleId: string, name: string, permissions: stri
   if (!name.trim()) throw new Error("Role name is required");
 
   // Prevent editing the default "Owner" role
-  const existingRole = await (prisma as any).role.findUnique({ where: { id: roleId } });
+  const existingRole = await prisma.role.findUnique({ where: { id: roleId } });
   if (existingRole?.name === 'Owner') {
     throw new Error("Cannot edit the default Owner role");
   }
 
   const validPermissions = permissions.filter(p => Object.keys(PERMISSIONS).includes(p));
 
-  const role = await (prisma as any).role.update({
+  const role = await prisma.role.update({
     where: { id: roleId, tenantId: session.user.tenantId },
     data: {
       name: name.trim(),
@@ -76,7 +74,7 @@ export async function deleteRole(roleId: string) {
 
   await requirePermission('MANAGE_USERS');
 
-  const role = await (prisma as any).role.findUnique({
+  const role = await prisma.role.findUnique({
     where: { id: roleId, tenantId: session.user.tenantId },
     include: { _count: { select: { users: true } } }
   });
@@ -85,7 +83,7 @@ export async function deleteRole(roleId: string) {
   if (role.name === 'Owner') throw new Error("Cannot delete the Owner role");
   if (role._count.users > 0) throw new Error("Cannot delete a role that is assigned to users");
 
-  await (prisma as any).role.delete({
+  await prisma.role.delete({
     where: { id: roleId }
   });
 

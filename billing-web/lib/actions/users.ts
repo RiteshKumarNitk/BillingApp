@@ -13,21 +13,21 @@ export async function getTenantUsers() {
 
   if (session.user.role === 'SUPERADMIN') {
     // Superadmin can see all users in the system
-    return await (prisma as any).user.findMany({
+    return await prisma.user.findMany({
       include: { tenantRole: true, tenant: true },
       orderBy: { createdAt: 'desc' }
     });
   }
 
   // Regular tenant users only see users in their tenant
-  return await (prisma as any).user.findMany({
+  return await prisma.user.findMany({
     where: { tenantId: session.user.tenantId },
     include: { tenantRole: true },
     orderBy: { createdAt: 'desc' }
   });
 }
 
-export async function createTenantUser(data: { name: string, email: string, password: string, tenantRoleId?: string, phone?: string, isSuperAdminUser?: boolean }) {
+export async function createTenantUser(data: { name: string, email: string, password: string, tenantRoleId?: string, phone?: string, isSuperAdminUser?: boolean, tenantId?: string }) {
   const session = await getServerSession(authOptions);
   
   if (data.isSuperAdminUser) {
@@ -35,6 +35,10 @@ export async function createTenantUser(data: { name: string, email: string, pass
     
     if (!data.name || !data.email || !data.password) {
       throw new Error("Missing required fields");
+    }
+
+    if (data.password.length < 6) {
+      throw new Error("Password must be at least 6 characters");
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
@@ -59,6 +63,41 @@ export async function createTenantUser(data: { name: string, email: string, pass
     return { id: user.id, name: user.name, email: user.email };
   }
 
+  // Superadmin can create users in any tenant
+  if (data.tenantId && session?.user?.role === 'SUPERADMIN') {
+    if (!data.name || !data.email || !data.password || !data.tenantRoleId) {
+      throw new Error("Missing required fields");
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
+    if (existingUser) {
+      throw new Error("A user with this email already exists");
+    }
+
+    // Verify the role belongs to the specified tenant
+    const role = await prisma.role.findUnique({
+      where: { id: data.tenantRoleId, tenantId: data.tenantId }
+    });
+    if (!role) throw new Error("Invalid role selected for this tenant");
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const createUserData: any = {
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone?.trim() || null,
+      password: hashedPassword,
+      role: 'ADMIN',
+      tenant: { connect: { id: data.tenantId } },
+      tenantRole: { connect: { id: role.id } }
+    };
+
+    const user = await prisma.user.create({ data: createUserData });
+
+    revalidatePath('/users');
+    return { id: user.id, name: user.name, email: user.email };
+  }
+
   // Tenant user creation path
   if (!session?.user?.tenantId) throw new Error("Unauthorized");
 
@@ -74,7 +113,7 @@ export async function createTenantUser(data: { name: string, email: string, pass
   }
 
   // Verify the role belongs to this tenant
-  const role = await (prisma as any).role.findUnique({
+  const role = await prisma.role.findUnique({
     where: { id: data.tenantRoleId, tenantId: session.user.tenantId }
   });
   if (!role) throw new Error("Invalid role selected");

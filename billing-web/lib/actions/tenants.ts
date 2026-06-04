@@ -68,7 +68,7 @@ export async function createTenant(data: any) {
   ];
 
   for (const roleData of rolesData) {
-    const role = await (prisma as any).role.create({
+    const role = await prisma.role.create({
       data: {
         name: roleData.name,
         permissions: roleData.permissions,
@@ -120,12 +120,12 @@ export async function updateTenant(tenantId: string, data: any) {
     
     // Find the primary admin for this tenant and update their password
     // We assume the admin has role 'ADMIN' or is the first user
-    const adminUser = await (prisma as any).user.findFirst({
+    const adminUser = await prisma.user.findFirst({
       where: { tenantId, role: 'ADMIN' }
     });
     
     if (adminUser) {
-      await (prisma as any).user.update({
+      await prisma.user.update({
         where: { id: adminUser.id },
         data: { password: hashedPassword }
       });

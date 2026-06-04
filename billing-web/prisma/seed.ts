@@ -116,16 +116,43 @@ async function main() {
   if (demoCount === 0) {
     console.log('Creating demo tenant with mobile data...');
 
+    // Create a proper separate demo tenant
+    const demoTenant = await prisma.tenant.create({
+      data: {
+        name: 'Demo General Store',
+        domain: 'demo.example.com',
+        dbConnectionString: 'demo_default',
+        status: 'ACTIVE',
+        contactPerson: 'Demo Owner',
+        email: 'owner@demo.com',
+        phone: '9876543210',
+      },
+    });
+
     const demoPassword = await bcrypt.hash('demo123', 10);
+    
+    // Create role under demo tenant
     const demoRole = await prisma.role.create({
       data: {
         name: 'Owner',
-        tenant: { connect: { id: systemTenant.id } },
+        tenant: { connect: { id: demoTenant.id } },
         permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT'],
       }
     });
 
-    // Demo customers
+    // Create demo admin user for the demo tenant
+    await prisma.user.create({
+      data: {
+        email: 'owner@demo.com',
+        password: demoPassword,
+        name: 'Demo Owner',
+        role: 'ADMIN',
+        tenantId: demoTenant.id,
+        tenantRoleId: demoRole.id,
+      },
+    });
+
+    // Demo customers under demo tenant
     const customers = [
       { name: 'Ravi Kumar', phone: '9876543210', totalSpent: 15000, loyaltyPoints: 150 },
       { name: 'Priya Sharma', phone: '9876543211', totalSpent: 8500, loyaltyPoints: 85 },
@@ -133,11 +160,11 @@ async function main() {
     ];
     for (const c of customers) {
       await prisma.customer.create({
-        data: { ...c, tenantId: systemTenant.id, lastPurchaseDate: new Date() }
+        data: { ...c, tenantId: demoTenant.id, lastPurchaseDate: new Date() }
       });
     }
 
-    // Demo discounts
+    // Demo discounts under demo tenant
     await prisma.discount.create({
       data: {
         name: 'Summer Sale',
@@ -146,11 +173,11 @@ async function main() {
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         isActive: true,
-        tenantId: systemTenant.id,
+        tenantId: demoTenant.id,
       }
     });
 
-    // Demo shop
+    // Demo shop under demo tenant
     await prisma.shop.create({
       data: {
         name: 'Demo General Store',
@@ -159,11 +186,11 @@ async function main() {
         upiId: 'demo@upi',
         footerText: 'Thank you! Visit again.',
         defaultTaxRate: 5,
-        tenantId: systemTenant.id,
+        tenantId: demoTenant.id,
       }
     });
 
-    // Demo employee
+    // Demo employee under demo tenant
     await prisma.employee.create({
       data: {
         name: 'Cashier Demo',
@@ -171,11 +198,11 @@ async function main() {
         password: demoPassword,
         role: 'CASHIER',
         isActive: true,
-        tenantId: systemTenant.id,
+        tenantId: demoTenant.id,
       }
     });
 
-    console.log('Demo tenant created with customers, discounts, shop, and employees!');
+    console.log('Demo tenant created with its own customers, discounts, shop, and employees!');
   }
 
   console.log('Seeding completed successfully!');

@@ -31,14 +31,14 @@ export async function GET(request: Request) {
     }
 
     const [tenants, total] = await Promise.all([
-      (prisma as any).tenant.findMany({
+      prisma.tenant.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
         include: { _count: { select: { users: true } } }
       }),
-      (prisma as any).tenant.count({ where })
+      prisma.tenant.count({ where })
     ]);
 
     return NextResponse.json({

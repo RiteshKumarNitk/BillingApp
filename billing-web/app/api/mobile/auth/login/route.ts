@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       name: user.name,
       role: user.role,
       tenantId: user.tenantId,
-      tenantRole: (user as any).tenantRoleId,
+      tenantRole: user.tenantRoleId,
     });
 
     return corsResponse({

@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { items, discount = 0 } = await request.json();
+    const { items, discount = 0, taxAmount = 0 } = await request.json();
 
     // Validate items
     if (!Array.isArray(items) || items.length === 0) {
@@ -83,7 +83,8 @@ export async function POST(request: NextRequest) {
 
     // Calculate discount amount and net amount
     const discountAmount = (totalAmount * discount) / 100;
-    const netAmount = totalAmount - discountAmount;
+    const parsedTaxAmount = parseFloat(taxAmount) || 0;
+    const netAmount = totalAmount - discountAmount + parsedTaxAmount;
 
     // Create transaction
     const transaction = await prisma.transaction.create({
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         totalAmount,
         discount,
+        taxAmount: parsedTaxAmount,
         netAmount,
         status: 'COMPLETED',
         items: {

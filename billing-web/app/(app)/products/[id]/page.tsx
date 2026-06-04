@@ -1,14 +1,21 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth';
 import { Package, Barcode, Tag, Calendar, AlertTriangle, ArrowLeft, Pencil, DollarSign, Box } from 'lucide-react';
 import ProductBarcode from './ProductBarcode';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: productId } = await params;
 
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    redirect('/auth/login');
+  }
+
   const product = await prisma.product.findUnique({ 
-    where: { id: productId },
+    where: { id: productId, tenantId: session.user.tenantId },
     include: {
       variants: true,
       batches: true,
@@ -18,16 +25,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   if (!product) notFound();
 
-  const p = product as any;
-
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  const margin = p.purchasePrice > 0 ? ((p.salePrice - p.purchasePrice) / p.purchasePrice * 100) : null;
-  const isLowStock = p.stock <= p.minStockThreshold;
-  const isCritical = p.stock <= 5;
+  const margin = product.purchasePrice > 0 ? ((product.salePrice - product.purchasePrice) / product.purchasePrice * 100) : null;
+  const isLowStock = product.stock <= product.minStockThreshold;
+  const isCritical = product.stock <= 5;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -37,12 +42,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{p.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
             <p className="text-sm text-gray-500 mt-0.5">Product Details</p>
           </div>
         </div>
         <Link
-          href={`/products/${p.id}/edit`}
+          href={`/products/${product.id}/edit`}
           className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm"
         >
           <Pencil className="w-4 h-4" />
@@ -60,15 +65,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-gray-50 rounded-xl p-4 text-center">
                 <p className="text-xs text-gray-500 mb-1">Purchase Price</p>
-                <p className="text-xl font-bold text-gray-900">₹{p.purchasePrice.toFixed(2)}</p>
+                <p className="text-xl font-bold text-gray-900">₹{product.purchasePrice.toFixed(2)}</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4 text-center">
                 <p className="text-xs text-gray-500 mb-1">MRP</p>
-                <p className="text-xl font-bold text-gray-900">₹{p.mrp.toFixed(2)}</p>
+                <p className="text-xl font-bold text-gray-900">₹{product.mrp.toFixed(2)}</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4 text-center">
                 <p className="text-xs text-gray-500 mb-1">Sale Price</p>
-                <p className="text-xl font-bold text-green-600">₹{p.salePrice.toFixed(2)}</p>
+                <p className="text-xl font-bold text-green-600">₹{product.salePrice.toFixed(2)}</p>
               </div>
             </div>
             {margin !== null && (
@@ -92,7 +97,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <p className={`text-2xl font-bold flex items-center gap-2 ${
                   isCritical ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-green-600'
                 }`}>
-                  {p.stock} {p.unit || 'pcs'}
+                  {product.stock} {product.unit || 'pcs'}
                   {isCritical && <AlertTriangle className="w-5 h-5" />}
                 </p>
                 {isLowStock && (
@@ -103,13 +108,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-500 mb-1">Min Stock Threshold</p>
-                <p className="text-2xl font-bold text-gray-900">{p.minStockThreshold}</p>
+                <p className="text-2xl font-bold text-gray-900">{product.minStockThreshold}</p>
               </div>
             </div>
           </div>
 
           {/* Complex Inventory Details */}
-          {p.variants?.length > 0 && (
+          {product.variants?.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Selling Variants</h2>
               <div className="overflow-x-auto">
@@ -123,7 +128,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {p.variants.map((v: any) => (
+                    {product.variants.map((v: any) => (
                       <tr key={v.id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-medium text-gray-900">{v.name}</td>
                         <td className="px-4 py-3">₹{v.salePrice.toFixed(2)}</td>
@@ -137,7 +142,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           )}
 
-          {p.batches?.length > 0 && (
+          {product.batches?.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Batches</h2>
               <div className="overflow-x-auto">
@@ -151,7 +156,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {p.batches.map((b: any) => (
+                    {product.batches.map((b: any) => (
                       <tr key={b.id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-medium text-gray-900">{b.batchNumber}</td>
                         <td className="px-4 py-3">{b.stock}</td>
@@ -167,7 +172,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           )}
 
-          {p.serials?.length > 0 && (
+          {product.serials?.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Serials</h2>
               <div className="overflow-x-auto">
@@ -179,7 +184,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {p.serials.map((s: any) => (
+                    {product.serials.map((s: any) => (
                       <tr key={s.id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-mono text-gray-900">{s.serialNumber}</td>
                         <td className="px-4 py-3">
@@ -199,8 +204,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <div className="space-y-6">
-          {p.barcode && (
-            <ProductBarcode barcode={p.barcode} name={p.name} />
+          {product.barcode && (
+            <ProductBarcode barcode={product.barcode} name={product.name} />
           )}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -211,9 +216,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <div>
                 <dt className="text-xs text-gray-500">Category</dt>
                 <dd className="text-sm font-medium text-gray-900 mt-0.5">
-                  {p.category ? (
+                  {product.category ? (
                     <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                      {p.category}
+                      {product.category}
                     </span>
                   ) : 'Uncategorized'}
                 </dd>
@@ -221,21 +226,21 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <div>
                 <dt className="text-xs text-gray-500">Barcode</dt>
                 <dd className="text-sm font-medium text-gray-900 mt-0.5 font-mono">
-                  {p.barcode ? (
+                  {product.barcode ? (
                     <span className="inline-flex items-center gap-1">
                       <Barcode className="w-3.5 h-3.5 text-gray-400" />
-                      {p.barcode}
+                      {product.barcode}
                     </span>
                   ) : 'No barcode'}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-gray-500">Batch Number</dt>
-                <dd className="text-sm font-medium text-gray-900 mt-0.5">{p.batchNumber || 'N/A'}</dd>
+                <dd className="text-sm font-medium text-gray-900 mt-0.5">{product.batchNumber || 'N/A'}</dd>
               </div>
               <div>
                 <dt className="text-xs text-gray-500">Unit</dt>
-                <dd className="text-sm font-medium text-gray-900 mt-0.5">{p.unit || 'PIECE'}</dd>
+                <dd className="text-sm font-medium text-gray-900 mt-0.5">{product.unit || 'PIECE'}</dd>
               </div>
             </dl>
           </div>
@@ -248,22 +253,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <dl className="space-y-3">
               <div>
                 <dt className="text-xs text-gray-500">Manufacturing Date</dt>
-                <dd className="text-sm font-medium text-gray-900 mt-0.5">{formatDate(p.manufacturingDate)}</dd>
+                <dd className="text-sm font-medium text-gray-900 mt-0.5">{formatDate(product.manufacturingDate)}</dd>
               </div>
               <div>
                 <dt className="text-xs text-gray-500">Expiry Date</dt>
-                <dd className={`text-sm font-medium mt-0.5 ${p.expiryDate && new Date(p.expiryDate) < new Date() ? 'text-red-600' : 'text-gray-900'}`}>
-                  {formatDate(p.expiryDate)}
-                  {p.expiryDate && new Date(p.expiryDate) < new Date() && <span className="ml-1 text-xs text-red-600">(Expired)</span>}
+                <dd className={`text-sm font-medium mt-0.5 ${product.expiryDate && new Date(product.expiryDate) < new Date() ? 'text-red-600' : 'text-gray-900'}`}>
+                  {formatDate(product.expiryDate)}
+                  {product.expiryDate && new Date(product.expiryDate) < new Date() && <span className="ml-1 text-xs text-red-600">(Expired)</span>}
                 </dd>
               </div>
               <div className="pt-2 border-t border-gray-100">
                 <dt className="text-xs text-gray-500">Created</dt>
-                <dd className="text-sm text-gray-600 mt-0.5">{formatDate(p.createdAt)}</dd>
+                <dd className="text-sm text-gray-600 mt-0.5">{formatDate(product.createdAt)}</dd>
               </div>
               <div>
                 <dt className="text-xs text-gray-500">Last Updated</dt>
-                <dd className="text-sm text-gray-600 mt-0.5">{formatDate(p.updatedAt)}</dd>
+                <dd className="text-sm text-gray-600 mt-0.5">{formatDate(product.updatedAt)}</dd>
               </div>
             </dl>
           </div>

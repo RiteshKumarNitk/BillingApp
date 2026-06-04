@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const { id } = await params;
-    const tenant = await (prisma as any).tenant.findUnique({
+    const tenant = await prisma.tenant.findUnique({
       where: { id },
       include: {
         _count: { select: { users: true, products: true, transactions: true } }
@@ -40,12 +40,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const body = await request.json();
 
-    const existing = await (prisma as any).tenant.findUnique({ where: { id } });
+    const existing = await prisma.tenant.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
     }
 
-    const tenant = await (prisma as any).tenant.update({
+    const tenant = await prisma.tenant.update({
       where: { id },
       data: {
         name: body.name,
@@ -61,7 +61,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     if (body.password) {
       const hashedPassword = await bcrypt.hash(body.password, 10);
-      await (prisma as any).user.updateMany({
+      await prisma.user.updateMany({
         where: { tenantId: id, role: 'ADMIN' },
         data: { password: hashedPassword }
       });
@@ -84,7 +84,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
     const body = await request.json();
 
-    const tenant = await (prisma as any).tenant.update({
+    const tenant = await prisma.tenant.update({
       where: { id },
       data: body
     });
@@ -105,7 +105,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     const { id } = await params;
 
-    await (prisma as any).tenant.update({
+    await prisma.tenant.update({
       where: { id },
       data: { status: 'INACTIVE' }
     });

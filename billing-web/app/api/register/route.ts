@@ -14,6 +14,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters long' },
+        { status: 400 }
+      );
+    }
+
     // Check if tenant exists by name, if not create it
     let tenant = await prisma.tenant.findFirst({
       where: { name: tenantName }
@@ -67,7 +74,7 @@ export async function POST(request: NextRequest) {
       ];
 
       for (const roleData of rolesData) {
-        const role = await (prisma as any).role.create({
+        const role = await prisma.role.create({
           data: {
             name: roleData.name,
             permissions: roleData.permissions,
@@ -80,7 +87,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // If tenant already exists, try to find the Owner role
-      const ownerRole = await (prisma as any).role.findFirst({
+      const ownerRole = await prisma.role.findFirst({
         where: { name: 'Owner', tenantId: tenant.id }
       });
       if (ownerRole) {

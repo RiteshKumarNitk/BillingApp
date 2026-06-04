@@ -1,6 +1,10 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_development';
+const rawSecret = process.env.JWT_SECRET;
+if (!rawSecret) {
+  throw new Error('JWT_SECRET environment variable is required for mobile authentication. Set it in your .env file.');
+}
+const JWT_SECRET: string = rawSecret;
 
 export function signMobileToken(payload: any) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
@@ -21,5 +25,9 @@ export function getMobileUserFromAuthHeader(request: Request) {
   }
   
   const token = authHeader.split(' ')[1];
-  return verifyMobileToken(token) as any;
+  const decoded = verifyMobileToken(token);
+  if (!decoded || typeof decoded === 'string') {
+    return null;
+  }
+  return decoded;
 }

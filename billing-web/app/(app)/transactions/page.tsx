@@ -114,54 +114,54 @@ export default async function TransactionsPage({
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bill No.</th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cashier</th>
-                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
-                <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                <th scope="col" className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bill No.</th>
+                <th scope="col" className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
+                <th scope="col" className="hidden sm:table-cell px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cashier</th>
+                <th scope="col" className="hidden md:table-cell px-4 sm:px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
+                <th scope="col" className="px-4 sm:px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                <th scope="col" className="px-4 sm:px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" className="px-4 sm:px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">
+                  <td colSpan={7} className="px-4 sm:px-6 py-12 text-center text-sm text-gray-500">
                     No transactions found.
                   </td>
                 </tr>
               ) : (
                 transactions.map((tx: any) => (
                   <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="whitespace-nowrap px-4 sm:px-6 py-4 text-sm font-medium text-gray-900">
                       {tx.id.substring(0, 8).toUpperCase()}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {format(new Date(tx.createdAt), 'MMM dd, yyyy h:mm a')}
+                    <td className="whitespace-nowrap px-4 sm:px-6 py-4 text-sm text-gray-900">
+                      {format(new Date(tx.createdAt), 'MMM dd, h:mm a')}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="hidden sm:table-cell whitespace-nowrap px-4 sm:px-6 py-4 text-sm text-gray-500">
                       {tx.user?.name || 'Unknown'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                    <td className="hidden md:table-cell whitespace-nowrap px-4 sm:px-6 py-4 text-center text-sm text-gray-500">
                       {tx._count.items}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-bold text-gray-900">
+                    <td className="whitespace-nowrap px-4 sm:px-6 py-4 text-right text-sm font-bold text-gray-900">
                       ₹{tx.netAmount.toFixed(2)}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-center">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                    <td className="whitespace-nowrap px-4 sm:px-6 py-4 text-center">
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
                         ${tx.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}
                       `}>
                         {tx.status}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                    <td className="whitespace-nowrap px-4 sm:px-6 py-4 text-right text-sm font-medium">
                       <Link
                         href={`/billing/${tx.id}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-md transition-colors"
+                        className="inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-md transition-colors text-xs sm:text-sm"
                       >
-                        <Receipt className="w-4 h-4" />
-                        Invoice
+                        <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">Invoice</span>
                       </Link>
                     </td>
                   </tr>
