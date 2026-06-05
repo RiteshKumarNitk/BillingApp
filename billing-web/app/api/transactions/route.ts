@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { items, discount = 0, taxAmount = 0 } = await request.json();
+    const { items, discount = 0, taxAmount = 0, customerName, customerPhone, paymentMethod, amountReceived, changeAmount } = await request.json();
 
     // Validate items
     if (!Array.isArray(items) || items.length === 0) {
@@ -115,6 +115,11 @@ export async function POST(request: NextRequest) {
         taxAmount: parsedTaxAmount,
         netAmount,
         status: 'COMPLETED',
+        paymentMethod: paymentMethod || null,
+        amountReceived: amountReceived ? parseFloat(amountReceived) : null,
+        changeAmount: changeAmount ? parseFloat(changeAmount) : null,
+        customerName: customerName || null,
+        customerPhone: customerPhone || null,
         items: {
           create: transactionItemsData.map(item => ({
             product: { connect: { id: item.productId } },

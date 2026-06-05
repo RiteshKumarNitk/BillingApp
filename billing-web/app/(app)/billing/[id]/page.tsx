@@ -29,7 +29,12 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
       },
       tenant: {
         select: {
-          name: true
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          gstin: true,
+          logoUrl: true
         }
       }
     }
@@ -39,7 +44,6 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
     notFound();
   }
 
-  // Format date for display
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -48,22 +52,25 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
     });
   };
 
-  // Calculate totals from items (should match transaction totals, but we recalculate for safety)
+  const formatTime = (date: Date) => {
+    return new Date(date).toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const subtotal = transaction.items.reduce((sum: number, item: any) => sum + item.itemTotal, 0);
   const discountAmount = (subtotal * transaction.discount) / 100;
   const netAmount = subtotal - discountAmount;
 
   return (
-    <div className="min-h-screen bg-white p-6 print:p-0 print:min-h-0">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 print:p-0 print:min-h-0">
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
           @page { margin: 0; size: 80mm auto; }
           body { margin: 0; background: white; }
-          /* Hide all sidebars and topnavs */
           aside, nav, header { display: none !important; }
           main { padding: 0 !important; overflow: visible !important; }
-          
-          /* Show only the receipt */
           body * { visibility: hidden; }
           #printable-receipt, #printable-receipt * { visibility: visible; }
           #printable-receipt {
@@ -72,90 +79,138 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
             top: 0;
             width: 80mm;
             padding: 5mm;
-            font-family: monospace;
-            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            background: white;
           }
           .print\\:hidden { display: none !important; }
         }
       `}} />
 
-      <div id="printable-receipt" className="max-w-md mx-auto bg-white">
-        {/* Header */ }
-        <div className="mb-6 text-center border-b border-dashed border-gray-400 pb-4">
-          <h1 className="text-xl font-bold text-black uppercase tracking-wider mb-1">
-            {transaction.tenant.name}
-          </h1>
-          <p className="text-xs text-black">TAX INVOICE</p>
-        </div>
+      <div className="max-w-md mx-auto space-y-4">
+        {/* Screen View */}
+        <div id="printable-receipt" className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+          {/* Header */}
+          <div className="text-center border-b-2 border-dashed border-gray-300 pb-4 mb-4">
+            {transaction.tenant.logoUrl && (
+              <img src={transaction.tenant.logoUrl} alt="Logo" className="w-14 h-14 object-contain mx-auto mb-2" />
+            )}
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+              {transaction.tenant.name}
+            </h1>
+            <p className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-widest font-medium">Tax Invoice</p>
+            {transaction.tenant.address && (
+              <p className="text-[10px] text-gray-500 mt-1 max-w-[250px] mx-auto">{transaction.tenant.address}</p>
+            )}
+            {transaction.tenant.phone && (
+              <p className="text-[10px] text-gray-500">Tel: {transaction.tenant.phone}</p>
+            )}
+            {transaction.tenant.gstin && (
+              <p className="text-[10px] text-gray-500 font-medium">GSTIN: {transaction.tenant.gstin}</p>
+            )}
+          </div>
 
-        {/* Bill Details */ }
-        <div className="mb-4 text-xs text-black space-y-1">
-          <div className="flex justify-between">
-            <span>Bill #:</span>
-            <span className="font-medium">{transaction.id.substring(0, 8).toUpperCase()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Date:</span>
-            <span>{formatDate(transaction.createdAt)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Cashier:</span>
-            <span>{transaction.user.name}</span>
-          </div>
-        </div>
-
-        {/* Items Table */ }
-        <div className="mb-4 border-t border-b border-dashed border-gray-400 py-2 text-xs">
-          <table className="w-full text-black">
-            <thead>
-              <tr className="border-b border-dashed border-gray-400">
-                <th className="text-left py-1 font-medium w-1/2">Item</th>
-                <th className="text-center py-1 font-medium w-1/6">Qty</th>
-                <th className="text-right py-1 font-medium w-1/3">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transaction.items.map((item: any) => (
-                <tr key={item.id}>
-                  <td className="py-2 pr-1">
-                    <div className="font-medium truncate max-w-[120px]">{item.name}</div>
-                    <div className="text-[10px] text-gray-600">@ ₹{item.salePrice.toFixed(2)}</div>
-                  </td>
-                  <td className="py-2 text-center align-top">{item.quantity}</td>
-                  <td className="py-2 text-right align-top font-medium">₹{item.itemTotal.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Summary */ }
-        <div className="space-y-1 text-xs text-black mb-6">
-          <div className="flex justify-between">
-            <span>Subtotal:</span>
-            <span>₹{subtotal.toFixed(2)}</span>
-          </div>
-          {discountAmount > 0 && (
-            <div className="flex justify-between text-gray-700">
-              <span>Discount ({transaction.discount}%):</span>
-              <span>-₹{discountAmount.toFixed(2)}</span>
+          {/* Bill Info */}
+          <div className="text-xs text-gray-600 space-y-1 mb-4">
+            <div className="flex justify-between">
+              <span>Bill No:</span>
+              <span className="font-semibold text-gray-900 font-mono">#{transaction.id.substring(0, 8).toUpperCase()}</span>
             </div>
-          )}
-          <div className="flex justify-between text-sm font-bold pt-2 border-t border-dashed border-gray-400 mt-2">
-            <span>TOTAL:</span>
-            <span>₹{netAmount.toFixed(2)}</span>
+            <div className="flex justify-between">
+              <span>Date:</span>
+              <span className="text-gray-900">{formatDate(transaction.createdAt)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Time:</span>
+              <span className="text-gray-900">{formatTime(transaction.createdAt)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Cashier:</span>
+              <span className="text-gray-900">{transaction.user.name}</span>
+            </div>
+            {transaction.customerName && (
+              <div className="flex justify-between pt-1 border-t border-dashed border-gray-200">
+                <span>Customer:</span>
+                <span className="text-gray-900 font-medium">{transaction.customerName}</span>
+              </div>
+            )}
+            {transaction.customerPhone && (
+              <div className="flex justify-between">
+                <span>Phone:</span>
+                <span className="text-gray-900">{transaction.customerPhone}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Items Table */}
+          <div className="border-y-2 border-dashed border-gray-300 py-3 mb-4">
+            <div className="flex text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 pb-1 border-b border-dashed border-gray-200">
+              <div className="flex-1">Item</div>
+              <div className="w-12 text-center">Qty</div>
+              <div className="w-20 text-right">Amount</div>
+            </div>
+            <div className="space-y-2">
+              {transaction.items.map((item: any) => (
+                <div key={item.id} className="flex text-xs">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-900 truncate">{item.name}</div>
+                    <div className="text-[10px] text-gray-400">@ ₹{item.salePrice.toFixed(2)}</div>
+                  </div>
+                  <div className="w-12 text-center text-gray-900 tabular-nums self-center">{item.quantity}</div>
+                  <div className="w-20 text-right font-medium text-gray-900 tabular-nums self-center">₹{item.itemTotal.toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="text-xs space-y-1.5 mb-4">
+            <div className="flex justify-between text-gray-600">
+              <span>Subtotal</span>
+              <span className="tabular-nums">₹{subtotal.toFixed(2)}</span>
+            </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between text-emerald-600">
+                <span>Discount ({transaction.discount}%)</span>
+                <span className="tabular-nums">-₹{discountAmount.toFixed(2)}</span>
+              </div>
+            )}
+            {transaction.paymentMethod && (
+              <div className="flex justify-between text-gray-500">
+                <span>Payment</span>
+                <span className="font-medium">{transaction.paymentMethod}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t-2 border-dashed border-gray-300 mt-2">
+              <span>TOTAL</span>
+              <span className="tabular-nums">₹{netAmount.toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center border-t-2 border-dashed border-gray-300 pt-4">
+            <p className="text-xs font-bold text-gray-800 tracking-wide">THANK YOU FOR YOUR BUSINESS!</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">This is a computer-generated invoice</p>
+            {transaction.amountReceived && (
+              <div className="mt-3 text-[10px] text-gray-500 space-y-0.5">
+                <div className="flex justify-between max-w-[200px] mx-auto">
+                  <span>Amount Received:</span>
+                  <span className="text-gray-900 font-medium">₹{transaction.amountReceived.toFixed(2)}</span>
+                </div>
+                {transaction.changeAmount && transaction.changeAmount > 0 && (
+                  <div className="flex justify-between max-w-[200px] mx-auto">
+                    <span>Change Returned:</span>
+                    <span className="text-gray-900 font-medium">₹{transaction.changeAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Footer */ }
-        <div className="text-center text-[10px] text-black border-t border-dashed border-gray-400 pt-4 pb-8">
-          <p className="font-bold mb-1">THANK YOU FOR YOUR BUSINESS!</p>
-          <p>This is a computer generated invoice.</p>
-        </div>
+        {/* Print Button */}
+        <PrintInvoiceButton />
       </div>
-
-      {/* Print Button Wrapper */ }
-      <PrintInvoiceButton />
     </div>
   );
 }
