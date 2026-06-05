@@ -77,6 +77,22 @@ export async function POST(request: Request) {
     const taxValue = parseFloat(taxAmount) || 0;
     const netAmount = Math.max(0, subtotal - discountValue + taxValue);
 
+    // Verify all products belong to the user's tenant
+    const productIds = items.map((item: any) => item.productId);
+    const uniqueProductIds = Array.from(new Set(productIds));
+    
+    const ownedProducts = await prisma.product.findMany({
+      where: { 
+        id: { in: uniqueProductIds },
+        tenantId: user.tenantId
+      },
+      select: { id: true }
+    });
+
+    if (ownedProducts.length !== uniqueProductIds.length) {
+      return corsResponse({ error: 'Unauthorized: One or more products do not belong to your tenant' }, { status: 403 });
+    }
+
     const transaction = await prisma.$transaction(async (tx: any) => {
       const newTransaction = await tx.transaction.create({
         data: {
@@ -101,21 +117,22 @@ export async function POST(request: Request) {
 
       for (const item of transactionItemsData) {
         if (item.variantId) {
-          await tx.productVariant.update({
-            where: { id: item.variantId },
+          await tx.productVariant.updateMany({
+            where: { id: item.variantId, productId: item.productId },
             data: { stock: { decrement: item.quantity } }
           });
         } else if (item.batchId) {
-          await tx.productBatch.update({
-            where: { id: item.batchId },
+          await tx.productBatch.updateMany({
+            where: { id: item.batchId, productId: item.productId },
             data: { stock: { decrement: item.quantity } }
           });
         } else if (item.serialId) {
-          await tx.productSerial.update({
-            where: { id: item.serialId },
+          await tx.productSerial.updateMany({
+            where: { id: item.serialId, productId: item.productId },
             data: { status: 'SOLD' }
           });
         } else {
+          // Safe: productId is verified above
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { decrement: item.quantity } }

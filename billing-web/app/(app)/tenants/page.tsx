@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth/nextauth";
 import { redirect } from "next/navigation";
 import { Building2, Mail, Phone, User, Plus, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import StatusSelect from './StatusSelect';
+import DeleteTenantButton from './DeleteTenantButton';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -166,6 +167,8 @@ export default async function TenantsPage({
                       <Link href={`/tenants/${tenant.id}`} className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-500 font-medium">View</Link>
                       <span className="text-gray-300">|</span>
                       <Link href={`/tenants/${tenant.id}/edit`} className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 font-medium">Edit</Link>
+                      <span className="text-gray-300">|</span>
+                      <DeleteTenantButton tenantId={tenant.id} tenantName={tenant.name} />
                     </div>
                   </div>
                 </div>

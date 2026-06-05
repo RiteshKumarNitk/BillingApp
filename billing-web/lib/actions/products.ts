@@ -135,6 +135,7 @@ export async function createProduct(data: any) {
     salePrice: parseFloat(data.salePrice) || 0,
     stock: parseFloat(data.stock) || 0,
     minStockThreshold: parseFloat(data.minStockThreshold) || 10,
+    imageUrl: data.imageUrl || null,
     tenant: { connect: { id: tenantId } },
   };
 

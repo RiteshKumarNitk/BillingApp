@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     const barcode = data.barcode?.trim() || null;
 
     if (barcode) {
-      const existing = await prisma.product.findUnique({ where: { barcode } });
+      const existing = await prisma.product.findFirst({ where: { barcode, tenantId: user.tenantId } });
       if (existing) {
         return corsResponse({ error: 'Barcode already exists' }, { status: 409 });
       }
@@ -93,6 +93,7 @@ export async function POST(request: Request) {
       manufacturingDate: data.manufacturingDate ? new Date(data.manufacturingDate) : null,
       batchNumber: data.batchNumber?.trim() || null,
       category: data.category || null,
+      imageUrl: data.imageUrl || null,
       tenant: { connect: { id: user.tenantId } },
     };
 

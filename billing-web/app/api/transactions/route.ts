@@ -50,6 +50,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify all products belong to the user's tenant
+    const productIds = items.map((item: any) => item.productId);
+    const uniqueProductIds = Array.from(new Set(productIds));
+    
+    const ownedProducts = await prisma.product.findMany({
+      where: { 
+        id: { in: uniqueProductIds },
+        tenantId: user.tenantId
+      },
+      select: { id: true }
+    });
+
+    if (ownedProducts.length !== uniqueProductIds.length) {
+      return NextResponse.json(
+        { error: 'Unauthorized: One or more products do not belong to your tenant' },
+        { status: 403 }
+      );
+    }
+
     // Calculate total amount and prepare transaction items
     let totalAmount = 0;
     const transactionItemsData = [];
@@ -119,24 +138,25 @@ export async function POST(request: NextRequest) {
       const { productId, quantity, productType, variantId, batchId, serialId } = item;
 
       if (productType === 'SIMPLE' || productType === 'WEIGHT') {
+        // Safe: productId is already verified to belong to the tenant above
         await prisma.product.update({
           where: { id: productId },
           data: { stock: { decrement: quantity } }
         });
       } else if (productType === 'VARIANT' && variantId) {
-        await prisma.productVariant.update({
-          where: { id: variantId },
+        await prisma.productVariant.updateMany({
+          where: { id: variantId, productId: productId },
           data: { stock: { decrement: quantity } }
         });
       } else if (productType === 'BATCH' && batchId) {
-        await prisma.productBatch.update({
-          where: { id: batchId },
+        await prisma.productBatch.updateMany({
+          where: { id: batchId, productId: productId },
           data: { stock: { decrement: quantity } }
         });
       } else if (productType === 'SERIAL' && serialId) {
         // Mark serial as sold
-        await prisma.productSerial.update({
-          where: { id: serialId },
+        await prisma.productSerial.updateMany({
+          where: { id: serialId, productId: productId },
           data: { status: 'SOLD' }
         });
       }

@@ -54,7 +54,12 @@ export async function createTenant(data: any) {
     phone: data.phone || null,
     address: data.address || null,
     gstin: data.gstin || null,
-    subscriptionPlan: data.subscriptionPlan || 'FREE'
+    subscriptionPlan: data.subscriptionPlan || 'FREE',
+    logoUrl: data.logoUrl || null,
+    website: data.website || null,
+    currency: data.currency || 'INR',
+    timezone: data.timezone || 'Asia/Kolkata',
+    aadharCardUrl: data.aadharCardUrl || null
   };
 
   const tenant = await prisma.tenant.create({ data: tenantCreateData });
@@ -90,7 +95,9 @@ export async function createTenant(data: any) {
     password: hashedPassword,
     tenantId: tenant.id,
     tenantRoleId: ownerRoleId,
-    role: 'ADMIN' // Global role for tenant admin
+    role: 'ADMIN', // Global role for tenant admin
+    profilePictureUrl: data.profilePictureUrl || null,
+    jobTitle: data.jobTitle || null
   };
 
   await prisma.user.create({ data: createUserData });
@@ -171,5 +178,22 @@ export async function updateTenantTheme(theme: string) {
   });
   
   revalidatePath('/settings/menu');
+  return true;
+}
+
+export async function deleteTenant(tenantId: string) {
+  await requireSuperAdmin();
+
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId }
+  });
+
+  if (!tenant) throw new Error("Tenant not found");
+
+  await prisma.tenant.delete({
+    where: { id: tenantId }
+  });
+
+  revalidatePath('/tenants');
   return true;
 }

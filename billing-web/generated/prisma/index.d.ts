@@ -2215,6 +2215,11 @@ export namespace Prisma {
     gstin: string | null
     subscriptionPlan: string | null
     menuTheme: string | null
+    logoUrl: string | null
+    website: string | null
+    currency: string | null
+    timezone: string | null
+    aadharCardUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
     status: string | null
@@ -2232,6 +2237,11 @@ export namespace Prisma {
     gstin: string | null
     subscriptionPlan: string | null
     menuTheme: string | null
+    logoUrl: string | null
+    website: string | null
+    currency: string | null
+    timezone: string | null
+    aadharCardUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
     status: string | null
@@ -2249,6 +2259,11 @@ export namespace Prisma {
     gstin: number
     subscriptionPlan: number
     menuTheme: number
+    logoUrl: number
+    website: number
+    currency: number
+    timezone: number
+    aadharCardUrl: number
     createdAt: number
     updatedAt: number
     status: number
@@ -2268,6 +2283,11 @@ export namespace Prisma {
     gstin?: true
     subscriptionPlan?: true
     menuTheme?: true
+    logoUrl?: true
+    website?: true
+    currency?: true
+    timezone?: true
+    aadharCardUrl?: true
     createdAt?: true
     updatedAt?: true
     status?: true
@@ -2285,6 +2305,11 @@ export namespace Prisma {
     gstin?: true
     subscriptionPlan?: true
     menuTheme?: true
+    logoUrl?: true
+    website?: true
+    currency?: true
+    timezone?: true
+    aadharCardUrl?: true
     createdAt?: true
     updatedAt?: true
     status?: true
@@ -2302,6 +2327,11 @@ export namespace Prisma {
     gstin?: true
     subscriptionPlan?: true
     menuTheme?: true
+    logoUrl?: true
+    website?: true
+    currency?: true
+    timezone?: true
+    aadharCardUrl?: true
     createdAt?: true
     updatedAt?: true
     status?: true
@@ -2391,7 +2421,12 @@ export namespace Prisma {
     address: string | null
     gstin: string | null
     subscriptionPlan: string
-    menuTheme: string
+    menuTheme: string | null
+    logoUrl: string | null
+    website: string | null
+    currency: string
+    timezone: string
+    aadharCardUrl: string | null
     createdAt: Date
     updatedAt: Date
     status: string
@@ -2426,6 +2461,11 @@ export namespace Prisma {
     gstin?: boolean
     subscriptionPlan?: boolean
     menuTheme?: boolean
+    logoUrl?: boolean
+    website?: boolean
+    currency?: boolean
+    timezone?: boolean
+    aadharCardUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
@@ -2452,6 +2492,11 @@ export namespace Prisma {
     gstin?: boolean
     subscriptionPlan?: boolean
     menuTheme?: boolean
+    logoUrl?: boolean
+    website?: boolean
+    currency?: boolean
+    timezone?: boolean
+    aadharCardUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
@@ -2469,6 +2514,11 @@ export namespace Prisma {
     gstin?: boolean
     subscriptionPlan?: boolean
     menuTheme?: boolean
+    logoUrl?: boolean
+    website?: boolean
+    currency?: boolean
+    timezone?: boolean
+    aadharCardUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
@@ -2486,12 +2536,17 @@ export namespace Prisma {
     gstin?: boolean
     subscriptionPlan?: boolean
     menuTheme?: boolean
+    logoUrl?: boolean
+    website?: boolean
+    currency?: boolean
+    timezone?: boolean
+    aadharCardUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "contactPerson" | "email" | "phone" | "address" | "gstin" | "subscriptionPlan" | "menuTheme" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "contactPerson" | "email" | "phone" | "address" | "gstin" | "subscriptionPlan" | "menuTheme" | "logoUrl" | "website" | "currency" | "timezone" | "aadharCardUrl" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     roles?: boolean | Tenant$rolesArgs<ExtArgs>
@@ -2529,7 +2584,12 @@ export namespace Prisma {
       address: string | null
       gstin: string | null
       subscriptionPlan: string
-      menuTheme: string
+      menuTheme: string | null
+      logoUrl: string | null
+      website: string | null
+      currency: string
+      timezone: string
+      aadharCardUrl: string | null
       createdAt: Date
       updatedAt: Date
       status: string
@@ -2975,6 +3035,11 @@ export namespace Prisma {
     readonly gstin: FieldRef<"Tenant", 'String'>
     readonly subscriptionPlan: FieldRef<"Tenant", 'String'>
     readonly menuTheme: FieldRef<"Tenant", 'String'>
+    readonly logoUrl: FieldRef<"Tenant", 'String'>
+    readonly website: FieldRef<"Tenant", 'String'>
+    readonly currency: FieldRef<"Tenant", 'String'>
+    readonly timezone: FieldRef<"Tenant", 'String'>
+    readonly aadharCardUrl: FieldRef<"Tenant", 'String'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly status: FieldRef<"Tenant", 'String'>
@@ -4695,6 +4760,8 @@ export namespace Prisma {
     name: string | null
     phone: string | null
     role: string | null
+    profilePictureUrl: string | null
+    jobTitle: string | null
     tenantId: string | null
     tenantRoleId: string | null
     createdAt: Date | null
@@ -4708,6 +4775,8 @@ export namespace Prisma {
     name: string | null
     phone: string | null
     role: string | null
+    profilePictureUrl: string | null
+    jobTitle: string | null
     tenantId: string | null
     tenantRoleId: string | null
     createdAt: Date | null
@@ -4721,6 +4790,8 @@ export namespace Prisma {
     name: number
     phone: number
     role: number
+    profilePictureUrl: number
+    jobTitle: number
     tenantId: number
     tenantRoleId: number
     createdAt: number
@@ -4736,6 +4807,8 @@ export namespace Prisma {
     name?: true
     phone?: true
     role?: true
+    profilePictureUrl?: true
+    jobTitle?: true
     tenantId?: true
     tenantRoleId?: true
     createdAt?: true
@@ -4749,6 +4822,8 @@ export namespace Prisma {
     name?: true
     phone?: true
     role?: true
+    profilePictureUrl?: true
+    jobTitle?: true
     tenantId?: true
     tenantRoleId?: true
     createdAt?: true
@@ -4762,6 +4837,8 @@ export namespace Prisma {
     name?: true
     phone?: true
     role?: true
+    profilePictureUrl?: true
+    jobTitle?: true
     tenantId?: true
     tenantRoleId?: true
     createdAt?: true
@@ -4848,6 +4925,8 @@ export namespace Prisma {
     name: string
     phone: string | null
     role: string
+    profilePictureUrl: string | null
+    jobTitle: string | null
     tenantId: string
     tenantRoleId: string | null
     createdAt: Date
@@ -4878,6 +4957,8 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     role?: boolean
+    profilePictureUrl?: boolean
+    jobTitle?: boolean
     tenantId?: boolean
     tenantRoleId?: boolean
     createdAt?: boolean
@@ -4895,6 +4976,8 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     role?: boolean
+    profilePictureUrl?: boolean
+    jobTitle?: boolean
     tenantId?: boolean
     tenantRoleId?: boolean
     createdAt?: boolean
@@ -4910,6 +4993,8 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     role?: boolean
+    profilePictureUrl?: boolean
+    jobTitle?: boolean
     tenantId?: boolean
     tenantRoleId?: boolean
     createdAt?: boolean
@@ -4925,13 +5010,15 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     role?: boolean
+    profilePictureUrl?: boolean
+    jobTitle?: boolean
     tenantId?: boolean
     tenantRoleId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "tenantId" | "tenantRoleId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "profilePictureUrl" | "jobTitle" | "tenantId" | "tenantRoleId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
@@ -4961,6 +5048,8 @@ export namespace Prisma {
       name: string
       phone: string | null
       role: string
+      profilePictureUrl: string | null
+      jobTitle: string | null
       tenantId: string
       tenantRoleId: string | null
       createdAt: Date
@@ -5397,6 +5486,8 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly phone: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
+    readonly profilePictureUrl: FieldRef<"User", 'String'>
+    readonly jobTitle: FieldRef<"User", 'String'>
     readonly tenantId: FieldRef<"User", 'String'>
     readonly tenantRoleId: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
@@ -5907,6 +5998,8 @@ export namespace Prisma {
     expiryDate: Date | null
     manufacturingDate: Date | null
     batchNumber: string | null
+    description: string | null
+    imageUrl: string | null
     tenantId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5928,6 +6021,8 @@ export namespace Prisma {
     expiryDate: Date | null
     manufacturingDate: Date | null
     batchNumber: string | null
+    description: string | null
+    imageUrl: string | null
     tenantId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5949,6 +6044,8 @@ export namespace Prisma {
     expiryDate: number
     manufacturingDate: number
     batchNumber: number
+    description: number
+    imageUrl: number
     tenantId: number
     createdAt: number
     updatedAt: number
@@ -5988,6 +6085,8 @@ export namespace Prisma {
     expiryDate?: true
     manufacturingDate?: true
     batchNumber?: true
+    description?: true
+    imageUrl?: true
     tenantId?: true
     createdAt?: true
     updatedAt?: true
@@ -6009,6 +6108,8 @@ export namespace Prisma {
     expiryDate?: true
     manufacturingDate?: true
     batchNumber?: true
+    description?: true
+    imageUrl?: true
     tenantId?: true
     createdAt?: true
     updatedAt?: true
@@ -6030,6 +6131,8 @@ export namespace Prisma {
     expiryDate?: true
     manufacturingDate?: true
     batchNumber?: true
+    description?: true
+    imageUrl?: true
     tenantId?: true
     createdAt?: true
     updatedAt?: true
@@ -6138,6 +6241,8 @@ export namespace Prisma {
     expiryDate: Date | null
     manufacturingDate: Date | null
     batchNumber: string | null
+    description: string | null
+    imageUrl: string | null
     tenantId: string
     createdAt: Date
     updatedAt: Date
@@ -6178,6 +6283,8 @@ export namespace Prisma {
     expiryDate?: boolean
     manufacturingDate?: boolean
     batchNumber?: boolean
+    description?: boolean
+    imageUrl?: boolean
     tenantId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6205,6 +6312,8 @@ export namespace Prisma {
     expiryDate?: boolean
     manufacturingDate?: boolean
     batchNumber?: boolean
+    description?: boolean
+    imageUrl?: boolean
     tenantId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6227,6 +6336,8 @@ export namespace Prisma {
     expiryDate?: boolean
     manufacturingDate?: boolean
     batchNumber?: boolean
+    description?: boolean
+    imageUrl?: boolean
     tenantId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6249,12 +6360,14 @@ export namespace Prisma {
     expiryDate?: boolean
     manufacturingDate?: boolean
     batchNumber?: boolean
+    description?: boolean
+    imageUrl?: boolean
     tenantId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "category" | "productType" | "unit" | "allowDecimal" | "barcode" | "purchasePrice" | "mrp" | "salePrice" | "stock" | "minStockThreshold" | "expiryDate" | "manufacturingDate" | "batchNumber" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "category" | "productType" | "unit" | "allowDecimal" | "barcode" | "purchasePrice" | "mrp" | "salePrice" | "stock" | "minStockThreshold" | "expiryDate" | "manufacturingDate" | "batchNumber" | "description" | "imageUrl" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     transactionItems?: boolean | Product$transactionItemsArgs<ExtArgs>
@@ -6295,6 +6408,8 @@ export namespace Prisma {
       expiryDate: Date | null
       manufacturingDate: Date | null
       batchNumber: string | null
+      description: string | null
+      imageUrl: string | null
       tenantId: string
       createdAt: Date
       updatedAt: Date
@@ -6741,6 +6856,8 @@ export namespace Prisma {
     readonly expiryDate: FieldRef<"Product", 'DateTime'>
     readonly manufacturingDate: FieldRef<"Product", 'DateTime'>
     readonly batchNumber: FieldRef<"Product", 'String'>
+    readonly description: FieldRef<"Product", 'String'>
+    readonly imageUrl: FieldRef<"Product", 'String'>
     readonly tenantId: FieldRef<"Product", 'String'>
     readonly createdAt: FieldRef<"Product", 'DateTime'>
     readonly updatedAt: FieldRef<"Product", 'DateTime'>
@@ -17845,6 +17962,11 @@ export namespace Prisma {
     gstin: 'gstin',
     subscriptionPlan: 'subscriptionPlan',
     menuTheme: 'menuTheme',
+    logoUrl: 'logoUrl',
+    website: 'website',
+    currency: 'currency',
+    timezone: 'timezone',
+    aadharCardUrl: 'aadharCardUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     status: 'status'
@@ -17872,6 +17994,8 @@ export namespace Prisma {
     name: 'name',
     phone: 'phone',
     role: 'role',
+    profilePictureUrl: 'profilePictureUrl',
+    jobTitle: 'jobTitle',
     tenantId: 'tenantId',
     tenantRoleId: 'tenantRoleId',
     createdAt: 'createdAt',
@@ -17897,6 +18021,8 @@ export namespace Prisma {
     expiryDate: 'expiryDate',
     manufacturingDate: 'manufacturingDate',
     batchNumber: 'batchNumber',
+    description: 'description',
+    imageUrl: 'imageUrl',
     tenantId: 'tenantId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -18158,7 +18284,12 @@ export namespace Prisma {
     address?: StringNullableFilter<"Tenant"> | string | null
     gstin?: StringNullableFilter<"Tenant"> | string | null
     subscriptionPlan?: StringFilter<"Tenant"> | string
-    menuTheme?: StringFilter<"Tenant"> | string
+    menuTheme?: StringNullableFilter<"Tenant"> | string | null
+    logoUrl?: StringNullableFilter<"Tenant"> | string | null
+    website?: StringNullableFilter<"Tenant"> | string | null
+    currency?: StringFilter<"Tenant"> | string
+    timezone?: StringFilter<"Tenant"> | string
+    aadharCardUrl?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     status?: StringFilter<"Tenant"> | string
@@ -18183,7 +18314,12 @@ export namespace Prisma {
     address?: SortOrderInput | SortOrder
     gstin?: SortOrderInput | SortOrder
     subscriptionPlan?: SortOrder
-    menuTheme?: SortOrder
+    menuTheme?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    website?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    timezone?: SortOrder
+    aadharCardUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -18211,7 +18347,12 @@ export namespace Prisma {
     address?: StringNullableFilter<"Tenant"> | string | null
     gstin?: StringNullableFilter<"Tenant"> | string | null
     subscriptionPlan?: StringFilter<"Tenant"> | string
-    menuTheme?: StringFilter<"Tenant"> | string
+    menuTheme?: StringNullableFilter<"Tenant"> | string | null
+    logoUrl?: StringNullableFilter<"Tenant"> | string | null
+    website?: StringNullableFilter<"Tenant"> | string | null
+    currency?: StringFilter<"Tenant"> | string
+    timezone?: StringFilter<"Tenant"> | string
+    aadharCardUrl?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     status?: StringFilter<"Tenant"> | string
@@ -18236,7 +18377,12 @@ export namespace Prisma {
     address?: SortOrderInput | SortOrder
     gstin?: SortOrderInput | SortOrder
     subscriptionPlan?: SortOrder
-    menuTheme?: SortOrder
+    menuTheme?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    website?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    timezone?: SortOrder
+    aadharCardUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -18259,7 +18405,12 @@ export namespace Prisma {
     address?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     gstin?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     subscriptionPlan?: StringWithAggregatesFilter<"Tenant"> | string
-    menuTheme?: StringWithAggregatesFilter<"Tenant"> | string
+    menuTheme?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    website?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    currency?: StringWithAggregatesFilter<"Tenant"> | string
+    timezone?: StringWithAggregatesFilter<"Tenant"> | string
+    aadharCardUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     status?: StringWithAggregatesFilter<"Tenant"> | string
@@ -18339,6 +18490,8 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     phone?: StringNullableFilter<"User"> | string | null
     role?: StringFilter<"User"> | string
+    profilePictureUrl?: StringNullableFilter<"User"> | string | null
+    jobTitle?: StringNullableFilter<"User"> | string | null
     tenantId?: StringFilter<"User"> | string
     tenantRoleId?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -18355,6 +18508,8 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrderInput | SortOrder
     role?: SortOrder
+    profilePictureUrl?: SortOrderInput | SortOrder
+    jobTitle?: SortOrderInput | SortOrder
     tenantId?: SortOrder
     tenantRoleId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -18374,6 +18529,8 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     phone?: StringNullableFilter<"User"> | string | null
     role?: StringFilter<"User"> | string
+    profilePictureUrl?: StringNullableFilter<"User"> | string | null
+    jobTitle?: StringNullableFilter<"User"> | string | null
     tenantId?: StringFilter<"User"> | string
     tenantRoleId?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -18390,6 +18547,8 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrderInput | SortOrder
     role?: SortOrder
+    profilePictureUrl?: SortOrderInput | SortOrder
+    jobTitle?: SortOrderInput | SortOrder
     tenantId?: SortOrder
     tenantRoleId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -18409,6 +18568,8 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     phone?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: StringWithAggregatesFilter<"User"> | string
+    profilePictureUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
+    jobTitle?: StringNullableWithAggregatesFilter<"User"> | string | null
     tenantId?: StringWithAggregatesFilter<"User"> | string
     tenantRoleId?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -18434,6 +18595,8 @@ export namespace Prisma {
     expiryDate?: DateTimeNullableFilter<"Product"> | Date | string | null
     manufacturingDate?: DateTimeNullableFilter<"Product"> | Date | string | null
     batchNumber?: StringNullableFilter<"Product"> | string | null
+    description?: StringNullableFilter<"Product"> | string | null
+    imageUrl?: StringNullableFilter<"Product"> | string | null
     tenantId?: StringFilter<"Product"> | string
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
@@ -18460,6 +18623,8 @@ export namespace Prisma {
     expiryDate?: SortOrderInput | SortOrder
     manufacturingDate?: SortOrderInput | SortOrder
     batchNumber?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18472,7 +18637,7 @@ export namespace Prisma {
 
   export type ProductWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    barcode?: string
+    tenantId_barcode?: ProductTenantIdBarcodeCompoundUniqueInput
     AND?: ProductWhereInput | ProductWhereInput[]
     OR?: ProductWhereInput[]
     NOT?: ProductWhereInput | ProductWhereInput[]
@@ -18481,6 +18646,7 @@ export namespace Prisma {
     productType?: StringFilter<"Product"> | string
     unit?: StringFilter<"Product"> | string
     allowDecimal?: BoolFilter<"Product"> | boolean
+    barcode?: StringNullableFilter<"Product"> | string | null
     purchasePrice?: FloatFilter<"Product"> | number
     mrp?: FloatFilter<"Product"> | number
     salePrice?: FloatFilter<"Product"> | number
@@ -18489,6 +18655,8 @@ export namespace Prisma {
     expiryDate?: DateTimeNullableFilter<"Product"> | Date | string | null
     manufacturingDate?: DateTimeNullableFilter<"Product"> | Date | string | null
     batchNumber?: StringNullableFilter<"Product"> | string | null
+    description?: StringNullableFilter<"Product"> | string | null
+    imageUrl?: StringNullableFilter<"Product"> | string | null
     tenantId?: StringFilter<"Product"> | string
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
@@ -18497,7 +18665,7 @@ export namespace Prisma {
     variants?: ProductVariantListRelationFilter
     batches?: ProductBatchListRelationFilter
     serials?: ProductSerialListRelationFilter
-  }, "id" | "barcode">
+  }, "id" | "tenantId_barcode">
 
   export type ProductOrderByWithAggregationInput = {
     id?: SortOrder
@@ -18515,6 +18683,8 @@ export namespace Prisma {
     expiryDate?: SortOrderInput | SortOrder
     manufacturingDate?: SortOrderInput | SortOrder
     batchNumber?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18544,6 +18714,8 @@ export namespace Prisma {
     expiryDate?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
     manufacturingDate?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
     batchNumber?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    description?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    imageUrl?: StringNullableWithAggregatesFilter<"Product"> | string | null
     tenantId?: StringWithAggregatesFilter<"Product"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
@@ -18708,16 +18880,17 @@ export namespace Prisma {
 
   export type ProductSerialWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    serialNumber?: string
+    productId_serialNumber?: ProductSerialProductIdSerialNumberCompoundUniqueInput
     AND?: ProductSerialWhereInput | ProductSerialWhereInput[]
     OR?: ProductSerialWhereInput[]
     NOT?: ProductSerialWhereInput | ProductSerialWhereInput[]
     productId?: StringFilter<"ProductSerial"> | string
+    serialNumber?: StringFilter<"ProductSerial"> | string
     status?: StringFilter<"ProductSerial"> | string
     purchaseDate?: DateTimeNullableFilter<"ProductSerial"> | Date | string | null
     warrantyMonths?: IntNullableFilter<"ProductSerial"> | number | null
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
-  }, "id" | "serialNumber">
+  }, "id" | "productId_serialNumber">
 
   export type ProductSerialOrderByWithAggregationInput = {
     id?: SortOrder
@@ -19307,7 +19480,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -19332,7 +19510,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -19357,7 +19540,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19382,7 +19570,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19407,7 +19600,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -19424,7 +19622,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19441,7 +19644,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -19520,6 +19728,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutUsersInput
@@ -19534,6 +19744,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantId: string
     tenantRoleId?: string | null
     createdAt?: Date | string
@@ -19548,6 +19760,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
@@ -19562,6 +19776,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19576,6 +19792,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantId: string
     tenantRoleId?: string | null
     createdAt?: Date | string
@@ -19589,6 +19807,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -19600,6 +19820,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19622,6 +19844,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutProductsInput
@@ -19647,6 +19871,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19672,6 +19898,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutProductsNestedInput
@@ -19697,6 +19925,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19722,6 +19952,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19743,6 +19975,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -19763,6 +19997,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20713,6 +20949,11 @@ export namespace Prisma {
     gstin?: SortOrder
     subscriptionPlan?: SortOrder
     menuTheme?: SortOrder
+    logoUrl?: SortOrder
+    website?: SortOrder
+    currency?: SortOrder
+    timezone?: SortOrder
+    aadharCardUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -20730,6 +20971,11 @@ export namespace Prisma {
     gstin?: SortOrder
     subscriptionPlan?: SortOrder
     menuTheme?: SortOrder
+    logoUrl?: SortOrder
+    website?: SortOrder
+    currency?: SortOrder
+    timezone?: SortOrder
+    aadharCardUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -20747,6 +20993,11 @@ export namespace Prisma {
     gstin?: SortOrder
     subscriptionPlan?: SortOrder
     menuTheme?: SortOrder
+    logoUrl?: SortOrder
+    website?: SortOrder
+    currency?: SortOrder
+    timezone?: SortOrder
+    aadharCardUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
@@ -20857,6 +21108,8 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrder
     role?: SortOrder
+    profilePictureUrl?: SortOrder
+    jobTitle?: SortOrder
     tenantId?: SortOrder
     tenantRoleId?: SortOrder
     createdAt?: SortOrder
@@ -20870,6 +21123,8 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrder
     role?: SortOrder
+    profilePictureUrl?: SortOrder
+    jobTitle?: SortOrder
     tenantId?: SortOrder
     tenantRoleId?: SortOrder
     createdAt?: SortOrder
@@ -20883,6 +21138,8 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrder
     role?: SortOrder
+    profilePictureUrl?: SortOrder
+    jobTitle?: SortOrder
     tenantId?: SortOrder
     tenantRoleId?: SortOrder
     createdAt?: SortOrder
@@ -20956,6 +21213,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type ProductTenantIdBarcodeCompoundUniqueInput = {
+    tenantId: string
+    barcode: string
+  }
+
   export type ProductCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -20972,6 +21234,8 @@ export namespace Prisma {
     expiryDate?: SortOrder
     manufacturingDate?: SortOrder
     batchNumber?: SortOrder
+    description?: SortOrder
+    imageUrl?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21001,6 +21265,8 @@ export namespace Prisma {
     expiryDate?: SortOrder
     manufacturingDate?: SortOrder
     batchNumber?: SortOrder
+    description?: SortOrder
+    imageUrl?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21022,6 +21288,8 @@ export namespace Prisma {
     expiryDate?: SortOrder
     manufacturingDate?: SortOrder
     batchNumber?: SortOrder
+    description?: SortOrder
+    imageUrl?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -21169,6 +21437,11 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type ProductSerialProductIdSerialNumberCompoundUniqueInput = {
+    productId: string
+    serialNumber: string
   }
 
   export type ProductSerialCountOrderByAggregateInput = {
@@ -22753,6 +23026,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
@@ -22766,6 +23041,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22826,6 +23103,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     transactionItems?: TransactionItemCreateNestedManyWithoutProductInput
@@ -22850,6 +23129,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     transactionItems?: TransactionItemUncheckedCreateNestedManyWithoutProductInput
@@ -23075,6 +23356,8 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     phone?: StringNullableFilter<"User"> | string | null
     role?: StringFilter<"User"> | string
+    profilePictureUrl?: StringNullableFilter<"User"> | string | null
+    jobTitle?: StringNullableFilter<"User"> | string | null
     tenantId?: StringFilter<"User"> | string
     tenantRoleId?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -23144,6 +23427,8 @@ export namespace Prisma {
     expiryDate?: DateTimeNullableFilter<"Product"> | Date | string | null
     manufacturingDate?: DateTimeNullableFilter<"Product"> | Date | string | null
     batchNumber?: StringNullableFilter<"Product"> | string | null
+    description?: StringNullableFilter<"Product"> | string | null
+    imageUrl?: StringNullableFilter<"Product"> | string | null
     tenantId?: StringFilter<"Product"> | string
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
@@ -23325,6 +23610,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutUsersInput
@@ -23338,6 +23625,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -23365,7 +23654,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23389,7 +23683,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23445,7 +23744,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23469,7 +23773,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23493,7 +23802,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23517,7 +23831,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23632,7 +23951,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23656,7 +23980,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23725,7 +24054,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23749,7 +24083,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -23911,7 +24250,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -23935,7 +24279,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24085,6 +24434,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutProductsInput
@@ -24109,6 +24460,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24149,6 +24502,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutProductsNestedInput
@@ -24173,6 +24528,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24197,6 +24554,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutProductsInput
@@ -24221,6 +24580,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24261,6 +24622,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutProductsNestedInput
@@ -24285,6 +24648,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24309,6 +24674,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutProductsInput
@@ -24333,6 +24700,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24373,6 +24742,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutProductsNestedInput
@@ -24397,6 +24768,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24416,7 +24789,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24440,7 +24818,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24480,7 +24863,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24504,7 +24892,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24528,7 +24921,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24552,7 +24950,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24592,7 +24995,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24616,7 +25024,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24640,7 +25053,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24664,7 +25082,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24704,7 +25127,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24728,7 +25156,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24752,7 +25185,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24776,7 +25214,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24816,7 +25259,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24840,7 +25288,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -24904,7 +25357,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24928,7 +25386,12 @@ export namespace Prisma {
     address?: string | null
     gstin?: string | null
     subscriptionPlan?: string
-    menuTheme?: string
+    menuTheme?: string | null
+    logoUrl?: string | null
+    website?: string | null
+    currency?: string
+    timezone?: string
+    aadharCardUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
@@ -24953,6 +25416,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutUsersInput
@@ -24966,6 +25431,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantId: string
     tenantRoleId?: string | null
     createdAt?: Date | string
@@ -25015,7 +25482,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -25039,7 +25511,12 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     gstin?: NullableStringFieldUpdateOperationsInput | string | null
     subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    menuTheme?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
@@ -25070,6 +25547,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
@@ -25083,6 +25562,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25152,6 +25633,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutProductsInput
@@ -25176,6 +25659,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25269,6 +25754,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutProductsNestedInput
@@ -25293,6 +25780,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25308,6 +25797,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25337,6 +25828,8 @@ export namespace Prisma {
     expiryDate?: Date | string | null
     manufacturingDate?: Date | string | null
     batchNumber?: string | null
+    description?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -25404,6 +25897,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
@@ -25417,6 +25912,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25430,6 +25927,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25477,6 +25976,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactionItems?: TransactionItemUpdateManyWithoutProductNestedInput
@@ -25501,6 +26002,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactionItems?: TransactionItemUncheckedUpdateManyWithoutProductNestedInput
@@ -25525,6 +26028,8 @@ export namespace Prisma {
     expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     manufacturingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     batchNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25706,6 +26211,8 @@ export namespace Prisma {
     name: string
     phone?: string | null
     role?: string
+    profilePictureUrl?: string | null
+    jobTitle?: string | null
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25718,6 +26225,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
@@ -25731,6 +26240,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25744,6 +26255,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

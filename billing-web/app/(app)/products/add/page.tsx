@@ -7,6 +7,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Package, Tag, IndianRupee, Boxes, Hash, Info, Plus, Trash2
 } from 'lucide-react';
+import ImageUpload from '../../tenants/add/ImageUpload';
 
 const PRESET_CATEGORIES = [
   'Vegetables', 'Fruits', 'Grocery', 'FMCG', 'Medical',
@@ -29,6 +30,7 @@ export default function AddProductPage() {
     stock: '',
     minStockThreshold: '10',
     barcode: '',
+    imageUrl: '',
   });
 
   const [variants, setVariants] = useState<any[]>([]);
@@ -142,6 +144,17 @@ export default function AddProductPage() {
             <h2 className="text-sm font-semibold text-gray-800">Identity & Behavior</h2>
           </div>
           <div className="p-6 space-y-5">
+            <div className="flex items-start gap-6 border-b border-gray-100 pb-6 mb-2">
+              <ImageUpload 
+                label="Product Image (Optional)" 
+                onUploadSuccess={(url) => setFormData(prev => ({...prev, imageUrl: url}))} 
+              />
+              <div className="flex-1 mt-2">
+                <p className="text-sm font-medium text-gray-700">Display Image</p>
+                <p className="text-xs text-gray-500 mt-1">Upload a clear picture of the product to show on the POS and digital menus.</p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
