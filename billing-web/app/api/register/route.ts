@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       email: email,
       phone: phone || null,
       address: address || null,
-      gstin: gstin || null
+      gstin: gstin || null,
+      subscriptionPlan: 'FREE'
     };
 
     const tenant = await prisma.tenant.create({ data: tenantCreateData });

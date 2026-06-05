@@ -116,7 +116,12 @@ export async function updateTenant(tenantId: string, data: any) {
     phone: data.phone || null,
     address: data.address || null,
     gstin: data.gstin || null,
-    subscriptionPlan: data.subscriptionPlan || 'FREE'
+    subscriptionPlan: data.subscriptionPlan || 'FREE',
+    logoUrl: data.logoUrl || null,
+    website: data.website || null,
+    currency: data.currency || 'INR',
+    timezone: data.timezone || 'Asia/Kolkata',
+    aadharCardUrl: data.aadharCardUrl || null
   };
 
   const tenant = await prisma.tenant.update({ where: { id: tenantId }, data: updateTenantData });
@@ -137,6 +142,18 @@ export async function updateTenant(tenantId: string, data: any) {
         data: { password: hashedPassword }
       });
     }
+  }
+
+  // Update admin user profile fields if provided
+  if (data.profilePictureUrl || data.jobTitle) {
+    const updateUserData: any = {};
+    if (data.profilePictureUrl) updateUserData.profilePictureUrl = data.profilePictureUrl;
+    if (data.jobTitle) updateUserData.jobTitle = data.jobTitle;
+
+    await prisma.user.updateMany({
+      where: { tenantId, role: 'ADMIN' },
+      data: updateUserData
+    });
   }
 
   revalidatePath('/tenants');

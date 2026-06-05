@@ -13,6 +13,8 @@ pnpm dev
 # or
 bun dev
 ```
+Email: admin@gmail.com Password: admin123
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

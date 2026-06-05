@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { updateTenant } from '@/lib/actions/tenants';
-import { ArrowLeft, Building2, User, CreditCard } from 'lucide-react';
+import { ArrowLeft, Building2, User, CreditCard, Globe, Clock, IndianRupee, Briefcase } from 'lucide-react';
 import Link from 'next/link';
+import ImageUpload from '../../add/ImageUpload';
 
 export default function EditTenantPage() {
   const router = useRouter();
@@ -24,7 +25,14 @@ export default function EditTenantPage() {
     password: '',
     subscriptionPlan: 'FREE',
     address: '',
-    gstin: ''
+    gstin: '',
+    logoUrl: '',
+    website: '',
+    currency: 'INR',
+    timezone: 'Asia/Kolkata',
+    aadharCardUrl: '',
+    profilePictureUrl: '',
+    jobTitle: ''
   });
 
   useEffect(() => {
@@ -43,7 +51,14 @@ export default function EditTenantPage() {
           password: '',
           subscriptionPlan: data.subscriptionPlan || 'FREE',
           address: data.address || '',
-          gstin: data.gstin || ''
+          gstin: data.gstin || '',
+          logoUrl: data.logoUrl || '',
+          website: data.website || '',
+          currency: data.currency || 'INR',
+          timezone: data.timezone || 'Asia/Kolkata',
+          aadharCardUrl: data.aadharCardUrl || '',
+          profilePictureUrl: data.adminUser?.profilePictureUrl || '',
+          jobTitle: data.adminUser?.jobTitle || ''
         });
       } catch (err: any) {
         setError(err.message);
@@ -95,7 +110,27 @@ export default function EditTenantPage() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <form onSubmit={handleSubmit} className="divide-y divide-gray-100">
-          
+
+          {/* KYC Documents Section */}
+          <div className="p-8 bg-amber-50/30">
+            <div className="flex items-center gap-2 mb-6 text-amber-600">
+              <User className="w-5 h-5" />
+              <h2 className="text-lg font-semibold text-gray-900">KYC Documents</h2>
+            </div>
+            
+            <div className="col-span-1 md:col-span-2 flex gap-6 items-center border border-gray-100 p-4 rounded-xl bg-white shadow-sm">
+              <ImageUpload 
+                label="Aadhar Card" 
+                onUploadSuccess={(url) => setFormData(prev => ({...prev, aadharCardUrl: url}))} 
+                defaultImage={formData.aadharCardUrl}
+              />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-700">Aadhar Card Photo (Optional)</p>
+                <p className="text-xs text-gray-500 mt-1">Upload a clear photo of the business owner's Aadhar Card for verification purposes.</p>
+              </div>
+            </div>
+          </div>
+
           {/* Business Details Section */}
           <div className="p-8">
             <div className="flex items-center gap-2 mb-6 text-indigo-600">
@@ -104,6 +139,19 @@ export default function EditTenantPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div className="col-span-1 md:col-span-2 flex gap-6 items-center border border-gray-100 p-4 rounded-xl bg-gray-50/50">
+                <ImageUpload 
+                  label="Business Logo" 
+                  onUploadSuccess={(url) => setFormData(prev => ({...prev, logoUrl: url}))} 
+                  defaultImage={formData.logoUrl}
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">Upload a Logo</p>
+                  <p className="text-xs text-gray-500 mt-1">This will be used on receipts, digital menus, and invoices. Max size 5MB.</p>
+                </div>
+              </div>
+
               <div className="col-span-1 md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
                 <input
@@ -137,6 +185,58 @@ export default function EditTenantPage() {
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all uppercase text-gray-900"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                <div className="relative">
+                  <Globe className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="url"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 pl-9 pr-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                <div className="relative">
+                  <IndianRupee className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <select
+                    name="currency"
+                    value={formData.currency}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 pl-9 pr-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900 bg-white"
+                  >
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+                <div className="relative">
+                  <Clock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <select
+                    name="timezone"
+                    value={formData.timezone}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 pl-9 pr-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900 bg-white"
+                  >
+                    <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                    <option value="America/New_York">America/New_York (EST)</option>
+                    <option value="Europe/London">Europe/London (GMT)</option>
+                    <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
+                  </select>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -145,6 +245,18 @@ export default function EditTenantPage() {
             <div className="flex items-center gap-2 mb-6 text-indigo-600">
               <User className="w-5 h-5" />
               <h2 className="text-lg font-semibold text-gray-900">Primary Contact</h2>
+            </div>
+
+            <div className="col-span-1 md:col-span-2 flex gap-6 items-center mb-6 border border-gray-100 p-4 rounded-xl bg-white shadow-sm">
+              <ImageUpload 
+                label="Profile Picture" 
+                onUploadSuccess={(url) => setFormData(prev => ({...prev, profilePictureUrl: url}))} 
+                defaultImage={formData.profilePictureUrl}
+              />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-700">Admin Profile Picture</p>
+                <p className="text-xs text-gray-500 mt-1">Upload a professional photo for the primary administrator.</p>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -157,6 +269,21 @@ export default function EditTenantPage() {
                   onChange={handleChange}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all bg-white text-gray-900"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job Title / Role</label>
+                <div className="relative">
+                  <Briefcase className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    name="jobTitle"
+                    value={formData.jobTitle}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 pl-9 pr-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all bg-white text-gray-900"
+                    placeholder="e.g. Store Manager"
+                  />
+                </div>
               </div>
 
               <div>

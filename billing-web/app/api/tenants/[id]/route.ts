@@ -15,7 +15,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const tenant = await prisma.tenant.findUnique({
       where: { id },
       include: {
-        _count: { select: { users: true, products: true, transactions: true } }
+        _count: { select: { users: true, products: true, transactions: true } },
+        users: {
+          where: { role: 'ADMIN' },
+          select: { profilePictureUrl: true, jobTitle: true, id: true },
+          take: 1
+        }
       }
     });
 
@@ -23,7 +28,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
     }
 
-    return NextResponse.json(tenant);
+    const { users, ...tenantData } = tenant;
+    return NextResponse.json({
+      ...tenantData,
+      adminUser: users[0] || null
+    });
   } catch (error) {
     console.error('Error fetching tenant:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -56,6 +65,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         gstin: body.gstin || null,
         subscriptionPlan: body.subscriptionPlan,
         status: body.status || existing.status,
+        logoUrl: body.logoUrl || null,
+        website: body.website || null,
+        currency: body.currency || 'INR',
+        timezone: body.timezone || 'Asia/Kolkata',
+        aadharCardUrl: body.aadharCardUrl || null,
       }
     });
 
@@ -64,6 +78,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       await prisma.user.updateMany({
         where: { tenantId: id, role: 'ADMIN' },
         data: { password: hashedPassword }
+      });
+    }
+
+    if (body.profilePictureUrl || body.jobTitle) {
+      await prisma.user.updateMany({
+        where: { tenantId: id, role: 'ADMIN' },
+        data: {
+          ...(body.profilePictureUrl ? { profilePictureUrl: body.profilePictureUrl } : {}),
+          ...(body.jobTitle ? { jobTitle: body.jobTitle } : {}),
+        }
       });
     }
 

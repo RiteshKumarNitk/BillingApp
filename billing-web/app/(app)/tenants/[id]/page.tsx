@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import TenantStatusToggle from './TenantStatusToggle';
 
 export default async function TenantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: tenantId } = await params;
@@ -24,9 +25,10 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-6 flex flex-wrap justify-between items-center gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Tenant Details</h1>
         <div className="flex gap-2">
+          <TenantStatusToggle tenantId={tenantId} currentStatus={tenant.status} />
           <Link 
             href={`/tenants/${tenantId}/edit`}
             className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
@@ -41,6 +43,16 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           </Link>
         </div>
       </div>
+
+      {tenant.logoUrl && (
+        <div className="mb-6 bg-white shadow rounded-lg p-6 flex items-center gap-4">
+          <img src={tenant.logoUrl} alt="Business Logo" className="w-16 h-16 rounded-xl object-cover border border-gray-200" />
+          <div>
+            <p className="text-sm font-medium text-gray-500">Business Logo</p>
+            <p className="text-sm text-gray-900">{tenant.name}</p>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white shadow rounded-lg p-6">
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-8">
@@ -85,6 +97,26 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">GSTIN</dt>
             <dd className="mt-1 text-sm text-gray-900">{tenant.gstin || '-'}</dd>
+          </div>
+          <div className="sm:col-span-1">
+            <dt className="text-sm font-medium text-gray-500">Website</dt>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.website ? <a href={tenant.website} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">{tenant.website}</a> : '-'}</dd>
+          </div>
+          <div className="sm:col-span-1">
+            <dt className="text-sm font-medium text-gray-500">Currency</dt>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.currency || '-'}</dd>
+          </div>
+          <div className="sm:col-span-1">
+            <dt className="text-sm font-medium text-gray-500">Timezone</dt>
+            <dd className="mt-1 text-sm text-gray-900">{tenant.timezone || '-'}</dd>
+          </div>
+          <div className="sm:col-span-1">
+            <dt className="text-sm font-medium text-gray-500">Aadhar Card</dt>
+            <dd className="mt-1 text-sm text-gray-900">
+              {tenant.aadharCardUrl ? (
+                <a href={tenant.aadharCardUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">View Document</a>
+              ) : '-'}
+            </dd>
           </div>
           <div className="sm:col-span-2">
             <dt className="text-sm font-medium text-gray-500">Address</dt>

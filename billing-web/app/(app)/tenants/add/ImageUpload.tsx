@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import { UploadCloud, X, Loader2 } from 'lucide-react';
-import Image from 'next/config'; // We'll just use <img> for simplicity here
 
 interface ImageUploadProps {
   label: string;
