@@ -102,7 +102,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </p>
                 {isLowStock && (
                   <p className={`text-xs mt-1 font-medium ${isCritical ? 'text-red-600' : 'text-amber-600'}`}>
-                    {isCritical ? 'CRITICAL - Reorder immediately' : `Low stock (min: ${p.minStockThreshold})`}
+                    {isCritical ? 'CRITICAL - Reorder immediately' : `Low stock (min: ${product.minStockThreshold})`}
                   </p>
                 )}
               </div>
