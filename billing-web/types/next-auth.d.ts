@@ -31,5 +31,7 @@ declare module "next-auth/jwt" {
     role: string
     tenantRoleName?: string
     permissions?: string[]
+    tokenVersion?: number
+    tenantVersion?: number
   }
 }

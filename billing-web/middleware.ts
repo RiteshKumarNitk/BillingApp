@@ -24,21 +24,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If no token and trying to access protected route, redirect to login
-  if (!token && pathname !== '/auth/login') {
+  // If no valid token (or empty/invalid token from session expiry) and trying to access protected route, redirect to login
+  if (!token?.id && pathname !== '/auth/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);
   }
 
   // If user is trying to access login page while already logged in, redirect to dashboard
-  if (token && pathname === '/auth/login') {
+  if (token?.id && pathname === '/auth/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }
   // Role-based route protection
-  if (token) {
+  if (token?.id) {
     const role = token.role as string;
     
     // Superadmin only routes

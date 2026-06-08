@@ -156,5 +156,8 @@ export async function deleteTenantUser(userId: string) {
     where: { id: userId }
   });
 
+  // Note: deleted user's JWT becomes invalid because the JWT callback
+  // re-fetches the user and returns empty token if user not found.
+
   revalidatePath('/users');
 }

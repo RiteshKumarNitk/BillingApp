@@ -81,17 +81,67 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
+      // On initial sign-in, populate token from the authorize response
       if (user) {
         token.id = user.id;
         token.tenantId = user.tenantId;
         token.role = user.role;
         token.tenantRoleName = user.tenantRoleName;
         token.permissions = user.permissions;
+        token.tokenVersion = 0;
+        token.tenantVersion = 0;
       }
+
+      // On subsequent requests, re-fetch user/tenant to detect stale sessions
+      if (token.id && token.tenantId) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { tokenVersion: true, role: true, tenantRoleId: true }
+          });
+
+          const dbTenant = await prisma.tenant.findUnique({
+            where: { id: token.tenantId as string },
+            select: { status: true, version: true }
+          });
+
+          // If user no longer exists, force re-login
+          if (!dbUser) {
+            return {} as any;
+          }
+
+          // If tenant is deactivated, force re-login
+          if (!dbTenant || dbTenant.status !== 'ACTIVE') {
+            return {} as any;
+          }
+
+          // If user's tokenVersion changed (role/permissions updated), refresh token data
+          if (dbUser.tokenVersion !== (token.tokenVersion as number)) {
+            let tenantRole = null;
+            if (dbUser.tenantRoleId) {
+              tenantRole = await prisma.role.findUnique({
+                where: { id: dbUser.tenantRoleId }
+              });
+            }
+            token.role = dbUser.role;
+            token.tenantRoleName = tenantRole?.name;
+            token.permissions = tenantRole?.permissions || [];
+            token.tokenVersion = dbUser.tokenVersion;
+          }
+
+          // If tenant version changed (deactivation/reactivation), refresh
+          if (dbTenant.version !== (token.tenantVersion as number)) {
+            token.tenantVersion = dbTenant.version;
+          }
+        } catch (error) {
+          console.error('[NEXTAUTH] Error refreshing token:', error);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && token.id) {
         session.user.id = token.id as string;
         session.user.tenantId = token.tenantId as string;
         session.user.role = token.role as string;

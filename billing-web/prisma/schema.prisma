@@ -34,6 +34,7 @@ model Tenant {
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
   status             String        @default("ACTIVE")
+  version            Int           @default(0)
 
   users              User[]
   roles              Role[]
@@ -80,6 +81,7 @@ model User {
 
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  tokenVersion  Int           @default(0)
 
   transactions  Transaction[]
 }

@@ -2199,8 +2199,18 @@ export namespace Prisma {
 
   export type AggregateTenant = {
     _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
     _min: TenantMinAggregateOutputType | null
     _max: TenantMaxAggregateOutputType | null
+  }
+
+  export type TenantAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type TenantSumAggregateOutputType = {
+    version: number | null
   }
 
   export type TenantMinAggregateOutputType = {
@@ -2223,6 +2233,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     status: string | null
+    version: number | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -2245,6 +2256,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     status: string | null
+    version: number | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -2267,9 +2279,18 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     status: number
+    version: number
     _all: number
   }
 
+
+  export type TenantAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type TenantSumAggregateInputType = {
+    version?: true
+  }
 
   export type TenantMinAggregateInputType = {
     id?: true
@@ -2291,6 +2312,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     status?: true
+    version?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -2313,6 +2335,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     status?: true
+    version?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -2335,6 +2358,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     status?: true
+    version?: true
     _all?: true
   }
 
@@ -2376,6 +2400,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TenantAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TenantSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TenantMinAggregateInputType
@@ -2406,6 +2442,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TenantCountAggregateInputType | true
+    _avg?: TenantAvgAggregateInputType
+    _sum?: TenantSumAggregateInputType
     _min?: TenantMinAggregateInputType
     _max?: TenantMaxAggregateInputType
   }
@@ -2430,7 +2468,10 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     status: string
+    version: number
     _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
     _min: TenantMinAggregateOutputType | null
     _max: TenantMaxAggregateOutputType | null
   }
@@ -2469,6 +2510,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
+    version?: boolean
     users?: boolean | Tenant$usersArgs<ExtArgs>
     roles?: boolean | Tenant$rolesArgs<ExtArgs>
     products?: boolean | Tenant$productsArgs<ExtArgs>
@@ -2500,6 +2542,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
+    version?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2522,6 +2565,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
+    version?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -2544,9 +2588,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     status?: boolean
+    version?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "contactPerson" | "email" | "phone" | "address" | "gstin" | "subscriptionPlan" | "menuTheme" | "logoUrl" | "website" | "currency" | "timezone" | "aadharCardUrl" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "contactPerson" | "email" | "phone" | "address" | "gstin" | "subscriptionPlan" | "menuTheme" | "logoUrl" | "website" | "currency" | "timezone" | "aadharCardUrl" | "createdAt" | "updatedAt" | "status" | "version", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     roles?: boolean | Tenant$rolesArgs<ExtArgs>
@@ -2593,6 +2638,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       status: string
+      version: number
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -3043,6 +3089,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly status: FieldRef<"Tenant", 'String'>
+    readonly version: FieldRef<"Tenant", 'Int'>
   }
     
 
@@ -4749,8 +4796,18 @@ export namespace Prisma {
 
   export type AggregateUser = {
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    tokenVersion: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    tokenVersion: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -4766,6 +4823,7 @@ export namespace Prisma {
     tenantRoleId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    tokenVersion: number | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -4781,6 +4839,7 @@ export namespace Prisma {
     tenantRoleId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    tokenVersion: number | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -4796,9 +4855,18 @@ export namespace Prisma {
     tenantRoleId: number
     createdAt: number
     updatedAt: number
+    tokenVersion: number
     _all: number
   }
 
+
+  export type UserAvgAggregateInputType = {
+    tokenVersion?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    tokenVersion?: true
+  }
 
   export type UserMinAggregateInputType = {
     id?: true
@@ -4813,6 +4881,7 @@ export namespace Prisma {
     tenantRoleId?: true
     createdAt?: true
     updatedAt?: true
+    tokenVersion?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -4828,6 +4897,7 @@ export namespace Prisma {
     tenantRoleId?: true
     createdAt?: true
     updatedAt?: true
+    tokenVersion?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -4843,6 +4913,7 @@ export namespace Prisma {
     tenantRoleId?: true
     createdAt?: true
     updatedAt?: true
+    tokenVersion?: true
     _all?: true
   }
 
@@ -4884,6 +4955,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
@@ -4914,6 +4997,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
     _min?: UserMinAggregateInputType
     _max?: UserMaxAggregateInputType
   }
@@ -4931,7 +5016,10 @@ export namespace Prisma {
     tenantRoleId: string | null
     createdAt: Date
     updatedAt: Date
+    tokenVersion: number
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
   }
@@ -4963,6 +5051,7 @@ export namespace Prisma {
     tenantRoleId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    tokenVersion?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
     transactions?: boolean | User$transactionsArgs<ExtArgs>
@@ -4982,6 +5071,7 @@ export namespace Prisma {
     tenantRoleId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    tokenVersion?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -4999,6 +5089,7 @@ export namespace Prisma {
     tenantRoleId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    tokenVersion?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -5016,9 +5107,10 @@ export namespace Prisma {
     tenantRoleId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    tokenVersion?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "profilePictureUrl" | "jobTitle" | "tenantId" | "tenantRoleId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "profilePictureUrl" | "jobTitle" | "tenantId" | "tenantRoleId" | "createdAt" | "updatedAt" | "tokenVersion", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
@@ -5054,6 +5146,7 @@ export namespace Prisma {
       tenantRoleId: string | null
       createdAt: Date
       updatedAt: Date
+      tokenVersion: number
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -5492,6 +5585,7 @@ export namespace Prisma {
     readonly tenantRoleId: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
+    readonly tokenVersion: FieldRef<"User", 'Int'>
   }
     
 
@@ -17969,7 +18063,8 @@ export namespace Prisma {
     aadharCardUrl: 'aadharCardUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    status: 'status'
+    status: 'status',
+    version: 'version'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -17999,7 +18094,8 @@ export namespace Prisma {
     tenantId: 'tenantId',
     tenantRoleId: 'tenantRoleId',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    tokenVersion: 'tokenVersion'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -18233,6 +18329,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -18250,20 +18360,6 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
   /**
    * Deep Input Types
@@ -18293,6 +18389,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     status?: StringFilter<"Tenant"> | string
+    version?: IntFilter<"Tenant"> | number
     users?: UserListRelationFilter
     roles?: RoleListRelationFilter
     products?: ProductListRelationFilter
@@ -18323,6 +18420,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     users?: UserOrderByRelationAggregateInput
     roles?: RoleOrderByRelationAggregateInput
     products?: ProductOrderByRelationAggregateInput
@@ -18356,6 +18454,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     status?: StringFilter<"Tenant"> | string
+    version?: IntFilter<"Tenant"> | number
     users?: UserListRelationFilter
     roles?: RoleListRelationFilter
     products?: ProductListRelationFilter
@@ -18386,9 +18485,12 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     _count?: TenantCountOrderByAggregateInput
+    _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
     _min?: TenantMinOrderByAggregateInput
+    _sum?: TenantSumOrderByAggregateInput
   }
 
   export type TenantScalarWhereWithAggregatesInput = {
@@ -18414,6 +18516,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     status?: StringWithAggregatesFilter<"Tenant"> | string
+    version?: IntWithAggregatesFilter<"Tenant"> | number
   }
 
   export type RoleWhereInput = {
@@ -18496,6 +18599,7 @@ export namespace Prisma {
     tenantRoleId?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    tokenVersion?: IntFilter<"User"> | number
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     tenantRole?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
     transactions?: TransactionListRelationFilter
@@ -18514,6 +18618,7 @@ export namespace Prisma {
     tenantRoleId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    tokenVersion?: SortOrder
     tenant?: TenantOrderByWithRelationInput
     tenantRole?: RoleOrderByWithRelationInput
     transactions?: TransactionOrderByRelationAggregateInput
@@ -18535,6 +18640,7 @@ export namespace Prisma {
     tenantRoleId?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    tokenVersion?: IntFilter<"User"> | number
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     tenantRole?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
     transactions?: TransactionListRelationFilter
@@ -18553,9 +18659,12 @@ export namespace Prisma {
     tenantRoleId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    tokenVersion?: SortOrder
     _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
   }
 
   export type UserScalarWhereWithAggregatesInput = {
@@ -18574,6 +18683,7 @@ export namespace Prisma {
     tenantRoleId?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    tokenVersion?: IntWithAggregatesFilter<"User"> | number
   }
 
   export type ProductWhereInput = {
@@ -19489,6 +19599,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
@@ -19519,6 +19630,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
@@ -19549,6 +19661,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
@@ -19579,6 +19692,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
@@ -19609,6 +19723,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -19631,6 +19746,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
   }
 
   export type TenantUncheckedUpdateManyInput = {
@@ -19653,6 +19769,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
   }
 
   export type RoleCreateInput = {
@@ -19732,6 +19849,7 @@ export namespace Prisma {
     jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     tenant: TenantCreateNestedOneWithoutUsersInput
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
@@ -19750,6 +19868,7 @@ export namespace Prisma {
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -19764,6 +19883,7 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
@@ -19782,6 +19902,7 @@ export namespace Prisma {
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -19798,6 +19919,7 @@ export namespace Prisma {
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
   }
 
   export type UserUpdateManyMutationInput = {
@@ -19811,6 +19933,7 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -19826,6 +19949,7 @@ export namespace Prisma {
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
   }
 
   export type ProductCreateInput = {
@@ -20857,6 +20981,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type UserListRelationFilter = {
     every?: UserWhereInput
     some?: UserWhereInput
@@ -20957,6 +21092,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
+    version?: SortOrder
+  }
+
+  export type TenantAvgOrderByAggregateInput = {
+    version?: SortOrder
   }
 
   export type TenantMaxOrderByAggregateInput = {
@@ -20979,6 +21119,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
+    version?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -21001,6 +21142,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     status?: SortOrder
+    version?: SortOrder
+  }
+
+  export type TenantSumOrderByAggregateInput = {
+    version?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -21051,6 +21197,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -21114,6 +21276,11 @@ export namespace Prisma {
     tenantRoleId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    tokenVersion?: SortOrder
+  }
+
+  export type UserAvgOrderByAggregateInput = {
+    tokenVersion?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -21129,6 +21296,7 @@ export namespace Prisma {
     tenantRoleId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    tokenVersion?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -21144,6 +21312,11 @@ export namespace Prisma {
     tenantRoleId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    tokenVersion?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    tokenVersion?: SortOrder
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -21495,17 +21668,6 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type CustomerCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -21553,22 +21715,6 @@ export namespace Prisma {
   export type CustomerSumOrderByAggregateInput = {
     loyaltyPoints?: SortOrder
     totalSpent?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type DiscountCountOrderByAggregateInput = {
@@ -22013,6 +22159,14 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserUpdateManyWithoutTenantNestedInput = {
@@ -22622,14 +22776,6 @@ export namespace Prisma {
     connect?: TenantWhereUniqueInput
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type TenantUpdateOneRequiredWithoutCustomersNestedInput = {
     create?: XOR<TenantCreateWithoutCustomersInput, TenantUncheckedCreateWithoutCustomersInput>
     connectOrCreate?: TenantCreateOrConnectWithoutCustomersInput
@@ -22825,6 +22971,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -22840,17 +22997,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
-  }
-
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -22895,9 +23041,20 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type NestedFloatFilter<$PrismaModel = never> = {
@@ -22909,6 +23066,11 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -22987,22 +23149,6 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -23030,6 +23176,7 @@ export namespace Prisma {
     jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
   }
@@ -23046,6 +23193,7 @@ export namespace Prisma {
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -23362,6 +23510,7 @@ export namespace Prisma {
     tenantRoleId?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    tokenVersion?: IntFilter<"User"> | number
   }
 
   export type RoleUpsertWithWhereUniqueWithoutTenantInput = {
@@ -23614,6 +23763,7 @@ export namespace Prisma {
     jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     tenant: TenantCreateNestedOneWithoutUsersInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
   }
@@ -23630,6 +23780,7 @@ export namespace Prisma {
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -23663,6 +23814,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
@@ -23692,6 +23844,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
@@ -23753,6 +23906,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
@@ -23782,6 +23936,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
@@ -23811,6 +23966,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
@@ -23840,6 +23996,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
@@ -23960,6 +24117,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
@@ -23989,6 +24147,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
@@ -24063,6 +24222,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
@@ -24092,6 +24252,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
@@ -24259,6 +24420,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
@@ -24288,6 +24450,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
@@ -24798,6 +24961,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
@@ -24827,6 +24991,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
@@ -24872,6 +25037,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
@@ -24901,6 +25067,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
@@ -24930,6 +25097,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
@@ -24959,6 +25127,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
@@ -25004,6 +25173,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
@@ -25033,6 +25203,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
@@ -25062,6 +25233,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
@@ -25091,6 +25263,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
@@ -25136,6 +25309,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
@@ -25165,6 +25339,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
@@ -25194,6 +25369,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
@@ -25223,6 +25399,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
@@ -25268,6 +25445,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
@@ -25297,6 +25475,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
@@ -25366,6 +25545,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserCreateNestedManyWithoutTenantInput
     roles?: RoleCreateNestedManyWithoutTenantInput
     products?: ProductCreateNestedManyWithoutTenantInput
@@ -25395,6 +25575,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     status?: string
+    version?: number
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     products?: ProductUncheckedCreateNestedManyWithoutTenantInput
@@ -25420,6 +25601,7 @@ export namespace Prisma {
     jobTitle?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
     tenant: TenantCreateNestedOneWithoutUsersInput
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
   }
@@ -25437,6 +25619,7 @@ export namespace Prisma {
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -25491,6 +25674,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUpdateManyWithoutTenantNestedInput
     roles?: RoleUpdateManyWithoutTenantNestedInput
     products?: ProductUpdateManyWithoutTenantNestedInput
@@ -25520,6 +25704,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
@@ -25551,6 +25736,7 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
   }
@@ -25568,6 +25754,7 @@ export namespace Prisma {
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
   }
 
   export type TransactionCreateWithoutItemsInput = {
@@ -25802,6 +25989,7 @@ export namespace Prisma {
     tenantRoleId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
   }
 
   export type RoleCreateManyTenantInput = {
@@ -25901,6 +26089,7 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
@@ -25917,6 +26106,7 @@ export namespace Prisma {
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -25932,6 +26122,7 @@ export namespace Prisma {
     tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
   }
 
   export type RoleUpdateWithoutTenantInput = {
@@ -26216,6 +26407,7 @@ export namespace Prisma {
     tenantId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    tokenVersion?: number
   }
 
   export type UserUpdateWithoutTenantRoleInput = {
@@ -26229,6 +26421,7 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
@@ -26245,6 +26438,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -26260,6 +26454,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenVersion?: IntFieldUpdateOperationsInput | number
   }
 
   export type TransactionCreateManyUserInput = {

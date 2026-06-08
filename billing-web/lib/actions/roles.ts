@@ -64,6 +64,12 @@ export async function updateRole(roleId: string, name: string, permissions: stri
     }
   });
 
+  // Increment tokenVersion for all users with this role so their sessions refresh
+  await prisma.user.updateMany({
+    where: { tenantRoleId: roleId },
+    data: { tokenVersion: { increment: 1 } }
+  });
+
   revalidatePath('/roles');
   return role;
 }
@@ -82,6 +88,12 @@ export async function deleteRole(roleId: string) {
   if (!role) throw new Error("Role not found");
   if (role.name === 'Owner') throw new Error("Cannot delete the Owner role");
   if (role._count.users > 0) throw new Error("Cannot delete a role that is assigned to users");
+
+  // Increment tokenVersion for users who had this role (they'll lose this role's permissions)
+  await prisma.user.updateMany({
+    where: { tenantRoleId: roleId },
+    data: { tenantRoleId: null, tokenVersion: { increment: 1 } }
+  });
 
   await prisma.role.delete({
     where: { id: roleId }

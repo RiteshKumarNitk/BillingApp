@@ -126,12 +126,10 @@ export async function updateTenant(tenantId: string, data: any) {
 
   const tenant = await prisma.tenant.update({ where: { id: tenantId }, data: updateTenantData });
 
-  // If a new password was provided, update the tenant's admin user
+  // If a new password was provided, update the tenant's admin user and invalidate their session
   if (data.password && data.password.trim() !== '') {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     
-    // Find the primary admin for this tenant and update their password
-    // We assume the admin has role 'ADMIN' or is the first user
     const adminUser = await prisma.user.findFirst({
       where: { tenantId, role: 'ADMIN' }
     });
@@ -139,7 +137,7 @@ export async function updateTenant(tenantId: string, data: any) {
     if (adminUser) {
       await prisma.user.update({
         where: { id: adminUser.id },
-        data: { password: hashedPassword }
+        data: { password: hashedPassword, tokenVersion: { increment: 1 } }
       });
     }
   }
@@ -172,9 +170,10 @@ export async function toggleTenantStatus(tenantId: string) {
 
   const newStatus = tenant.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
+  // Bump version to invalidate all active sessions for this tenant
   await prisma.tenant.update({
     where: { id: tenantId },
-    data: { status: newStatus }
+    data: { status: newStatus, version: { increment: 1 } }
   });
 
   revalidatePath('/tenants');

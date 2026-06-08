@@ -139,7 +139,8 @@ exports.Prisma.TenantScalarFieldEnum = {
   aadharCardUrl: 'aadharCardUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  status: 'status'
+  status: 'status',
+  version: 'version'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
@@ -163,7 +164,8 @@ exports.Prisma.UserScalarFieldEnum = {
   tenantId: 'tenantId',
   tenantRoleId: 'tenantRoleId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  tokenVersion: 'tokenVersion'
 };
 
 exports.Prisma.ProductScalarFieldEnum = {

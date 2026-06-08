@@ -1,39 +1,43 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import type { Metadata } from "next";
+import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
+import Features from "@/components/landing/Features";
+import WhyChoose from "@/components/landing/WhyChoose";
+import DashboardShowcase from "@/components/landing/DashboardShowcase";
+import Industries from "@/components/landing/Industries";
+import Testimonials from "@/components/landing/Testimonials";
+import Pricing from "@/components/landing/Pricing";
+import FAQ from "@/components/landing/FAQ";
+import CTA from "@/components/landing/CTA";
+import Footer from "@/components/landing/Footer";
+
+export const metadata: Metadata = {
+  title: "BillingApp — Modern POS, Inventory & Billing Platform",
+  description:
+    "All-in-one cloud platform for POS billing, inventory management, GST invoicing, customer analytics, and multi-store operations. Trusted by 500+ businesses across India.",
+  openGraph: {
+    title: "BillingApp — Modern POS, Inventory & Billing Platform",
+    description:
+      "All-in-one cloud platform for POS billing, inventory management, GST invoicing, customer analytics, and multi-store operations.",
+    type: "website",
+    siteName: "BillingApp",
+  },
+};
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[#F9FAFB] px-6 text-center font-sans">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-          Billing Management
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-500">
-          A minimalist multi-tenant inventory and billing platform. 
-          Manage your products, track transactions, and view analytics seamlessly.
-        </p>
-
-        <div className="mt-10 flex flex-col items-center justify-center gap-6 sm:flex-row">
-          <Link
-            href="/auth/login"
-            className="group flex items-center gap-2 text-sm font-semibold text-gray-900 transition-colors hover:text-indigo-600"
-          >
-            Sign in
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-
-          <span className="hidden h-4 w-px bg-gray-300 sm:block" aria-hidden="true" />
-
-          <Link
-            href="/dashboard"
-            className="group flex items-center gap-2 text-sm font-semibold text-gray-900 transition-colors hover:text-indigo-600"
-          >
-            Go to Dashboard
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
-      </div>
+    <main className="min-h-screen">
+      <Navbar />
+      <Hero />
+      <Features />
+      <WhyChoose />
+      <DashboardShowcase />
+      <Industries />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <CTA />
+      <Footer />
     </main>
   );
 }
