@@ -79,7 +79,7 @@ export async function POST(request: Request) {
 
     // Verify all products belong to the user's tenant
     const productIds = items.map((item: any) => item.productId);
-    const uniqueProductIds = Array.from(new Set(productIds));
+    const uniqueProductIds = [...new Set<string>(productIds)];
     
     const ownedProducts = await prisma.product.findMany({
       where: { 
