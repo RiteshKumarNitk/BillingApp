@@ -5,6 +5,39 @@ import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // Customer auth provider
+    CredentialsProvider({
+      id: "customer-credentials",
+      name: "Customer",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        try {
+          const customer = await prisma.customerAccount.findUnique({
+            where: { email: credentials.email }
+          });
+          if (!customer) return null;
+
+          const isValid = await bcrypt.compare(credentials.password, customer.password);
+          if (!isValid) return null;
+
+          return {
+            id: customer.id,
+            email: customer.email,
+            name: customer.name,
+            role: "CUSTOMER" as any,
+            tenantId: "",
+          };
+        } catch (error) {
+          console.error('[NEXTAUTH] Customer auth error:', error);
+          return null;
+        }
+      }
+    }),
+    // Admin/Tenant auth provider
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -92,6 +125,11 @@ export const authOptions: NextAuthOptions = {
         token.tenantVersion = 0;
       }
 
+      // Handle customer tokens - no DB refresh needed
+      if (token.role === 'CUSTOMER') {
+        return token;
+      }
+
       // On subsequent requests, re-fetch user/tenant to detect stale sessions
       if (token.id && token.tenantId) {
         try {
@@ -143,7 +181,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && token.id) {
         session.user.id = token.id as string;
-        session.user.tenantId = token.tenantId as string;
+        session.user.tenantId = (token.tenantId as string) || '';
         session.user.role = token.role as string;
         session.user.tenantRoleName = token.tenantRoleName as string | undefined;
         session.user.permissions = token.permissions as string[] | undefined;

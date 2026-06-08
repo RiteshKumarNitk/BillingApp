@@ -8,7 +8,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ ten
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
-    select: { name: true, address: true, phone: true, menuTheme: true }
+    select: { name: true, address: true, phone: true, menuTheme: true, latitude: true, longitude: true }
   });
 
   if (!tenant) {
@@ -36,6 +36,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ ten
 
   return (
     <MenuClient 
+      tenantId={tenantId}
       tenant={tenant}
       categorizedProducts={categorizedProducts} 
       theme={tenant.menuTheme || "DEFAULT"} 

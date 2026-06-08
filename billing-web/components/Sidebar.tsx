@@ -13,7 +13,8 @@ import {
   Shield,
   Tag,
   History,
-  X
+  X,
+  ClipboardList
 } from 'lucide-react';
 
 export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
@@ -37,6 +38,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Billing', href: '/billing', icon: Receipt },
       { name: 'Transactions', href: '/transactions', icon: History },
+      { name: 'Order Requests', href: '/orders', icon: ClipboardList },
       { name: 'Products', href: '/products', icon: Package },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },

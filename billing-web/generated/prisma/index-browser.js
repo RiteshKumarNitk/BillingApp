@@ -125,22 +125,24 @@ exports.Prisma.TenantScalarFieldEnum = {
   name: 'name',
   domain: 'domain',
   dbConnectionString: 'dbConnectionString',
-  contactPerson: 'contactPerson',
-  email: 'email',
-  phone: 'phone',
-  address: 'address',
-  gstin: 'gstin',
-  subscriptionPlan: 'subscriptionPlan',
-  menuTheme: 'menuTheme',
-  logoUrl: 'logoUrl',
-  website: 'website',
-  currency: 'currency',
-  timezone: 'timezone',
-  aadharCardUrl: 'aadharCardUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   status: 'status',
-  version: 'version'
+  address: 'address',
+  contactPerson: 'contactPerson',
+  email: 'email',
+  gstin: 'gstin',
+  phone: 'phone',
+  subscriptionPlan: 'subscriptionPlan',
+  menuTheme: 'menuTheme',
+  currency: 'currency',
+  logoUrl: 'logoUrl',
+  timezone: 'timezone',
+  website: 'website',
+  aadharCardUrl: 'aadharCardUrl',
+  version: 'version',
+  latitude: 'latitude',
+  longitude: 'longitude'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
@@ -157,38 +159,38 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   name: 'name',
-  phone: 'phone',
   role: 'role',
-  profilePictureUrl: 'profilePictureUrl',
-  jobTitle: 'jobTitle',
   tenantId: 'tenantId',
-  tenantRoleId: 'tenantRoleId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  tenantRoleId: 'tenantRoleId',
+  phone: 'phone',
+  jobTitle: 'jobTitle',
+  profilePictureUrl: 'profilePictureUrl',
   tokenVersion: 'tokenVersion'
 };
 
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  category: 'category',
-  productType: 'productType',
-  unit: 'unit',
-  allowDecimal: 'allowDecimal',
   barcode: 'barcode',
   purchasePrice: 'purchasePrice',
   mrp: 'mrp',
   salePrice: 'salePrice',
   stock: 'stock',
-  minStockThreshold: 'minStockThreshold',
   expiryDate: 'expiryDate',
   manufacturingDate: 'manufacturingDate',
   batchNumber: 'batchNumber',
-  description: 'description',
-  imageUrl: 'imageUrl',
+  category: 'category',
+  minStockThreshold: 'minStockThreshold',
   tenantId: 'tenantId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  unit: 'unit',
+  allowDecimal: 'allowDecimal',
+  productType: 'productType',
+  description: 'description',
+  imageUrl: 'imageUrl'
 };
 
 exports.Prisma.ProductVariantScalarFieldEnum = {
@@ -220,6 +222,17 @@ exports.Prisma.ProductSerialScalarFieldEnum = {
   warrantyMonths: 'warrantyMonths'
 };
 
+exports.Prisma.CustomerAccountScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  password: 'password',
+  name: 'name',
+  phone: 'phone',
+  tokenVersion: 'tokenVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.CustomerScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -230,7 +243,62 @@ exports.Prisma.CustomerScalarFieldEnum = {
   totalSpent: 'totalSpent',
   lastPurchaseDate: 'lastPurchaseDate',
   createdDate: 'createdDate',
-  tenantId: 'tenantId'
+  tenantId: 'tenantId',
+  customerAccountId: 'customerAccountId'
+};
+
+exports.Prisma.OrderRequestScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  notes: 'notes',
+  totalAmount: 'totalAmount',
+  taxAmount: 'taxAmount',
+  netAmount: 'netAmount',
+  tenantId: 'tenantId',
+  customerAccountId: 'customerAccountId',
+  customerId: 'customerId',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderRequestItemScalarFieldEnum = {
+  id: 'id',
+  orderRequestId: 'orderRequestId',
+  productId: 'productId',
+  name: 'name',
+  barcode: 'barcode',
+  salePrice: 'salePrice',
+  quantity: 'quantity',
+  itemTotal: 'itemTotal'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  isRead: 'isRead',
+  orderId: 'orderId',
+  metadata: 'metadata',
+  tenantId: 'tenantId',
+  customerAccountId: 'customerAccountId',
+  customerId: 'customerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExpenseScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  category: 'category',
+  amount: 'amount',
+  date: 'date',
+  notes: 'notes',
+  receiptUrl: 'receiptUrl',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.DiscountScalarFieldEnum = {
@@ -278,18 +346,18 @@ exports.Prisma.TransactionScalarFieldEnum = {
   status: 'status',
   totalAmount: 'totalAmount',
   discount: 'discount',
-  discountType: 'discountType',
-  taxAmount: 'taxAmount',
   netAmount: 'netAmount',
-  paymentMethod: 'paymentMethod',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   amountReceived: 'amountReceived',
   changeAmount: 'changeAmount',
   customerId: 'customerId',
   customerName: 'customerName',
   customerPhone: 'customerPhone',
+  discountType: 'discountType',
   notes: 'notes',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  paymentMethod: 'paymentMethod',
+  taxAmount: 'taxAmount'
 };
 
 exports.Prisma.TransactionItemScalarFieldEnum = {
@@ -303,9 +371,9 @@ exports.Prisma.TransactionItemScalarFieldEnum = {
   salePrice: 'salePrice',
   quantity: 'quantity',
   itemTotal: 'itemTotal',
-  variantId: 'variantId',
   batchId: 'batchId',
-  serialId: 'serialId'
+  serialId: 'serialId',
+  variantId: 'variantId'
 };
 
 exports.Prisma.SortOrder = {
@@ -332,7 +400,12 @@ exports.Prisma.ModelName = {
   ProductVariant: 'ProductVariant',
   ProductBatch: 'ProductBatch',
   ProductSerial: 'ProductSerial',
+  CustomerAccount: 'CustomerAccount',
   Customer: 'Customer',
+  OrderRequest: 'OrderRequest',
+  OrderRequestItem: 'OrderRequestItem',
+  Notification: 'Notification',
+  Expense: 'Expense',
   Discount: 'Discount',
   Employee: 'Employee',
   Shop: 'Shop',

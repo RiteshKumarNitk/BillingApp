@@ -11,13 +11,15 @@ export async function middleware(request: NextRequest) {
   
   const { pathname } = request.nextUrl;
 
-  // Allow access to auth routes, API routes, and public assets without authentication
+  // Allow access to auth routes, API routes, customer routes, and public assets without admin auth
   if (
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/mobile') ||
+    pathname.startsWith('/api/customer') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/auth') ||
     pathname.startsWith('/menu') ||
+    pathname.startsWith('/customer') ||
     pathname === '/' ||
     pathname.startsWith('/favicon.ico')
   ) {

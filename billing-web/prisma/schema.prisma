@@ -1,5 +1,3 @@
-// This is your Prisma schema file
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -10,276 +8,330 @@ datasource db {
 }
 
 model Tenant {
-  id                 String        @id @default(uuid())
+  id                 String         @id @default(uuid())
   name               String
-  domain             String        @unique
+  domain             String         @unique
   dbConnectionString String
-  
-  // Business Details
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  status             String         @default("ACTIVE")
+  address            String?
   contactPerson      String?
   email              String?
-  phone              String?
-  address            String?
   gstin              String?
-  subscriptionPlan   String        @default("FREE")
+  phone              String?
+  subscriptionPlan   String         @default("FREE")
   menuTheme          String?
-  
-  // Additional Business Info
+  currency           String         @default("INR")
   logoUrl            String?
+  timezone           String         @default("Asia/Kolkata")
   website            String?
-  currency           String        @default("INR")
-  timezone           String        @default("Asia/Kolkata")
   aadharCardUrl      String?
-
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  status             String        @default("ACTIVE")
-  version            Int           @default(0)
-
-  users              User[]
-  roles              Role[]
-  products           Product[]
-  transactions       Transaction[]
+  version            Int            @default(0)
+  latitude           Float?
+  longitude          Float?
   customers          Customer[]
   discounts          Discount[]
   employees          Employee[]
+  expenses           Expense[]
+  notifications      Notification[]
+  orderRequests      OrderRequest[]
+  products           Product[]
+  roles              Role[]
   shop               Shop?
+  transactions       Transaction[]
+  users              User[]
 }
 
 model Role {
   id          String   @id @default(uuid())
   tenantId    String
   name        String
-  permissions String[] // e.g. ["CREATE_PRODUCT", "CREATE_BILL"]
-  
-  users       User[]
-
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  permissions String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users       User[]
 
   @@unique([tenantId, name])
 }
 
 model User {
-  id            String        @id @default(uuid())
-  email         String        @unique
-  password      String
-  name          String
-  phone         String?
-  role          String        @default("ADMIN") // Global role (SUPERADMIN or ADMIN)
-  
-  // Additional User Info
-  profilePictureUrl String?
+  id                String        @id @default(uuid())
+  email             String        @unique
+  password          String
+  name              String
+  role              String        @default("ADMIN")
+  tenantId          String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  tenantRoleId      String?
+  phone             String?
   jobTitle          String?
-  
-  tenantId      String
-  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  tenantRoleId  String?
-  tenantRole    Role?         @relation(fields: [tenantRoleId], references: [id])
-
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  tokenVersion  Int           @default(0)
-
-  transactions  Transaction[]
+  profilePictureUrl String?
+  tokenVersion      Int           @default(0)
+  transactions      Transaction[]
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantRole        Role?         @relation(fields: [tenantRoleId], references: [id])
 }
 
 model Product {
-  id                  String              @id @default(uuid())
-  name                String
-  category            String?
-  productType         String              @default("SIMPLE") // SIMPLE, WEIGHT, VARIANT, BATCH, SERIAL, SERVICE, RECIPE
-  
-  // Base configuration
-  unit                String              @default("PIECE")
-  allowDecimal        Boolean             @default(false)
-  
-  // Legacy / Base fields
-  barcode             String?
-  purchasePrice       Float               @default(0)
-  mrp                 Float               @default(0)
-  salePrice           Float               @default(0)
-  stock               Float               @default(0)
-  minStockThreshold   Float               @default(10)
-  
-  // Batch legacy fields (kept for backward compatibility, but new models use ProductBatch)
-  expiryDate          DateTime?
-  manufacturingDate   DateTime?
-  batchNumber         String?
-  description         String?
-  imageUrl            String?
-
-  tenantId            String
-  tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  transactionItems    TransactionItem[]
-  variants            ProductVariant[]
-  batches             ProductBatch[]
-  serials             ProductSerial[]
-
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  id                String            @id @default(uuid())
+  name              String
+  barcode           String?
+  purchasePrice     Float             @default(0)
+  mrp               Float             @default(0)
+  salePrice         Float             @default(0)
+  stock             Float             @default(0)
+  expiryDate        DateTime?
+  manufacturingDate DateTime?
+  batchNumber       String?
+  category          String?
+  minStockThreshold Float             @default(10)
+  tenantId          String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  unit              String            @default("PIECE")
+  allowDecimal      Boolean           @default(false)
+  productType       String            @default("SIMPLE")
+  description       String?
+  imageUrl          String?
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  batches           ProductBatch[]
+  serials           ProductSerial[]
+  variants          ProductVariant[]
+  transactionItems  TransactionItem[]
 
   @@unique([tenantId, barcode])
 }
 
 model ProductVariant {
-  id              String    @id @default(uuid())
-  productId       String
-  name            String    // e.g., "500 Gram", "XL", "Red"
-  barcode         String?
-  
-  purchasePrice   Float
-  mrp             Float
-  salePrice       Float
-  stock           Float     @default(0)
-  
-  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id            String  @id @default(uuid())
+  productId     String
+  name          String
+  barcode       String?
+  purchasePrice Float
+  mrp           Float
+  salePrice     Float
+  stock         Float   @default(0)
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductBatch {
-  id              String    @id @default(uuid())
-  productId       String
-  batchNumber     String
+  id                String    @id @default(uuid())
+  productId         String
+  batchNumber       String
   manufacturingDate DateTime?
-  expiryDate      DateTime?
-  stock           Float     @default(0)
-  
-  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  expiryDate        DateTime?
+  stock             Float     @default(0)
+  product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductSerial {
-  id              String    @id @default(uuid())
-  productId       String
-  serialNumber    String
-  status          String    @default("AVAILABLE") // AVAILABLE, SOLD
-  purchaseDate    DateTime?
-  warrantyMonths  Int?
-  
-  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id             String    @id @default(uuid())
+  productId      String
+  serialNumber   String
+  status         String    @default("AVAILABLE")
+  purchaseDate   DateTime?
+  warrantyMonths Int?
+  product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, serialNumber])
 }
 
-model Customer {
-  id              String    @id @default(uuid())
-  name            String
-  phone           String?
-  email           String?
-  address         String?
-  loyaltyPoints   Int       @default(0)
-  totalSpent      Float     @default(0)
-  lastPurchaseDate DateTime?
-  createdDate     DateTime  @default(now())
+model CustomerAccount {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  phone         String?
+  tokenVersion  Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  customers     Customer[]
+  orderRequests OrderRequest[]
+  notifications Notification[]
+}
 
-  tenantId        String
-  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+model Customer {
+  id                String           @id @default(uuid())
+  name              String
+  phone             String?
+  email             String?
+  address           String?
+  loyaltyPoints     Int              @default(0)
+  totalSpent        Float            @default(0)
+  lastPurchaseDate  DateTime?
+  createdDate       DateTime         @default(now())
+  tenantId          String
+  customerAccountId String?
+  customerAccount   CustomerAccount? @relation(fields: [customerAccountId], references: [id])
+  tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderRequests     OrderRequest[]
+  notifications     Notification[]
 
   @@index([tenantId])
+  @@index([customerAccountId])
+}
+
+model OrderRequest {
+  id                String             @id @default(uuid())
+  status            String             @default("PENDING")
+  notes             String?
+  totalAmount       Float              @default(0)
+  taxAmount         Float              @default(0)
+  netAmount         Float              @default(0)
+  tenantId          String
+  customerAccountId String
+  customerId        String?
+  transactionId     String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  customerAccount   CustomerAccount    @relation(fields: [customerAccountId], references: [id])
+  customer          Customer?          @relation(fields: [customerId], references: [id])
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items             OrderRequestItem[]
+
+  @@index([tenantId, status])
+  @@index([customerAccountId])
+}
+
+model OrderRequestItem {
+  id             String       @id @default(uuid())
+  orderRequestId String
+  productId      String
+  name           String
+  barcode        String?
+  salePrice      Float
+  quantity       Float
+  itemTotal      Float
+  orderRequest   OrderRequest @relation(fields: [orderRequestId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id                String         @id @default(uuid())
+  type              String         @default("ORDER_STATUS") // ORDER_STATUS, GENERAL, PROMOTION
+  title             String
+  message           String
+  isRead            Boolean        @default(false)
+  orderId           String?
+  metadata          String?        // JSON string for extra data
+
+  tenantId          String
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  customerAccountId String
+  customerAccount   CustomerAccount @relation(fields: [customerAccountId], references: [id], onDelete: Cascade)
+
+  customerId        String?
+  customer          Customer?      @relation(fields: [customerId], references: [id])
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([customerAccountId, isRead])
+  @@index([tenantId, createdAt])
+}
+
+model Expense {
+  id         String   @id @default(uuid())
+  name       String
+  category   String   @default("OTHER")
+  amount     Float
+  date       DateTime @default(now())
+  notes      String?
+  receiptUrl String?
+  tenantId   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, date])
 }
 
 model Discount {
-  id                  String    @id @default(uuid())
-  name                String
-  description         String?
-  discountPercentage  Float
-  applicableCategory  String?
-  minimumQuantity     Int       @default(1)
-  startDate           DateTime?
-  endDate             DateTime?
-  isActive            Boolean   @default(true)
-
-  tenantId            String
-  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(uuid())
+  name               String
+  description        String?
+  discountPercentage Float
+  applicableCategory String?
+  minimumQuantity    Int       @default(1)
+  startDate          DateTime?
+  endDate            DateTime?
+  isActive           Boolean   @default(true)
+  tenantId           String
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
 }
 
 model Employee {
-  id                  String    @id @default(uuid())
-  name                String
-  email               String?
-  phone               String?
-  password            String?
-  role                String    @default("CASHIER")
-  isActive            Boolean   @default(true)
-  monthlySalesTarget  Float     @default(0)
-  createdDate         DateTime  @default(now())
-
-  tenantId            String
-  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(uuid())
+  name               String
+  email              String?
+  phone              String?
+  password           String?
+  role               String   @default("CASHIER")
+  isActive           Boolean  @default(true)
+  monthlySalesTarget Float    @default(0)
+  createdDate        DateTime @default(now())
+  tenantId           String
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
 }
 
 model Shop {
-  id              String   @id @default(uuid())
-  name            String?
-  addressLine1    String?
-  addressLine2    String?
-  phoneNumber     String?
-  upiId           String?
-  footerText      String?
-  defaultTaxRate  Float    @default(0)
-
-  tenantId        String   @unique
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id             String  @id @default(uuid())
+  name           String?
+  addressLine1   String?
+  addressLine2   String?
+  phoneNumber    String?
+  upiId          String?
+  footerText     String?
+  defaultTaxRate Float   @default(0)
+  tenantId       String  @unique
+  tenant         Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
-  id            String              @id @default(uuid())
-
-  tenantId      String
-  userId        String
-
-  status        String              @default("COMPLETED")
-
-  totalAmount   Float
-  discount      Float               @default(0)
-  discountType  String              @default("PERCENTAGE")
-  taxAmount     Float               @default(0)
-  netAmount     Float
-
-  paymentMethod   String?
-  amountReceived  Float?
-  changeAmount    Float?
-  customerId      String?
-  customerName    String?
-  customerPhone   String?
-  notes           String?
-
-  items         TransactionItem[]
-
-  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user          User                @relation(fields: [userId], references: [id])
-
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  id             String            @id @default(uuid())
+  tenantId       String
+  userId         String
+  status         String            @default("COMPLETED")
+  totalAmount    Float
+  discount       Float             @default(0)
+  netAmount      Float
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  amountReceived Float?
+  changeAmount   Float?
+  customerId     String?
+  customerName   String?
+  customerPhone  String?
+  discountType   String            @default("PERCENTAGE")
+  notes          String?
+  paymentMethod  String?
+  taxAmount      Float             @default(0)
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id])
+  items          TransactionItem[]
 }
 
 model TransactionItem {
-  id              String          @id @default(uuid())
-
-  transactionId   String
-  productId       String
-
-  transaction     Transaction     @relation(fields: [transactionId], references: [id])
-  product         Product         @relation(fields: [productId], references: [id])
-
-  name            String
-  barcode         String
-
-  purchasePrice   Float
-  mrp             Float
-  salePrice       Float
-
-  quantity        Float
-  itemTotal       Float
-  
-  // Optional relations for complex product types
-  variantId       String?
-  batchId         String?
-  serialId        String?
+  id            String      @id @default(uuid())
+  transactionId String
+  productId     String
+  name          String
+  barcode       String
+  purchasePrice Float
+  mrp           Float
+  salePrice     Float
+  quantity      Float
+  itemTotal     Float
+  batchId       String?
+  serialId      String?
+  variantId     String?
+  product       Product     @relation(fields: [productId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
 }
