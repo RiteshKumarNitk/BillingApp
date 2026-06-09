@@ -79,6 +79,7 @@ class _MenuPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _buildMenuCategory(context, 'Business', [
+            _MenuItem(icon: Icons.shopping_bag, title: 'Order Requests', route: '/order-queue', color: Colors.indigo),
             _MenuItem(icon: Icons.store, title: 'Shop Details', route: '/shop', color: Colors.brown),
             _MenuItem(icon: Icons.qr_code_2, title: 'Digital Menu QR', route: '/digital-menu', color: Colors.green),
             _MenuItem(icon: Icons.people, title: 'Customers', route: '/customers', color: Colors.blue),

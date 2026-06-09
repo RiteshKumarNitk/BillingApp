@@ -22,7 +22,6 @@ class ApiClient {
   Future<dynamic> get(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
-
     final response = await http.get(url, headers: headers);
     return _handleResponse(response);
   }
@@ -30,32 +29,28 @@ class ApiClient {
   Future<dynamic> post(String endpoint, {Map<String, dynamic>? body}) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
-
-    final response = await http.post(
-      url,
-      headers: headers,
-      body: body != null ? json.encode(body) : null,
-    );
+    final response = await http.post(url, headers: headers, body: body != null ? json.encode(body) : null);
     return _handleResponse(response);
   }
 
   Future<dynamic> put(String endpoint, {Map<String, dynamic>? body}) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
-
-    final response = await http.put(
-      url,
-      headers: headers,
-      body: body != null ? json.encode(body) : null,
-    );
+    final response = await http.put(url, headers: headers, body: body != null ? json.encode(body) : null);
     return _handleResponse(response);
   }
 
   Future<dynamic> delete(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
-
     final response = await http.delete(url, headers: headers);
+    return _handleResponse(response);
+  }
+
+  Future<dynamic> patch(String endpoint, {Map<String, dynamic>? body}) async {
+    final url = Uri.parse('$baseUrl$endpoint');
+    final headers = await _getHeaders();
+    final response = await http.patch(url, headers: headers, body: body != null ? json.encode(body) : null);
     return _handleResponse(response);
   }
 
@@ -73,7 +68,7 @@ class ApiClient {
     }
   }
 
-  // Auth Methods
+  // ================== Auth Methods ==================
   Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await post('/auth/login', body: {
       'email': email,
@@ -83,6 +78,9 @@ class ApiClient {
     if (response['token'] != null) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', response['token']);
+      await prefs.setString('last_mode', 'merchant');
+      // Clear customer token to prevent stale auth on mode switch
+      await prefs.remove('customer_token');
       if (response['user'] != null && response['user']['tenantId'] != null) {
         await prefs.setString('tenant_id', response['user']['tenantId']);
       }
@@ -94,9 +92,82 @@ class ApiClient {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
+    await prefs.remove('tenant_id');
   }
 
-  // ================== Customer API ==================
+  // ================== Customer API (consolidated) ==================
+  Future<Map<String, String>> _getCustomerHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('customer_token');
+    return {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  Future<Map<String, dynamic>> _customerRequest(String method, String endpoint, {Map<String, dynamic>? body}) async {
+    final url = Uri.parse('$baseUrl/customer$endpoint');
+    final headers = await _getCustomerHeaders();
+    http.Response response;
+    switch (method) {
+      case 'GET':
+        response = await http.get(url, headers: headers);
+        break;
+      case 'POST':
+        response = await http.post(url, headers: headers, body: body != null ? json.encode(body) : null);
+        break;
+      case 'PATCH':
+        response = await http.patch(url, headers: headers, body: body != null ? json.encode(body) : null);
+        break;
+      case 'PUT':
+        response = await http.put(url, headers: headers, body: body != null ? json.encode(body) : null);
+        break;
+      default:
+        throw Exception('Unsupported HTTP method: $method');
+    }
+    return _handleResponse(response);
+  }
+
+  Future<Map<String, dynamic>> customerRegister(Map<String, dynamic> data) async {
+    return _customerRequest('POST', '/auth/register', body: data);
+  }
+
+  Future<Map<String, dynamic>> customerLogin(String email, String password) async {
+    final response = await _customerRequest('POST', '/auth/login', body: {'email': email, 'password': password});
+    if (response['token'] != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('customer_token', response['token']);
+      await prefs.setString('last_mode', 'customer');
+      // Clear merchant token to prevent stale auth on mode switch
+      await prefs.remove('auth_token');
+      await prefs.remove('tenant_id');
+    }
+    return response;
+  }
+
+  Future<void> customerLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('customer_token');
+  }
+
+
+  Future<String?> getCustomerToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('customer_token');
+  }
+
+  // ================== Customer Data APIs ==================
+  Future<Map<String, dynamic>> getCustomerDashboard() => _customerRequest('GET', '/dashboard');
+  Future<Map<String, dynamic>> getCustomerStores() => _customerRequest('GET', '/stores');
+  Future<Map<String, dynamic>> getCustomerOrders() => _customerRequest('GET', '/orders');
+  Future<Map<String, dynamic>> submitCustomerOrder(Map<String, dynamic> data) => _customerRequest('POST', '/orders', body: data);
+  Future<Map<String, dynamic>> getCustomerNotifications({bool unreadOnly = false}) => _customerRequest('GET', '/notifications${unreadOnly ? '?unreadOnly=true' : ''}');
+  Future<Map<String, dynamic>> markNotificationsRead(Map<String, dynamic> data) => _customerRequest('PATCH', '/notifications', body: data);
+  Future<Map<String, dynamic>> getCustomerProfile() => _customerRequest('GET', '/profile');
+  Future<Map<String, dynamic>> updateCustomerProfile(Map<String, dynamic> data) => _customerRequest('PUT', '/profile', body: data);
+  Future<Map<String, dynamic>> getStoreMenu(String tenantId) => _customerRequest('GET', '/store-menu?tenantId=$tenantId');
+
+  // ================== Merchant Customer API ==================
   Future<Map<String, dynamic>> getCustomers({int page = 1, int limit = 50, String? search}) async {
     String endpoint = '/customers?page=$page&limit=$limit';
     if (search != null && search.isNotEmpty) {
@@ -198,5 +269,14 @@ class ApiClient {
 
   Future<void> deleteEmployee(String id) async {
     await delete('/employees/$id');
+  }
+
+  // ================== Merchant Order Queue API ==================
+  Future<Map<String, dynamic>> getMerchantOrders({String status = 'PENDING'}) async {
+    return await get('/merchant/orders?status=$status');
+  }
+
+  Future<Map<String, dynamic>> updateMerchantOrder(String orderId, String action) async {
+    return await patch('/merchant/orders/$orderId', body: {'action': action});
   }
 }

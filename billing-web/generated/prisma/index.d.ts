@@ -11585,6 +11585,7 @@ export namespace Prisma {
     name: string | null
     phone: string | null
     tokenVersion: number | null
+    fcmToken: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11596,6 +11597,7 @@ export namespace Prisma {
     name: string | null
     phone: string | null
     tokenVersion: number | null
+    fcmToken: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11607,6 +11609,7 @@ export namespace Prisma {
     name: number
     phone: number
     tokenVersion: number
+    fcmToken: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -11628,6 +11631,7 @@ export namespace Prisma {
     name?: true
     phone?: true
     tokenVersion?: true
+    fcmToken?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11639,6 +11643,7 @@ export namespace Prisma {
     name?: true
     phone?: true
     tokenVersion?: true
+    fcmToken?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11650,6 +11655,7 @@ export namespace Prisma {
     name?: true
     phone?: true
     tokenVersion?: true
+    fcmToken?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -11748,6 +11754,7 @@ export namespace Prisma {
     name: string
     phone: string | null
     tokenVersion: number
+    fcmToken: string | null
     createdAt: Date
     updatedAt: Date
     _count: CustomerAccountCountAggregateOutputType | null
@@ -11778,6 +11785,7 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     tokenVersion?: boolean
+    fcmToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     customers?: boolean | CustomerAccount$customersArgs<ExtArgs>
@@ -11793,6 +11801,7 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     tokenVersion?: boolean
+    fcmToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["customerAccount"]>
@@ -11804,6 +11813,7 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     tokenVersion?: boolean
+    fcmToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["customerAccount"]>
@@ -11815,11 +11825,12 @@ export namespace Prisma {
     name?: boolean
     phone?: boolean
     tokenVersion?: boolean
+    fcmToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CustomerAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "tokenVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAccount"]>
+  export type CustomerAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "tokenVersion" | "fcmToken" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAccount"]>
   export type CustomerAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customers?: boolean | CustomerAccount$customersArgs<ExtArgs>
     orderRequests?: boolean | CustomerAccount$orderRequestsArgs<ExtArgs>
@@ -11843,6 +11854,7 @@ export namespace Prisma {
       name: string
       phone: string | null
       tokenVersion: number
+      fcmToken: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["customerAccount"]>
@@ -12277,6 +12289,7 @@ export namespace Prisma {
     readonly name: FieldRef<"CustomerAccount", 'String'>
     readonly phone: FieldRef<"CustomerAccount", 'String'>
     readonly tokenVersion: FieldRef<"CustomerAccount", 'Int'>
+    readonly fcmToken: FieldRef<"CustomerAccount", 'String'>
     readonly createdAt: FieldRef<"CustomerAccount", 'DateTime'>
     readonly updatedAt: FieldRef<"CustomerAccount", 'DateTime'>
   }
@@ -24952,6 +24965,7 @@ export namespace Prisma {
     name: 'name',
     phone: 'phone',
     tokenVersion: 'tokenVersion',
+    fcmToken: 'fcmToken',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -25918,6 +25932,7 @@ export namespace Prisma {
     name?: StringFilter<"CustomerAccount"> | string
     phone?: StringNullableFilter<"CustomerAccount"> | string | null
     tokenVersion?: IntFilter<"CustomerAccount"> | number
+    fcmToken?: StringNullableFilter<"CustomerAccount"> | string | null
     createdAt?: DateTimeFilter<"CustomerAccount"> | Date | string
     updatedAt?: DateTimeFilter<"CustomerAccount"> | Date | string
     customers?: CustomerListRelationFilter
@@ -25932,6 +25947,7 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrderInput | SortOrder
     tokenVersion?: SortOrder
+    fcmToken?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     customers?: CustomerOrderByRelationAggregateInput
@@ -25949,6 +25965,7 @@ export namespace Prisma {
     name?: StringFilter<"CustomerAccount"> | string
     phone?: StringNullableFilter<"CustomerAccount"> | string | null
     tokenVersion?: IntFilter<"CustomerAccount"> | number
+    fcmToken?: StringNullableFilter<"CustomerAccount"> | string | null
     createdAt?: DateTimeFilter<"CustomerAccount"> | Date | string
     updatedAt?: DateTimeFilter<"CustomerAccount"> | Date | string
     customers?: CustomerListRelationFilter
@@ -25963,6 +25980,7 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrderInput | SortOrder
     tokenVersion?: SortOrder
+    fcmToken?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CustomerAccountCountOrderByAggregateInput
@@ -25982,6 +26000,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"CustomerAccount"> | string
     phone?: StringNullableWithAggregatesFilter<"CustomerAccount"> | string | null
     tokenVersion?: IntWithAggregatesFilter<"CustomerAccount"> | number
+    fcmToken?: StringNullableWithAggregatesFilter<"CustomerAccount"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CustomerAccount"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CustomerAccount"> | Date | string
   }
@@ -27684,6 +27703,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customers?: CustomerCreateNestedManyWithoutCustomerAccountInput
@@ -27698,6 +27718,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutCustomerAccountInput
@@ -27712,6 +27733,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUpdateManyWithoutCustomerAccountNestedInput
@@ -27726,6 +27748,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutCustomerAccountNestedInput
@@ -27740,6 +27763,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -27751,6 +27775,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27762,6 +27787,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29568,6 +29594,7 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrder
     tokenVersion?: SortOrder
+    fcmToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29583,6 +29610,7 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrder
     tokenVersion?: SortOrder
+    fcmToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29594,6 +29622,7 @@ export namespace Prisma {
     name?: SortOrder
     phone?: SortOrder
     tokenVersion?: SortOrder
+    fcmToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -34037,6 +34066,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     orderRequests?: OrderRequestCreateNestedManyWithoutCustomerAccountInput
@@ -34050,6 +34080,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     orderRequests?: OrderRequestUncheckedCreateNestedManyWithoutCustomerAccountInput
@@ -34232,6 +34263,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orderRequests?: OrderRequestUpdateManyWithoutCustomerAccountNestedInput
@@ -34245,6 +34277,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orderRequests?: OrderRequestUncheckedUpdateManyWithoutCustomerAccountNestedInput
@@ -34371,6 +34404,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customers?: CustomerCreateNestedManyWithoutCustomerAccountInput
@@ -34384,6 +34418,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutCustomerAccountInput
@@ -34553,6 +34588,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUpdateManyWithoutCustomerAccountNestedInput
@@ -34566,6 +34602,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutCustomerAccountNestedInput
@@ -34882,6 +34919,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customers?: CustomerCreateNestedManyWithoutCustomerAccountInput
@@ -34895,6 +34933,7 @@ export namespace Prisma {
     name: string
     phone?: string | null
     tokenVersion?: number
+    fcmToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutCustomerAccountInput
@@ -35040,6 +35079,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUpdateManyWithoutCustomerAccountNestedInput
@@ -35053,6 +35093,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutCustomerAccountNestedInput

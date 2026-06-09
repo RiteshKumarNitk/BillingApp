@@ -229,6 +229,7 @@ exports.Prisma.CustomerAccountScalarFieldEnum = {
   name: 'name',
   phone: 'phone',
   tokenVersion: 'tokenVersion',
+  fcmToken: 'fcmToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

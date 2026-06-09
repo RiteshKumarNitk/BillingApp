@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
+import { sendPushNotification } from "@/lib/push-notifications";
 
 // PATCH: Approve or reject an order
 export async function PATCH(
@@ -56,6 +57,14 @@ export async function PATCH(
           },
         });
       });
+
+      // Send push notification
+      sendPushNotification(
+        order.customerAccountId,
+        "Order Rejected",
+        `${tenant?.name || "The store"} has rejected your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}`,
+        { type: "ORDER_STATUS", orderId: id, status: "REJECTED" }
+      ).catch(() => {});
 
       return NextResponse.json({ message: "Order rejected" });
     }
@@ -138,6 +147,14 @@ export async function PATCH(
 
       return txn;
     });
+
+    // Send push notification
+    sendPushNotification(
+      order.customerAccountId,
+      "Order Approved!",
+      `${tenant?.name || "The store"} has approved your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}. Your order is being prepared!`,
+      { type: "ORDER_STATUS", orderId: id, status: "COMPLETED" }
+    ).catch(() => {});
 
     return NextResponse.json({
       message: "Order approved and invoice generated",

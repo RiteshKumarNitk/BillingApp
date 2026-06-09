@@ -36,6 +36,14 @@ import '../../features/employee/domain/usecases/authenticate_employee_usecase.da
 import '../../features/product/domain/usecases/get_low_stock_products_usecase.dart';
 import '../../features/discount/domain/usecases/save_discount_usecase.dart';
 import '../../features/product/domain/usecases/create_expiry_alert_usecase.dart';
+import '../../features/customer_app/presentation/bloc/customer_auth_bloc.dart';
+import '../../features/customer_app/presentation/bloc/customer_dashboard_bloc.dart';
+import '../../features/customer_app/presentation/bloc/customer_stores_bloc.dart';
+import '../../features/customer_app/presentation/bloc/customer_orders_bloc.dart';
+import '../../features/customer_app/presentation/bloc/customer_notifications_bloc.dart';
+import '../../features/customer_app/presentation/bloc/customer_profile_bloc.dart';
+import '../../features/customer_app/presentation/bloc/store_menu_bloc.dart';
+import '../../features/billing/presentation/bloc/order_queue_bloc.dart';
 import 'data/hive_database.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -169,4 +177,14 @@ Future<void> init() async {
   );
 
   // Features - Employee (additional)
+
+  // Features - Customer App (consumer-facing)
+  sl.registerFactory(() => CustomerAuthBloc(apiClient: sl()));
+  sl.registerFactory(() => CustomerDashboardBloc(apiClient: sl()));
+  sl.registerFactory(() => CustomerStoresBloc(apiClient: sl()));
+  sl.registerFactory(() => CustomerOrdersBloc(apiClient: sl()));
+  sl.registerFactory(() => CustomerNotificationsBloc(apiClient: sl()));
+  sl.registerFactory(() => CustomerProfileBloc(apiClient: sl()));
+  sl.registerFactory(() => StoreMenuBloc(apiClient: sl()));
+  sl.registerFactory(() => OrderQueueBloc(apiClient: sl()));
 }

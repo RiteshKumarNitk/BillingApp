@@ -36,13 +36,28 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(const Duration(seconds: 2), () async {
       if (mounted) {
-        // Quick check for token using shared preferences
         final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString('auth_token');
-        if (token != null && token.isNotEmpty) {
-          context.go('/dashboard');
+        final lastMode = prefs.getString('last_mode');
+        if (lastMode != null) {
+          // Returning user - go to last used mode
+          if (lastMode == 'customer') {
+            final customerToken = prefs.getString('customer_token');
+            if (customerToken != null && customerToken.isNotEmpty) {
+              context.go('/customer-app/dashboard');
+            } else {
+              context.go('/customer-app/login');
+            }
+          } else {
+            final merchantToken = prefs.getString('auth_token');
+            if (merchantToken != null && merchantToken.isNotEmpty) {
+              context.go('/dashboard');
+            } else {
+              context.go('/login');
+            }
+          }
         } else {
-          context.go('/login');
+          // First time user - show mode switcher
+          context.go('/mode-switch');
         }
       }
     });
