@@ -19,7 +19,6 @@ const pageTitles: Record<string, string> = {
   '/tenants': 'Tenants',
   '/settings': 'Settings',
   '/settings/menu': 'Digital Menu QR',
-  '/roles': 'Roles',
 };
 
 export default function TopNav({ user }: { user: any }) {

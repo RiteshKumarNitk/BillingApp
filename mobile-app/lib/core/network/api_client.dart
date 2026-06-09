@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiClient {
   // Production API URL
   static const String baseUrl = 'https://billing-app-jade-beta.vercel.app/api/mobile';
+  // static const String baseUrl = 'http://localhost:3001/api/mobile';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

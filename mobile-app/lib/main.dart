@@ -24,13 +24,20 @@ import 'features/customer_app/presentation/bloc/customer_notifications_bloc.dart
 import 'features/customer_app/presentation/bloc/customer_profile_bloc.dart';
 import 'features/customer_app/presentation/bloc/store_menu_bloc.dart';
 import 'features/billing/presentation/bloc/order_queue_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  if (kIsWeb) {
+    debugPrint('Firebase not initialized on Web (firebase_options missing). Run flutterfire configure to set it up.');
+  } else {
+    await Firebase.initializeApp();
+    FcmService().initialize();
+  }
+  
   await HiveDatabase.init();
   await di.init();
-  FcmService().initialize();
   runApp(const MyApp());
 }
 
