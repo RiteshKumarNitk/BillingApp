@@ -8,17 +8,20 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { useRouter, useSearchParams } from "next/navigation";
+import { BarChart3, PieChart } from "lucide-react";
+
+type SalesDataPoint = { date: string; total: number };
+type CategoryDataPoint = { name: string; value: number };
 
 export default function DashboardCharts({
   salesData,
   categoryData,
 }: {
-  salesData: any[];
-  categoryData: any[];
+  salesData: SalesDataPoint[];
+  categoryData: CategoryDataPoint[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -52,7 +55,11 @@ export default function DashboardCharts({
           </select>
         </div>
         <div className="h-72 w-full min-w-0">
-          {!isMounted ? null : salesData.length > 0 ? (
+          {!isMounted ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="h-72 w-full animate-pulse rounded-xl bg-gray-100" />
+            </div>
+          ) : salesData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -72,8 +79,9 @@ export default function DashboardCharts({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-full items-center justify-center text-gray-400">
-              No sales data available for this period.
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-gray-400">
+              <BarChart3 className="h-10 w-10 text-gray-300" />
+              <p className="text-sm">No sales data available for this period</p>
             </div>
           )}
         </div>
@@ -83,7 +91,11 @@ export default function DashboardCharts({
       <section className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
         <h2 className="mb-6 text-xl font-bold text-gray-800">Sales by Category</h2>
         <div className="h-72 w-full min-w-0">
-          {!isMounted ? null : categoryData.length > 0 ? (
+          {!isMounted ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="h-72 w-full animate-pulse rounded-xl bg-gray-100" />
+            </div>
+          ) : categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E7EB" />
@@ -103,8 +115,9 @@ export default function DashboardCharts({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-full items-center justify-center text-gray-400">
-              No category data available.
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-gray-400">
+              <PieChart className="h-10 w-10 text-gray-300" />
+              <p className="text-sm">No category data available</p>
             </div>
           )}
         </div>

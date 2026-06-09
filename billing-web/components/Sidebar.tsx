@@ -83,6 +83,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
                 key={link.name}
                 href={link.href}
                 onClick={closeMobile}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive 
                     ? 'bg-blue-50 text-blue-700' 
@@ -115,7 +116,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
             onClick={closeMobile}
           />
           {/* Drawer */}
-          <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col animate-slide-in-left">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col animate-slide-in-left transition-opacity">
             {sidebarContent}
           </aside>
         </div>

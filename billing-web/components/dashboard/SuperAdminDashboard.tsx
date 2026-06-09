@@ -1,5 +1,24 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
+import { format, subDays } from 'date-fns';
+import { 
+  Building,
+  Users,
+  Activity,
+  ArrowRight,
+  ShieldAlert,
+  UserPlus,
+  DollarSign
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 type TenantRow = {
   id: string;
@@ -7,14 +26,6 @@ type TenantRow = {
   createdAt: string | Date;
   status: string;
 };
-import { format } from 'date-fns';
-import { 
-  Building,
-  Users,
-  Activity,
-  ArrowRight,
-  ShieldAlert
-} from 'lucide-react';
 
 export default async function SuperAdminDashboard() {
   // 1. Fetch Stats
@@ -40,6 +51,36 @@ export default async function SuperAdminDashboard() {
     orderBy: { createdAt: 'desc' }
   });
 
+  // 3. Tenant Growth Data (last 30 days)
+  const thirtyDaysAgo = subDays(new Date(), 30);
+  const rawGrowthData = await prisma.$queryRaw<any[]>`
+    SELECT
+      DATE("createdAt") as date,
+      COUNT(*) as count
+    FROM "Tenant"
+    WHERE "createdAt" >= ${thirtyDaysAgo} AND "name" != 'System Administration'
+    GROUP BY DATE("createdAt")
+    ORDER BY DATE("createdAt")
+  `;
+  const growthData = rawGrowthData.map((item: { date: string | Date; count: string | number }) => ({
+    date: format(new Date(item.date), 'MMM dd'),
+    count: Number(item.count)
+  }));
+
+  // 4. Total Revenue across all tenants
+  const totalRevenueResult = await prisma.transaction.aggregate({
+    _sum: { netAmount: true }
+  });
+  const totalRevenue = totalRevenueResult._sum.netAmount || 0;
+
+  // 5. Users added this month
+  const usersThisMonth = await prisma.user.count({
+    where: {
+      role: { not: 'SUPERADMIN' },
+      createdAt: { gte: thirtyDaysAgo }
+    }
+  });
+
   return (
     <div className="font-sans">
       <div className="mx-auto max-w-7xl">
@@ -61,28 +102,62 @@ export default async function SuperAdminDashboard() {
         </header>
 
         {/* Stats Grid */}
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard 
-            title="Total Registered Tenants" 
+            title="Total Tenants" 
             value={totalTenants.toString()}
-            icon={<Building className="h-6 w-6 text-indigo-600" />}
+            icon={<Building className="h-5 w-5 text-indigo-600" />}
             gradient="from-indigo-500/20 to-indigo-500/5"
           />
           <StatCard 
             title="Active Tenants" 
             value={activeTenants.toString()}
-            icon={<Activity className="h-6 w-6 text-emerald-600" />}
+            subtitle={`${totalTenants > 0 ? Math.round(activeTenants / totalTenants * 100) : 0}% of total`}
+            icon={<Activity className="h-5 w-5 text-emerald-600" />}
             gradient="from-emerald-500/20 to-emerald-500/5"
           />
           <StatCard 
             title="Global Users" 
             value={totalUsers.toString()}
-            icon={<Users className="h-6 w-6 text-blue-600" />}
+            subtitle={`+${usersThisMonth} this month`}
+            icon={<UserPlus className="h-5 w-5 text-blue-600" />}
             gradient="from-blue-500/20 to-blue-500/5"
+          />
+          <StatCard 
+            title="Platform Revenue" 
+            value={`₹${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            icon={<DollarSign className="h-5 w-5 text-violet-600" />}
+            gradient="from-violet-500/20 to-violet-500/5"
           />
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Growth Chart */}
+        {growthData.length > 0 && (
+          <section className="mb-8 rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+            <h2 className="mb-6 text-xl font-bold text-gray-800">Tenant Growth (Last 30 Days)</h2>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={growthData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: "#6B7280" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
+                  />
+                  <Bar dataKey="count" fill="url(#colorGrowth)" radius={[4, 4, 0, 0]} name="New Tenants" />
+                  <defs>
+                    <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366F1" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#6366F1" stopOpacity={0.2} />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+        )}
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Recent Tenants List */}
           <section className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
             <div className="mb-6 flex items-center justify-between">
@@ -150,12 +225,14 @@ export default async function SuperAdminDashboard() {
 
 function StatCard({ 
   title, 
-  value, 
+  value,
+  subtitle,
   icon, 
   gradient
 }: { 
   title: string; 
   value: string; 
+  subtitle?: string;
   icon: React.ReactNode;
   gradient: string;
 }) {
@@ -172,6 +249,9 @@ function StatCard({
         <div className="mt-4 flex items-baseline gap-2">
           <h3 className="text-3xl font-bold tracking-tight text-gray-900">{value}</h3>
         </div>
+        {subtitle && (
+          <p className="mt-1 text-xs text-gray-400">{subtitle}</p>
+        )}
       </div>
     </div>
   );

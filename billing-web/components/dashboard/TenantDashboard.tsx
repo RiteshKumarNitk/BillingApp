@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay, subMonths } from 'date-fns';
 import {
   TrendingUp,
+  TrendingDown,
   Package,
   ShoppingCart,
   AlertTriangle,
@@ -60,6 +61,48 @@ export default async function TenantDashboard({
       createdAt: { gte: todayStart, lte: todayEnd }
     }
   });
+
+  // Compare today vs yesterday for trend
+  const yesterdayStart = startOfDay(subDays(new Date(), 1));
+  const yesterdayEnd = endOfDay(subDays(new Date(), 1));
+  const yesterdaySalesResult = await prisma.transaction.aggregate({
+    _sum: { netAmount: true },
+    where: {
+      tenantId,
+      createdAt: { gte: yesterdayStart, lte: yesterdayEnd }
+    }
+  });
+  const yesterdaySales = yesterdaySalesResult._sum.netAmount || 0;
+  const todayTrend = yesterdaySales > 0
+    ? ((todaySales - yesterdaySales) / yesterdaySales * 100)
+    : null;
+
+  // Compare last 30 days vs prior 30 days for overall trend
+  const last30Start = subDays(new Date(), 30);
+  const prior30Start = subDays(new Date(), 60);
+  const last30SalesResult = await prisma.transaction.aggregate({
+    _sum: { netAmount: true },
+    where: { tenantId, createdAt: { gte: last30Start } }
+  });
+  const prior30SalesResult = await prisma.transaction.aggregate({
+    _sum: { netAmount: true },
+    where: { tenantId, createdAt: { gte: prior30Start, lt: last30Start } }
+  });
+  const last30Sales = last30SalesResult._sum.netAmount || 0;
+  const prior30Sales = prior30SalesResult._sum.netAmount || 0;
+  const revenueTrend = prior30Sales > 0
+    ? ((last30Sales - prior30Sales) / prior30Sales * 100)
+    : null;
+
+  const last30TxCount = await prisma.transaction.count({
+    where: { tenantId, createdAt: { gte: last30Start } }
+  });
+  const prior30TxCount = await prisma.transaction.count({
+    where: { tenantId, createdAt: { gte: prior30Start, lt: last30Start } }
+  });
+  const txTrend = prior30TxCount > 0
+    ? ((last30TxCount - prior30TxCount) / prior30TxCount * 100)
+    : null;
 
   // 3. Fetch Sales Data for Charts
   let days = 7;
@@ -124,8 +167,8 @@ export default async function TenantDashboard({
   `;
   const topProducts = topProductsRaw.map((p: any) => ({
     ...p,
-    soldCount: Number(p.soldcount ?? p.soldCount ?? 0),
-    revenue: Number(p.revenue ?? p.revenue)
+    soldCount: Number(p.soldcount ?? 0),
+    revenue: Number(p.revenue ?? 0)
   }));
 
   // 7. Fetch Low Stock Products
@@ -172,23 +215,28 @@ export default async function TenantDashboard({
             title="Total Revenue"
             value={`₹${totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             icon={<TrendingUp className="h-5 w-5 text-indigo-600" />}
-            trend="+12.5%"
-            trendUp={true}
+            trend={revenueTrend !== null ? `${revenueTrend >= 0 ? '+' : ''}${revenueTrend.toFixed(1)}%` : undefined}
+            trendUp={revenueTrend !== null ? revenueTrend >= 0 : undefined}
+            trendLabel="vs prior 30 days"
             gradient="from-indigo-500/20 to-indigo-500/5"
           />
           <StatCard
             title="Today's Sales"
-            value={`₹${todaySales.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            value={`₹${todaySales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             subtitle={`${todayTransactions} bills today`}
             icon={<DollarSign className="h-5 w-5 text-emerald-600" />}
+            trend={todayTrend !== null ? `${todayTrend >= 0 ? '+' : ''}${todayTrend.toFixed(1)}%` : undefined}
+            trendUp={todayTrend !== null ? todayTrend >= 0 : undefined}
+            trendLabel="vs yesterday"
             gradient="from-emerald-500/20 to-emerald-500/5"
           />
           <StatCard
             title="Transactions"
             value={totalTransactions.toLocaleString()}
             icon={<ShoppingCart className="h-5 w-5 text-blue-600" />}
-            trend="+5.2%"
-            trendUp={true}
+            trend={txTrend !== null ? `${txTrend >= 0 ? '+' : ''}${txTrend.toFixed(1)}%` : undefined}
+            trendUp={txTrend !== null ? txTrend >= 0 : undefined}
+            trendLabel="vs prior 30 days"
             gradient="from-blue-500/20 to-blue-500/5"
           />
           <StatCard
@@ -349,6 +397,7 @@ function StatCard({
   icon,
   trend,
   trendUp,
+  trendLabel,
   gradient,
   alert
 }: {
@@ -358,6 +407,7 @@ function StatCard({
   icon: React.ReactNode;
   trend?: string;
   trendUp?: boolean;
+  trendLabel?: string;
   gradient: string;
   alert?: boolean;
 }) {
@@ -374,13 +424,16 @@ function StatCard({
         <div className="mt-4 flex items-baseline gap-2">
           <h3 className="text-3xl font-bold tracking-tight text-gray-900">{value}</h3>
           {trend && (
-            <span className={`text-sm font-medium ${trendUp ? 'text-emerald-600' : 'text-rose-600'}`}>
+            <span className={`inline-flex items-center gap-0.5 text-sm font-medium ${trendUp ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {trendUp ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
               {trend}
             </span>
           )}
         </div>
-        {subtitle && (
-          <p className="mt-1 text-xs text-gray-400">{subtitle}</p>
+        {(subtitle || trendLabel) && (
+          <p className="mt-1 text-xs text-gray-400">
+            {subtitle || trendLabel}
+          </p>
         )}
       </div>
     </div>
