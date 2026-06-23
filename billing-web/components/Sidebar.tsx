@@ -30,6 +30,9 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
     navLinks = [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Manage Tenants', href: '/tenants', icon: Building },
+      { name: 'Subscription Plans', href: '/admin/plans', icon: ClipboardList },
+      { name: 'Discount Coupons', href: '/admin/coupons', icon: Tag },
+      { name: 'System Audit Logs', href: '/admin/audit-logs', icon: History },
       { name: 'Global Users', href: '/users', icon: Users },
       { name: 'Platform Settings', href: '/settings', icon: Settings }
     ];
@@ -50,6 +53,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       navLinks.push({ name: 'Roles', href: '/roles', icon: Shield });
     }
     
+    navLinks.push({ name: 'Billing & Subscriptions', href: '/settings/billing', icon: Receipt });
     navLinks.push({ name: 'Settings', href: '/settings', icon: Settings });
   }
 

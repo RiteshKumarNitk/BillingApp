@@ -1,256 +1,394 @@
-require('dotenv').config();
-const { PrismaClient } = require('@prisma/client');
-const { Pool } = require('pg');
-const { PrismaPg } = require('@prisma/adapter-pg');
-const bcrypt = require('bcryptjs');
+require("dotenv").config();
+const { PrismaClient } = require("../generated/prisma");
+const { Pool } = require("pg");
+const { PrismaPg } = require("@prisma/adapter-pg");
+const bcrypt = require("bcryptjs");
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('Starting seed...');
+  console.log("Seeding database via JS...");
 
-  // Create a tenant if it doesn't exist
-  let tenant = await prisma.tenant.findFirst({
-    where: { name: 'Acme Corp' }
+  // 1. Create the System Tenant (Master Tenant for Superadmin)
+  const systemTenant = await prisma.tenant.upsert({
+    where: { domain: "system" },
+    update: {},
+    create: {
+      name: "System Administration",
+      domain: "system",
+      dbConnectionString: "system_default",
+      status: "ACTIVE"
+    }
   });
 
-  if (!tenant) {
-    tenant = await prisma.tenant.create({
-      data: {
-        name: 'Acme Corp',
-        domain: 'acme.example.com',
-        dbConnectionString: '', // In a real app, this would be set per tenant
-        status: 'ACTIVE'
+  console.log("System Tenant created/verified:", systemTenant.id);
+
+  // 2. Create the Superadmin User (admin@gmail.com / admin123)
+  const superAdminHashedPassword = await bcrypt.hash("admin123", 10);
+  const superAdmin = await prisma.user.upsert({
+    where: { email: "admin@gmail.com" },
+    update: {},
+    create: {
+      email: "admin@gmail.com",
+      password: superAdminHashedPassword,
+      name: "System Superadmin",
+      role: "SUPERADMIN",
+      tenantId: systemTenant.id
+    }
+  });
+
+  console.log("Superadmin created/verified:", superAdmin.email);
+
+  // 3. Seed Subscription Plans
+  console.log("Seeding Subscription Plans...");
+  const plans = [
+    {
+      name: "FREE",
+      description: "Basic starter plan for small shops",
+      amount: 0,
+      interval: "MONTHLY",
+      trialDays: 0,
+      maxProducts: 10,
+      maxUsers: 2,
+      maxTransactions: 20
+    },
+    {
+      name: "GROWTH",
+      description: "Ideal plan for growing businesses",
+      amount: 999,
+      interval: "MONTHLY",
+      trialDays: 14,
+      maxProducts: 100,
+      maxUsers: 10,
+      maxTransactions: 1000
+    },
+    {
+      name: "ENTERPRISE",
+      description: "Unlimited plan for large enterprises",
+      amount: 4999,
+      interval: "MONTHLY",
+      trialDays: 0,
+      maxProducts: -1,
+      maxUsers: -1,
+      maxTransactions: -1
+    }
+  ];
+
+  const dbPlans = [];
+  for (const p of plans) {
+    const dbPlan = await prisma.subscriptionPlan.upsert({
+      where: { id: p.name },
+      update: {
+        description: p.description,
+        amount: p.amount,
+        interval: p.interval,
+        trialDays: p.trialDays,
+        maxProducts: p.maxProducts,
+        maxUsers: p.maxUsers,
+        maxTransactions: p.maxTransactions
+      },
+      create: {
+        id: p.name,
+        name: p.name,
+        description: p.description,
+        amount: p.amount,
+        interval: p.interval,
+        trialDays: p.trialDays,
+        maxProducts: p.maxProducts,
+        maxUsers: p.maxUsers,
+        maxTransactions: p.maxTransactions
       }
     });
-    console.log('Created tenant: Acme Corp');
-  } else {
-    console.log('Tenant Acme Corp already exists');
+    dbPlans.push(dbPlan);
+  }
+  console.log("Subscription plans seeded!");
+
+  // 4. Seed Coupon Codes
+  console.log("Seeding discount coupons...");
+  const coupons = [
+    { code: "WELCOME50", discountType: "PERCENTAGE", discountValue: 50 },
+    { code: "SAVE200", discountType: "FIXED", discountValue: 200 }
+  ];
+  for (const c of coupons) {
+    await prisma.coupon.upsert({
+      where: { code: c.code },
+      update: {},
+      create: {
+        code: c.code,
+        discountType: c.discountType,
+        discountValue: c.discountValue,
+        isActive: true
+      }
+    });
   }
 
-  // Create default roles for the tenant
+  const growthPlan = dbPlans.find(p => p.name === "GROWTH");
+
+  // 5. Seed Tenant Acme Corp (domain: acme.example.com)
+  console.log("Seeding Acme Corp Tenant...");
+  const acmeTenant = await prisma.tenant.upsert({
+    where: { domain: "acme.example.com" },
+    update: {
+      subscriptionPlan: growthPlan.name
+    },
+    create: {
+      name: "Acme Corp",
+      domain: "acme.example.com",
+      dbConnectionString: "",
+      status: "ACTIVE",
+      subscriptionPlan: growthPlan.name
+    }
+  });
+
+  // Create roles for Acme Corp
   const rolesData = [
-    { name: 'Owner', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT'] },
-    { name: 'Manager', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'VIEW_PROFIT'] },
-    { name: 'Cashier', permissions: ['CREATE_BILL', 'VIEW_PRODUCT'] }
+    { name: "Owner", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "DELETE_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "MANAGE_USERS", "VIEW_PROFIT"] },
+    { name: "Manager", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "VIEW_PROFIT"] },
+    { name: "Cashier", permissions: ["CREATE_BILL", "VIEW_PRODUCT"] }
   ];
 
-  let ownerRole = null;
-
-  for (const roleData of rolesData) {
-    let role = await prisma.role.findFirst({
-      where: { name: roleData.name, tenantId: tenant.id }
-    });
-
-    if (!role) {
-      role = await prisma.role.create({
-        data: {
-          name: roleData.name,
-          permissions: roleData.permissions,
-          tenantId: tenant.id
-        }
-      });
-      console.log(`Created role: ${role.name}`);
-    } else {
-      console.log(`Role ${role.name} already exists`);
-    }
-
-    if (role.name === 'Owner') {
-      ownerRole = role;
-    }
-  }
-
-  // Create a user if it doesn't exist
-  let user = await prisma.user.findFirst({
-    where: { email: 'admin@example.com', tenantId: tenant.id }
-  });
-
-  if (!user) {
-    const hashedPassword = await bcrypt.hash('password123', 10);
-    user = await prisma.user.create({
-      data: {
-        name: 'Admin User',
-        email: 'admin@example.com',
-        password: hashedPassword,
-        tenantId: tenant.id,
-        tenantRoleId: ownerRole.id,
-        role: 'ADMIN' // Keeps global role as ADMIN
+  let acmeOwnerRole = null;
+  for (const r of rolesData) {
+    const role = await prisma.role.upsert({
+      where: { tenantId_name: { tenantId: acmeTenant.id, name: r.name } },
+      update: { permissions: r.permissions },
+      create: {
+        name: r.name,
+        permissions: r.permissions,
+        tenantId: acmeTenant.id
       }
     });
-    console.log('Created user: admin@example.com');
-  } else {
-    // Update existing user to have the owner role if they don't already
-    if (!user.tenantRoleId) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { tenantRoleId: ownerRole.id }
-      });
-      console.log('Updated user admin@example.com with Owner role');
-    } else {
-      console.log('User admin@example.com already exists');
+    if (role.name === "Owner") {
+      acmeOwnerRole = role;
     }
   }
 
-  // Create some products if they don't exist
-  const productData = [
-    {
-      name: 'Apple iPhone 13',
-      barcode: '0012345678905',
-      purchasePrice: 600.00,
-      mrp: 999.00,
-      salePrice: 899.00,
-      stock: 50,
-      category: 'Electronics'
+  // Create Acme Corp admin user (admin@example.com / password123)
+  const acmeHashedPassword = await bcrypt.hash("password123", 10);
+  const acmeUser = await prisma.user.upsert({
+    where: { email: "admin@example.com" },
+    update: {
+      tenantId: acmeTenant.id,
+      tenantRoleId: acmeOwnerRole.id,
+      role: "ADMIN"
     },
-    {
-      name: 'Samsung Galaxy S21',
-      barcode: '0012345678906',
-      purchasePrice: 500.00,
-      mrp: 899.00,
-      salePrice: 799.00,
-      stock: 30,
-      category: 'Electronics'
-    },
-    {
-      name: 'Levi\'s Jeans',
-      barcode: '0012345678907',
-      purchasePrice: 30.00,
-      mrp: 80.00,
-      salePrice: 60.00,
-      stock: 100,
-      category: 'Clothing'
-    },
-    {
-      name: 'Nike Running Shoes',
-      barcode: '0012345678908',
-      purchasePrice: 40.00,
-      mrp: 120.00,
-      salePrice: 95.00,
-      stock: 70,
-      category: 'Footwear'
-    },
-    {
-      name: 'Coca-Cola 2L',
-      barcode: '0012345678909',
-      purchasePrice: 1.00,
-      mrp: 3.00,
-      salePrice: 2.50,
-      stock: 200,
-      category: 'Beverages'
+    create: {
+      email: "admin@example.com",
+      password: acmeHashedPassword,
+      name: "Admin User",
+      role: "ADMIN",
+      tenantId: acmeTenant.id,
+      tenantRoleId: acmeOwnerRole.id
     }
-  ];
+  });
+  console.log("Acme Corp Admin User created/verified:", acmeUser.email);
 
-  for (const data of productData) {
-    const existingProduct = await prisma.product.findFirst({
-      where: { barcode: data.barcode, tenantId: tenant.id }
+  // Seed Subscription for Acme Corp
+  const acmeSubStartDate = new Date();
+  acmeSubStartDate.setDate(acmeSubStartDate.getDate() - 10);
+  const acmeSubEndDate = new Date();
+  acmeSubEndDate.setDate(acmeSubEndDate.getDate() + 20);
+
+  const acmeSubCount = await prisma.tenantSubscription.count({ where: { tenantId: acmeTenant.id } });
+  if (acmeSubCount === 0) {
+    const acmeSub = await prisma.tenantSubscription.create({
+      data: {
+        tenantId: acmeTenant.id,
+        planId: growthPlan.id,
+        status: "ACTIVE",
+        razorpaySubscriptionId: "sub_acme_growth123",
+        startDate: acmeSubStartDate,
+        endDate: acmeSubEndDate
+      }
     });
 
-    if (!existingProduct) {
+    await prisma.invoice.create({
+      data: {
+        tenantId: acmeTenant.id,
+        subscriptionId: acmeSub.id,
+        invoiceNumber: "INV-ACME-0001",
+        amount: growthPlan.amount,
+        discountAmount: 0,
+        netAmount: growthPlan.amount,
+        currency: "INR",
+        status: "PAID",
+        billingDate: acmeSubStartDate,
+        paidAt: acmeSubStartDate,
+        razorpayPaymentId: "pay_acme_success1"
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId: acmeTenant.id,
+        action: "SUBSCRIPTION_ACTIVATED",
+        details: "Acme Corp active GROWTH plan subscription seeded."
+      }
+    });
+  }
+
+  // Seed products for Acme Corp if none exist
+  const acmeProdCount = await prisma.product.count({ where: { tenantId: acmeTenant.id } });
+  if (acmeProdCount === 0) {
+    const productData = [
+      { name: "Apple iPhone 13", barcode: "0012345678905", purchasePrice: 600.00, mrp: 999.00, salePrice: 899.00, stock: 50, category: "Electronics" },
+      { name: "Samsung Galaxy S21", barcode: "0012345678906", purchasePrice: 500.00, mrp: 899.00, salePrice: 799.00, stock: 30, category: "Electronics" },
+      { name: "Levi's Jeans", barcode: "0012345678907", purchasePrice: 30.00, mrp: 80.00, salePrice: 60.00, stock: 100, category: "Clothing" },
+      { name: "Nike Running Shoes", barcode: "0012345678908", purchasePrice: 40.00, mrp: 120.00, salePrice: 95.00, stock: 70, category: "Footwear" },
+      { name: "Coca-Cola 2L", barcode: "0012345678909", purchasePrice: 1.00, mrp: 3.00, salePrice: 2.50, stock: 200, category: "Beverages" }
+    ];
+
+    for (const p of productData) {
       await prisma.product.create({
-        data: {
-          ...data,
-          tenantId: tenant.id
-        }
-      });
-      console.log(`Created product: ${data.name}`);
-    } else {
-      console.log(`Product ${data.name} already exists`);
-    }
-  }
-
-  // Create some transactions if they don't exist
-  // We'll create transactions for the last 30 days
-  const products = await prisma.product.findMany({
-    where: { tenantId: tenant.id }
-  });
-
-  if (products.length === 0) {
-    console.log('No products found to create transactions');
-    await prisma.$disconnect();
-    return;
-  }
-
-  // We'll create 5 transactions
-  for (let i = 0; i < 5; i++) {
-    // Check if we already have enough transactions (optional)
-    const transactionCount = await prisma.transaction.count({
-      where: { tenantId: tenant.id }
-    });
-
-    if (transactionCount >= 5) {
-      console.log('Already have 5 or more transactions, skipping transaction creation');
-      break;
-    }
-
-    // Select random products for this transaction
-    const selectedProducts = [];
-    let remaining = Math.floor(Math.random() * 3) + 1; // 1 to 3 products
-    const shuffled = [...products].sort(() => 0.5 - Math.random());
-    for (let j = 0; j < remaining && j < shuffled.length; j++) {
-      selectedProducts.push(shuffled[j]);
-    }
-
-    // Calculate totals
-    let totalAmount = 0;
-    const transactionItems = [];
-    const discount = Math.floor(Math.random() * 11); // 0 to 10% discount
-
-    for (const product of selectedProducts) {
-      const quantity = Math.floor(Math.random() * 5) + 1; // 1 to 5 quantity
-      const salePrice = product.salePrice; // We could vary this, but for simplicity we use the product's sale price
-      const itemTotal = quantity * salePrice;
-      totalAmount += itemTotal;
-
-      transactionItems.push({
-        productId: product.id,
-        name: product.name,
-        barcode: product.barcode,
-        purchasePrice: product.purchasePrice,
-        mrp: product.mrp,
-        salePrice: salePrice,
-        quantity: quantity,
-        itemTotal: itemTotal
+        data: { ...p, tenantId: acmeTenant.id }
       });
     }
 
-    const discountAmount = (totalAmount * discount) / 100;
-    const netAmount = totalAmount - discountAmount;
-
-    // Create a random date in the last 30 days
-    const daysAgo = Math.floor(Math.random() * 30);
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    date.setHours(Math.floor(Math.random() * 24));
-    date.setMinutes(Math.floor(Math.random() * 60));
-    date.setSeconds(Math.floor(Math.random() * 60));
-
-    // Create the transaction
-    await prisma.transaction.create({
+    // Seed shop configuration for Acme Corp
+    await prisma.shop.create({
       data: {
-        tenantId: tenant.id,
-        userId: user.id,
-        totalAmount: totalAmount,
-        discount: discount,
-        netAmount: netAmount,
-        status: 'COMPLETED',
-        createdAt: date,
-        updatedAt: date,
-        items: {
-          create: transactionItems
-        }
+        name: "Acme Super Store",
+        addressLine1: "Acme Street 1",
+        phoneNumber: "1112223334",
+        upiId: "acme@upi",
+        footerText: "Thanks for shopping!",
+        defaultTaxRate: 18,
+        tenantId: acmeTenant.id
       }
     });
 
-    console.log(`Created transaction ${i + 1} with ${selectedProducts.length} items`);
+    console.log("Acme Corp inventory seeded.");
   }
 
-  console.log('Seeding finished.');
+  // 6. Create Demo General Store tenant (domain: demo.example.com)
+  const demoCount = await prisma.tenant.count({ where: { domain: "demo.example.com" } });
+  if (demoCount === 0) {
+    console.log("Creating demo tenant with mobile and billing data...");
+
+    const demoTenant = await prisma.tenant.create({
+      data: {
+        name: "Demo General Store",
+        domain: "demo.example.com",
+        dbConnectionString: "demo_default",
+        status: "ACTIVE",
+        contactPerson: "Demo Owner",
+        email: "owner@demo.com",
+        phone: "9876543210",
+        subscriptionPlan: growthPlan.name
+      }
+    });
+
+    const demoPassword = await bcrypt.hash("demo123", 10);
+    
+    // Create role under demo tenant
+    const demoRole = await prisma.role.create({
+      data: {
+        name: "Owner",
+        tenantId: demoTenant.id,
+        permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "DELETE_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "MANAGE_USERS", "VIEW_PROFIT"]
+      }
+    });
+
+    // Create demo admin user for the demo tenant
+    await prisma.user.create({
+      data: {
+        email: "owner@demo.com",
+        password: demoPassword,
+        name: "Demo Owner",
+        role: "ADMIN",
+        tenantId: demoTenant.id,
+        tenantRoleId: demoRole.id
+      }
+    });
+
+    // Seed Active TenantSubscription for demo tenant
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 15);
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 15);
+    
+    const tenantSub = await prisma.tenantSubscription.create({
+      data: {
+        tenantId: demoTenant.id,
+        planId: growthPlan.id,
+        status: "ACTIVE",
+        razorpaySubscriptionId: "sub_demo_growth123",
+        startDate,
+        endDate
+      }
+    });
+
+    await prisma.invoice.create({
+      data: {
+        tenantId: demoTenant.id,
+        subscriptionId: tenantSub.id,
+        invoiceNumber: "INV-DEMO-0001",
+        amount: growthPlan.amount,
+        discountAmount: 0,
+        netAmount: growthPlan.amount,
+        currency: "INR",
+        status: "PAID",
+        billingDate: startDate,
+        paidAt: startDate,
+        razorpayPaymentId: "pay_demo_success1"
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId: demoTenant.id,
+        action: "SUBSCRIPTION_ACTIVATED",
+        details: "Subscription for GROWTH plan activated successfully."
+      }
+    });
+
+    // Demo products under demo tenant
+    const products = [
+      { name: "Jeans", category: "Apparel", mrp: 1200, salePrice: 999, purchasePrice: 600, stock: 15, barcode: "JEANS01" },
+      { name: "Shoes", category: "Footwear", mrp: 2500, salePrice: 1999, purchasePrice: 1000, stock: 8, barcode: "SHOES01" },
+      { name: "Coca-Cola", category: "Beverages", mrp: 40, salePrice: 38, purchasePrice: 28, stock: 100, barcode: "COKE01" }
+    ];
+
+    for (const p of products) {
+      await prisma.product.create({
+        data: { ...p, tenantId: demoTenant.id }
+      });
+    }
+
+    // Demo customers under demo tenant
+    const customers = [
+      { name: "Ravi Kumar", phone: "9876543210", totalSpent: 15000, loyaltyPoints: 150 },
+      { name: "Priya Sharma", phone: "9876543211", totalSpent: 8500, loyaltyPoints: 85 }
+    ];
+    for (const c of customers) {
+      await prisma.customer.create({
+        data: { ...c, tenantId: demoTenant.id, lastPurchaseDate: new Date() }
+      });
+    }
+
+    // Demo shop under demo tenant
+    await prisma.shop.create({
+      data: {
+        name: "Demo General Store",
+        addressLine1: "123 Main Street",
+        phoneNumber: "9876543210",
+        upiId: "demo@upi",
+        footerText: "Thank you! Visit again.",
+        defaultTaxRate: 5,
+        tenantId: demoTenant.id
+      }
+    });
+
+    console.log("Demo tenant subscription & inventory seeded!");
+  }
+
+  console.log("Seeding completed successfully!");
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })

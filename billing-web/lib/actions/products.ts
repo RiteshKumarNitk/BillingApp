@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
+import { checkFeatureLimit } from "@/lib/subscription";
 
 export async function searchProducts(searchTerm: string) {
   const session = await getServerSession(authOptions);
@@ -115,6 +116,11 @@ export async function createProduct(data: any) {
   }
 
   const tenantId = session.user.tenantId;
+
+  const limitCheck = await checkFeatureLimit(tenantId, "products");
+  if (!limitCheck.allowed) {
+    throw new Error(limitCheck.reason);
+  }
 
   if (!data.name) {
     throw new Error("Product name is required");

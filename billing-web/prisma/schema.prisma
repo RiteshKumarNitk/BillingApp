@@ -41,6 +41,9 @@ model Tenant {
   shop               Shop?
   transactions       Transaction[]
   users              User[]
+  subscriptions      TenantSubscription[]
+  invoices           Invoice[]
+  auditLogs          AuditLog[]
 }
 
 model Role {
@@ -73,6 +76,7 @@ model User {
   transactions      Transaction[]
   tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantRole        Role?         @relation(fields: [tenantRoleId], references: [id])
+  auditLogs         AuditLog[]
 }
 
 model Product {
@@ -336,3 +340,102 @@ model TransactionItem {
   product       Product     @relation(fields: [productId], references: [id])
   transaction   Transaction @relation(fields: [transactionId], references: [id])
 }
+
+model SubscriptionPlan {
+  id              String               @id @default(uuid())
+  name            String
+  description     String?
+  amount          Float
+  currency        String               @default("INR")
+  interval        String               // "MONTHLY" or "YEARLY"
+  razorpayPlanId  String?
+  trialDays       Int                  @default(0)
+  maxProducts     Int                  @default(-1)
+  maxUsers        Int                  @default(-1)
+  maxTransactions Int                  @default(-1)
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  subscriptions   TenantSubscription[]
+}
+
+model TenantSubscription {
+  id                     String           @id @default(uuid())
+  tenantId               String
+  planId                 String
+  status                 String           // "ACTIVE", "TRIAL", "CANCELLED", "PAST_DUE", "EXPIRED", "UNPAID"
+  razorpaySubscriptionId String?          @unique
+  startDate              DateTime         @default(now())
+  endDate                DateTime
+  trialStartDate         DateTime?
+  trialEndDate           DateTime?
+  cancelAtPeriodEnd      Boolean          @default(false)
+  canceledAt             DateTime?
+  endedAt                DateTime?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  tenant                 Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  plan                   SubscriptionPlan @relation(fields: [planId], references: [id])
+  invoices               Invoice[]
+
+  @@index([tenantId])
+}
+
+model Coupon {
+  id             String    @id @default(uuid())
+  code           String    @unique
+  discountType   String    // "PERCENTAGE" or "FIXED"
+  discountValue  Float
+  expiryDate     DateTime?
+  maxRedemptions Int?
+  redemptions    Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  invoices       Invoice[]
+}
+
+model Invoice {
+  id                 String              @id @default(uuid())
+  tenantId           String
+  subscriptionId     String?
+  invoiceNumber      String              @unique
+  amount             Float
+  discountAmount     Float               @default(0)
+  netAmount          Float
+  currency           String              @default("INR")
+  status             String              // "PAID", "PENDING", "FAILED"
+  billingDate        DateTime            @default(now())
+  dueDate            DateTime?
+  paidAt             DateTime?
+  razorpayPaymentId  String?
+  razorpayOrderId    String?
+  razorpaySignature  String?
+  couponId           String?
+  pdfUrl             String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  subscription       TenantSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  coupon             Coupon?             @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String?
+  userId    String?
+  action    String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+}
+

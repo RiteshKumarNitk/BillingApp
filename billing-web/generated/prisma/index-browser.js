@@ -377,6 +377,85 @@ exports.Prisma.TransactionItemScalarFieldEnum = {
   variantId: 'variantId'
 };
 
+exports.Prisma.SubscriptionPlanScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  amount: 'amount',
+  currency: 'currency',
+  interval: 'interval',
+  razorpayPlanId: 'razorpayPlanId',
+  trialDays: 'trialDays',
+  maxProducts: 'maxProducts',
+  maxUsers: 'maxUsers',
+  maxTransactions: 'maxTransactions',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TenantSubscriptionScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  planId: 'planId',
+  status: 'status',
+  razorpaySubscriptionId: 'razorpaySubscriptionId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  trialStartDate: 'trialStartDate',
+  trialEndDate: 'trialEndDate',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  canceledAt: 'canceledAt',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CouponScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  discountType: 'discountType',
+  discountValue: 'discountValue',
+  expiryDate: 'expiryDate',
+  maxRedemptions: 'maxRedemptions',
+  redemptions: 'redemptions',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  subscriptionId: 'subscriptionId',
+  invoiceNumber: 'invoiceNumber',
+  amount: 'amount',
+  discountAmount: 'discountAmount',
+  netAmount: 'netAmount',
+  currency: 'currency',
+  status: 'status',
+  billingDate: 'billingDate',
+  dueDate: 'dueDate',
+  paidAt: 'paidAt',
+  razorpayPaymentId: 'razorpayPaymentId',
+  razorpayOrderId: 'razorpayOrderId',
+  razorpaySignature: 'razorpaySignature',
+  couponId: 'couponId',
+  pdfUrl: 'pdfUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  userId: 'userId',
+  action: 'action',
+  details: 'details',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -411,7 +490,12 @@ exports.Prisma.ModelName = {
   Employee: 'Employee',
   Shop: 'Shop',
   Transaction: 'Transaction',
-  TransactionItem: 'TransactionItem'
+  TransactionItem: 'TransactionItem',
+  SubscriptionPlan: 'SubscriptionPlan',
+  TenantSubscription: 'TenantSubscription',
+  Coupon: 'Coupon',
+  Invoice: 'Invoice',
+  AuditLog: 'AuditLog'
 };
 
 /**

@@ -223,8 +223,15 @@ Tenant Management: Add tenant settings/context middleware
 
 
 Super Admin Login:
-- Email: admin@example.com
-- Password: password123
+- Email: admin@gmail.com
+- Password: admin123
+
+
+user Admin Login:
+- Email: riteshkumar.nitk21@gmail.com
+- Password: 123456/12345678
+
+
 Tenant Information:
 - Tenant Name: Acme Corp
 - Domain: acme.example.com

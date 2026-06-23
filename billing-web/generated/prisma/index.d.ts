@@ -103,6 +103,31 @@ export type Transaction = $Result.DefaultSelection<Prisma.$TransactionPayload>
  * 
  */
 export type TransactionItem = $Result.DefaultSelection<Prisma.$TransactionItemPayload>
+/**
+ * Model SubscriptionPlan
+ * 
+ */
+export type SubscriptionPlan = $Result.DefaultSelection<Prisma.$SubscriptionPlanPayload>
+/**
+ * Model TenantSubscription
+ * 
+ */
+export type TenantSubscription = $Result.DefaultSelection<Prisma.$TenantSubscriptionPayload>
+/**
+ * Model Coupon
+ * 
+ */
+export type Coupon = $Result.DefaultSelection<Prisma.$CouponPayload>
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = $Result.DefaultSelection<Prisma.$InvoicePayload>
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -404,6 +429,56 @@ export class PrismaClient<
     * ```
     */
   get transactionItem(): Prisma.TransactionItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.subscriptionPlan`: Exposes CRUD operations for the **SubscriptionPlan** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SubscriptionPlans
+    * const subscriptionPlans = await prisma.subscriptionPlan.findMany()
+    * ```
+    */
+  get subscriptionPlan(): Prisma.SubscriptionPlanDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tenantSubscription`: Exposes CRUD operations for the **TenantSubscription** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TenantSubscriptions
+    * const tenantSubscriptions = await prisma.tenantSubscription.findMany()
+    * ```
+    */
+  get tenantSubscription(): Prisma.TenantSubscriptionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.coupon`: Exposes CRUD operations for the **Coupon** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Coupons
+    * const coupons = await prisma.coupon.findMany()
+    * ```
+    */
+  get coupon(): Prisma.CouponDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.invoice`: Exposes CRUD operations for the **Invoice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Invoices
+    * const invoices = await prisma.invoice.findMany()
+    * ```
+    */
+  get invoice(): Prisma.InvoiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AuditLogs
+    * const auditLogs = await prisma.auditLog.findMany()
+    * ```
+    */
+  get auditLog(): Prisma.AuditLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -855,7 +930,12 @@ export namespace Prisma {
     Employee: 'Employee',
     Shop: 'Shop',
     Transaction: 'Transaction',
-    TransactionItem: 'TransactionItem'
+    TransactionItem: 'TransactionItem',
+    SubscriptionPlan: 'SubscriptionPlan',
+    TenantSubscription: 'TenantSubscription',
+    Coupon: 'Coupon',
+    Invoice: 'Invoice',
+    AuditLog: 'AuditLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -871,7 +951,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "role" | "user" | "product" | "productVariant" | "productBatch" | "productSerial" | "customerAccount" | "customer" | "orderRequest" | "orderRequestItem" | "notification" | "expense" | "discount" | "employee" | "shop" | "transaction" | "transactionItem"
+      modelProps: "tenant" | "role" | "user" | "product" | "productVariant" | "productBatch" | "productSerial" | "customerAccount" | "customer" | "orderRequest" | "orderRequestItem" | "notification" | "expense" | "discount" | "employee" | "shop" | "transaction" | "transactionItem" | "subscriptionPlan" | "tenantSubscription" | "coupon" | "invoice" | "auditLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2207,6 +2287,376 @@ export namespace Prisma {
           }
         }
       }
+      SubscriptionPlan: {
+        payload: Prisma.$SubscriptionPlanPayload<ExtArgs>
+        fields: Prisma.SubscriptionPlanFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SubscriptionPlanFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SubscriptionPlanFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>
+          }
+          findFirst: {
+            args: Prisma.SubscriptionPlanFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SubscriptionPlanFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>
+          }
+          findMany: {
+            args: Prisma.SubscriptionPlanFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>[]
+          }
+          create: {
+            args: Prisma.SubscriptionPlanCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>
+          }
+          createMany: {
+            args: Prisma.SubscriptionPlanCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SubscriptionPlanCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>[]
+          }
+          delete: {
+            args: Prisma.SubscriptionPlanDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>
+          }
+          update: {
+            args: Prisma.SubscriptionPlanUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>
+          }
+          deleteMany: {
+            args: Prisma.SubscriptionPlanDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SubscriptionPlanUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SubscriptionPlanUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>[]
+          }
+          upsert: {
+            args: Prisma.SubscriptionPlanUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPlanPayload>
+          }
+          aggregate: {
+            args: Prisma.SubscriptionPlanAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSubscriptionPlan>
+          }
+          groupBy: {
+            args: Prisma.SubscriptionPlanGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SubscriptionPlanGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SubscriptionPlanCountArgs<ExtArgs>
+            result: $Utils.Optional<SubscriptionPlanCountAggregateOutputType> | number
+          }
+        }
+      }
+      TenantSubscription: {
+        payload: Prisma.$TenantSubscriptionPayload<ExtArgs>
+        fields: Prisma.TenantSubscriptionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TenantSubscriptionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TenantSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>
+          }
+          findFirst: {
+            args: Prisma.TenantSubscriptionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TenantSubscriptionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>
+          }
+          findMany: {
+            args: Prisma.TenantSubscriptionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>[]
+          }
+          create: {
+            args: Prisma.TenantSubscriptionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>
+          }
+          createMany: {
+            args: Prisma.TenantSubscriptionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TenantSubscriptionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>[]
+          }
+          delete: {
+            args: Prisma.TenantSubscriptionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>
+          }
+          update: {
+            args: Prisma.TenantSubscriptionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>
+          }
+          deleteMany: {
+            args: Prisma.TenantSubscriptionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TenantSubscriptionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TenantSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>[]
+          }
+          upsert: {
+            args: Prisma.TenantSubscriptionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantSubscriptionPayload>
+          }
+          aggregate: {
+            args: Prisma.TenantSubscriptionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTenantSubscription>
+          }
+          groupBy: {
+            args: Prisma.TenantSubscriptionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TenantSubscriptionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TenantSubscriptionCountArgs<ExtArgs>
+            result: $Utils.Optional<TenantSubscriptionCountAggregateOutputType> | number
+          }
+        }
+      }
+      Coupon: {
+        payload: Prisma.$CouponPayload<ExtArgs>
+        fields: Prisma.CouponFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CouponFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CouponFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>
+          }
+          findFirst: {
+            args: Prisma.CouponFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CouponFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>
+          }
+          findMany: {
+            args: Prisma.CouponFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>[]
+          }
+          create: {
+            args: Prisma.CouponCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>
+          }
+          createMany: {
+            args: Prisma.CouponCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CouponCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>[]
+          }
+          delete: {
+            args: Prisma.CouponDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>
+          }
+          update: {
+            args: Prisma.CouponUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>
+          }
+          deleteMany: {
+            args: Prisma.CouponDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CouponUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CouponUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>[]
+          }
+          upsert: {
+            args: Prisma.CouponUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouponPayload>
+          }
+          aggregate: {
+            args: Prisma.CouponAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCoupon>
+          }
+          groupBy: {
+            args: Prisma.CouponGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CouponGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CouponCountArgs<ExtArgs>
+            result: $Utils.Optional<CouponCountAggregateOutputType> | number
+          }
+        }
+      }
+      Invoice: {
+        payload: Prisma.$InvoicePayload<ExtArgs>
+        fields: Prisma.InvoiceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InvoiceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InvoiceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          findFirst: {
+            args: Prisma.InvoiceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InvoiceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          findMany: {
+            args: Prisma.InvoiceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+          }
+          create: {
+            args: Prisma.InvoiceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          createMany: {
+            args: Prisma.InvoiceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InvoiceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+          }
+          delete: {
+            args: Prisma.InvoiceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          update: {
+            args: Prisma.InvoiceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          deleteMany: {
+            args: Prisma.InvoiceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InvoiceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InvoiceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+          }
+          upsert: {
+            args: Prisma.InvoiceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          aggregate: {
+            args: Prisma.InvoiceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInvoice>
+          }
+          groupBy: {
+            args: Prisma.InvoiceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InvoiceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InvoiceCountArgs<ExtArgs>
+            result: $Utils.Optional<InvoiceCountAggregateOutputType> | number
+          }
+        }
+      }
+      AuditLog: {
+        payload: Prisma.$AuditLogPayload<ExtArgs>
+        fields: Prisma.AuditLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AuditLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AuditLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          findFirst: {
+            args: Prisma.AuditLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AuditLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          findMany: {
+            args: Prisma.AuditLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+          }
+          create: {
+            args: Prisma.AuditLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          createMany: {
+            args: Prisma.AuditLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AuditLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+          }
+          delete: {
+            args: Prisma.AuditLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          update: {
+            args: Prisma.AuditLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.AuditLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AuditLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AuditLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.AuditLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          aggregate: {
+            args: Prisma.AuditLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAuditLog>
+          }
+          groupBy: {
+            args: Prisma.AuditLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AuditLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AuditLogCountArgs<ExtArgs>
+            result: $Utils.Optional<AuditLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2333,6 +2783,11 @@ export namespace Prisma {
     shop?: ShopOmit
     transaction?: TransactionOmit
     transactionItem?: TransactionItemOmit
+    subscriptionPlan?: SubscriptionPlanOmit
+    tenantSubscription?: TenantSubscriptionOmit
+    coupon?: CouponOmit
+    invoice?: InvoiceOmit
+    auditLog?: AuditLogOmit
   }
 
   /* Types for Logging */
@@ -2423,6 +2878,9 @@ export namespace Prisma {
     roles: number
     transactions: number
     users: number
+    subscriptions: number
+    invoices: number
+    auditLogs: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2436,6 +2894,9 @@ export namespace Prisma {
     roles?: boolean | TenantCountOutputTypeCountRolesArgs
     transactions?: boolean | TenantCountOutputTypeCountTransactionsArgs
     users?: boolean | TenantCountOutputTypeCountUsersArgs
+    subscriptions?: boolean | TenantCountOutputTypeCountSubscriptionsArgs
+    invoices?: boolean | TenantCountOutputTypeCountInvoicesArgs
+    auditLogs?: boolean | TenantCountOutputTypeCountAuditLogsArgs
   }
 
   // Custom InputTypes
@@ -2519,6 +2980,27 @@ export namespace Prisma {
     where?: UserWhereInput
   }
 
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenantSubscriptionWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
+  }
+
 
   /**
    * Count Type RoleCountOutputType
@@ -2557,10 +3039,12 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     transactions: number
+    auditLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transactions?: boolean | UserCountOutputTypeCountTransactionsArgs
+    auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   }
 
   // Custom InputTypes
@@ -2579,6 +3063,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TransactionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
   }
 
 
@@ -2788,6 +3279,99 @@ export namespace Prisma {
    */
   export type TransactionCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TransactionItemWhereInput
+  }
+
+
+  /**
+   * Count Type SubscriptionPlanCountOutputType
+   */
+
+  export type SubscriptionPlanCountOutputType = {
+    subscriptions: number
+  }
+
+  export type SubscriptionPlanCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subscriptions?: boolean | SubscriptionPlanCountOutputTypeCountSubscriptionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SubscriptionPlanCountOutputType without action
+   */
+  export type SubscriptionPlanCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlanCountOutputType
+     */
+    select?: SubscriptionPlanCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SubscriptionPlanCountOutputType without action
+   */
+  export type SubscriptionPlanCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenantSubscriptionWhereInput
+  }
+
+
+  /**
+   * Count Type TenantSubscriptionCountOutputType
+   */
+
+  export type TenantSubscriptionCountOutputType = {
+    invoices: number
+  }
+
+  export type TenantSubscriptionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    invoices?: boolean | TenantSubscriptionCountOutputTypeCountInvoicesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TenantSubscriptionCountOutputType without action
+   */
+  export type TenantSubscriptionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscriptionCountOutputType
+     */
+    select?: TenantSubscriptionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TenantSubscriptionCountOutputType without action
+   */
+  export type TenantSubscriptionCountOutputTypeCountInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceWhereInput
+  }
+
+
+  /**
+   * Count Type CouponCountOutputType
+   */
+
+  export type CouponCountOutputType = {
+    invoices: number
+  }
+
+  export type CouponCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    invoices?: boolean | CouponCountOutputTypeCountInvoicesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CouponCountOutputType without action
+   */
+  export type CouponCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouponCountOutputType
+     */
+    select?: CouponCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CouponCountOutputType without action
+   */
+  export type CouponCountOutputTypeCountInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceWhereInput
   }
 
 
@@ -3148,6 +3732,9 @@ export namespace Prisma {
     shop?: boolean | Tenant$shopArgs<ExtArgs>
     transactions?: boolean | Tenant$transactionsArgs<ExtArgs>
     users?: boolean | Tenant$usersArgs<ExtArgs>
+    subscriptions?: boolean | Tenant$subscriptionsArgs<ExtArgs>
+    invoices?: boolean | Tenant$invoicesArgs<ExtArgs>
+    auditLogs?: boolean | Tenant$auditLogsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -3239,6 +3826,9 @@ export namespace Prisma {
     shop?: boolean | Tenant$shopArgs<ExtArgs>
     transactions?: boolean | Tenant$transactionsArgs<ExtArgs>
     users?: boolean | Tenant$usersArgs<ExtArgs>
+    subscriptions?: boolean | Tenant$subscriptionsArgs<ExtArgs>
+    invoices?: boolean | Tenant$invoicesArgs<ExtArgs>
+    auditLogs?: boolean | Tenant$auditLogsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3258,6 +3848,9 @@ export namespace Prisma {
       shop: Prisma.$ShopPayload<ExtArgs> | null
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
+      subscriptions: Prisma.$TenantSubscriptionPayload<ExtArgs>[]
+      invoices: Prisma.$InvoicePayload<ExtArgs>[]
+      auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3687,6 +4280,9 @@ export namespace Prisma {
     shop<T extends Tenant$shopArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$shopArgs<ExtArgs>>): Prisma__ShopClient<$Result.GetResult<Prisma.$ShopPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     transactions<T extends Tenant$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     users<T extends Tenant$usersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subscriptions<T extends Tenant$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invoices<T extends Tenant$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    auditLogs<T extends Tenant$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4387,6 +4983,78 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.subscriptions
+   */
+  export type Tenant$subscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    where?: TenantSubscriptionWhereInput
+    orderBy?: TenantSubscriptionOrderByWithRelationInput | TenantSubscriptionOrderByWithRelationInput[]
+    cursor?: TenantSubscriptionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TenantSubscriptionScalarFieldEnum | TenantSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.invoices
+   */
+  export type Tenant$invoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    where?: InvoiceWhereInput
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    cursor?: InvoiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.auditLogs
+   */
+  export type Tenant$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    cursor?: AuditLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
   }
 
   /**
@@ -5775,6 +6443,7 @@ export namespace Prisma {
     transactions?: boolean | User$transactionsArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
+    auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5835,6 +6504,7 @@ export namespace Prisma {
     transactions?: boolean | User$transactionsArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     tenantRole?: boolean | User$tenantRoleArgs<ExtArgs>
+    auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5852,6 +6522,7 @@ export namespace Prisma {
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
       tenant: Prisma.$TenantPayload<ExtArgs>
       tenantRole: Prisma.$RolePayload<ExtArgs> | null
+      auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6264,6 +6935,7 @@ export namespace Prisma {
     transactions<T extends User$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     tenantRole<T extends User$tenantRoleArgs<ExtArgs> = {}>(args?: Subset<T, User$tenantRoleArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6747,6 +7419,30 @@ export namespace Prisma {
      */
     include?: RoleInclude<ExtArgs> | null
     where?: RoleWhereInput
+  }
+
+  /**
+   * User.auditLogs
+   */
+  export type User$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    cursor?: AuditLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
   }
 
   /**
@@ -24822,6 +25518,6124 @@ export namespace Prisma {
 
 
   /**
+   * Model SubscriptionPlan
+   */
+
+  export type AggregateSubscriptionPlan = {
+    _count: SubscriptionPlanCountAggregateOutputType | null
+    _avg: SubscriptionPlanAvgAggregateOutputType | null
+    _sum: SubscriptionPlanSumAggregateOutputType | null
+    _min: SubscriptionPlanMinAggregateOutputType | null
+    _max: SubscriptionPlanMaxAggregateOutputType | null
+  }
+
+  export type SubscriptionPlanAvgAggregateOutputType = {
+    amount: number | null
+    trialDays: number | null
+    maxProducts: number | null
+    maxUsers: number | null
+    maxTransactions: number | null
+  }
+
+  export type SubscriptionPlanSumAggregateOutputType = {
+    amount: number | null
+    trialDays: number | null
+    maxProducts: number | null
+    maxUsers: number | null
+    maxTransactions: number | null
+  }
+
+  export type SubscriptionPlanMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    amount: number | null
+    currency: string | null
+    interval: string | null
+    razorpayPlanId: string | null
+    trialDays: number | null
+    maxProducts: number | null
+    maxUsers: number | null
+    maxTransactions: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubscriptionPlanMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    amount: number | null
+    currency: string | null
+    interval: string | null
+    razorpayPlanId: string | null
+    trialDays: number | null
+    maxProducts: number | null
+    maxUsers: number | null
+    maxTransactions: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubscriptionPlanCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    amount: number
+    currency: number
+    interval: number
+    razorpayPlanId: number
+    trialDays: number
+    maxProducts: number
+    maxUsers: number
+    maxTransactions: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SubscriptionPlanAvgAggregateInputType = {
+    amount?: true
+    trialDays?: true
+    maxProducts?: true
+    maxUsers?: true
+    maxTransactions?: true
+  }
+
+  export type SubscriptionPlanSumAggregateInputType = {
+    amount?: true
+    trialDays?: true
+    maxProducts?: true
+    maxUsers?: true
+    maxTransactions?: true
+  }
+
+  export type SubscriptionPlanMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    amount?: true
+    currency?: true
+    interval?: true
+    razorpayPlanId?: true
+    trialDays?: true
+    maxProducts?: true
+    maxUsers?: true
+    maxTransactions?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SubscriptionPlanMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    amount?: true
+    currency?: true
+    interval?: true
+    razorpayPlanId?: true
+    trialDays?: true
+    maxProducts?: true
+    maxUsers?: true
+    maxTransactions?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SubscriptionPlanCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    amount?: true
+    currency?: true
+    interval?: true
+    razorpayPlanId?: true
+    trialDays?: true
+    maxProducts?: true
+    maxUsers?: true
+    maxTransactions?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SubscriptionPlanAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubscriptionPlan to aggregate.
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPlans to fetch.
+     */
+    orderBy?: SubscriptionPlanOrderByWithRelationInput | SubscriptionPlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SubscriptionPlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SubscriptionPlans
+    **/
+    _count?: true | SubscriptionPlanCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SubscriptionPlanAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SubscriptionPlanSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SubscriptionPlanMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SubscriptionPlanMaxAggregateInputType
+  }
+
+  export type GetSubscriptionPlanAggregateType<T extends SubscriptionPlanAggregateArgs> = {
+        [P in keyof T & keyof AggregateSubscriptionPlan]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSubscriptionPlan[P]>
+      : GetScalarType<T[P], AggregateSubscriptionPlan[P]>
+  }
+
+
+
+
+  export type SubscriptionPlanGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubscriptionPlanWhereInput
+    orderBy?: SubscriptionPlanOrderByWithAggregationInput | SubscriptionPlanOrderByWithAggregationInput[]
+    by: SubscriptionPlanScalarFieldEnum[] | SubscriptionPlanScalarFieldEnum
+    having?: SubscriptionPlanScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SubscriptionPlanCountAggregateInputType | true
+    _avg?: SubscriptionPlanAvgAggregateInputType
+    _sum?: SubscriptionPlanSumAggregateInputType
+    _min?: SubscriptionPlanMinAggregateInputType
+    _max?: SubscriptionPlanMaxAggregateInputType
+  }
+
+  export type SubscriptionPlanGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    amount: number
+    currency: string
+    interval: string
+    razorpayPlanId: string | null
+    trialDays: number
+    maxProducts: number
+    maxUsers: number
+    maxTransactions: number
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: SubscriptionPlanCountAggregateOutputType | null
+    _avg: SubscriptionPlanAvgAggregateOutputType | null
+    _sum: SubscriptionPlanSumAggregateOutputType | null
+    _min: SubscriptionPlanMinAggregateOutputType | null
+    _max: SubscriptionPlanMaxAggregateOutputType | null
+  }
+
+  type GetSubscriptionPlanGroupByPayload<T extends SubscriptionPlanGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SubscriptionPlanGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SubscriptionPlanGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SubscriptionPlanGroupByOutputType[P]>
+            : GetScalarType<T[P], SubscriptionPlanGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SubscriptionPlanSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    interval?: boolean
+    razorpayPlanId?: boolean
+    trialDays?: boolean
+    maxProducts?: boolean
+    maxUsers?: boolean
+    maxTransactions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    subscriptions?: boolean | SubscriptionPlan$subscriptionsArgs<ExtArgs>
+    _count?: boolean | SubscriptionPlanCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscriptionPlan"]>
+
+  export type SubscriptionPlanSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    interval?: boolean
+    razorpayPlanId?: boolean
+    trialDays?: boolean
+    maxProducts?: boolean
+    maxUsers?: boolean
+    maxTransactions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["subscriptionPlan"]>
+
+  export type SubscriptionPlanSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    interval?: boolean
+    razorpayPlanId?: boolean
+    trialDays?: boolean
+    maxProducts?: boolean
+    maxUsers?: boolean
+    maxTransactions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["subscriptionPlan"]>
+
+  export type SubscriptionPlanSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    amount?: boolean
+    currency?: boolean
+    interval?: boolean
+    razorpayPlanId?: boolean
+    trialDays?: boolean
+    maxProducts?: boolean
+    maxUsers?: boolean
+    maxTransactions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SubscriptionPlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "amount" | "currency" | "interval" | "razorpayPlanId" | "trialDays" | "maxProducts" | "maxUsers" | "maxTransactions" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["subscriptionPlan"]>
+  export type SubscriptionPlanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subscriptions?: boolean | SubscriptionPlan$subscriptionsArgs<ExtArgs>
+    _count?: boolean | SubscriptionPlanCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SubscriptionPlanIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type SubscriptionPlanIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $SubscriptionPlanPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SubscriptionPlan"
+    objects: {
+      subscriptions: Prisma.$TenantSubscriptionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      amount: number
+      currency: string
+      interval: string
+      razorpayPlanId: string | null
+      trialDays: number
+      maxProducts: number
+      maxUsers: number
+      maxTransactions: number
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["subscriptionPlan"]>
+    composites: {}
+  }
+
+  type SubscriptionPlanGetPayload<S extends boolean | null | undefined | SubscriptionPlanDefaultArgs> = $Result.GetResult<Prisma.$SubscriptionPlanPayload, S>
+
+  type SubscriptionPlanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SubscriptionPlanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SubscriptionPlanCountAggregateInputType | true
+    }
+
+  export interface SubscriptionPlanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SubscriptionPlan'], meta: { name: 'SubscriptionPlan' } }
+    /**
+     * Find zero or one SubscriptionPlan that matches the filter.
+     * @param {SubscriptionPlanFindUniqueArgs} args - Arguments to find a SubscriptionPlan
+     * @example
+     * // Get one SubscriptionPlan
+     * const subscriptionPlan = await prisma.subscriptionPlan.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SubscriptionPlanFindUniqueArgs>(args: SelectSubset<T, SubscriptionPlanFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SubscriptionPlan that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SubscriptionPlanFindUniqueOrThrowArgs} args - Arguments to find a SubscriptionPlan
+     * @example
+     * // Get one SubscriptionPlan
+     * const subscriptionPlan = await prisma.subscriptionPlan.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SubscriptionPlanFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionPlanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubscriptionPlan that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanFindFirstArgs} args - Arguments to find a SubscriptionPlan
+     * @example
+     * // Get one SubscriptionPlan
+     * const subscriptionPlan = await prisma.subscriptionPlan.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SubscriptionPlanFindFirstArgs>(args?: SelectSubset<T, SubscriptionPlanFindFirstArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubscriptionPlan that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanFindFirstOrThrowArgs} args - Arguments to find a SubscriptionPlan
+     * @example
+     * // Get one SubscriptionPlan
+     * const subscriptionPlan = await prisma.subscriptionPlan.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SubscriptionPlanFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionPlanFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SubscriptionPlans that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SubscriptionPlans
+     * const subscriptionPlans = await prisma.subscriptionPlan.findMany()
+     * 
+     * // Get first 10 SubscriptionPlans
+     * const subscriptionPlans = await prisma.subscriptionPlan.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const subscriptionPlanWithIdOnly = await prisma.subscriptionPlan.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SubscriptionPlanFindManyArgs>(args?: SelectSubset<T, SubscriptionPlanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SubscriptionPlan.
+     * @param {SubscriptionPlanCreateArgs} args - Arguments to create a SubscriptionPlan.
+     * @example
+     * // Create one SubscriptionPlan
+     * const SubscriptionPlan = await prisma.subscriptionPlan.create({
+     *   data: {
+     *     // ... data to create a SubscriptionPlan
+     *   }
+     * })
+     * 
+     */
+    create<T extends SubscriptionPlanCreateArgs>(args: SelectSubset<T, SubscriptionPlanCreateArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SubscriptionPlans.
+     * @param {SubscriptionPlanCreateManyArgs} args - Arguments to create many SubscriptionPlans.
+     * @example
+     * // Create many SubscriptionPlans
+     * const subscriptionPlan = await prisma.subscriptionPlan.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SubscriptionPlanCreateManyArgs>(args?: SelectSubset<T, SubscriptionPlanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SubscriptionPlans and returns the data saved in the database.
+     * @param {SubscriptionPlanCreateManyAndReturnArgs} args - Arguments to create many SubscriptionPlans.
+     * @example
+     * // Create many SubscriptionPlans
+     * const subscriptionPlan = await prisma.subscriptionPlan.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SubscriptionPlans and only return the `id`
+     * const subscriptionPlanWithIdOnly = await prisma.subscriptionPlan.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SubscriptionPlanCreateManyAndReturnArgs>(args?: SelectSubset<T, SubscriptionPlanCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SubscriptionPlan.
+     * @param {SubscriptionPlanDeleteArgs} args - Arguments to delete one SubscriptionPlan.
+     * @example
+     * // Delete one SubscriptionPlan
+     * const SubscriptionPlan = await prisma.subscriptionPlan.delete({
+     *   where: {
+     *     // ... filter to delete one SubscriptionPlan
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SubscriptionPlanDeleteArgs>(args: SelectSubset<T, SubscriptionPlanDeleteArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SubscriptionPlan.
+     * @param {SubscriptionPlanUpdateArgs} args - Arguments to update one SubscriptionPlan.
+     * @example
+     * // Update one SubscriptionPlan
+     * const subscriptionPlan = await prisma.subscriptionPlan.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SubscriptionPlanUpdateArgs>(args: SelectSubset<T, SubscriptionPlanUpdateArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SubscriptionPlans.
+     * @param {SubscriptionPlanDeleteManyArgs} args - Arguments to filter SubscriptionPlans to delete.
+     * @example
+     * // Delete a few SubscriptionPlans
+     * const { count } = await prisma.subscriptionPlan.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SubscriptionPlanDeleteManyArgs>(args?: SelectSubset<T, SubscriptionPlanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubscriptionPlans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SubscriptionPlans
+     * const subscriptionPlan = await prisma.subscriptionPlan.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SubscriptionPlanUpdateManyArgs>(args: SelectSubset<T, SubscriptionPlanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubscriptionPlans and returns the data updated in the database.
+     * @param {SubscriptionPlanUpdateManyAndReturnArgs} args - Arguments to update many SubscriptionPlans.
+     * @example
+     * // Update many SubscriptionPlans
+     * const subscriptionPlan = await prisma.subscriptionPlan.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SubscriptionPlans and only return the `id`
+     * const subscriptionPlanWithIdOnly = await prisma.subscriptionPlan.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SubscriptionPlanUpdateManyAndReturnArgs>(args: SelectSubset<T, SubscriptionPlanUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SubscriptionPlan.
+     * @param {SubscriptionPlanUpsertArgs} args - Arguments to update or create a SubscriptionPlan.
+     * @example
+     * // Update or create a SubscriptionPlan
+     * const subscriptionPlan = await prisma.subscriptionPlan.upsert({
+     *   create: {
+     *     // ... data to create a SubscriptionPlan
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SubscriptionPlan we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SubscriptionPlanUpsertArgs>(args: SelectSubset<T, SubscriptionPlanUpsertArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SubscriptionPlans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanCountArgs} args - Arguments to filter SubscriptionPlans to count.
+     * @example
+     * // Count the number of SubscriptionPlans
+     * const count = await prisma.subscriptionPlan.count({
+     *   where: {
+     *     // ... the filter for the SubscriptionPlans we want to count
+     *   }
+     * })
+    **/
+    count<T extends SubscriptionPlanCountArgs>(
+      args?: Subset<T, SubscriptionPlanCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SubscriptionPlanCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SubscriptionPlan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SubscriptionPlanAggregateArgs>(args: Subset<T, SubscriptionPlanAggregateArgs>): Prisma.PrismaPromise<GetSubscriptionPlanAggregateType<T>>
+
+    /**
+     * Group by SubscriptionPlan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPlanGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SubscriptionPlanGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SubscriptionPlanGroupByArgs['orderBy'] }
+        : { orderBy?: SubscriptionPlanGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SubscriptionPlanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSubscriptionPlanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SubscriptionPlan model
+   */
+  readonly fields: SubscriptionPlanFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SubscriptionPlan.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SubscriptionPlanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    subscriptions<T extends SubscriptionPlan$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SubscriptionPlan model
+   */
+  interface SubscriptionPlanFieldRefs {
+    readonly id: FieldRef<"SubscriptionPlan", 'String'>
+    readonly name: FieldRef<"SubscriptionPlan", 'String'>
+    readonly description: FieldRef<"SubscriptionPlan", 'String'>
+    readonly amount: FieldRef<"SubscriptionPlan", 'Float'>
+    readonly currency: FieldRef<"SubscriptionPlan", 'String'>
+    readonly interval: FieldRef<"SubscriptionPlan", 'String'>
+    readonly razorpayPlanId: FieldRef<"SubscriptionPlan", 'String'>
+    readonly trialDays: FieldRef<"SubscriptionPlan", 'Int'>
+    readonly maxProducts: FieldRef<"SubscriptionPlan", 'Int'>
+    readonly maxUsers: FieldRef<"SubscriptionPlan", 'Int'>
+    readonly maxTransactions: FieldRef<"SubscriptionPlan", 'Int'>
+    readonly isActive: FieldRef<"SubscriptionPlan", 'Boolean'>
+    readonly createdAt: FieldRef<"SubscriptionPlan", 'DateTime'>
+    readonly updatedAt: FieldRef<"SubscriptionPlan", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SubscriptionPlan findUnique
+   */
+  export type SubscriptionPlanFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPlan to fetch.
+     */
+    where: SubscriptionPlanWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPlan findUniqueOrThrow
+   */
+  export type SubscriptionPlanFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPlan to fetch.
+     */
+    where: SubscriptionPlanWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPlan findFirst
+   */
+  export type SubscriptionPlanFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPlan to fetch.
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPlans to fetch.
+     */
+    orderBy?: SubscriptionPlanOrderByWithRelationInput | SubscriptionPlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubscriptionPlans.
+     */
+    cursor?: SubscriptionPlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubscriptionPlans.
+     */
+    distinct?: SubscriptionPlanScalarFieldEnum | SubscriptionPlanScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPlan findFirstOrThrow
+   */
+  export type SubscriptionPlanFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPlan to fetch.
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPlans to fetch.
+     */
+    orderBy?: SubscriptionPlanOrderByWithRelationInput | SubscriptionPlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubscriptionPlans.
+     */
+    cursor?: SubscriptionPlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubscriptionPlans.
+     */
+    distinct?: SubscriptionPlanScalarFieldEnum | SubscriptionPlanScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPlan findMany
+   */
+  export type SubscriptionPlanFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPlans to fetch.
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPlans to fetch.
+     */
+    orderBy?: SubscriptionPlanOrderByWithRelationInput | SubscriptionPlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SubscriptionPlans.
+     */
+    cursor?: SubscriptionPlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubscriptionPlans.
+     */
+    distinct?: SubscriptionPlanScalarFieldEnum | SubscriptionPlanScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPlan create
+   */
+  export type SubscriptionPlanCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SubscriptionPlan.
+     */
+    data: XOR<SubscriptionPlanCreateInput, SubscriptionPlanUncheckedCreateInput>
+  }
+
+  /**
+   * SubscriptionPlan createMany
+   */
+  export type SubscriptionPlanCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SubscriptionPlans.
+     */
+    data: SubscriptionPlanCreateManyInput | SubscriptionPlanCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SubscriptionPlan createManyAndReturn
+   */
+  export type SubscriptionPlanCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * The data used to create many SubscriptionPlans.
+     */
+    data: SubscriptionPlanCreateManyInput | SubscriptionPlanCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SubscriptionPlan update
+   */
+  export type SubscriptionPlanUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SubscriptionPlan.
+     */
+    data: XOR<SubscriptionPlanUpdateInput, SubscriptionPlanUncheckedUpdateInput>
+    /**
+     * Choose, which SubscriptionPlan to update.
+     */
+    where: SubscriptionPlanWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPlan updateMany
+   */
+  export type SubscriptionPlanUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SubscriptionPlans.
+     */
+    data: XOR<SubscriptionPlanUpdateManyMutationInput, SubscriptionPlanUncheckedUpdateManyInput>
+    /**
+     * Filter which SubscriptionPlans to update
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * Limit how many SubscriptionPlans to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubscriptionPlan updateManyAndReturn
+   */
+  export type SubscriptionPlanUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * The data used to update SubscriptionPlans.
+     */
+    data: XOR<SubscriptionPlanUpdateManyMutationInput, SubscriptionPlanUncheckedUpdateManyInput>
+    /**
+     * Filter which SubscriptionPlans to update
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * Limit how many SubscriptionPlans to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubscriptionPlan upsert
+   */
+  export type SubscriptionPlanUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SubscriptionPlan to update in case it exists.
+     */
+    where: SubscriptionPlanWhereUniqueInput
+    /**
+     * In case the SubscriptionPlan found by the `where` argument doesn't exist, create a new SubscriptionPlan with this data.
+     */
+    create: XOR<SubscriptionPlanCreateInput, SubscriptionPlanUncheckedCreateInput>
+    /**
+     * In case the SubscriptionPlan was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SubscriptionPlanUpdateInput, SubscriptionPlanUncheckedUpdateInput>
+  }
+
+  /**
+   * SubscriptionPlan delete
+   */
+  export type SubscriptionPlanDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+    /**
+     * Filter which SubscriptionPlan to delete.
+     */
+    where: SubscriptionPlanWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPlan deleteMany
+   */
+  export type SubscriptionPlanDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubscriptionPlans to delete
+     */
+    where?: SubscriptionPlanWhereInput
+    /**
+     * Limit how many SubscriptionPlans to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubscriptionPlan.subscriptions
+   */
+  export type SubscriptionPlan$subscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    where?: TenantSubscriptionWhereInput
+    orderBy?: TenantSubscriptionOrderByWithRelationInput | TenantSubscriptionOrderByWithRelationInput[]
+    cursor?: TenantSubscriptionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TenantSubscriptionScalarFieldEnum | TenantSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPlan without action
+   */
+  export type SubscriptionPlanDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPlan
+     */
+    select?: SubscriptionPlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPlan
+     */
+    omit?: SubscriptionPlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPlanInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TenantSubscription
+   */
+
+  export type AggregateTenantSubscription = {
+    _count: TenantSubscriptionCountAggregateOutputType | null
+    _min: TenantSubscriptionMinAggregateOutputType | null
+    _max: TenantSubscriptionMaxAggregateOutputType | null
+  }
+
+  export type TenantSubscriptionMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    planId: string | null
+    status: string | null
+    razorpaySubscriptionId: string | null
+    startDate: Date | null
+    endDate: Date | null
+    trialStartDate: Date | null
+    trialEndDate: Date | null
+    cancelAtPeriodEnd: boolean | null
+    canceledAt: Date | null
+    endedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TenantSubscriptionMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    planId: string | null
+    status: string | null
+    razorpaySubscriptionId: string | null
+    startDate: Date | null
+    endDate: Date | null
+    trialStartDate: Date | null
+    trialEndDate: Date | null
+    cancelAtPeriodEnd: boolean | null
+    canceledAt: Date | null
+    endedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TenantSubscriptionCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    planId: number
+    status: number
+    razorpaySubscriptionId: number
+    startDate: number
+    endDate: number
+    trialStartDate: number
+    trialEndDate: number
+    cancelAtPeriodEnd: number
+    canceledAt: number
+    endedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TenantSubscriptionMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    planId?: true
+    status?: true
+    razorpaySubscriptionId?: true
+    startDate?: true
+    endDate?: true
+    trialStartDate?: true
+    trialEndDate?: true
+    cancelAtPeriodEnd?: true
+    canceledAt?: true
+    endedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TenantSubscriptionMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    planId?: true
+    status?: true
+    razorpaySubscriptionId?: true
+    startDate?: true
+    endDate?: true
+    trialStartDate?: true
+    trialEndDate?: true
+    cancelAtPeriodEnd?: true
+    canceledAt?: true
+    endedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TenantSubscriptionCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    planId?: true
+    status?: true
+    razorpaySubscriptionId?: true
+    startDate?: true
+    endDate?: true
+    trialStartDate?: true
+    trialEndDate?: true
+    cancelAtPeriodEnd?: true
+    canceledAt?: true
+    endedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TenantSubscriptionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TenantSubscription to aggregate.
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantSubscriptions to fetch.
+     */
+    orderBy?: TenantSubscriptionOrderByWithRelationInput | TenantSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TenantSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TenantSubscriptions
+    **/
+    _count?: true | TenantSubscriptionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TenantSubscriptionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TenantSubscriptionMaxAggregateInputType
+  }
+
+  export type GetTenantSubscriptionAggregateType<T extends TenantSubscriptionAggregateArgs> = {
+        [P in keyof T & keyof AggregateTenantSubscription]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTenantSubscription[P]>
+      : GetScalarType<T[P], AggregateTenantSubscription[P]>
+  }
+
+
+
+
+  export type TenantSubscriptionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenantSubscriptionWhereInput
+    orderBy?: TenantSubscriptionOrderByWithAggregationInput | TenantSubscriptionOrderByWithAggregationInput[]
+    by: TenantSubscriptionScalarFieldEnum[] | TenantSubscriptionScalarFieldEnum
+    having?: TenantSubscriptionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TenantSubscriptionCountAggregateInputType | true
+    _min?: TenantSubscriptionMinAggregateInputType
+    _max?: TenantSubscriptionMaxAggregateInputType
+  }
+
+  export type TenantSubscriptionGroupByOutputType = {
+    id: string
+    tenantId: string
+    planId: string
+    status: string
+    razorpaySubscriptionId: string | null
+    startDate: Date
+    endDate: Date
+    trialStartDate: Date | null
+    trialEndDate: Date | null
+    cancelAtPeriodEnd: boolean
+    canceledAt: Date | null
+    endedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: TenantSubscriptionCountAggregateOutputType | null
+    _min: TenantSubscriptionMinAggregateOutputType | null
+    _max: TenantSubscriptionMaxAggregateOutputType | null
+  }
+
+  type GetTenantSubscriptionGroupByPayload<T extends TenantSubscriptionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TenantSubscriptionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TenantSubscriptionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TenantSubscriptionGroupByOutputType[P]>
+            : GetScalarType<T[P], TenantSubscriptionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TenantSubscriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    planId?: boolean
+    status?: boolean
+    razorpaySubscriptionId?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    trialStartDate?: boolean
+    trialEndDate?: boolean
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+    invoices?: boolean | TenantSubscription$invoicesArgs<ExtArgs>
+    _count?: boolean | TenantSubscriptionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tenantSubscription"]>
+
+  export type TenantSubscriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    planId?: boolean
+    status?: boolean
+    razorpaySubscriptionId?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    trialStartDate?: boolean
+    trialEndDate?: boolean
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tenantSubscription"]>
+
+  export type TenantSubscriptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    planId?: boolean
+    status?: boolean
+    razorpaySubscriptionId?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    trialStartDate?: boolean
+    trialEndDate?: boolean
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tenantSubscription"]>
+
+  export type TenantSubscriptionSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    planId?: boolean
+    status?: boolean
+    razorpaySubscriptionId?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    trialStartDate?: boolean
+    trialEndDate?: boolean
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TenantSubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "planId" | "status" | "razorpaySubscriptionId" | "startDate" | "endDate" | "trialStartDate" | "trialEndDate" | "cancelAtPeriodEnd" | "canceledAt" | "endedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["tenantSubscription"]>
+  export type TenantSubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+    invoices?: boolean | TenantSubscription$invoicesArgs<ExtArgs>
+    _count?: boolean | TenantSubscriptionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TenantSubscriptionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+  }
+  export type TenantSubscriptionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+  }
+
+  export type $TenantSubscriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TenantSubscription"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      plan: Prisma.$SubscriptionPlanPayload<ExtArgs>
+      invoices: Prisma.$InvoicePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      planId: string
+      status: string
+      razorpaySubscriptionId: string | null
+      startDate: Date
+      endDate: Date
+      trialStartDate: Date | null
+      trialEndDate: Date | null
+      cancelAtPeriodEnd: boolean
+      canceledAt: Date | null
+      endedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["tenantSubscription"]>
+    composites: {}
+  }
+
+  type TenantSubscriptionGetPayload<S extends boolean | null | undefined | TenantSubscriptionDefaultArgs> = $Result.GetResult<Prisma.$TenantSubscriptionPayload, S>
+
+  type TenantSubscriptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TenantSubscriptionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TenantSubscriptionCountAggregateInputType | true
+    }
+
+  export interface TenantSubscriptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TenantSubscription'], meta: { name: 'TenantSubscription' } }
+    /**
+     * Find zero or one TenantSubscription that matches the filter.
+     * @param {TenantSubscriptionFindUniqueArgs} args - Arguments to find a TenantSubscription
+     * @example
+     * // Get one TenantSubscription
+     * const tenantSubscription = await prisma.tenantSubscription.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TenantSubscriptionFindUniqueArgs>(args: SelectSubset<T, TenantSubscriptionFindUniqueArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TenantSubscription that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TenantSubscriptionFindUniqueOrThrowArgs} args - Arguments to find a TenantSubscription
+     * @example
+     * // Get one TenantSubscription
+     * const tenantSubscription = await prisma.tenantSubscription.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TenantSubscriptionFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantSubscriptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TenantSubscription that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionFindFirstArgs} args - Arguments to find a TenantSubscription
+     * @example
+     * // Get one TenantSubscription
+     * const tenantSubscription = await prisma.tenantSubscription.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TenantSubscriptionFindFirstArgs>(args?: SelectSubset<T, TenantSubscriptionFindFirstArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TenantSubscription that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionFindFirstOrThrowArgs} args - Arguments to find a TenantSubscription
+     * @example
+     * // Get one TenantSubscription
+     * const tenantSubscription = await prisma.tenantSubscription.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TenantSubscriptionFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantSubscriptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TenantSubscriptions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TenantSubscriptions
+     * const tenantSubscriptions = await prisma.tenantSubscription.findMany()
+     * 
+     * // Get first 10 TenantSubscriptions
+     * const tenantSubscriptions = await prisma.tenantSubscription.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tenantSubscriptionWithIdOnly = await prisma.tenantSubscription.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TenantSubscriptionFindManyArgs>(args?: SelectSubset<T, TenantSubscriptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TenantSubscription.
+     * @param {TenantSubscriptionCreateArgs} args - Arguments to create a TenantSubscription.
+     * @example
+     * // Create one TenantSubscription
+     * const TenantSubscription = await prisma.tenantSubscription.create({
+     *   data: {
+     *     // ... data to create a TenantSubscription
+     *   }
+     * })
+     * 
+     */
+    create<T extends TenantSubscriptionCreateArgs>(args: SelectSubset<T, TenantSubscriptionCreateArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TenantSubscriptions.
+     * @param {TenantSubscriptionCreateManyArgs} args - Arguments to create many TenantSubscriptions.
+     * @example
+     * // Create many TenantSubscriptions
+     * const tenantSubscription = await prisma.tenantSubscription.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TenantSubscriptionCreateManyArgs>(args?: SelectSubset<T, TenantSubscriptionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TenantSubscriptions and returns the data saved in the database.
+     * @param {TenantSubscriptionCreateManyAndReturnArgs} args - Arguments to create many TenantSubscriptions.
+     * @example
+     * // Create many TenantSubscriptions
+     * const tenantSubscription = await prisma.tenantSubscription.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TenantSubscriptions and only return the `id`
+     * const tenantSubscriptionWithIdOnly = await prisma.tenantSubscription.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TenantSubscriptionCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantSubscriptionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TenantSubscription.
+     * @param {TenantSubscriptionDeleteArgs} args - Arguments to delete one TenantSubscription.
+     * @example
+     * // Delete one TenantSubscription
+     * const TenantSubscription = await prisma.tenantSubscription.delete({
+     *   where: {
+     *     // ... filter to delete one TenantSubscription
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TenantSubscriptionDeleteArgs>(args: SelectSubset<T, TenantSubscriptionDeleteArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TenantSubscription.
+     * @param {TenantSubscriptionUpdateArgs} args - Arguments to update one TenantSubscription.
+     * @example
+     * // Update one TenantSubscription
+     * const tenantSubscription = await prisma.tenantSubscription.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TenantSubscriptionUpdateArgs>(args: SelectSubset<T, TenantSubscriptionUpdateArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TenantSubscriptions.
+     * @param {TenantSubscriptionDeleteManyArgs} args - Arguments to filter TenantSubscriptions to delete.
+     * @example
+     * // Delete a few TenantSubscriptions
+     * const { count } = await prisma.tenantSubscription.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TenantSubscriptionDeleteManyArgs>(args?: SelectSubset<T, TenantSubscriptionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TenantSubscriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TenantSubscriptions
+     * const tenantSubscription = await prisma.tenantSubscription.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TenantSubscriptionUpdateManyArgs>(args: SelectSubset<T, TenantSubscriptionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TenantSubscriptions and returns the data updated in the database.
+     * @param {TenantSubscriptionUpdateManyAndReturnArgs} args - Arguments to update many TenantSubscriptions.
+     * @example
+     * // Update many TenantSubscriptions
+     * const tenantSubscription = await prisma.tenantSubscription.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TenantSubscriptions and only return the `id`
+     * const tenantSubscriptionWithIdOnly = await prisma.tenantSubscription.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TenantSubscriptionUpdateManyAndReturnArgs>(args: SelectSubset<T, TenantSubscriptionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TenantSubscription.
+     * @param {TenantSubscriptionUpsertArgs} args - Arguments to update or create a TenantSubscription.
+     * @example
+     * // Update or create a TenantSubscription
+     * const tenantSubscription = await prisma.tenantSubscription.upsert({
+     *   create: {
+     *     // ... data to create a TenantSubscription
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TenantSubscription we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TenantSubscriptionUpsertArgs>(args: SelectSubset<T, TenantSubscriptionUpsertArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TenantSubscriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionCountArgs} args - Arguments to filter TenantSubscriptions to count.
+     * @example
+     * // Count the number of TenantSubscriptions
+     * const count = await prisma.tenantSubscription.count({
+     *   where: {
+     *     // ... the filter for the TenantSubscriptions we want to count
+     *   }
+     * })
+    **/
+    count<T extends TenantSubscriptionCountArgs>(
+      args?: Subset<T, TenantSubscriptionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TenantSubscriptionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TenantSubscription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TenantSubscriptionAggregateArgs>(args: Subset<T, TenantSubscriptionAggregateArgs>): Prisma.PrismaPromise<GetTenantSubscriptionAggregateType<T>>
+
+    /**
+     * Group by TenantSubscription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantSubscriptionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TenantSubscriptionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TenantSubscriptionGroupByArgs['orderBy'] }
+        : { orderBy?: TenantSubscriptionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TenantSubscriptionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantSubscriptionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TenantSubscription model
+   */
+  readonly fields: TenantSubscriptionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TenantSubscription.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TenantSubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    plan<T extends SubscriptionPlanDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlanDefaultArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    invoices<T extends TenantSubscription$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, TenantSubscription$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TenantSubscription model
+   */
+  interface TenantSubscriptionFieldRefs {
+    readonly id: FieldRef<"TenantSubscription", 'String'>
+    readonly tenantId: FieldRef<"TenantSubscription", 'String'>
+    readonly planId: FieldRef<"TenantSubscription", 'String'>
+    readonly status: FieldRef<"TenantSubscription", 'String'>
+    readonly razorpaySubscriptionId: FieldRef<"TenantSubscription", 'String'>
+    readonly startDate: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly endDate: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly trialStartDate: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly trialEndDate: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly cancelAtPeriodEnd: FieldRef<"TenantSubscription", 'Boolean'>
+    readonly canceledAt: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly endedAt: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly createdAt: FieldRef<"TenantSubscription", 'DateTime'>
+    readonly updatedAt: FieldRef<"TenantSubscription", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TenantSubscription findUnique
+   */
+  export type TenantSubscriptionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which TenantSubscription to fetch.
+     */
+    where: TenantSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * TenantSubscription findUniqueOrThrow
+   */
+  export type TenantSubscriptionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which TenantSubscription to fetch.
+     */
+    where: TenantSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * TenantSubscription findFirst
+   */
+  export type TenantSubscriptionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which TenantSubscription to fetch.
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantSubscriptions to fetch.
+     */
+    orderBy?: TenantSubscriptionOrderByWithRelationInput | TenantSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TenantSubscriptions.
+     */
+    cursor?: TenantSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantSubscriptions.
+     */
+    distinct?: TenantSubscriptionScalarFieldEnum | TenantSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * TenantSubscription findFirstOrThrow
+   */
+  export type TenantSubscriptionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which TenantSubscription to fetch.
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantSubscriptions to fetch.
+     */
+    orderBy?: TenantSubscriptionOrderByWithRelationInput | TenantSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TenantSubscriptions.
+     */
+    cursor?: TenantSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantSubscriptions.
+     */
+    distinct?: TenantSubscriptionScalarFieldEnum | TenantSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * TenantSubscription findMany
+   */
+  export type TenantSubscriptionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which TenantSubscriptions to fetch.
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantSubscriptions to fetch.
+     */
+    orderBy?: TenantSubscriptionOrderByWithRelationInput | TenantSubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TenantSubscriptions.
+     */
+    cursor?: TenantSubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantSubscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantSubscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantSubscriptions.
+     */
+    distinct?: TenantSubscriptionScalarFieldEnum | TenantSubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * TenantSubscription create
+   */
+  export type TenantSubscriptionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TenantSubscription.
+     */
+    data: XOR<TenantSubscriptionCreateInput, TenantSubscriptionUncheckedCreateInput>
+  }
+
+  /**
+   * TenantSubscription createMany
+   */
+  export type TenantSubscriptionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TenantSubscriptions.
+     */
+    data: TenantSubscriptionCreateManyInput | TenantSubscriptionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TenantSubscription createManyAndReturn
+   */
+  export type TenantSubscriptionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * The data used to create many TenantSubscriptions.
+     */
+    data: TenantSubscriptionCreateManyInput | TenantSubscriptionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TenantSubscription update
+   */
+  export type TenantSubscriptionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TenantSubscription.
+     */
+    data: XOR<TenantSubscriptionUpdateInput, TenantSubscriptionUncheckedUpdateInput>
+    /**
+     * Choose, which TenantSubscription to update.
+     */
+    where: TenantSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * TenantSubscription updateMany
+   */
+  export type TenantSubscriptionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TenantSubscriptions.
+     */
+    data: XOR<TenantSubscriptionUpdateManyMutationInput, TenantSubscriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which TenantSubscriptions to update
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * Limit how many TenantSubscriptions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantSubscription updateManyAndReturn
+   */
+  export type TenantSubscriptionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * The data used to update TenantSubscriptions.
+     */
+    data: XOR<TenantSubscriptionUpdateManyMutationInput, TenantSubscriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which TenantSubscriptions to update
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * Limit how many TenantSubscriptions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TenantSubscription upsert
+   */
+  export type TenantSubscriptionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TenantSubscription to update in case it exists.
+     */
+    where: TenantSubscriptionWhereUniqueInput
+    /**
+     * In case the TenantSubscription found by the `where` argument doesn't exist, create a new TenantSubscription with this data.
+     */
+    create: XOR<TenantSubscriptionCreateInput, TenantSubscriptionUncheckedCreateInput>
+    /**
+     * In case the TenantSubscription was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TenantSubscriptionUpdateInput, TenantSubscriptionUncheckedUpdateInput>
+  }
+
+  /**
+   * TenantSubscription delete
+   */
+  export type TenantSubscriptionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter which TenantSubscription to delete.
+     */
+    where: TenantSubscriptionWhereUniqueInput
+  }
+
+  /**
+   * TenantSubscription deleteMany
+   */
+  export type TenantSubscriptionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TenantSubscriptions to delete
+     */
+    where?: TenantSubscriptionWhereInput
+    /**
+     * Limit how many TenantSubscriptions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantSubscription.invoices
+   */
+  export type TenantSubscription$invoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    where?: InvoiceWhereInput
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    cursor?: InvoiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * TenantSubscription without action
+   */
+  export type TenantSubscriptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Coupon
+   */
+
+  export type AggregateCoupon = {
+    _count: CouponCountAggregateOutputType | null
+    _avg: CouponAvgAggregateOutputType | null
+    _sum: CouponSumAggregateOutputType | null
+    _min: CouponMinAggregateOutputType | null
+    _max: CouponMaxAggregateOutputType | null
+  }
+
+  export type CouponAvgAggregateOutputType = {
+    discountValue: number | null
+    maxRedemptions: number | null
+    redemptions: number | null
+  }
+
+  export type CouponSumAggregateOutputType = {
+    discountValue: number | null
+    maxRedemptions: number | null
+    redemptions: number | null
+  }
+
+  export type CouponMinAggregateOutputType = {
+    id: string | null
+    code: string | null
+    discountType: string | null
+    discountValue: number | null
+    expiryDate: Date | null
+    maxRedemptions: number | null
+    redemptions: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CouponMaxAggregateOutputType = {
+    id: string | null
+    code: string | null
+    discountType: string | null
+    discountValue: number | null
+    expiryDate: Date | null
+    maxRedemptions: number | null
+    redemptions: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CouponCountAggregateOutputType = {
+    id: number
+    code: number
+    discountType: number
+    discountValue: number
+    expiryDate: number
+    maxRedemptions: number
+    redemptions: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CouponAvgAggregateInputType = {
+    discountValue?: true
+    maxRedemptions?: true
+    redemptions?: true
+  }
+
+  export type CouponSumAggregateInputType = {
+    discountValue?: true
+    maxRedemptions?: true
+    redemptions?: true
+  }
+
+  export type CouponMinAggregateInputType = {
+    id?: true
+    code?: true
+    discountType?: true
+    discountValue?: true
+    expiryDate?: true
+    maxRedemptions?: true
+    redemptions?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CouponMaxAggregateInputType = {
+    id?: true
+    code?: true
+    discountType?: true
+    discountValue?: true
+    expiryDate?: true
+    maxRedemptions?: true
+    redemptions?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CouponCountAggregateInputType = {
+    id?: true
+    code?: true
+    discountType?: true
+    discountValue?: true
+    expiryDate?: true
+    maxRedemptions?: true
+    redemptions?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CouponAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Coupon to aggregate.
+     */
+    where?: CouponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Coupons to fetch.
+     */
+    orderBy?: CouponOrderByWithRelationInput | CouponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CouponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Coupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Coupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Coupons
+    **/
+    _count?: true | CouponCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CouponAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CouponSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CouponMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CouponMaxAggregateInputType
+  }
+
+  export type GetCouponAggregateType<T extends CouponAggregateArgs> = {
+        [P in keyof T & keyof AggregateCoupon]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCoupon[P]>
+      : GetScalarType<T[P], AggregateCoupon[P]>
+  }
+
+
+
+
+  export type CouponGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CouponWhereInput
+    orderBy?: CouponOrderByWithAggregationInput | CouponOrderByWithAggregationInput[]
+    by: CouponScalarFieldEnum[] | CouponScalarFieldEnum
+    having?: CouponScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CouponCountAggregateInputType | true
+    _avg?: CouponAvgAggregateInputType
+    _sum?: CouponSumAggregateInputType
+    _min?: CouponMinAggregateInputType
+    _max?: CouponMaxAggregateInputType
+  }
+
+  export type CouponGroupByOutputType = {
+    id: string
+    code: string
+    discountType: string
+    discountValue: number
+    expiryDate: Date | null
+    maxRedemptions: number | null
+    redemptions: number
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: CouponCountAggregateOutputType | null
+    _avg: CouponAvgAggregateOutputType | null
+    _sum: CouponSumAggregateOutputType | null
+    _min: CouponMinAggregateOutputType | null
+    _max: CouponMaxAggregateOutputType | null
+  }
+
+  type GetCouponGroupByPayload<T extends CouponGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CouponGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CouponGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CouponGroupByOutputType[P]>
+            : GetScalarType<T[P], CouponGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CouponSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    discountType?: boolean
+    discountValue?: boolean
+    expiryDate?: boolean
+    maxRedemptions?: boolean
+    redemptions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    invoices?: boolean | Coupon$invoicesArgs<ExtArgs>
+    _count?: boolean | CouponCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["coupon"]>
+
+  export type CouponSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    discountType?: boolean
+    discountValue?: boolean
+    expiryDate?: boolean
+    maxRedemptions?: boolean
+    redemptions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["coupon"]>
+
+  export type CouponSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    discountType?: boolean
+    discountValue?: boolean
+    expiryDate?: boolean
+    maxRedemptions?: boolean
+    redemptions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["coupon"]>
+
+  export type CouponSelectScalar = {
+    id?: boolean
+    code?: boolean
+    discountType?: boolean
+    discountValue?: boolean
+    expiryDate?: boolean
+    maxRedemptions?: boolean
+    redemptions?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CouponOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "discountType" | "discountValue" | "expiryDate" | "maxRedemptions" | "redemptions" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["coupon"]>
+  export type CouponInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    invoices?: boolean | Coupon$invoicesArgs<ExtArgs>
+    _count?: boolean | CouponCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CouponIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type CouponIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $CouponPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Coupon"
+    objects: {
+      invoices: Prisma.$InvoicePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      code: string
+      discountType: string
+      discountValue: number
+      expiryDate: Date | null
+      maxRedemptions: number | null
+      redemptions: number
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["coupon"]>
+    composites: {}
+  }
+
+  type CouponGetPayload<S extends boolean | null | undefined | CouponDefaultArgs> = $Result.GetResult<Prisma.$CouponPayload, S>
+
+  type CouponCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CouponFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CouponCountAggregateInputType | true
+    }
+
+  export interface CouponDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Coupon'], meta: { name: 'Coupon' } }
+    /**
+     * Find zero or one Coupon that matches the filter.
+     * @param {CouponFindUniqueArgs} args - Arguments to find a Coupon
+     * @example
+     * // Get one Coupon
+     * const coupon = await prisma.coupon.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CouponFindUniqueArgs>(args: SelectSubset<T, CouponFindUniqueArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Coupon that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CouponFindUniqueOrThrowArgs} args - Arguments to find a Coupon
+     * @example
+     * // Get one Coupon
+     * const coupon = await prisma.coupon.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CouponFindUniqueOrThrowArgs>(args: SelectSubset<T, CouponFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Coupon that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponFindFirstArgs} args - Arguments to find a Coupon
+     * @example
+     * // Get one Coupon
+     * const coupon = await prisma.coupon.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CouponFindFirstArgs>(args?: SelectSubset<T, CouponFindFirstArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Coupon that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponFindFirstOrThrowArgs} args - Arguments to find a Coupon
+     * @example
+     * // Get one Coupon
+     * const coupon = await prisma.coupon.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CouponFindFirstOrThrowArgs>(args?: SelectSubset<T, CouponFindFirstOrThrowArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Coupons that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Coupons
+     * const coupons = await prisma.coupon.findMany()
+     * 
+     * // Get first 10 Coupons
+     * const coupons = await prisma.coupon.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const couponWithIdOnly = await prisma.coupon.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CouponFindManyArgs>(args?: SelectSubset<T, CouponFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Coupon.
+     * @param {CouponCreateArgs} args - Arguments to create a Coupon.
+     * @example
+     * // Create one Coupon
+     * const Coupon = await prisma.coupon.create({
+     *   data: {
+     *     // ... data to create a Coupon
+     *   }
+     * })
+     * 
+     */
+    create<T extends CouponCreateArgs>(args: SelectSubset<T, CouponCreateArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Coupons.
+     * @param {CouponCreateManyArgs} args - Arguments to create many Coupons.
+     * @example
+     * // Create many Coupons
+     * const coupon = await prisma.coupon.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CouponCreateManyArgs>(args?: SelectSubset<T, CouponCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Coupons and returns the data saved in the database.
+     * @param {CouponCreateManyAndReturnArgs} args - Arguments to create many Coupons.
+     * @example
+     * // Create many Coupons
+     * const coupon = await prisma.coupon.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Coupons and only return the `id`
+     * const couponWithIdOnly = await prisma.coupon.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CouponCreateManyAndReturnArgs>(args?: SelectSubset<T, CouponCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Coupon.
+     * @param {CouponDeleteArgs} args - Arguments to delete one Coupon.
+     * @example
+     * // Delete one Coupon
+     * const Coupon = await prisma.coupon.delete({
+     *   where: {
+     *     // ... filter to delete one Coupon
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CouponDeleteArgs>(args: SelectSubset<T, CouponDeleteArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Coupon.
+     * @param {CouponUpdateArgs} args - Arguments to update one Coupon.
+     * @example
+     * // Update one Coupon
+     * const coupon = await prisma.coupon.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CouponUpdateArgs>(args: SelectSubset<T, CouponUpdateArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Coupons.
+     * @param {CouponDeleteManyArgs} args - Arguments to filter Coupons to delete.
+     * @example
+     * // Delete a few Coupons
+     * const { count } = await prisma.coupon.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CouponDeleteManyArgs>(args?: SelectSubset<T, CouponDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Coupons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Coupons
+     * const coupon = await prisma.coupon.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CouponUpdateManyArgs>(args: SelectSubset<T, CouponUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Coupons and returns the data updated in the database.
+     * @param {CouponUpdateManyAndReturnArgs} args - Arguments to update many Coupons.
+     * @example
+     * // Update many Coupons
+     * const coupon = await prisma.coupon.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Coupons and only return the `id`
+     * const couponWithIdOnly = await prisma.coupon.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CouponUpdateManyAndReturnArgs>(args: SelectSubset<T, CouponUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Coupon.
+     * @param {CouponUpsertArgs} args - Arguments to update or create a Coupon.
+     * @example
+     * // Update or create a Coupon
+     * const coupon = await prisma.coupon.upsert({
+     *   create: {
+     *     // ... data to create a Coupon
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Coupon we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CouponUpsertArgs>(args: SelectSubset<T, CouponUpsertArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Coupons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponCountArgs} args - Arguments to filter Coupons to count.
+     * @example
+     * // Count the number of Coupons
+     * const count = await prisma.coupon.count({
+     *   where: {
+     *     // ... the filter for the Coupons we want to count
+     *   }
+     * })
+    **/
+    count<T extends CouponCountArgs>(
+      args?: Subset<T, CouponCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CouponCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Coupon.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CouponAggregateArgs>(args: Subset<T, CouponAggregateArgs>): Prisma.PrismaPromise<GetCouponAggregateType<T>>
+
+    /**
+     * Group by Coupon.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouponGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CouponGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CouponGroupByArgs['orderBy'] }
+        : { orderBy?: CouponGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CouponGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCouponGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Coupon model
+   */
+  readonly fields: CouponFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Coupon.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CouponClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    invoices<T extends Coupon$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, Coupon$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Coupon model
+   */
+  interface CouponFieldRefs {
+    readonly id: FieldRef<"Coupon", 'String'>
+    readonly code: FieldRef<"Coupon", 'String'>
+    readonly discountType: FieldRef<"Coupon", 'String'>
+    readonly discountValue: FieldRef<"Coupon", 'Float'>
+    readonly expiryDate: FieldRef<"Coupon", 'DateTime'>
+    readonly maxRedemptions: FieldRef<"Coupon", 'Int'>
+    readonly redemptions: FieldRef<"Coupon", 'Int'>
+    readonly isActive: FieldRef<"Coupon", 'Boolean'>
+    readonly createdAt: FieldRef<"Coupon", 'DateTime'>
+    readonly updatedAt: FieldRef<"Coupon", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Coupon findUnique
+   */
+  export type CouponFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * Filter, which Coupon to fetch.
+     */
+    where: CouponWhereUniqueInput
+  }
+
+  /**
+   * Coupon findUniqueOrThrow
+   */
+  export type CouponFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * Filter, which Coupon to fetch.
+     */
+    where: CouponWhereUniqueInput
+  }
+
+  /**
+   * Coupon findFirst
+   */
+  export type CouponFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * Filter, which Coupon to fetch.
+     */
+    where?: CouponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Coupons to fetch.
+     */
+    orderBy?: CouponOrderByWithRelationInput | CouponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Coupons.
+     */
+    cursor?: CouponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Coupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Coupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Coupons.
+     */
+    distinct?: CouponScalarFieldEnum | CouponScalarFieldEnum[]
+  }
+
+  /**
+   * Coupon findFirstOrThrow
+   */
+  export type CouponFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * Filter, which Coupon to fetch.
+     */
+    where?: CouponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Coupons to fetch.
+     */
+    orderBy?: CouponOrderByWithRelationInput | CouponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Coupons.
+     */
+    cursor?: CouponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Coupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Coupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Coupons.
+     */
+    distinct?: CouponScalarFieldEnum | CouponScalarFieldEnum[]
+  }
+
+  /**
+   * Coupon findMany
+   */
+  export type CouponFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * Filter, which Coupons to fetch.
+     */
+    where?: CouponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Coupons to fetch.
+     */
+    orderBy?: CouponOrderByWithRelationInput | CouponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Coupons.
+     */
+    cursor?: CouponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Coupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Coupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Coupons.
+     */
+    distinct?: CouponScalarFieldEnum | CouponScalarFieldEnum[]
+  }
+
+  /**
+   * Coupon create
+   */
+  export type CouponCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Coupon.
+     */
+    data: XOR<CouponCreateInput, CouponUncheckedCreateInput>
+  }
+
+  /**
+   * Coupon createMany
+   */
+  export type CouponCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Coupons.
+     */
+    data: CouponCreateManyInput | CouponCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Coupon createManyAndReturn
+   */
+  export type CouponCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * The data used to create many Coupons.
+     */
+    data: CouponCreateManyInput | CouponCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Coupon update
+   */
+  export type CouponUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Coupon.
+     */
+    data: XOR<CouponUpdateInput, CouponUncheckedUpdateInput>
+    /**
+     * Choose, which Coupon to update.
+     */
+    where: CouponWhereUniqueInput
+  }
+
+  /**
+   * Coupon updateMany
+   */
+  export type CouponUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Coupons.
+     */
+    data: XOR<CouponUpdateManyMutationInput, CouponUncheckedUpdateManyInput>
+    /**
+     * Filter which Coupons to update
+     */
+    where?: CouponWhereInput
+    /**
+     * Limit how many Coupons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Coupon updateManyAndReturn
+   */
+  export type CouponUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * The data used to update Coupons.
+     */
+    data: XOR<CouponUpdateManyMutationInput, CouponUncheckedUpdateManyInput>
+    /**
+     * Filter which Coupons to update
+     */
+    where?: CouponWhereInput
+    /**
+     * Limit how many Coupons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Coupon upsert
+   */
+  export type CouponUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Coupon to update in case it exists.
+     */
+    where: CouponWhereUniqueInput
+    /**
+     * In case the Coupon found by the `where` argument doesn't exist, create a new Coupon with this data.
+     */
+    create: XOR<CouponCreateInput, CouponUncheckedCreateInput>
+    /**
+     * In case the Coupon was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CouponUpdateInput, CouponUncheckedUpdateInput>
+  }
+
+  /**
+   * Coupon delete
+   */
+  export type CouponDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    /**
+     * Filter which Coupon to delete.
+     */
+    where: CouponWhereUniqueInput
+  }
+
+  /**
+   * Coupon deleteMany
+   */
+  export type CouponDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Coupons to delete
+     */
+    where?: CouponWhereInput
+    /**
+     * Limit how many Coupons to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Coupon.invoices
+   */
+  export type Coupon$invoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    where?: InvoiceWhereInput
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    cursor?: InvoiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Coupon without action
+   */
+  export type CouponDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Invoice
+   */
+
+  export type AggregateInvoice = {
+    _count: InvoiceCountAggregateOutputType | null
+    _avg: InvoiceAvgAggregateOutputType | null
+    _sum: InvoiceSumAggregateOutputType | null
+    _min: InvoiceMinAggregateOutputType | null
+    _max: InvoiceMaxAggregateOutputType | null
+  }
+
+  export type InvoiceAvgAggregateOutputType = {
+    amount: number | null
+    discountAmount: number | null
+    netAmount: number | null
+  }
+
+  export type InvoiceSumAggregateOutputType = {
+    amount: number | null
+    discountAmount: number | null
+    netAmount: number | null
+  }
+
+  export type InvoiceMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    subscriptionId: string | null
+    invoiceNumber: string | null
+    amount: number | null
+    discountAmount: number | null
+    netAmount: number | null
+    currency: string | null
+    status: string | null
+    billingDate: Date | null
+    dueDate: Date | null
+    paidAt: Date | null
+    razorpayPaymentId: string | null
+    razorpayOrderId: string | null
+    razorpaySignature: string | null
+    couponId: string | null
+    pdfUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InvoiceMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    subscriptionId: string | null
+    invoiceNumber: string | null
+    amount: number | null
+    discountAmount: number | null
+    netAmount: number | null
+    currency: string | null
+    status: string | null
+    billingDate: Date | null
+    dueDate: Date | null
+    paidAt: Date | null
+    razorpayPaymentId: string | null
+    razorpayOrderId: string | null
+    razorpaySignature: string | null
+    couponId: string | null
+    pdfUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InvoiceCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    subscriptionId: number
+    invoiceNumber: number
+    amount: number
+    discountAmount: number
+    netAmount: number
+    currency: number
+    status: number
+    billingDate: number
+    dueDate: number
+    paidAt: number
+    razorpayPaymentId: number
+    razorpayOrderId: number
+    razorpaySignature: number
+    couponId: number
+    pdfUrl: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type InvoiceAvgAggregateInputType = {
+    amount?: true
+    discountAmount?: true
+    netAmount?: true
+  }
+
+  export type InvoiceSumAggregateInputType = {
+    amount?: true
+    discountAmount?: true
+    netAmount?: true
+  }
+
+  export type InvoiceMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    subscriptionId?: true
+    invoiceNumber?: true
+    amount?: true
+    discountAmount?: true
+    netAmount?: true
+    currency?: true
+    status?: true
+    billingDate?: true
+    dueDate?: true
+    paidAt?: true
+    razorpayPaymentId?: true
+    razorpayOrderId?: true
+    razorpaySignature?: true
+    couponId?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InvoiceMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    subscriptionId?: true
+    invoiceNumber?: true
+    amount?: true
+    discountAmount?: true
+    netAmount?: true
+    currency?: true
+    status?: true
+    billingDate?: true
+    dueDate?: true
+    paidAt?: true
+    razorpayPaymentId?: true
+    razorpayOrderId?: true
+    razorpaySignature?: true
+    couponId?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InvoiceCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    subscriptionId?: true
+    invoiceNumber?: true
+    amount?: true
+    discountAmount?: true
+    netAmount?: true
+    currency?: true
+    status?: true
+    billingDate?: true
+    dueDate?: true
+    paidAt?: true
+    razorpayPaymentId?: true
+    razorpayOrderId?: true
+    razorpaySignature?: true
+    couponId?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type InvoiceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invoice to aggregate.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Invoices
+    **/
+    _count?: true | InvoiceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: InvoiceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: InvoiceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InvoiceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InvoiceMaxAggregateInputType
+  }
+
+  export type GetInvoiceAggregateType<T extends InvoiceAggregateArgs> = {
+        [P in keyof T & keyof AggregateInvoice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInvoice[P]>
+      : GetScalarType<T[P], AggregateInvoice[P]>
+  }
+
+
+
+
+  export type InvoiceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceWhereInput
+    orderBy?: InvoiceOrderByWithAggregationInput | InvoiceOrderByWithAggregationInput[]
+    by: InvoiceScalarFieldEnum[] | InvoiceScalarFieldEnum
+    having?: InvoiceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InvoiceCountAggregateInputType | true
+    _avg?: InvoiceAvgAggregateInputType
+    _sum?: InvoiceSumAggregateInputType
+    _min?: InvoiceMinAggregateInputType
+    _max?: InvoiceMaxAggregateInputType
+  }
+
+  export type InvoiceGroupByOutputType = {
+    id: string
+    tenantId: string
+    subscriptionId: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount: number
+    netAmount: number
+    currency: string
+    status: string
+    billingDate: Date
+    dueDate: Date | null
+    paidAt: Date | null
+    razorpayPaymentId: string | null
+    razorpayOrderId: string | null
+    razorpaySignature: string | null
+    couponId: string | null
+    pdfUrl: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: InvoiceCountAggregateOutputType | null
+    _avg: InvoiceAvgAggregateOutputType | null
+    _sum: InvoiceSumAggregateOutputType | null
+    _min: InvoiceMinAggregateOutputType | null
+    _max: InvoiceMaxAggregateOutputType | null
+  }
+
+  type GetInvoiceGroupByPayload<T extends InvoiceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InvoiceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InvoiceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InvoiceGroupByOutputType[P]>
+            : GetScalarType<T[P], InvoiceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InvoiceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    subscriptionId?: boolean
+    invoiceNumber?: boolean
+    amount?: boolean
+    discountAmount?: boolean
+    netAmount?: boolean
+    currency?: boolean
+    status?: boolean
+    billingDate?: boolean
+    dueDate?: boolean
+    paidAt?: boolean
+    razorpayPaymentId?: boolean
+    razorpayOrderId?: boolean
+    razorpaySignature?: boolean
+    couponId?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
+    coupon?: boolean | Invoice$couponArgs<ExtArgs>
+  }, ExtArgs["result"]["invoice"]>
+
+  export type InvoiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    subscriptionId?: boolean
+    invoiceNumber?: boolean
+    amount?: boolean
+    discountAmount?: boolean
+    netAmount?: boolean
+    currency?: boolean
+    status?: boolean
+    billingDate?: boolean
+    dueDate?: boolean
+    paidAt?: boolean
+    razorpayPaymentId?: boolean
+    razorpayOrderId?: boolean
+    razorpaySignature?: boolean
+    couponId?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
+    coupon?: boolean | Invoice$couponArgs<ExtArgs>
+  }, ExtArgs["result"]["invoice"]>
+
+  export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    subscriptionId?: boolean
+    invoiceNumber?: boolean
+    amount?: boolean
+    discountAmount?: boolean
+    netAmount?: boolean
+    currency?: boolean
+    status?: boolean
+    billingDate?: boolean
+    dueDate?: boolean
+    paidAt?: boolean
+    razorpayPaymentId?: boolean
+    razorpayOrderId?: boolean
+    razorpaySignature?: boolean
+    couponId?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
+    coupon?: boolean | Invoice$couponArgs<ExtArgs>
+  }, ExtArgs["result"]["invoice"]>
+
+  export type InvoiceSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    subscriptionId?: boolean
+    invoiceNumber?: boolean
+    amount?: boolean
+    discountAmount?: boolean
+    netAmount?: boolean
+    currency?: boolean
+    status?: boolean
+    billingDate?: boolean
+    dueDate?: boolean
+    paidAt?: boolean
+    razorpayPaymentId?: boolean
+    razorpayOrderId?: boolean
+    razorpaySignature?: boolean
+    couponId?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "subscriptionId" | "invoiceNumber" | "amount" | "discountAmount" | "netAmount" | "currency" | "status" | "billingDate" | "dueDate" | "paidAt" | "razorpayPaymentId" | "razorpayOrderId" | "razorpaySignature" | "couponId" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
+    coupon?: boolean | Invoice$couponArgs<ExtArgs>
+  }
+  export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
+    coupon?: boolean | Invoice$couponArgs<ExtArgs>
+  }
+  export type InvoiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
+    coupon?: boolean | Invoice$couponArgs<ExtArgs>
+  }
+
+  export type $InvoicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Invoice"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      subscription: Prisma.$TenantSubscriptionPayload<ExtArgs> | null
+      coupon: Prisma.$CouponPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      subscriptionId: string | null
+      invoiceNumber: string
+      amount: number
+      discountAmount: number
+      netAmount: number
+      currency: string
+      status: string
+      billingDate: Date
+      dueDate: Date | null
+      paidAt: Date | null
+      razorpayPaymentId: string | null
+      razorpayOrderId: string | null
+      razorpaySignature: string | null
+      couponId: string | null
+      pdfUrl: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["invoice"]>
+    composites: {}
+  }
+
+  type InvoiceGetPayload<S extends boolean | null | undefined | InvoiceDefaultArgs> = $Result.GetResult<Prisma.$InvoicePayload, S>
+
+  type InvoiceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InvoiceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InvoiceCountAggregateInputType | true
+    }
+
+  export interface InvoiceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Invoice'], meta: { name: 'Invoice' } }
+    /**
+     * Find zero or one Invoice that matches the filter.
+     * @param {InvoiceFindUniqueArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InvoiceFindUniqueArgs>(args: SelectSubset<T, InvoiceFindUniqueArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Invoice that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InvoiceFindUniqueOrThrowArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InvoiceFindUniqueOrThrowArgs>(args: SelectSubset<T, InvoiceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Invoice that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceFindFirstArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InvoiceFindFirstArgs>(args?: SelectSubset<T, InvoiceFindFirstArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Invoice that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceFindFirstOrThrowArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InvoiceFindFirstOrThrowArgs>(args?: SelectSubset<T, InvoiceFindFirstOrThrowArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Invoices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Invoices
+     * const invoices = await prisma.invoice.findMany()
+     * 
+     * // Get first 10 Invoices
+     * const invoices = await prisma.invoice.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const invoiceWithIdOnly = await prisma.invoice.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InvoiceFindManyArgs>(args?: SelectSubset<T, InvoiceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Invoice.
+     * @param {InvoiceCreateArgs} args - Arguments to create a Invoice.
+     * @example
+     * // Create one Invoice
+     * const Invoice = await prisma.invoice.create({
+     *   data: {
+     *     // ... data to create a Invoice
+     *   }
+     * })
+     * 
+     */
+    create<T extends InvoiceCreateArgs>(args: SelectSubset<T, InvoiceCreateArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Invoices.
+     * @param {InvoiceCreateManyArgs} args - Arguments to create many Invoices.
+     * @example
+     * // Create many Invoices
+     * const invoice = await prisma.invoice.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InvoiceCreateManyArgs>(args?: SelectSubset<T, InvoiceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Invoices and returns the data saved in the database.
+     * @param {InvoiceCreateManyAndReturnArgs} args - Arguments to create many Invoices.
+     * @example
+     * // Create many Invoices
+     * const invoice = await prisma.invoice.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Invoices and only return the `id`
+     * const invoiceWithIdOnly = await prisma.invoice.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InvoiceCreateManyAndReturnArgs>(args?: SelectSubset<T, InvoiceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Invoice.
+     * @param {InvoiceDeleteArgs} args - Arguments to delete one Invoice.
+     * @example
+     * // Delete one Invoice
+     * const Invoice = await prisma.invoice.delete({
+     *   where: {
+     *     // ... filter to delete one Invoice
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InvoiceDeleteArgs>(args: SelectSubset<T, InvoiceDeleteArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Invoice.
+     * @param {InvoiceUpdateArgs} args - Arguments to update one Invoice.
+     * @example
+     * // Update one Invoice
+     * const invoice = await prisma.invoice.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InvoiceUpdateArgs>(args: SelectSubset<T, InvoiceUpdateArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Invoices.
+     * @param {InvoiceDeleteManyArgs} args - Arguments to filter Invoices to delete.
+     * @example
+     * // Delete a few Invoices
+     * const { count } = await prisma.invoice.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InvoiceDeleteManyArgs>(args?: SelectSubset<T, InvoiceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Invoices
+     * const invoice = await prisma.invoice.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InvoiceUpdateManyArgs>(args: SelectSubset<T, InvoiceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invoices and returns the data updated in the database.
+     * @param {InvoiceUpdateManyAndReturnArgs} args - Arguments to update many Invoices.
+     * @example
+     * // Update many Invoices
+     * const invoice = await prisma.invoice.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Invoices and only return the `id`
+     * const invoiceWithIdOnly = await prisma.invoice.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InvoiceUpdateManyAndReturnArgs>(args: SelectSubset<T, InvoiceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Invoice.
+     * @param {InvoiceUpsertArgs} args - Arguments to update or create a Invoice.
+     * @example
+     * // Update or create a Invoice
+     * const invoice = await prisma.invoice.upsert({
+     *   create: {
+     *     // ... data to create a Invoice
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Invoice we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InvoiceUpsertArgs>(args: SelectSubset<T, InvoiceUpsertArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Invoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceCountArgs} args - Arguments to filter Invoices to count.
+     * @example
+     * // Count the number of Invoices
+     * const count = await prisma.invoice.count({
+     *   where: {
+     *     // ... the filter for the Invoices we want to count
+     *   }
+     * })
+    **/
+    count<T extends InvoiceCountArgs>(
+      args?: Subset<T, InvoiceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InvoiceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Invoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InvoiceAggregateArgs>(args: Subset<T, InvoiceAggregateArgs>): Prisma.PrismaPromise<GetInvoiceAggregateType<T>>
+
+    /**
+     * Group by Invoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InvoiceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InvoiceGroupByArgs['orderBy'] }
+        : { orderBy?: InvoiceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InvoiceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInvoiceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Invoice model
+   */
+  readonly fields: InvoiceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Invoice.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    subscription<T extends Invoice$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$subscriptionArgs<ExtArgs>>): Prisma__TenantSubscriptionClient<$Result.GetResult<Prisma.$TenantSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    coupon<T extends Invoice$couponArgs<ExtArgs> = {}>(args?: Subset<T, Invoice$couponArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Invoice model
+   */
+  interface InvoiceFieldRefs {
+    readonly id: FieldRef<"Invoice", 'String'>
+    readonly tenantId: FieldRef<"Invoice", 'String'>
+    readonly subscriptionId: FieldRef<"Invoice", 'String'>
+    readonly invoiceNumber: FieldRef<"Invoice", 'String'>
+    readonly amount: FieldRef<"Invoice", 'Float'>
+    readonly discountAmount: FieldRef<"Invoice", 'Float'>
+    readonly netAmount: FieldRef<"Invoice", 'Float'>
+    readonly currency: FieldRef<"Invoice", 'String'>
+    readonly status: FieldRef<"Invoice", 'String'>
+    readonly billingDate: FieldRef<"Invoice", 'DateTime'>
+    readonly dueDate: FieldRef<"Invoice", 'DateTime'>
+    readonly paidAt: FieldRef<"Invoice", 'DateTime'>
+    readonly razorpayPaymentId: FieldRef<"Invoice", 'String'>
+    readonly razorpayOrderId: FieldRef<"Invoice", 'String'>
+    readonly razorpaySignature: FieldRef<"Invoice", 'String'>
+    readonly couponId: FieldRef<"Invoice", 'String'>
+    readonly pdfUrl: FieldRef<"Invoice", 'String'>
+    readonly createdAt: FieldRef<"Invoice", 'DateTime'>
+    readonly updatedAt: FieldRef<"Invoice", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Invoice findUnique
+   */
+  export type InvoiceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice findUniqueOrThrow
+   */
+  export type InvoiceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice findFirst
+   */
+  export type InvoiceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invoices.
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invoices.
+     */
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice findFirstOrThrow
+   */
+  export type InvoiceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invoices.
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invoices.
+     */
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice findMany
+   */
+  export type InvoiceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoices to fetch.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Invoices.
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invoices.
+     */
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice create
+   */
+  export type InvoiceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Invoice.
+     */
+    data: XOR<InvoiceCreateInput, InvoiceUncheckedCreateInput>
+  }
+
+  /**
+   * Invoice createMany
+   */
+  export type InvoiceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Invoices.
+     */
+    data: InvoiceCreateManyInput | InvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Invoice createManyAndReturn
+   */
+  export type InvoiceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to create many Invoices.
+     */
+    data: InvoiceCreateManyInput | InvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invoice update
+   */
+  export type InvoiceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Invoice.
+     */
+    data: XOR<InvoiceUpdateInput, InvoiceUncheckedUpdateInput>
+    /**
+     * Choose, which Invoice to update.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice updateMany
+   */
+  export type InvoiceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Invoices.
+     */
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which Invoices to update
+     */
+    where?: InvoiceWhereInput
+    /**
+     * Limit how many Invoices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invoice updateManyAndReturn
+   */
+  export type InvoiceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to update Invoices.
+     */
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which Invoices to update
+     */
+    where?: InvoiceWhereInput
+    /**
+     * Limit how many Invoices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invoice upsert
+   */
+  export type InvoiceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Invoice to update in case it exists.
+     */
+    where: InvoiceWhereUniqueInput
+    /**
+     * In case the Invoice found by the `where` argument doesn't exist, create a new Invoice with this data.
+     */
+    create: XOR<InvoiceCreateInput, InvoiceUncheckedCreateInput>
+    /**
+     * In case the Invoice was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InvoiceUpdateInput, InvoiceUncheckedUpdateInput>
+  }
+
+  /**
+   * Invoice delete
+   */
+  export type InvoiceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter which Invoice to delete.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice deleteMany
+   */
+  export type InvoiceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invoices to delete
+     */
+    where?: InvoiceWhereInput
+    /**
+     * Limit how many Invoices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invoice.subscription
+   */
+  export type Invoice$subscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantSubscription
+     */
+    select?: TenantSubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantSubscription
+     */
+    omit?: TenantSubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantSubscriptionInclude<ExtArgs> | null
+    where?: TenantSubscriptionWhereInput
+  }
+
+  /**
+   * Invoice.coupon
+   */
+  export type Invoice$couponArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Coupon
+     */
+    select?: CouponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Coupon
+     */
+    omit?: CouponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouponInclude<ExtArgs> | null
+    where?: CouponWhereInput
+  }
+
+  /**
+   * Invoice without action
+   */
+  export type InvoiceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AuditLog
+   */
+
+  export type AggregateAuditLog = {
+    _count: AuditLogCountAggregateOutputType | null
+    _min: AuditLogMinAggregateOutputType | null
+    _max: AuditLogMaxAggregateOutputType | null
+  }
+
+  export type AuditLogMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    userId: string | null
+    action: string | null
+    details: string | null
+    ipAddress: string | null
+    createdAt: Date | null
+  }
+
+  export type AuditLogMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    userId: string | null
+    action: string | null
+    details: string | null
+    ipAddress: string | null
+    createdAt: Date | null
+  }
+
+  export type AuditLogCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    userId: number
+    action: number
+    details: number
+    ipAddress: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AuditLogMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    userId?: true
+    action?: true
+    details?: true
+    ipAddress?: true
+    createdAt?: true
+  }
+
+  export type AuditLogMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    userId?: true
+    action?: true
+    details?: true
+    ipAddress?: true
+    createdAt?: true
+  }
+
+  export type AuditLogCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    userId?: true
+    action?: true
+    details?: true
+    ipAddress?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AuditLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditLog to aggregate.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AuditLogs
+    **/
+    _count?: true | AuditLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AuditLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AuditLogMaxAggregateInputType
+  }
+
+  export type GetAuditLogAggregateType<T extends AuditLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateAuditLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAuditLog[P]>
+      : GetScalarType<T[P], AggregateAuditLog[P]>
+  }
+
+
+
+
+  export type AuditLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithAggregationInput | AuditLogOrderByWithAggregationInput[]
+    by: AuditLogScalarFieldEnum[] | AuditLogScalarFieldEnum
+    having?: AuditLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AuditLogCountAggregateInputType | true
+    _min?: AuditLogMinAggregateInputType
+    _max?: AuditLogMaxAggregateInputType
+  }
+
+  export type AuditLogGroupByOutputType = {
+    id: string
+    tenantId: string | null
+    userId: string | null
+    action: string
+    details: string
+    ipAddress: string | null
+    createdAt: Date
+    _count: AuditLogCountAggregateOutputType | null
+    _min: AuditLogMinAggregateOutputType | null
+    _max: AuditLogMaxAggregateOutputType | null
+  }
+
+  type GetAuditLogGroupByPayload<T extends AuditLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AuditLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AuditLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AuditLogGroupByOutputType[P]>
+            : GetScalarType<T[P], AuditLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AuditLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    createdAt?: boolean
+    tenant?: boolean | AuditLog$tenantArgs<ExtArgs>
+    user?: boolean | AuditLog$userArgs<ExtArgs>
+  }, ExtArgs["result"]["auditLog"]>
+
+  export type AuditLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    createdAt?: boolean
+    tenant?: boolean | AuditLog$tenantArgs<ExtArgs>
+    user?: boolean | AuditLog$userArgs<ExtArgs>
+  }, ExtArgs["result"]["auditLog"]>
+
+  export type AuditLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    createdAt?: boolean
+    tenant?: boolean | AuditLog$tenantArgs<ExtArgs>
+    user?: boolean | AuditLog$userArgs<ExtArgs>
+  }, ExtArgs["result"]["auditLog"]>
+
+  export type AuditLogSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    userId?: boolean
+    action?: boolean
+    details?: boolean
+    ipAddress?: boolean
+    createdAt?: boolean
+  }
+
+  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "userId" | "action" | "details" | "ipAddress" | "createdAt", ExtArgs["result"]["auditLog"]>
+  export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | AuditLog$tenantArgs<ExtArgs>
+    user?: boolean | AuditLog$userArgs<ExtArgs>
+  }
+  export type AuditLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | AuditLog$tenantArgs<ExtArgs>
+    user?: boolean | AuditLog$userArgs<ExtArgs>
+  }
+  export type AuditLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | AuditLog$tenantArgs<ExtArgs>
+    user?: boolean | AuditLog$userArgs<ExtArgs>
+  }
+
+  export type $AuditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AuditLog"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string | null
+      userId: string | null
+      action: string
+      details: string
+      ipAddress: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["auditLog"]>
+    composites: {}
+  }
+
+  type AuditLogGetPayload<S extends boolean | null | undefined | AuditLogDefaultArgs> = $Result.GetResult<Prisma.$AuditLogPayload, S>
+
+  type AuditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AuditLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AuditLogCountAggregateInputType | true
+    }
+
+  export interface AuditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuditLog'], meta: { name: 'AuditLog' } }
+    /**
+     * Find zero or one AuditLog that matches the filter.
+     * @param {AuditLogFindUniqueArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AuditLogFindUniqueArgs>(args: SelectSubset<T, AuditLogFindUniqueArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AuditLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AuditLogFindUniqueOrThrowArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AuditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AuditLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogFindFirstArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AuditLogFindFirstArgs>(args?: SelectSubset<T, AuditLogFindFirstArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AuditLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogFindFirstOrThrowArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AuditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AuditLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AuditLogs
+     * const auditLogs = await prisma.auditLog.findMany()
+     * 
+     * // Get first 10 AuditLogs
+     * const auditLogs = await prisma.auditLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const auditLogWithIdOnly = await prisma.auditLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AuditLogFindManyArgs>(args?: SelectSubset<T, AuditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AuditLog.
+     * @param {AuditLogCreateArgs} args - Arguments to create a AuditLog.
+     * @example
+     * // Create one AuditLog
+     * const AuditLog = await prisma.auditLog.create({
+     *   data: {
+     *     // ... data to create a AuditLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends AuditLogCreateArgs>(args: SelectSubset<T, AuditLogCreateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AuditLogs.
+     * @param {AuditLogCreateManyArgs} args - Arguments to create many AuditLogs.
+     * @example
+     * // Create many AuditLogs
+     * const auditLog = await prisma.auditLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AuditLogCreateManyArgs>(args?: SelectSubset<T, AuditLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AuditLogs and returns the data saved in the database.
+     * @param {AuditLogCreateManyAndReturnArgs} args - Arguments to create many AuditLogs.
+     * @example
+     * // Create many AuditLogs
+     * const auditLog = await prisma.auditLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AuditLogs and only return the `id`
+     * const auditLogWithIdOnly = await prisma.auditLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AuditLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AuditLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AuditLog.
+     * @param {AuditLogDeleteArgs} args - Arguments to delete one AuditLog.
+     * @example
+     * // Delete one AuditLog
+     * const AuditLog = await prisma.auditLog.delete({
+     *   where: {
+     *     // ... filter to delete one AuditLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AuditLogDeleteArgs>(args: SelectSubset<T, AuditLogDeleteArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AuditLog.
+     * @param {AuditLogUpdateArgs} args - Arguments to update one AuditLog.
+     * @example
+     * // Update one AuditLog
+     * const auditLog = await prisma.auditLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AuditLogUpdateArgs>(args: SelectSubset<T, AuditLogUpdateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AuditLogs.
+     * @param {AuditLogDeleteManyArgs} args - Arguments to filter AuditLogs to delete.
+     * @example
+     * // Delete a few AuditLogs
+     * const { count } = await prisma.auditLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AuditLogDeleteManyArgs>(args?: SelectSubset<T, AuditLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AuditLogs
+     * const auditLog = await prisma.auditLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AuditLogUpdateManyArgs>(args: SelectSubset<T, AuditLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditLogs and returns the data updated in the database.
+     * @param {AuditLogUpdateManyAndReturnArgs} args - Arguments to update many AuditLogs.
+     * @example
+     * // Update many AuditLogs
+     * const auditLog = await prisma.auditLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AuditLogs and only return the `id`
+     * const auditLogWithIdOnly = await prisma.auditLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AuditLogUpdateManyAndReturnArgs>(args: SelectSubset<T, AuditLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AuditLog.
+     * @param {AuditLogUpsertArgs} args - Arguments to update or create a AuditLog.
+     * @example
+     * // Update or create a AuditLog
+     * const auditLog = await prisma.auditLog.upsert({
+     *   create: {
+     *     // ... data to create a AuditLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AuditLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AuditLogUpsertArgs>(args: SelectSubset<T, AuditLogUpsertArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogCountArgs} args - Arguments to filter AuditLogs to count.
+     * @example
+     * // Count the number of AuditLogs
+     * const count = await prisma.auditLog.count({
+     *   where: {
+     *     // ... the filter for the AuditLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AuditLogCountArgs>(
+      args?: Subset<T, AuditLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AuditLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AuditLogAggregateArgs>(args: Subset<T, AuditLogAggregateArgs>): Prisma.PrismaPromise<GetAuditLogAggregateType<T>>
+
+    /**
+     * Group by AuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AuditLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AuditLogGroupByArgs['orderBy'] }
+        : { orderBy?: AuditLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AuditLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAuditLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AuditLog model
+   */
+  readonly fields: AuditLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AuditLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends AuditLog$tenantArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    user<T extends AuditLog$userArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AuditLog model
+   */
+  interface AuditLogFieldRefs {
+    readonly id: FieldRef<"AuditLog", 'String'>
+    readonly tenantId: FieldRef<"AuditLog", 'String'>
+    readonly userId: FieldRef<"AuditLog", 'String'>
+    readonly action: FieldRef<"AuditLog", 'String'>
+    readonly details: FieldRef<"AuditLog", 'String'>
+    readonly ipAddress: FieldRef<"AuditLog", 'String'>
+    readonly createdAt: FieldRef<"AuditLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AuditLog findUnique
+   */
+  export type AuditLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog findUniqueOrThrow
+   */
+  export type AuditLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog findFirst
+   */
+  export type AuditLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditLogs.
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogs.
+     */
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLog findFirstOrThrow
+   */
+  export type AuditLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditLogs.
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogs.
+     */
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLog findMany
+   */
+  export type AuditLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLogs to fetch.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AuditLogs.
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogs.
+     */
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLog create
+   */
+  export type AuditLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AuditLog.
+     */
+    data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+  }
+
+  /**
+   * AuditLog createMany
+   */
+  export type AuditLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AuditLogs.
+     */
+    data: AuditLogCreateManyInput | AuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditLog createManyAndReturn
+   */
+  export type AuditLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many AuditLogs.
+     */
+    data: AuditLogCreateManyInput | AuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AuditLog update
+   */
+  export type AuditLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AuditLog.
+     */
+    data: XOR<AuditLogUpdateInput, AuditLogUncheckedUpdateInput>
+    /**
+     * Choose, which AuditLog to update.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog updateMany
+   */
+  export type AuditLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AuditLogs.
+     */
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditLogs to update
+     */
+    where?: AuditLogWhereInput
+    /**
+     * Limit how many AuditLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditLog updateManyAndReturn
+   */
+  export type AuditLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * The data used to update AuditLogs.
+     */
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditLogs to update
+     */
+    where?: AuditLogWhereInput
+    /**
+     * Limit how many AuditLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AuditLog upsert
+   */
+  export type AuditLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AuditLog to update in case it exists.
+     */
+    where: AuditLogWhereUniqueInput
+    /**
+     * In case the AuditLog found by the `where` argument doesn't exist, create a new AuditLog with this data.
+     */
+    create: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    /**
+     * In case the AuditLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AuditLogUpdateInput, AuditLogUncheckedUpdateInput>
+  }
+
+  /**
+   * AuditLog delete
+   */
+  export type AuditLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter which AuditLog to delete.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog deleteMany
+   */
+  export type AuditLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditLogs to delete
+     */
+    where?: AuditLogWhereInput
+    /**
+     * Limit how many AuditLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AuditLog.tenant
+   */
+  export type AuditLog$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
+  }
+
+  /**
+   * AuditLog.user
+   */
+  export type AuditLog$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * AuditLog without action
+   */
+  export type AuditLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -25146,6 +31960,100 @@ export namespace Prisma {
   export type TransactionItemScalarFieldEnum = (typeof TransactionItemScalarFieldEnum)[keyof typeof TransactionItemScalarFieldEnum]
 
 
+  export const SubscriptionPlanScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    amount: 'amount',
+    currency: 'currency',
+    interval: 'interval',
+    razorpayPlanId: 'razorpayPlanId',
+    trialDays: 'trialDays',
+    maxProducts: 'maxProducts',
+    maxUsers: 'maxUsers',
+    maxTransactions: 'maxTransactions',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SubscriptionPlanScalarFieldEnum = (typeof SubscriptionPlanScalarFieldEnum)[keyof typeof SubscriptionPlanScalarFieldEnum]
+
+
+  export const TenantSubscriptionScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    planId: 'planId',
+    status: 'status',
+    razorpaySubscriptionId: 'razorpaySubscriptionId',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    trialStartDate: 'trialStartDate',
+    trialEndDate: 'trialEndDate',
+    cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+    canceledAt: 'canceledAt',
+    endedAt: 'endedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TenantSubscriptionScalarFieldEnum = (typeof TenantSubscriptionScalarFieldEnum)[keyof typeof TenantSubscriptionScalarFieldEnum]
+
+
+  export const CouponScalarFieldEnum: {
+    id: 'id',
+    code: 'code',
+    discountType: 'discountType',
+    discountValue: 'discountValue',
+    expiryDate: 'expiryDate',
+    maxRedemptions: 'maxRedemptions',
+    redemptions: 'redemptions',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CouponScalarFieldEnum = (typeof CouponScalarFieldEnum)[keyof typeof CouponScalarFieldEnum]
+
+
+  export const InvoiceScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    subscriptionId: 'subscriptionId',
+    invoiceNumber: 'invoiceNumber',
+    amount: 'amount',
+    discountAmount: 'discountAmount',
+    netAmount: 'netAmount',
+    currency: 'currency',
+    status: 'status',
+    billingDate: 'billingDate',
+    dueDate: 'dueDate',
+    paidAt: 'paidAt',
+    razorpayPaymentId: 'razorpayPaymentId',
+    razorpayOrderId: 'razorpayOrderId',
+    razorpaySignature: 'razorpaySignature',
+    couponId: 'couponId',
+    pdfUrl: 'pdfUrl',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+  export const AuditLogScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    userId: 'userId',
+    action: 'action',
+    details: 'details',
+    ipAddress: 'ipAddress',
+    createdAt: 'createdAt'
+  };
+
+  export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -25278,6 +32186,9 @@ export namespace Prisma {
     shop?: XOR<ShopNullableScalarRelationFilter, ShopWhereInput> | null
     transactions?: TransactionListRelationFilter
     users?: UserListRelationFilter
+    subscriptions?: TenantSubscriptionListRelationFilter
+    invoices?: InvoiceListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
@@ -25314,6 +32225,9 @@ export namespace Prisma {
     shop?: ShopOrderByWithRelationInput
     transactions?: TransactionOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
+    subscriptions?: TenantSubscriptionOrderByRelationAggregateInput
+    invoices?: InvoiceOrderByRelationAggregateInput
+    auditLogs?: AuditLogOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -25353,6 +32267,9 @@ export namespace Prisma {
     shop?: XOR<ShopNullableScalarRelationFilter, ShopWhereInput> | null
     transactions?: TransactionListRelationFilter
     users?: UserListRelationFilter
+    subscriptions?: TenantSubscriptionListRelationFilter
+    invoices?: InvoiceListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
   }, "id" | "domain">
 
   export type TenantOrderByWithAggregationInput = {
@@ -25497,6 +32414,7 @@ export namespace Prisma {
     transactions?: TransactionListRelationFilter
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     tenantRole?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
+    auditLogs?: AuditLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -25516,6 +32434,7 @@ export namespace Prisma {
     transactions?: TransactionOrderByRelationAggregateInput
     tenant?: TenantOrderByWithRelationInput
     tenantRole?: RoleOrderByWithRelationInput
+    auditLogs?: AuditLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -25538,6 +32457,7 @@ export namespace Prisma {
     transactions?: TransactionListRelationFilter
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     tenantRole?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
+    auditLogs?: AuditLogListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -26921,6 +33841,497 @@ export namespace Prisma {
     variantId?: StringNullableWithAggregatesFilter<"TransactionItem"> | string | null
   }
 
+  export type SubscriptionPlanWhereInput = {
+    AND?: SubscriptionPlanWhereInput | SubscriptionPlanWhereInput[]
+    OR?: SubscriptionPlanWhereInput[]
+    NOT?: SubscriptionPlanWhereInput | SubscriptionPlanWhereInput[]
+    id?: StringFilter<"SubscriptionPlan"> | string
+    name?: StringFilter<"SubscriptionPlan"> | string
+    description?: StringNullableFilter<"SubscriptionPlan"> | string | null
+    amount?: FloatFilter<"SubscriptionPlan"> | number
+    currency?: StringFilter<"SubscriptionPlan"> | string
+    interval?: StringFilter<"SubscriptionPlan"> | string
+    razorpayPlanId?: StringNullableFilter<"SubscriptionPlan"> | string | null
+    trialDays?: IntFilter<"SubscriptionPlan"> | number
+    maxProducts?: IntFilter<"SubscriptionPlan"> | number
+    maxUsers?: IntFilter<"SubscriptionPlan"> | number
+    maxTransactions?: IntFilter<"SubscriptionPlan"> | number
+    isActive?: BoolFilter<"SubscriptionPlan"> | boolean
+    createdAt?: DateTimeFilter<"SubscriptionPlan"> | Date | string
+    updatedAt?: DateTimeFilter<"SubscriptionPlan"> | Date | string
+    subscriptions?: TenantSubscriptionListRelationFilter
+  }
+
+  export type SubscriptionPlanOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    interval?: SortOrder
+    razorpayPlanId?: SortOrderInput | SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    subscriptions?: TenantSubscriptionOrderByRelationAggregateInput
+  }
+
+  export type SubscriptionPlanWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SubscriptionPlanWhereInput | SubscriptionPlanWhereInput[]
+    OR?: SubscriptionPlanWhereInput[]
+    NOT?: SubscriptionPlanWhereInput | SubscriptionPlanWhereInput[]
+    name?: StringFilter<"SubscriptionPlan"> | string
+    description?: StringNullableFilter<"SubscriptionPlan"> | string | null
+    amount?: FloatFilter<"SubscriptionPlan"> | number
+    currency?: StringFilter<"SubscriptionPlan"> | string
+    interval?: StringFilter<"SubscriptionPlan"> | string
+    razorpayPlanId?: StringNullableFilter<"SubscriptionPlan"> | string | null
+    trialDays?: IntFilter<"SubscriptionPlan"> | number
+    maxProducts?: IntFilter<"SubscriptionPlan"> | number
+    maxUsers?: IntFilter<"SubscriptionPlan"> | number
+    maxTransactions?: IntFilter<"SubscriptionPlan"> | number
+    isActive?: BoolFilter<"SubscriptionPlan"> | boolean
+    createdAt?: DateTimeFilter<"SubscriptionPlan"> | Date | string
+    updatedAt?: DateTimeFilter<"SubscriptionPlan"> | Date | string
+    subscriptions?: TenantSubscriptionListRelationFilter
+  }, "id">
+
+  export type SubscriptionPlanOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    interval?: SortOrder
+    razorpayPlanId?: SortOrderInput | SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SubscriptionPlanCountOrderByAggregateInput
+    _avg?: SubscriptionPlanAvgOrderByAggregateInput
+    _max?: SubscriptionPlanMaxOrderByAggregateInput
+    _min?: SubscriptionPlanMinOrderByAggregateInput
+    _sum?: SubscriptionPlanSumOrderByAggregateInput
+  }
+
+  export type SubscriptionPlanScalarWhereWithAggregatesInput = {
+    AND?: SubscriptionPlanScalarWhereWithAggregatesInput | SubscriptionPlanScalarWhereWithAggregatesInput[]
+    OR?: SubscriptionPlanScalarWhereWithAggregatesInput[]
+    NOT?: SubscriptionPlanScalarWhereWithAggregatesInput | SubscriptionPlanScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SubscriptionPlan"> | string
+    name?: StringWithAggregatesFilter<"SubscriptionPlan"> | string
+    description?: StringNullableWithAggregatesFilter<"SubscriptionPlan"> | string | null
+    amount?: FloatWithAggregatesFilter<"SubscriptionPlan"> | number
+    currency?: StringWithAggregatesFilter<"SubscriptionPlan"> | string
+    interval?: StringWithAggregatesFilter<"SubscriptionPlan"> | string
+    razorpayPlanId?: StringNullableWithAggregatesFilter<"SubscriptionPlan"> | string | null
+    trialDays?: IntWithAggregatesFilter<"SubscriptionPlan"> | number
+    maxProducts?: IntWithAggregatesFilter<"SubscriptionPlan"> | number
+    maxUsers?: IntWithAggregatesFilter<"SubscriptionPlan"> | number
+    maxTransactions?: IntWithAggregatesFilter<"SubscriptionPlan"> | number
+    isActive?: BoolWithAggregatesFilter<"SubscriptionPlan"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"SubscriptionPlan"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SubscriptionPlan"> | Date | string
+  }
+
+  export type TenantSubscriptionWhereInput = {
+    AND?: TenantSubscriptionWhereInput | TenantSubscriptionWhereInput[]
+    OR?: TenantSubscriptionWhereInput[]
+    NOT?: TenantSubscriptionWhereInput | TenantSubscriptionWhereInput[]
+    id?: StringFilter<"TenantSubscription"> | string
+    tenantId?: StringFilter<"TenantSubscription"> | string
+    planId?: StringFilter<"TenantSubscription"> | string
+    status?: StringFilter<"TenantSubscription"> | string
+    razorpaySubscriptionId?: StringNullableFilter<"TenantSubscription"> | string | null
+    startDate?: DateTimeFilter<"TenantSubscription"> | Date | string
+    endDate?: DateTimeFilter<"TenantSubscription"> | Date | string
+    trialStartDate?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    trialEndDate?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    cancelAtPeriodEnd?: BoolFilter<"TenantSubscription"> | boolean
+    canceledAt?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    createdAt?: DateTimeFilter<"TenantSubscription"> | Date | string
+    updatedAt?: DateTimeFilter<"TenantSubscription"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
+    invoices?: InvoiceListRelationFilter
+  }
+
+  export type TenantSubscriptionOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    planId?: SortOrder
+    status?: SortOrder
+    razorpaySubscriptionId?: SortOrderInput | SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    trialStartDate?: SortOrderInput | SortOrder
+    trialEndDate?: SortOrderInput | SortOrder
+    cancelAtPeriodEnd?: SortOrder
+    canceledAt?: SortOrderInput | SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    plan?: SubscriptionPlanOrderByWithRelationInput
+    invoices?: InvoiceOrderByRelationAggregateInput
+  }
+
+  export type TenantSubscriptionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    razorpaySubscriptionId?: string
+    AND?: TenantSubscriptionWhereInput | TenantSubscriptionWhereInput[]
+    OR?: TenantSubscriptionWhereInput[]
+    NOT?: TenantSubscriptionWhereInput | TenantSubscriptionWhereInput[]
+    tenantId?: StringFilter<"TenantSubscription"> | string
+    planId?: StringFilter<"TenantSubscription"> | string
+    status?: StringFilter<"TenantSubscription"> | string
+    startDate?: DateTimeFilter<"TenantSubscription"> | Date | string
+    endDate?: DateTimeFilter<"TenantSubscription"> | Date | string
+    trialStartDate?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    trialEndDate?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    cancelAtPeriodEnd?: BoolFilter<"TenantSubscription"> | boolean
+    canceledAt?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    createdAt?: DateTimeFilter<"TenantSubscription"> | Date | string
+    updatedAt?: DateTimeFilter<"TenantSubscription"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
+    invoices?: InvoiceListRelationFilter
+  }, "id" | "razorpaySubscriptionId">
+
+  export type TenantSubscriptionOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    planId?: SortOrder
+    status?: SortOrder
+    razorpaySubscriptionId?: SortOrderInput | SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    trialStartDate?: SortOrderInput | SortOrder
+    trialEndDate?: SortOrderInput | SortOrder
+    cancelAtPeriodEnd?: SortOrder
+    canceledAt?: SortOrderInput | SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TenantSubscriptionCountOrderByAggregateInput
+    _max?: TenantSubscriptionMaxOrderByAggregateInput
+    _min?: TenantSubscriptionMinOrderByAggregateInput
+  }
+
+  export type TenantSubscriptionScalarWhereWithAggregatesInput = {
+    AND?: TenantSubscriptionScalarWhereWithAggregatesInput | TenantSubscriptionScalarWhereWithAggregatesInput[]
+    OR?: TenantSubscriptionScalarWhereWithAggregatesInput[]
+    NOT?: TenantSubscriptionScalarWhereWithAggregatesInput | TenantSubscriptionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TenantSubscription"> | string
+    tenantId?: StringWithAggregatesFilter<"TenantSubscription"> | string
+    planId?: StringWithAggregatesFilter<"TenantSubscription"> | string
+    status?: StringWithAggregatesFilter<"TenantSubscription"> | string
+    razorpaySubscriptionId?: StringNullableWithAggregatesFilter<"TenantSubscription"> | string | null
+    startDate?: DateTimeWithAggregatesFilter<"TenantSubscription"> | Date | string
+    endDate?: DateTimeWithAggregatesFilter<"TenantSubscription"> | Date | string
+    trialStartDate?: DateTimeNullableWithAggregatesFilter<"TenantSubscription"> | Date | string | null
+    trialEndDate?: DateTimeNullableWithAggregatesFilter<"TenantSubscription"> | Date | string | null
+    cancelAtPeriodEnd?: BoolWithAggregatesFilter<"TenantSubscription"> | boolean
+    canceledAt?: DateTimeNullableWithAggregatesFilter<"TenantSubscription"> | Date | string | null
+    endedAt?: DateTimeNullableWithAggregatesFilter<"TenantSubscription"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"TenantSubscription"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TenantSubscription"> | Date | string
+  }
+
+  export type CouponWhereInput = {
+    AND?: CouponWhereInput | CouponWhereInput[]
+    OR?: CouponWhereInput[]
+    NOT?: CouponWhereInput | CouponWhereInput[]
+    id?: StringFilter<"Coupon"> | string
+    code?: StringFilter<"Coupon"> | string
+    discountType?: StringFilter<"Coupon"> | string
+    discountValue?: FloatFilter<"Coupon"> | number
+    expiryDate?: DateTimeNullableFilter<"Coupon"> | Date | string | null
+    maxRedemptions?: IntNullableFilter<"Coupon"> | number | null
+    redemptions?: IntFilter<"Coupon"> | number
+    isActive?: BoolFilter<"Coupon"> | boolean
+    createdAt?: DateTimeFilter<"Coupon"> | Date | string
+    updatedAt?: DateTimeFilter<"Coupon"> | Date | string
+    invoices?: InvoiceListRelationFilter
+  }
+
+  export type CouponOrderByWithRelationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    discountType?: SortOrder
+    discountValue?: SortOrder
+    expiryDate?: SortOrderInput | SortOrder
+    maxRedemptions?: SortOrderInput | SortOrder
+    redemptions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    invoices?: InvoiceOrderByRelationAggregateInput
+  }
+
+  export type CouponWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    code?: string
+    AND?: CouponWhereInput | CouponWhereInput[]
+    OR?: CouponWhereInput[]
+    NOT?: CouponWhereInput | CouponWhereInput[]
+    discountType?: StringFilter<"Coupon"> | string
+    discountValue?: FloatFilter<"Coupon"> | number
+    expiryDate?: DateTimeNullableFilter<"Coupon"> | Date | string | null
+    maxRedemptions?: IntNullableFilter<"Coupon"> | number | null
+    redemptions?: IntFilter<"Coupon"> | number
+    isActive?: BoolFilter<"Coupon"> | boolean
+    createdAt?: DateTimeFilter<"Coupon"> | Date | string
+    updatedAt?: DateTimeFilter<"Coupon"> | Date | string
+    invoices?: InvoiceListRelationFilter
+  }, "id" | "code">
+
+  export type CouponOrderByWithAggregationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    discountType?: SortOrder
+    discountValue?: SortOrder
+    expiryDate?: SortOrderInput | SortOrder
+    maxRedemptions?: SortOrderInput | SortOrder
+    redemptions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CouponCountOrderByAggregateInput
+    _avg?: CouponAvgOrderByAggregateInput
+    _max?: CouponMaxOrderByAggregateInput
+    _min?: CouponMinOrderByAggregateInput
+    _sum?: CouponSumOrderByAggregateInput
+  }
+
+  export type CouponScalarWhereWithAggregatesInput = {
+    AND?: CouponScalarWhereWithAggregatesInput | CouponScalarWhereWithAggregatesInput[]
+    OR?: CouponScalarWhereWithAggregatesInput[]
+    NOT?: CouponScalarWhereWithAggregatesInput | CouponScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Coupon"> | string
+    code?: StringWithAggregatesFilter<"Coupon"> | string
+    discountType?: StringWithAggregatesFilter<"Coupon"> | string
+    discountValue?: FloatWithAggregatesFilter<"Coupon"> | number
+    expiryDate?: DateTimeNullableWithAggregatesFilter<"Coupon"> | Date | string | null
+    maxRedemptions?: IntNullableWithAggregatesFilter<"Coupon"> | number | null
+    redemptions?: IntWithAggregatesFilter<"Coupon"> | number
+    isActive?: BoolWithAggregatesFilter<"Coupon"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Coupon"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Coupon"> | Date | string
+  }
+
+  export type InvoiceWhereInput = {
+    AND?: InvoiceWhereInput | InvoiceWhereInput[]
+    OR?: InvoiceWhereInput[]
+    NOT?: InvoiceWhereInput | InvoiceWhereInput[]
+    id?: StringFilter<"Invoice"> | string
+    tenantId?: StringFilter<"Invoice"> | string
+    subscriptionId?: StringNullableFilter<"Invoice"> | string | null
+    invoiceNumber?: StringFilter<"Invoice"> | string
+    amount?: FloatFilter<"Invoice"> | number
+    discountAmount?: FloatFilter<"Invoice"> | number
+    netAmount?: FloatFilter<"Invoice"> | number
+    currency?: StringFilter<"Invoice"> | string
+    status?: StringFilter<"Invoice"> | string
+    billingDate?: DateTimeFilter<"Invoice"> | Date | string
+    dueDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    paidAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    razorpayPaymentId?: StringNullableFilter<"Invoice"> | string | null
+    razorpayOrderId?: StringNullableFilter<"Invoice"> | string | null
+    razorpaySignature?: StringNullableFilter<"Invoice"> | string | null
+    couponId?: StringNullableFilter<"Invoice"> | string | null
+    pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    createdAt?: DateTimeFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeFilter<"Invoice"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    subscription?: XOR<TenantSubscriptionNullableScalarRelationFilter, TenantSubscriptionWhereInput> | null
+    coupon?: XOR<CouponNullableScalarRelationFilter, CouponWhereInput> | null
+  }
+
+  export type InvoiceOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    subscriptionId?: SortOrderInput | SortOrder
+    invoiceNumber?: SortOrder
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    billingDate?: SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    razorpayPaymentId?: SortOrderInput | SortOrder
+    razorpayOrderId?: SortOrderInput | SortOrder
+    razorpaySignature?: SortOrderInput | SortOrder
+    couponId?: SortOrderInput | SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    subscription?: TenantSubscriptionOrderByWithRelationInput
+    coupon?: CouponOrderByWithRelationInput
+  }
+
+  export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    invoiceNumber?: string
+    AND?: InvoiceWhereInput | InvoiceWhereInput[]
+    OR?: InvoiceWhereInput[]
+    NOT?: InvoiceWhereInput | InvoiceWhereInput[]
+    tenantId?: StringFilter<"Invoice"> | string
+    subscriptionId?: StringNullableFilter<"Invoice"> | string | null
+    amount?: FloatFilter<"Invoice"> | number
+    discountAmount?: FloatFilter<"Invoice"> | number
+    netAmount?: FloatFilter<"Invoice"> | number
+    currency?: StringFilter<"Invoice"> | string
+    status?: StringFilter<"Invoice"> | string
+    billingDate?: DateTimeFilter<"Invoice"> | Date | string
+    dueDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    paidAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    razorpayPaymentId?: StringNullableFilter<"Invoice"> | string | null
+    razorpayOrderId?: StringNullableFilter<"Invoice"> | string | null
+    razorpaySignature?: StringNullableFilter<"Invoice"> | string | null
+    couponId?: StringNullableFilter<"Invoice"> | string | null
+    pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    createdAt?: DateTimeFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeFilter<"Invoice"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    subscription?: XOR<TenantSubscriptionNullableScalarRelationFilter, TenantSubscriptionWhereInput> | null
+    coupon?: XOR<CouponNullableScalarRelationFilter, CouponWhereInput> | null
+  }, "id" | "invoiceNumber">
+
+  export type InvoiceOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    subscriptionId?: SortOrderInput | SortOrder
+    invoiceNumber?: SortOrder
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    billingDate?: SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    razorpayPaymentId?: SortOrderInput | SortOrder
+    razorpayOrderId?: SortOrderInput | SortOrder
+    razorpaySignature?: SortOrderInput | SortOrder
+    couponId?: SortOrderInput | SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: InvoiceCountOrderByAggregateInput
+    _avg?: InvoiceAvgOrderByAggregateInput
+    _max?: InvoiceMaxOrderByAggregateInput
+    _min?: InvoiceMinOrderByAggregateInput
+    _sum?: InvoiceSumOrderByAggregateInput
+  }
+
+  export type InvoiceScalarWhereWithAggregatesInput = {
+    AND?: InvoiceScalarWhereWithAggregatesInput | InvoiceScalarWhereWithAggregatesInput[]
+    OR?: InvoiceScalarWhereWithAggregatesInput[]
+    NOT?: InvoiceScalarWhereWithAggregatesInput | InvoiceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Invoice"> | string
+    tenantId?: StringWithAggregatesFilter<"Invoice"> | string
+    subscriptionId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    invoiceNumber?: StringWithAggregatesFilter<"Invoice"> | string
+    amount?: FloatWithAggregatesFilter<"Invoice"> | number
+    discountAmount?: FloatWithAggregatesFilter<"Invoice"> | number
+    netAmount?: FloatWithAggregatesFilter<"Invoice"> | number
+    currency?: StringWithAggregatesFilter<"Invoice"> | string
+    status?: StringWithAggregatesFilter<"Invoice"> | string
+    billingDate?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+    dueDate?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
+    paidAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
+    razorpayPaymentId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    razorpayOrderId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    razorpaySignature?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    couponId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    pdfUrl?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+  }
+
+  export type AuditLogWhereInput = {
+    AND?: AuditLogWhereInput | AuditLogWhereInput[]
+    OR?: AuditLogWhereInput[]
+    NOT?: AuditLogWhereInput | AuditLogWhereInput[]
+    id?: StringFilter<"AuditLog"> | string
+    tenantId?: StringNullableFilter<"AuditLog"> | string | null
+    userId?: StringNullableFilter<"AuditLog"> | string | null
+    action?: StringFilter<"AuditLog"> | string
+    details?: StringFilter<"AuditLog"> | string
+    ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AuditLog"> | Date | string
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type AuditLogOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AuditLogWhereInput | AuditLogWhereInput[]
+    OR?: AuditLogWhereInput[]
+    NOT?: AuditLogWhereInput | AuditLogWhereInput[]
+    tenantId?: StringNullableFilter<"AuditLog"> | string | null
+    userId?: StringNullableFilter<"AuditLog"> | string | null
+    action?: StringFilter<"AuditLog"> | string
+    details?: StringFilter<"AuditLog"> | string
+    ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AuditLog"> | Date | string
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type AuditLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AuditLogCountOrderByAggregateInput
+    _max?: AuditLogMaxOrderByAggregateInput
+    _min?: AuditLogMinOrderByAggregateInput
+  }
+
+  export type AuditLogScalarWhereWithAggregatesInput = {
+    AND?: AuditLogScalarWhereWithAggregatesInput | AuditLogScalarWhereWithAggregatesInput[]
+    OR?: AuditLogScalarWhereWithAggregatesInput[]
+    NOT?: AuditLogScalarWhereWithAggregatesInput | AuditLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AuditLog"> | string
+    tenantId?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    userId?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    action?: StringWithAggregatesFilter<"AuditLog"> | string
+    details?: StringWithAggregatesFilter<"AuditLog"> | string
+    ipAddress?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -26955,6 +34366,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
@@ -26991,6 +34405,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -27027,6 +34444,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
@@ -27063,6 +34483,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
@@ -27221,6 +34644,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutUserInput
     tenant: TenantCreateNestedOneWithoutUsersInput
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -27238,6 +34662,7 @@ export namespace Prisma {
     profilePictureUrl?: string | null
     tokenVersion?: number
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -27255,6 +34680,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -27272,6 +34698,7 @@ export namespace Prisma {
     profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -28792,6 +36219,564 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type SubscriptionPlanCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    amount: number
+    currency?: string
+    interval: string
+    razorpayPlanId?: string | null
+    trialDays?: number
+    maxProducts?: number
+    maxUsers?: number
+    maxTransactions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutPlanInput
+  }
+
+  export type SubscriptionPlanUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    amount: number
+    currency?: string
+    interval: string
+    razorpayPlanId?: string | null
+    trialDays?: number
+    maxProducts?: number
+    maxUsers?: number
+    maxTransactions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutPlanInput
+  }
+
+  export type SubscriptionPlanUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    interval?: StringFieldUpdateOperationsInput | string
+    razorpayPlanId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialDays?: IntFieldUpdateOperationsInput | number
+    maxProducts?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    maxTransactions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptions?: TenantSubscriptionUpdateManyWithoutPlanNestedInput
+  }
+
+  export type SubscriptionPlanUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    interval?: StringFieldUpdateOperationsInput | string
+    razorpayPlanId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialDays?: IntFieldUpdateOperationsInput | number
+    maxProducts?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    maxTransactions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutPlanNestedInput
+  }
+
+  export type SubscriptionPlanCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    amount: number
+    currency?: string
+    interval: string
+    razorpayPlanId?: string | null
+    trialDays?: number
+    maxProducts?: number
+    maxUsers?: number
+    maxTransactions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPlanUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    interval?: StringFieldUpdateOperationsInput | string
+    razorpayPlanId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialDays?: IntFieldUpdateOperationsInput | number
+    maxProducts?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    maxTransactions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPlanUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    interval?: StringFieldUpdateOperationsInput | string
+    razorpayPlanId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialDays?: IntFieldUpdateOperationsInput | number
+    maxProducts?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    maxTransactions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantSubscriptionCreateInput = {
+    id?: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutSubscriptionsInput
+    plan: SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+    invoices?: InvoiceCreateNestedManyWithoutSubscriptionInput
+  }
+
+  export type TenantSubscriptionUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    planId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
+  }
+
+  export type TenantSubscriptionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutSubscriptionsNestedInput
+    plan?: SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+    invoices?: InvoiceUpdateManyWithoutSubscriptionNestedInput
+  }
+
+  export type TenantSubscriptionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoices?: InvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
+  }
+
+  export type TenantSubscriptionCreateManyInput = {
+    id?: string
+    tenantId: string
+    planId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenantSubscriptionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantSubscriptionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CouponCreateInput = {
+    id?: string
+    code: string
+    discountType: string
+    discountValue: number
+    expiryDate?: Date | string | null
+    maxRedemptions?: number | null
+    redemptions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invoices?: InvoiceCreateNestedManyWithoutCouponInput
+  }
+
+  export type CouponUncheckedCreateInput = {
+    id?: string
+    code: string
+    discountType: string
+    discountValue: number
+    expiryDate?: Date | string | null
+    maxRedemptions?: number | null
+    redemptions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCouponInput
+  }
+
+  export type CouponUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    discountType?: StringFieldUpdateOperationsInput | string
+    discountValue?: FloatFieldUpdateOperationsInput | number
+    expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxRedemptions?: NullableIntFieldUpdateOperationsInput | number | null
+    redemptions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoices?: InvoiceUpdateManyWithoutCouponNestedInput
+  }
+
+  export type CouponUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    discountType?: StringFieldUpdateOperationsInput | string
+    discountValue?: FloatFieldUpdateOperationsInput | number
+    expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxRedemptions?: NullableIntFieldUpdateOperationsInput | number | null
+    redemptions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoices?: InvoiceUncheckedUpdateManyWithoutCouponNestedInput
+  }
+
+  export type CouponCreateManyInput = {
+    id?: string
+    code: string
+    discountType: string
+    discountValue: number
+    expiryDate?: Date | string | null
+    maxRedemptions?: number | null
+    redemptions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CouponUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    discountType?: StringFieldUpdateOperationsInput | string
+    discountValue?: FloatFieldUpdateOperationsInput | number
+    expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxRedemptions?: NullableIntFieldUpdateOperationsInput | number | null
+    redemptions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CouponUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    discountType?: StringFieldUpdateOperationsInput | string
+    discountValue?: FloatFieldUpdateOperationsInput | number
+    expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxRedemptions?: NullableIntFieldUpdateOperationsInput | number | null
+    redemptions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceCreateInput = {
+    id?: string
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutInvoicesInput
+    subscription?: TenantSubscriptionCreateNestedOneWithoutInvoicesInput
+    coupon?: CouponCreateNestedOneWithoutInvoicesInput
+  }
+
+  export type InvoiceUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    subscriptionId?: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    couponId?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutInvoicesNestedInput
+    subscription?: TenantSubscriptionUpdateOneWithoutInvoicesNestedInput
+    coupon?: CouponUpdateOneWithoutInvoicesNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    couponId?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceCreateManyInput = {
+    id?: string
+    tenantId: string
+    subscriptionId?: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    couponId?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    couponId?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogCreateInput = {
+    id?: string
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutAuditLogsInput
+    user?: UserCreateNestedOneWithoutAuditLogsInput
+  }
+
+  export type AuditLogUncheckedCreateInput = {
+    id?: string
+    tenantId?: string | null
+    userId?: string | null
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutAuditLogsNestedInput
+    user?: UserUpdateOneWithoutAuditLogsNestedInput
+  }
+
+  export type AuditLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogCreateManyInput = {
+    id?: string
+    tenantId?: string | null
+    userId?: string | null
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -28920,6 +36905,24 @@ export namespace Prisma {
     none?: UserWhereInput
   }
 
+  export type TenantSubscriptionListRelationFilter = {
+    every?: TenantSubscriptionWhereInput
+    some?: TenantSubscriptionWhereInput
+    none?: TenantSubscriptionWhereInput
+  }
+
+  export type InvoiceListRelationFilter = {
+    every?: InvoiceWhereInput
+    some?: InvoiceWhereInput
+    none?: InvoiceWhereInput
+  }
+
+  export type AuditLogListRelationFilter = {
+    every?: AuditLogWhereInput
+    some?: AuditLogWhereInput
+    none?: AuditLogWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -28962,6 +36965,18 @@ export namespace Prisma {
   }
 
   export type UserOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TenantSubscriptionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InvoiceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AuditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -30202,6 +38217,308 @@ export namespace Prisma {
     itemTotal?: SortOrder
   }
 
+  export type SubscriptionPlanCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    interval?: SortOrder
+    razorpayPlanId?: SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionPlanAvgOrderByAggregateInput = {
+    amount?: SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+  }
+
+  export type SubscriptionPlanMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    interval?: SortOrder
+    razorpayPlanId?: SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionPlanMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    interval?: SortOrder
+    razorpayPlanId?: SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionPlanSumOrderByAggregateInput = {
+    amount?: SortOrder
+    trialDays?: SortOrder
+    maxProducts?: SortOrder
+    maxUsers?: SortOrder
+    maxTransactions?: SortOrder
+  }
+
+  export type SubscriptionPlanScalarRelationFilter = {
+    is?: SubscriptionPlanWhereInput
+    isNot?: SubscriptionPlanWhereInput
+  }
+
+  export type TenantSubscriptionCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    planId?: SortOrder
+    status?: SortOrder
+    razorpaySubscriptionId?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    trialStartDate?: SortOrder
+    trialEndDate?: SortOrder
+    cancelAtPeriodEnd?: SortOrder
+    canceledAt?: SortOrder
+    endedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantSubscriptionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    planId?: SortOrder
+    status?: SortOrder
+    razorpaySubscriptionId?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    trialStartDate?: SortOrder
+    trialEndDate?: SortOrder
+    cancelAtPeriodEnd?: SortOrder
+    canceledAt?: SortOrder
+    endedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantSubscriptionMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    planId?: SortOrder
+    status?: SortOrder
+    razorpaySubscriptionId?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    trialStartDate?: SortOrder
+    trialEndDate?: SortOrder
+    cancelAtPeriodEnd?: SortOrder
+    canceledAt?: SortOrder
+    endedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CouponCountOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    discountType?: SortOrder
+    discountValue?: SortOrder
+    expiryDate?: SortOrder
+    maxRedemptions?: SortOrder
+    redemptions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CouponAvgOrderByAggregateInput = {
+    discountValue?: SortOrder
+    maxRedemptions?: SortOrder
+    redemptions?: SortOrder
+  }
+
+  export type CouponMaxOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    discountType?: SortOrder
+    discountValue?: SortOrder
+    expiryDate?: SortOrder
+    maxRedemptions?: SortOrder
+    redemptions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CouponMinOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    discountType?: SortOrder
+    discountValue?: SortOrder
+    expiryDate?: SortOrder
+    maxRedemptions?: SortOrder
+    redemptions?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CouponSumOrderByAggregateInput = {
+    discountValue?: SortOrder
+    maxRedemptions?: SortOrder
+    redemptions?: SortOrder
+  }
+
+  export type TenantSubscriptionNullableScalarRelationFilter = {
+    is?: TenantSubscriptionWhereInput | null
+    isNot?: TenantSubscriptionWhereInput | null
+  }
+
+  export type CouponNullableScalarRelationFilter = {
+    is?: CouponWhereInput | null
+    isNot?: CouponWhereInput | null
+  }
+
+  export type InvoiceCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    subscriptionId?: SortOrder
+    invoiceNumber?: SortOrder
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    billingDate?: SortOrder
+    dueDate?: SortOrder
+    paidAt?: SortOrder
+    razorpayPaymentId?: SortOrder
+    razorpayOrderId?: SortOrder
+    razorpaySignature?: SortOrder
+    couponId?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvoiceAvgOrderByAggregateInput = {
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+  }
+
+  export type InvoiceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    subscriptionId?: SortOrder
+    invoiceNumber?: SortOrder
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    billingDate?: SortOrder
+    dueDate?: SortOrder
+    paidAt?: SortOrder
+    razorpayPaymentId?: SortOrder
+    razorpayOrderId?: SortOrder
+    razorpaySignature?: SortOrder
+    couponId?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvoiceMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    subscriptionId?: SortOrder
+    invoiceNumber?: SortOrder
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    billingDate?: SortOrder
+    dueDate?: SortOrder
+    paidAt?: SortOrder
+    razorpayPaymentId?: SortOrder
+    razorpayOrderId?: SortOrder
+    razorpaySignature?: SortOrder
+    couponId?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvoiceSumOrderByAggregateInput = {
+    amount?: SortOrder
+    discountAmount?: SortOrder
+    netAmount?: SortOrder
+  }
+
+  export type TenantNullableScalarRelationFilter = {
+    is?: TenantWhereInput | null
+    isNot?: TenantWhereInput | null
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type AuditLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuditLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuditLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    details?: SortOrder
+    ipAddress?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type CustomerCreateNestedManyWithoutTenantInput = {
     create?: XOR<CustomerCreateWithoutTenantInput, CustomerUncheckedCreateWithoutTenantInput> | CustomerCreateWithoutTenantInput[] | CustomerUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutTenantInput | CustomerCreateOrConnectWithoutTenantInput[]
@@ -30278,6 +38595,27 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
+  export type TenantSubscriptionCreateNestedManyWithoutTenantInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutTenantInput, TenantSubscriptionUncheckedCreateWithoutTenantInput> | TenantSubscriptionCreateWithoutTenantInput[] | TenantSubscriptionUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutTenantInput | TenantSubscriptionCreateOrConnectWithoutTenantInput[]
+    createMany?: TenantSubscriptionCreateManyTenantInputEnvelope
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+  }
+
+  export type InvoiceCreateNestedManyWithoutTenantInput = {
+    create?: XOR<InvoiceCreateWithoutTenantInput, InvoiceUncheckedCreateWithoutTenantInput> | InvoiceCreateWithoutTenantInput[] | InvoiceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutTenantInput | InvoiceCreateOrConnectWithoutTenantInput[]
+    createMany?: InvoiceCreateManyTenantInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type AuditLogCreateNestedManyWithoutTenantInput = {
+    create?: XOR<AuditLogCreateWithoutTenantInput, AuditLogUncheckedCreateWithoutTenantInput> | AuditLogCreateWithoutTenantInput[] | AuditLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutTenantInput | AuditLogCreateOrConnectWithoutTenantInput[]
+    createMany?: AuditLogCreateManyTenantInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
   export type CustomerUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<CustomerCreateWithoutTenantInput, CustomerUncheckedCreateWithoutTenantInput> | CustomerCreateWithoutTenantInput[] | CustomerUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutTenantInput | CustomerCreateOrConnectWithoutTenantInput[]
@@ -30352,6 +38690,27 @@ export namespace Prisma {
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
     createMany?: UserCreateManyTenantInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutTenantInput, TenantSubscriptionUncheckedCreateWithoutTenantInput> | TenantSubscriptionCreateWithoutTenantInput[] | TenantSubscriptionUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutTenantInput | TenantSubscriptionCreateOrConnectWithoutTenantInput[]
+    createMany?: TenantSubscriptionCreateManyTenantInputEnvelope
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+  }
+
+  export type InvoiceUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<InvoiceCreateWithoutTenantInput, InvoiceUncheckedCreateWithoutTenantInput> | InvoiceCreateWithoutTenantInput[] | InvoiceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutTenantInput | InvoiceCreateOrConnectWithoutTenantInput[]
+    createMany?: InvoiceCreateManyTenantInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type AuditLogUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<AuditLogCreateWithoutTenantInput, AuditLogUncheckedCreateWithoutTenantInput> | AuditLogCreateWithoutTenantInput[] | AuditLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutTenantInput | AuditLogCreateOrConnectWithoutTenantInput[]
+    createMany?: AuditLogCreateManyTenantInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -30532,6 +38891,48 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type TenantSubscriptionUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutTenantInput, TenantSubscriptionUncheckedCreateWithoutTenantInput> | TenantSubscriptionCreateWithoutTenantInput[] | TenantSubscriptionUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutTenantInput | TenantSubscriptionCreateOrConnectWithoutTenantInput[]
+    upsert?: TenantSubscriptionUpsertWithWhereUniqueWithoutTenantInput | TenantSubscriptionUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: TenantSubscriptionCreateManyTenantInputEnvelope
+    set?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    disconnect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    delete?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    update?: TenantSubscriptionUpdateWithWhereUniqueWithoutTenantInput | TenantSubscriptionUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: TenantSubscriptionUpdateManyWithWhereWithoutTenantInput | TenantSubscriptionUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: TenantSubscriptionScalarWhereInput | TenantSubscriptionScalarWhereInput[]
+  }
+
+  export type InvoiceUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<InvoiceCreateWithoutTenantInput, InvoiceUncheckedCreateWithoutTenantInput> | InvoiceCreateWithoutTenantInput[] | InvoiceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutTenantInput | InvoiceCreateOrConnectWithoutTenantInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutTenantInput | InvoiceUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: InvoiceCreateManyTenantInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutTenantInput | InvoiceUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutTenantInput | InvoiceUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type AuditLogUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<AuditLogCreateWithoutTenantInput, AuditLogUncheckedCreateWithoutTenantInput> | AuditLogCreateWithoutTenantInput[] | AuditLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutTenantInput | AuditLogCreateOrConnectWithoutTenantInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutTenantInput | AuditLogUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: AuditLogCreateManyTenantInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutTenantInput | AuditLogUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutTenantInput | AuditLogUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
   export type CustomerUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<CustomerCreateWithoutTenantInput, CustomerUncheckedCreateWithoutTenantInput> | CustomerCreateWithoutTenantInput[] | CustomerUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutTenantInput | CustomerCreateOrConnectWithoutTenantInput[]
@@ -30682,6 +39083,48 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutTenantInput, TenantSubscriptionUncheckedCreateWithoutTenantInput> | TenantSubscriptionCreateWithoutTenantInput[] | TenantSubscriptionUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutTenantInput | TenantSubscriptionCreateOrConnectWithoutTenantInput[]
+    upsert?: TenantSubscriptionUpsertWithWhereUniqueWithoutTenantInput | TenantSubscriptionUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: TenantSubscriptionCreateManyTenantInputEnvelope
+    set?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    disconnect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    delete?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    update?: TenantSubscriptionUpdateWithWhereUniqueWithoutTenantInput | TenantSubscriptionUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: TenantSubscriptionUpdateManyWithWhereWithoutTenantInput | TenantSubscriptionUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: TenantSubscriptionScalarWhereInput | TenantSubscriptionScalarWhereInput[]
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<InvoiceCreateWithoutTenantInput, InvoiceUncheckedCreateWithoutTenantInput> | InvoiceCreateWithoutTenantInput[] | InvoiceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutTenantInput | InvoiceCreateOrConnectWithoutTenantInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutTenantInput | InvoiceUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: InvoiceCreateManyTenantInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutTenantInput | InvoiceUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutTenantInput | InvoiceUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<AuditLogCreateWithoutTenantInput, AuditLogUncheckedCreateWithoutTenantInput> | AuditLogCreateWithoutTenantInput[] | AuditLogUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutTenantInput | AuditLogCreateOrConnectWithoutTenantInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutTenantInput | AuditLogUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: AuditLogCreateManyTenantInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutTenantInput | AuditLogUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutTenantInput | AuditLogUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
   export type RoleCreatepermissionsInput = {
     set: string[]
   }
@@ -30766,11 +39209,25 @@ export namespace Prisma {
     connect?: RoleWhereUniqueInput
   }
 
+  export type AuditLogCreateNestedManyWithoutUserInput = {
+    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
+    createMany?: AuditLogCreateManyUserInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
   export type TransactionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput> | TransactionCreateWithoutUserInput[] | TransactionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutUserInput | TransactionCreateOrConnectWithoutUserInput[]
     createMany?: TransactionCreateManyUserInputEnvelope
     connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+  }
+
+  export type AuditLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
+    createMany?: AuditLogCreateManyUserInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
   export type TransactionUpdateManyWithoutUserNestedInput = {
@@ -30805,6 +39262,20 @@ export namespace Prisma {
     update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutUsersInput, RoleUpdateWithoutUsersInput>, RoleUncheckedUpdateWithoutUsersInput>
   }
 
+  export type AuditLogUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutUserInput | AuditLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AuditLogCreateManyUserInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
   export type TransactionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput> | TransactionCreateWithoutUserInput[] | TransactionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutUserInput | TransactionCreateOrConnectWithoutUserInput[]
@@ -30817,6 +39288,20 @@ export namespace Prisma {
     update?: TransactionUpdateWithWhereUniqueWithoutUserInput | TransactionUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: TransactionUpdateManyWithWhereWithoutUserInput | TransactionUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutUserInput | AuditLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AuditLogCreateManyUserInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
   export type TenantCreateNestedOneWithoutProductsInput = {
@@ -31605,6 +40090,238 @@ export namespace Prisma {
     update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutItemsInput, TransactionUpdateWithoutItemsInput>, TransactionUncheckedUpdateWithoutItemsInput>
   }
 
+  export type TenantSubscriptionCreateNestedManyWithoutPlanInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutPlanInput, TenantSubscriptionUncheckedCreateWithoutPlanInput> | TenantSubscriptionCreateWithoutPlanInput[] | TenantSubscriptionUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutPlanInput | TenantSubscriptionCreateOrConnectWithoutPlanInput[]
+    createMany?: TenantSubscriptionCreateManyPlanInputEnvelope
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+  }
+
+  export type TenantSubscriptionUncheckedCreateNestedManyWithoutPlanInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutPlanInput, TenantSubscriptionUncheckedCreateWithoutPlanInput> | TenantSubscriptionCreateWithoutPlanInput[] | TenantSubscriptionUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutPlanInput | TenantSubscriptionCreateOrConnectWithoutPlanInput[]
+    createMany?: TenantSubscriptionCreateManyPlanInputEnvelope
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+  }
+
+  export type TenantSubscriptionUpdateManyWithoutPlanNestedInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutPlanInput, TenantSubscriptionUncheckedCreateWithoutPlanInput> | TenantSubscriptionCreateWithoutPlanInput[] | TenantSubscriptionUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutPlanInput | TenantSubscriptionCreateOrConnectWithoutPlanInput[]
+    upsert?: TenantSubscriptionUpsertWithWhereUniqueWithoutPlanInput | TenantSubscriptionUpsertWithWhereUniqueWithoutPlanInput[]
+    createMany?: TenantSubscriptionCreateManyPlanInputEnvelope
+    set?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    disconnect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    delete?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    update?: TenantSubscriptionUpdateWithWhereUniqueWithoutPlanInput | TenantSubscriptionUpdateWithWhereUniqueWithoutPlanInput[]
+    updateMany?: TenantSubscriptionUpdateManyWithWhereWithoutPlanInput | TenantSubscriptionUpdateManyWithWhereWithoutPlanInput[]
+    deleteMany?: TenantSubscriptionScalarWhereInput | TenantSubscriptionScalarWhereInput[]
+  }
+
+  export type TenantSubscriptionUncheckedUpdateManyWithoutPlanNestedInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutPlanInput, TenantSubscriptionUncheckedCreateWithoutPlanInput> | TenantSubscriptionCreateWithoutPlanInput[] | TenantSubscriptionUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutPlanInput | TenantSubscriptionCreateOrConnectWithoutPlanInput[]
+    upsert?: TenantSubscriptionUpsertWithWhereUniqueWithoutPlanInput | TenantSubscriptionUpsertWithWhereUniqueWithoutPlanInput[]
+    createMany?: TenantSubscriptionCreateManyPlanInputEnvelope
+    set?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    disconnect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    delete?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    connect?: TenantSubscriptionWhereUniqueInput | TenantSubscriptionWhereUniqueInput[]
+    update?: TenantSubscriptionUpdateWithWhereUniqueWithoutPlanInput | TenantSubscriptionUpdateWithWhereUniqueWithoutPlanInput[]
+    updateMany?: TenantSubscriptionUpdateManyWithWhereWithoutPlanInput | TenantSubscriptionUpdateManyWithWhereWithoutPlanInput[]
+    deleteMany?: TenantSubscriptionScalarWhereInput | TenantSubscriptionScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutSubscriptionsInput = {
+    create?: XOR<TenantCreateWithoutSubscriptionsInput, TenantUncheckedCreateWithoutSubscriptionsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutSubscriptionsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput = {
+    create?: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
+    connectOrCreate?: SubscriptionPlanCreateOrConnectWithoutSubscriptionsInput
+    connect?: SubscriptionPlanWhereUniqueInput
+  }
+
+  export type InvoiceCreateNestedManyWithoutSubscriptionInput = {
+    create?: XOR<InvoiceCreateWithoutSubscriptionInput, InvoiceUncheckedCreateWithoutSubscriptionInput> | InvoiceCreateWithoutSubscriptionInput[] | InvoiceUncheckedCreateWithoutSubscriptionInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutSubscriptionInput | InvoiceCreateOrConnectWithoutSubscriptionInput[]
+    createMany?: InvoiceCreateManySubscriptionInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type InvoiceUncheckedCreateNestedManyWithoutSubscriptionInput = {
+    create?: XOR<InvoiceCreateWithoutSubscriptionInput, InvoiceUncheckedCreateWithoutSubscriptionInput> | InvoiceCreateWithoutSubscriptionInput[] | InvoiceUncheckedCreateWithoutSubscriptionInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutSubscriptionInput | InvoiceCreateOrConnectWithoutSubscriptionInput[]
+    createMany?: InvoiceCreateManySubscriptionInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type TenantUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+    create?: XOR<TenantCreateWithoutSubscriptionsInput, TenantUncheckedCreateWithoutSubscriptionsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutSubscriptionsInput
+    upsert?: TenantUpsertWithoutSubscriptionsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutSubscriptionsInput, TenantUpdateWithoutSubscriptionsInput>, TenantUncheckedUpdateWithoutSubscriptionsInput>
+  }
+
+  export type SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+    create?: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
+    connectOrCreate?: SubscriptionPlanCreateOrConnectWithoutSubscriptionsInput
+    upsert?: SubscriptionPlanUpsertWithoutSubscriptionsInput
+    connect?: SubscriptionPlanWhereUniqueInput
+    update?: XOR<XOR<SubscriptionPlanUpdateToOneWithWhereWithoutSubscriptionsInput, SubscriptionPlanUpdateWithoutSubscriptionsInput>, SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput>
+  }
+
+  export type InvoiceUpdateManyWithoutSubscriptionNestedInput = {
+    create?: XOR<InvoiceCreateWithoutSubscriptionInput, InvoiceUncheckedCreateWithoutSubscriptionInput> | InvoiceCreateWithoutSubscriptionInput[] | InvoiceUncheckedCreateWithoutSubscriptionInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutSubscriptionInput | InvoiceCreateOrConnectWithoutSubscriptionInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutSubscriptionInput | InvoiceUpsertWithWhereUniqueWithoutSubscriptionInput[]
+    createMany?: InvoiceCreateManySubscriptionInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutSubscriptionInput | InvoiceUpdateWithWhereUniqueWithoutSubscriptionInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutSubscriptionInput | InvoiceUpdateManyWithWhereWithoutSubscriptionInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput = {
+    create?: XOR<InvoiceCreateWithoutSubscriptionInput, InvoiceUncheckedCreateWithoutSubscriptionInput> | InvoiceCreateWithoutSubscriptionInput[] | InvoiceUncheckedCreateWithoutSubscriptionInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutSubscriptionInput | InvoiceCreateOrConnectWithoutSubscriptionInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutSubscriptionInput | InvoiceUpsertWithWhereUniqueWithoutSubscriptionInput[]
+    createMany?: InvoiceCreateManySubscriptionInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutSubscriptionInput | InvoiceUpdateWithWhereUniqueWithoutSubscriptionInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutSubscriptionInput | InvoiceUpdateManyWithWhereWithoutSubscriptionInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type InvoiceCreateNestedManyWithoutCouponInput = {
+    create?: XOR<InvoiceCreateWithoutCouponInput, InvoiceUncheckedCreateWithoutCouponInput> | InvoiceCreateWithoutCouponInput[] | InvoiceUncheckedCreateWithoutCouponInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutCouponInput | InvoiceCreateOrConnectWithoutCouponInput[]
+    createMany?: InvoiceCreateManyCouponInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type InvoiceUncheckedCreateNestedManyWithoutCouponInput = {
+    create?: XOR<InvoiceCreateWithoutCouponInput, InvoiceUncheckedCreateWithoutCouponInput> | InvoiceCreateWithoutCouponInput[] | InvoiceUncheckedCreateWithoutCouponInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutCouponInput | InvoiceCreateOrConnectWithoutCouponInput[]
+    createMany?: InvoiceCreateManyCouponInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type InvoiceUpdateManyWithoutCouponNestedInput = {
+    create?: XOR<InvoiceCreateWithoutCouponInput, InvoiceUncheckedCreateWithoutCouponInput> | InvoiceCreateWithoutCouponInput[] | InvoiceUncheckedCreateWithoutCouponInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutCouponInput | InvoiceCreateOrConnectWithoutCouponInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutCouponInput | InvoiceUpsertWithWhereUniqueWithoutCouponInput[]
+    createMany?: InvoiceCreateManyCouponInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutCouponInput | InvoiceUpdateWithWhereUniqueWithoutCouponInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutCouponInput | InvoiceUpdateManyWithWhereWithoutCouponInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutCouponNestedInput = {
+    create?: XOR<InvoiceCreateWithoutCouponInput, InvoiceUncheckedCreateWithoutCouponInput> | InvoiceCreateWithoutCouponInput[] | InvoiceUncheckedCreateWithoutCouponInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutCouponInput | InvoiceCreateOrConnectWithoutCouponInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutCouponInput | InvoiceUpsertWithWhereUniqueWithoutCouponInput[]
+    createMany?: InvoiceCreateManyCouponInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutCouponInput | InvoiceUpdateWithWhereUniqueWithoutCouponInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutCouponInput | InvoiceUpdateManyWithWhereWithoutCouponInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutInvoicesInput = {
+    create?: XOR<TenantCreateWithoutInvoicesInput, TenantUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutInvoicesInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantSubscriptionCreateNestedOneWithoutInvoicesInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutInvoicesInput, TenantSubscriptionUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutInvoicesInput
+    connect?: TenantSubscriptionWhereUniqueInput
+  }
+
+  export type CouponCreateNestedOneWithoutInvoicesInput = {
+    create?: XOR<CouponCreateWithoutInvoicesInput, CouponUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: CouponCreateOrConnectWithoutInvoicesInput
+    connect?: CouponWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutInvoicesNestedInput = {
+    create?: XOR<TenantCreateWithoutInvoicesInput, TenantUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutInvoicesInput
+    upsert?: TenantUpsertWithoutInvoicesInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutInvoicesInput, TenantUpdateWithoutInvoicesInput>, TenantUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type TenantSubscriptionUpdateOneWithoutInvoicesNestedInput = {
+    create?: XOR<TenantSubscriptionCreateWithoutInvoicesInput, TenantSubscriptionUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: TenantSubscriptionCreateOrConnectWithoutInvoicesInput
+    upsert?: TenantSubscriptionUpsertWithoutInvoicesInput
+    disconnect?: TenantSubscriptionWhereInput | boolean
+    delete?: TenantSubscriptionWhereInput | boolean
+    connect?: TenantSubscriptionWhereUniqueInput
+    update?: XOR<XOR<TenantSubscriptionUpdateToOneWithWhereWithoutInvoicesInput, TenantSubscriptionUpdateWithoutInvoicesInput>, TenantSubscriptionUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type CouponUpdateOneWithoutInvoicesNestedInput = {
+    create?: XOR<CouponCreateWithoutInvoicesInput, CouponUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: CouponCreateOrConnectWithoutInvoicesInput
+    upsert?: CouponUpsertWithoutInvoicesInput
+    disconnect?: CouponWhereInput | boolean
+    delete?: CouponWhereInput | boolean
+    connect?: CouponWhereUniqueInput
+    update?: XOR<XOR<CouponUpdateToOneWithWhereWithoutInvoicesInput, CouponUpdateWithoutInvoicesInput>, CouponUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type TenantCreateNestedOneWithoutAuditLogsInput = {
+    create?: XOR<TenantCreateWithoutAuditLogsInput, TenantUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutAuditLogsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAuditLogsInput = {
+    create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TenantUpdateOneWithoutAuditLogsNestedInput = {
+    create?: XOR<TenantCreateWithoutAuditLogsInput, TenantUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutAuditLogsInput
+    upsert?: TenantUpsertWithoutAuditLogsInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutAuditLogsInput, TenantUpdateWithoutAuditLogsInput>, TenantUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type UserUpdateOneWithoutAuditLogsNestedInput = {
+    create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
+    upsert?: UserUpsertWithoutAuditLogsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -32241,6 +40958,7 @@ export namespace Prisma {
     tokenVersion?: number
     transactions?: TransactionCreateNestedManyWithoutUserInput
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTenantInput = {
@@ -32257,6 +40975,7 @@ export namespace Prisma {
     profilePictureUrl?: string | null
     tokenVersion?: number
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTenantInput = {
@@ -32266,6 +40985,130 @@ export namespace Prisma {
 
   export type UserCreateManyTenantInputEnvelope = {
     data: UserCreateManyTenantInput | UserCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantSubscriptionCreateWithoutTenantInput = {
+    id?: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    plan: SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+    invoices?: InvoiceCreateNestedManyWithoutSubscriptionInput
+  }
+
+  export type TenantSubscriptionUncheckedCreateWithoutTenantInput = {
+    id?: string
+    planId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
+  }
+
+  export type TenantSubscriptionCreateOrConnectWithoutTenantInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    create: XOR<TenantSubscriptionCreateWithoutTenantInput, TenantSubscriptionUncheckedCreateWithoutTenantInput>
+  }
+
+  export type TenantSubscriptionCreateManyTenantInputEnvelope = {
+    data: TenantSubscriptionCreateManyTenantInput | TenantSubscriptionCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvoiceCreateWithoutTenantInput = {
+    id?: string
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: TenantSubscriptionCreateNestedOneWithoutInvoicesInput
+    coupon?: CouponCreateNestedOneWithoutInvoicesInput
+  }
+
+  export type InvoiceUncheckedCreateWithoutTenantInput = {
+    id?: string
+    subscriptionId?: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    couponId?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceCreateOrConnectWithoutTenantInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutTenantInput, InvoiceUncheckedCreateWithoutTenantInput>
+  }
+
+  export type InvoiceCreateManyTenantInputEnvelope = {
+    data: InvoiceCreateManyTenantInput | InvoiceCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AuditLogCreateWithoutTenantInput = {
+    id?: string
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutAuditLogsInput
+  }
+
+  export type AuditLogUncheckedCreateWithoutTenantInput = {
+    id?: string
+    userId?: string | null
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogCreateOrConnectWithoutTenantInput = {
+    where: AuditLogWhereUniqueInput
+    create: XOR<AuditLogCreateWithoutTenantInput, AuditLogUncheckedCreateWithoutTenantInput>
+  }
+
+  export type AuditLogCreateManyTenantInputEnvelope = {
+    data: AuditLogCreateManyTenantInput | AuditLogCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -32644,6 +41487,112 @@ export namespace Prisma {
     tokenVersion?: IntFilter<"User"> | number
   }
 
+  export type TenantSubscriptionUpsertWithWhereUniqueWithoutTenantInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    update: XOR<TenantSubscriptionUpdateWithoutTenantInput, TenantSubscriptionUncheckedUpdateWithoutTenantInput>
+    create: XOR<TenantSubscriptionCreateWithoutTenantInput, TenantSubscriptionUncheckedCreateWithoutTenantInput>
+  }
+
+  export type TenantSubscriptionUpdateWithWhereUniqueWithoutTenantInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    data: XOR<TenantSubscriptionUpdateWithoutTenantInput, TenantSubscriptionUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type TenantSubscriptionUpdateManyWithWhereWithoutTenantInput = {
+    where: TenantSubscriptionScalarWhereInput
+    data: XOR<TenantSubscriptionUpdateManyMutationInput, TenantSubscriptionUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type TenantSubscriptionScalarWhereInput = {
+    AND?: TenantSubscriptionScalarWhereInput | TenantSubscriptionScalarWhereInput[]
+    OR?: TenantSubscriptionScalarWhereInput[]
+    NOT?: TenantSubscriptionScalarWhereInput | TenantSubscriptionScalarWhereInput[]
+    id?: StringFilter<"TenantSubscription"> | string
+    tenantId?: StringFilter<"TenantSubscription"> | string
+    planId?: StringFilter<"TenantSubscription"> | string
+    status?: StringFilter<"TenantSubscription"> | string
+    razorpaySubscriptionId?: StringNullableFilter<"TenantSubscription"> | string | null
+    startDate?: DateTimeFilter<"TenantSubscription"> | Date | string
+    endDate?: DateTimeFilter<"TenantSubscription"> | Date | string
+    trialStartDate?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    trialEndDate?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    cancelAtPeriodEnd?: BoolFilter<"TenantSubscription"> | boolean
+    canceledAt?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"TenantSubscription"> | Date | string | null
+    createdAt?: DateTimeFilter<"TenantSubscription"> | Date | string
+    updatedAt?: DateTimeFilter<"TenantSubscription"> | Date | string
+  }
+
+  export type InvoiceUpsertWithWhereUniqueWithoutTenantInput = {
+    where: InvoiceWhereUniqueInput
+    update: XOR<InvoiceUpdateWithoutTenantInput, InvoiceUncheckedUpdateWithoutTenantInput>
+    create: XOR<InvoiceCreateWithoutTenantInput, InvoiceUncheckedCreateWithoutTenantInput>
+  }
+
+  export type InvoiceUpdateWithWhereUniqueWithoutTenantInput = {
+    where: InvoiceWhereUniqueInput
+    data: XOR<InvoiceUpdateWithoutTenantInput, InvoiceUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type InvoiceUpdateManyWithWhereWithoutTenantInput = {
+    where: InvoiceScalarWhereInput
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type InvoiceScalarWhereInput = {
+    AND?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+    OR?: InvoiceScalarWhereInput[]
+    NOT?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+    id?: StringFilter<"Invoice"> | string
+    tenantId?: StringFilter<"Invoice"> | string
+    subscriptionId?: StringNullableFilter<"Invoice"> | string | null
+    invoiceNumber?: StringFilter<"Invoice"> | string
+    amount?: FloatFilter<"Invoice"> | number
+    discountAmount?: FloatFilter<"Invoice"> | number
+    netAmount?: FloatFilter<"Invoice"> | number
+    currency?: StringFilter<"Invoice"> | string
+    status?: StringFilter<"Invoice"> | string
+    billingDate?: DateTimeFilter<"Invoice"> | Date | string
+    dueDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    paidAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
+    razorpayPaymentId?: StringNullableFilter<"Invoice"> | string | null
+    razorpayOrderId?: StringNullableFilter<"Invoice"> | string | null
+    razorpaySignature?: StringNullableFilter<"Invoice"> | string | null
+    couponId?: StringNullableFilter<"Invoice"> | string | null
+    pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    createdAt?: DateTimeFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeFilter<"Invoice"> | Date | string
+  }
+
+  export type AuditLogUpsertWithWhereUniqueWithoutTenantInput = {
+    where: AuditLogWhereUniqueInput
+    update: XOR<AuditLogUpdateWithoutTenantInput, AuditLogUncheckedUpdateWithoutTenantInput>
+    create: XOR<AuditLogCreateWithoutTenantInput, AuditLogUncheckedCreateWithoutTenantInput>
+  }
+
+  export type AuditLogUpdateWithWhereUniqueWithoutTenantInput = {
+    where: AuditLogWhereUniqueInput
+    data: XOR<AuditLogUpdateWithoutTenantInput, AuditLogUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type AuditLogUpdateManyWithWhereWithoutTenantInput = {
+    where: AuditLogScalarWhereInput
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type AuditLogScalarWhereInput = {
+    AND?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    OR?: AuditLogScalarWhereInput[]
+    NOT?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    id?: StringFilter<"AuditLog"> | string
+    tenantId?: StringNullableFilter<"AuditLog"> | string | null
+    userId?: StringNullableFilter<"AuditLog"> | string | null
+    action?: StringFilter<"AuditLog"> | string
+    details?: StringFilter<"AuditLog"> | string
+    ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AuditLog"> | Date | string
+  }
+
   export type TenantCreateWithoutRolesInput = {
     id?: string
     name: string
@@ -32677,6 +41626,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutRolesInput = {
@@ -32712,6 +41664,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutRolesInput = {
@@ -32733,6 +41688,7 @@ export namespace Prisma {
     tokenVersion?: number
     transactions?: TransactionCreateNestedManyWithoutUserInput
     tenant: TenantCreateNestedOneWithoutUsersInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTenantRoleInput = {
@@ -32749,6 +41705,7 @@ export namespace Prisma {
     profilePictureUrl?: string | null
     tokenVersion?: number
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTenantRoleInput = {
@@ -32805,6 +41762,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutRolesInput = {
@@ -32840,6 +41800,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutTenantRoleInput = {
@@ -32943,6 +41906,9 @@ export namespace Prisma {
     roles?: RoleCreateNestedManyWithoutTenantInput
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUsersInput = {
@@ -32978,6 +41944,9 @@ export namespace Prisma {
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUsersInput = {
@@ -33006,6 +41975,34 @@ export namespace Prisma {
   export type RoleCreateOrConnectWithoutUsersInput = {
     where: RoleWhereUniqueInput
     create: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
+  }
+
+  export type AuditLogCreateWithoutUserInput = {
+    id?: string
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutAuditLogsInput
+  }
+
+  export type AuditLogUncheckedCreateWithoutUserInput = {
+    id?: string
+    tenantId?: string | null
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogCreateOrConnectWithoutUserInput = {
+    where: AuditLogWhereUniqueInput
+    create: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type AuditLogCreateManyUserInputEnvelope = {
+    data: AuditLogCreateManyUserInput | AuditLogCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutUserInput = {
@@ -33068,6 +42065,9 @@ export namespace Prisma {
     roles?: RoleUpdateManyWithoutTenantNestedInput
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -33103,6 +42103,9 @@ export namespace Prisma {
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type RoleUpsertWithoutUsersInput = {
@@ -33132,6 +42135,22 @@ export namespace Prisma {
     permissions?: RoleUpdatepermissionsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: AuditLogWhereUniqueInput
+    update: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
+    create: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type AuditLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: AuditLogWhereUniqueInput
+    data: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AuditLogUpdateManyWithWhereWithoutUserInput = {
+    where: AuditLogScalarWhereInput
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutUserInput>
   }
 
   export type TenantCreateWithoutProductsInput = {
@@ -33167,6 +42186,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutProductsInput = {
@@ -33202,6 +42224,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutProductsInput = {
@@ -33375,6 +42400,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutProductsInput = {
@@ -33410,6 +42438,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type ProductBatchUpsertWithWhereUniqueWithoutProductInput = {
@@ -34125,6 +43156,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutCustomersInput = {
@@ -34160,6 +43194,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutCustomersInput = {
@@ -34328,6 +43365,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutCustomersInput = {
@@ -34363,6 +43403,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type OrderRequestUpsertWithWhereUniqueWithoutCustomerInput = {
@@ -34498,6 +43541,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutOrderRequestsInput = {
@@ -34533,6 +43579,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutOrderRequestsInput = {
@@ -34694,6 +43743,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutOrderRequestsInput = {
@@ -34729,6 +43781,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type OrderRequestItemUpsertWithWhereUniqueWithoutOrderRequestInput = {
@@ -34870,6 +43925,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutNotificationsInput = {
@@ -34905,6 +43963,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutNotificationsInput = {
@@ -35024,6 +44085,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutNotificationsInput = {
@@ -35059,6 +44123,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type CustomerAccountUpsertWithoutNotificationsInput = {
@@ -35174,6 +44241,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutExpensesInput = {
@@ -35209,6 +44279,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutExpensesInput = {
@@ -35260,6 +44333,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutExpensesInput = {
@@ -35295,6 +44371,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutDiscountsInput = {
@@ -35330,6 +44409,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDiscountsInput = {
@@ -35365,6 +44447,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDiscountsInput = {
@@ -35416,6 +44501,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDiscountsInput = {
@@ -35451,6 +44539,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutEmployeesInput = {
@@ -35486,6 +44577,9 @@ export namespace Prisma {
     shop?: ShopCreateNestedOneWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutEmployeesInput = {
@@ -35521,6 +44615,9 @@ export namespace Prisma {
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutEmployeesInput = {
@@ -35572,6 +44669,9 @@ export namespace Prisma {
     shop?: ShopUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutEmployeesInput = {
@@ -35607,6 +44707,9 @@ export namespace Prisma {
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutShopInput = {
@@ -35642,6 +44745,9 @@ export namespace Prisma {
     roles?: RoleCreateNestedManyWithoutTenantInput
     transactions?: TransactionCreateNestedManyWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutShopInput = {
@@ -35677,6 +44783,9 @@ export namespace Prisma {
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutShopInput = {
@@ -35728,6 +44837,9 @@ export namespace Prisma {
     roles?: RoleUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUpdateManyWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutShopInput = {
@@ -35763,6 +44875,9 @@ export namespace Prisma {
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutTransactionsInput = {
@@ -35798,6 +44913,9 @@ export namespace Prisma {
     roles?: RoleCreateNestedManyWithoutTenantInput
     shop?: ShopCreateNestedOneWithoutTenantInput
     users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutTransactionsInput = {
@@ -35833,6 +44951,9 @@ export namespace Prisma {
     roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
     shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutTransactionsInput = {
@@ -35854,6 +44975,7 @@ export namespace Prisma {
     tokenVersion?: number
     tenant: TenantCreateNestedOneWithoutUsersInput
     tenantRole?: RoleCreateNestedOneWithoutUsersInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -35870,6 +44992,7 @@ export namespace Prisma {
     jobTitle?: string | null
     profilePictureUrl?: string | null
     tokenVersion?: number
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -35961,6 +45084,9 @@ export namespace Prisma {
     roles?: RoleUpdateManyWithoutTenantNestedInput
     shop?: ShopUpdateOneWithoutTenantNestedInput
     users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutTransactionsInput = {
@@ -35996,6 +45122,9 @@ export namespace Prisma {
     roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
     shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserUpsertWithoutTransactionsInput = {
@@ -36023,6 +45152,7 @@ export namespace Prisma {
     tokenVersion?: IntFieldUpdateOperationsInput | number
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -36039,6 +45169,7 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionItemUpsertWithWhereUniqueWithoutTransactionInput = {
@@ -36277,6 +45408,1026 @@ export namespace Prisma {
     taxAmount?: FloatFieldUpdateOperationsInput | number
   }
 
+  export type TenantSubscriptionCreateWithoutPlanInput = {
+    id?: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutSubscriptionsInput
+    invoices?: InvoiceCreateNestedManyWithoutSubscriptionInput
+  }
+
+  export type TenantSubscriptionUncheckedCreateWithoutPlanInput = {
+    id?: string
+    tenantId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
+  }
+
+  export type TenantSubscriptionCreateOrConnectWithoutPlanInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    create: XOR<TenantSubscriptionCreateWithoutPlanInput, TenantSubscriptionUncheckedCreateWithoutPlanInput>
+  }
+
+  export type TenantSubscriptionCreateManyPlanInputEnvelope = {
+    data: TenantSubscriptionCreateManyPlanInput | TenantSubscriptionCreateManyPlanInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantSubscriptionUpsertWithWhereUniqueWithoutPlanInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    update: XOR<TenantSubscriptionUpdateWithoutPlanInput, TenantSubscriptionUncheckedUpdateWithoutPlanInput>
+    create: XOR<TenantSubscriptionCreateWithoutPlanInput, TenantSubscriptionUncheckedCreateWithoutPlanInput>
+  }
+
+  export type TenantSubscriptionUpdateWithWhereUniqueWithoutPlanInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    data: XOR<TenantSubscriptionUpdateWithoutPlanInput, TenantSubscriptionUncheckedUpdateWithoutPlanInput>
+  }
+
+  export type TenantSubscriptionUpdateManyWithWhereWithoutPlanInput = {
+    where: TenantSubscriptionScalarWhereInput
+    data: XOR<TenantSubscriptionUpdateManyMutationInput, TenantSubscriptionUncheckedUpdateManyWithoutPlanInput>
+  }
+
+  export type TenantCreateWithoutSubscriptionsInput = {
+    id?: string
+    name: string
+    domain: string
+    dbConnectionString: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    status?: string
+    address?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    gstin?: string | null
+    phone?: string | null
+    subscriptionPlan?: string
+    menuTheme?: string | null
+    currency?: string
+    logoUrl?: string | null
+    timezone?: string
+    website?: string | null
+    aadharCardUrl?: string | null
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    customers?: CustomerCreateNestedManyWithoutTenantInput
+    discounts?: DiscountCreateNestedManyWithoutTenantInput
+    employees?: EmployeeCreateNestedManyWithoutTenantInput
+    expenses?: ExpenseCreateNestedManyWithoutTenantInput
+    notifications?: NotificationCreateNestedManyWithoutTenantInput
+    orderRequests?: OrderRequestCreateNestedManyWithoutTenantInput
+    products?: ProductCreateNestedManyWithoutTenantInput
+    roles?: RoleCreateNestedManyWithoutTenantInput
+    shop?: ShopCreateNestedOneWithoutTenantInput
+    transactions?: TransactionCreateNestedManyWithoutTenantInput
+    users?: UserCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutSubscriptionsInput = {
+    id?: string
+    name: string
+    domain: string
+    dbConnectionString: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    status?: string
+    address?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    gstin?: string | null
+    phone?: string | null
+    subscriptionPlan?: string
+    menuTheme?: string | null
+    currency?: string
+    logoUrl?: string | null
+    timezone?: string
+    website?: string | null
+    aadharCardUrl?: string | null
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
+    discounts?: DiscountUncheckedCreateNestedManyWithoutTenantInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutTenantInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutTenantInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutTenantInput
+    orderRequests?: OrderRequestUncheckedCreateNestedManyWithoutTenantInput
+    products?: ProductUncheckedCreateNestedManyWithoutTenantInput
+    roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
+    shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutSubscriptionsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutSubscriptionsInput, TenantUncheckedCreateWithoutSubscriptionsInput>
+  }
+
+  export type SubscriptionPlanCreateWithoutSubscriptionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    amount: number
+    currency?: string
+    interval: string
+    razorpayPlanId?: string | null
+    trialDays?: number
+    maxProducts?: number
+    maxUsers?: number
+    maxTransactions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    amount: number
+    currency?: string
+    interval: string
+    razorpayPlanId?: string | null
+    trialDays?: number
+    maxProducts?: number
+    maxUsers?: number
+    maxTransactions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPlanCreateOrConnectWithoutSubscriptionsInput = {
+    where: SubscriptionPlanWhereUniqueInput
+    create: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
+  }
+
+  export type InvoiceCreateWithoutSubscriptionInput = {
+    id?: string
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutInvoicesInput
+    coupon?: CouponCreateNestedOneWithoutInvoicesInput
+  }
+
+  export type InvoiceUncheckedCreateWithoutSubscriptionInput = {
+    id?: string
+    tenantId: string
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    couponId?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceCreateOrConnectWithoutSubscriptionInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutSubscriptionInput, InvoiceUncheckedCreateWithoutSubscriptionInput>
+  }
+
+  export type InvoiceCreateManySubscriptionInputEnvelope = {
+    data: InvoiceCreateManySubscriptionInput | InvoiceCreateManySubscriptionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantUpsertWithoutSubscriptionsInput = {
+    update: XOR<TenantUpdateWithoutSubscriptionsInput, TenantUncheckedUpdateWithoutSubscriptionsInput>
+    create: XOR<TenantCreateWithoutSubscriptionsInput, TenantUncheckedCreateWithoutSubscriptionsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutSubscriptionsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutSubscriptionsInput, TenantUncheckedUpdateWithoutSubscriptionsInput>
+  }
+
+  export type TenantUpdateWithoutSubscriptionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    dbConnectionString?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    gstin?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timezone?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    customers?: CustomerUpdateManyWithoutTenantNestedInput
+    discounts?: DiscountUpdateManyWithoutTenantNestedInput
+    employees?: EmployeeUpdateManyWithoutTenantNestedInput
+    expenses?: ExpenseUpdateManyWithoutTenantNestedInput
+    notifications?: NotificationUpdateManyWithoutTenantNestedInput
+    orderRequests?: OrderRequestUpdateManyWithoutTenantNestedInput
+    products?: ProductUpdateManyWithoutTenantNestedInput
+    roles?: RoleUpdateManyWithoutTenantNestedInput
+    shop?: ShopUpdateOneWithoutTenantNestedInput
+    transactions?: TransactionUpdateManyWithoutTenantNestedInput
+    users?: UserUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutSubscriptionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    dbConnectionString?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    gstin?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timezone?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
+    discounts?: DiscountUncheckedUpdateManyWithoutTenantNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutTenantNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutTenantNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutTenantNestedInput
+    orderRequests?: OrderRequestUncheckedUpdateManyWithoutTenantNestedInput
+    products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
+    roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
+    shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type SubscriptionPlanUpsertWithoutSubscriptionsInput = {
+    update: XOR<SubscriptionPlanUpdateWithoutSubscriptionsInput, SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput>
+    create: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
+    where?: SubscriptionPlanWhereInput
+  }
+
+  export type SubscriptionPlanUpdateToOneWithWhereWithoutSubscriptionsInput = {
+    where?: SubscriptionPlanWhereInput
+    data: XOR<SubscriptionPlanUpdateWithoutSubscriptionsInput, SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput>
+  }
+
+  export type SubscriptionPlanUpdateWithoutSubscriptionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    interval?: StringFieldUpdateOperationsInput | string
+    razorpayPlanId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialDays?: IntFieldUpdateOperationsInput | number
+    maxProducts?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    maxTransactions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    interval?: StringFieldUpdateOperationsInput | string
+    razorpayPlanId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialDays?: IntFieldUpdateOperationsInput | number
+    maxProducts?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    maxTransactions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUpsertWithWhereUniqueWithoutSubscriptionInput = {
+    where: InvoiceWhereUniqueInput
+    update: XOR<InvoiceUpdateWithoutSubscriptionInput, InvoiceUncheckedUpdateWithoutSubscriptionInput>
+    create: XOR<InvoiceCreateWithoutSubscriptionInput, InvoiceUncheckedCreateWithoutSubscriptionInput>
+  }
+
+  export type InvoiceUpdateWithWhereUniqueWithoutSubscriptionInput = {
+    where: InvoiceWhereUniqueInput
+    data: XOR<InvoiceUpdateWithoutSubscriptionInput, InvoiceUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type InvoiceUpdateManyWithWhereWithoutSubscriptionInput = {
+    where: InvoiceScalarWhereInput
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyWithoutSubscriptionInput>
+  }
+
+  export type InvoiceCreateWithoutCouponInput = {
+    id?: string
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutInvoicesInput
+    subscription?: TenantSubscriptionCreateNestedOneWithoutInvoicesInput
+  }
+
+  export type InvoiceUncheckedCreateWithoutCouponInput = {
+    id?: string
+    tenantId: string
+    subscriptionId?: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceCreateOrConnectWithoutCouponInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutCouponInput, InvoiceUncheckedCreateWithoutCouponInput>
+  }
+
+  export type InvoiceCreateManyCouponInputEnvelope = {
+    data: InvoiceCreateManyCouponInput | InvoiceCreateManyCouponInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvoiceUpsertWithWhereUniqueWithoutCouponInput = {
+    where: InvoiceWhereUniqueInput
+    update: XOR<InvoiceUpdateWithoutCouponInput, InvoiceUncheckedUpdateWithoutCouponInput>
+    create: XOR<InvoiceCreateWithoutCouponInput, InvoiceUncheckedCreateWithoutCouponInput>
+  }
+
+  export type InvoiceUpdateWithWhereUniqueWithoutCouponInput = {
+    where: InvoiceWhereUniqueInput
+    data: XOR<InvoiceUpdateWithoutCouponInput, InvoiceUncheckedUpdateWithoutCouponInput>
+  }
+
+  export type InvoiceUpdateManyWithWhereWithoutCouponInput = {
+    where: InvoiceScalarWhereInput
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyWithoutCouponInput>
+  }
+
+  export type TenantCreateWithoutInvoicesInput = {
+    id?: string
+    name: string
+    domain: string
+    dbConnectionString: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    status?: string
+    address?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    gstin?: string | null
+    phone?: string | null
+    subscriptionPlan?: string
+    menuTheme?: string | null
+    currency?: string
+    logoUrl?: string | null
+    timezone?: string
+    website?: string | null
+    aadharCardUrl?: string | null
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    customers?: CustomerCreateNestedManyWithoutTenantInput
+    discounts?: DiscountCreateNestedManyWithoutTenantInput
+    employees?: EmployeeCreateNestedManyWithoutTenantInput
+    expenses?: ExpenseCreateNestedManyWithoutTenantInput
+    notifications?: NotificationCreateNestedManyWithoutTenantInput
+    orderRequests?: OrderRequestCreateNestedManyWithoutTenantInput
+    products?: ProductCreateNestedManyWithoutTenantInput
+    roles?: RoleCreateNestedManyWithoutTenantInput
+    shop?: ShopCreateNestedOneWithoutTenantInput
+    transactions?: TransactionCreateNestedManyWithoutTenantInput
+    users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutInvoicesInput = {
+    id?: string
+    name: string
+    domain: string
+    dbConnectionString: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    status?: string
+    address?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    gstin?: string | null
+    phone?: string | null
+    subscriptionPlan?: string
+    menuTheme?: string | null
+    currency?: string
+    logoUrl?: string | null
+    timezone?: string
+    website?: string | null
+    aadharCardUrl?: string | null
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
+    discounts?: DiscountUncheckedCreateNestedManyWithoutTenantInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutTenantInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutTenantInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutTenantInput
+    orderRequests?: OrderRequestUncheckedCreateNestedManyWithoutTenantInput
+    products?: ProductUncheckedCreateNestedManyWithoutTenantInput
+    roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
+    shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutInvoicesInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutInvoicesInput, TenantUncheckedCreateWithoutInvoicesInput>
+  }
+
+  export type TenantSubscriptionCreateWithoutInvoicesInput = {
+    id?: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutSubscriptionsInput
+    plan: SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+  }
+
+  export type TenantSubscriptionUncheckedCreateWithoutInvoicesInput = {
+    id?: string
+    tenantId: string
+    planId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenantSubscriptionCreateOrConnectWithoutInvoicesInput = {
+    where: TenantSubscriptionWhereUniqueInput
+    create: XOR<TenantSubscriptionCreateWithoutInvoicesInput, TenantSubscriptionUncheckedCreateWithoutInvoicesInput>
+  }
+
+  export type CouponCreateWithoutInvoicesInput = {
+    id?: string
+    code: string
+    discountType: string
+    discountValue: number
+    expiryDate?: Date | string | null
+    maxRedemptions?: number | null
+    redemptions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CouponUncheckedCreateWithoutInvoicesInput = {
+    id?: string
+    code: string
+    discountType: string
+    discountValue: number
+    expiryDate?: Date | string | null
+    maxRedemptions?: number | null
+    redemptions?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CouponCreateOrConnectWithoutInvoicesInput = {
+    where: CouponWhereUniqueInput
+    create: XOR<CouponCreateWithoutInvoicesInput, CouponUncheckedCreateWithoutInvoicesInput>
+  }
+
+  export type TenantUpsertWithoutInvoicesInput = {
+    update: XOR<TenantUpdateWithoutInvoicesInput, TenantUncheckedUpdateWithoutInvoicesInput>
+    create: XOR<TenantCreateWithoutInvoicesInput, TenantUncheckedCreateWithoutInvoicesInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutInvoicesInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutInvoicesInput, TenantUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type TenantUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    dbConnectionString?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    gstin?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timezone?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    customers?: CustomerUpdateManyWithoutTenantNestedInput
+    discounts?: DiscountUpdateManyWithoutTenantNestedInput
+    employees?: EmployeeUpdateManyWithoutTenantNestedInput
+    expenses?: ExpenseUpdateManyWithoutTenantNestedInput
+    notifications?: NotificationUpdateManyWithoutTenantNestedInput
+    orderRequests?: OrderRequestUpdateManyWithoutTenantNestedInput
+    products?: ProductUpdateManyWithoutTenantNestedInput
+    roles?: RoleUpdateManyWithoutTenantNestedInput
+    shop?: ShopUpdateOneWithoutTenantNestedInput
+    transactions?: TransactionUpdateManyWithoutTenantNestedInput
+    users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    dbConnectionString?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    gstin?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timezone?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
+    discounts?: DiscountUncheckedUpdateManyWithoutTenantNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutTenantNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutTenantNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutTenantNestedInput
+    orderRequests?: OrderRequestUncheckedUpdateManyWithoutTenantNestedInput
+    products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
+    roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
+    shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantSubscriptionUpsertWithoutInvoicesInput = {
+    update: XOR<TenantSubscriptionUpdateWithoutInvoicesInput, TenantSubscriptionUncheckedUpdateWithoutInvoicesInput>
+    create: XOR<TenantSubscriptionCreateWithoutInvoicesInput, TenantSubscriptionUncheckedCreateWithoutInvoicesInput>
+    where?: TenantSubscriptionWhereInput
+  }
+
+  export type TenantSubscriptionUpdateToOneWithWhereWithoutInvoicesInput = {
+    where?: TenantSubscriptionWhereInput
+    data: XOR<TenantSubscriptionUpdateWithoutInvoicesInput, TenantSubscriptionUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type TenantSubscriptionUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutSubscriptionsNestedInput
+    plan?: SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+  }
+
+  export type TenantSubscriptionUncheckedUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CouponUpsertWithoutInvoicesInput = {
+    update: XOR<CouponUpdateWithoutInvoicesInput, CouponUncheckedUpdateWithoutInvoicesInput>
+    create: XOR<CouponCreateWithoutInvoicesInput, CouponUncheckedCreateWithoutInvoicesInput>
+    where?: CouponWhereInput
+  }
+
+  export type CouponUpdateToOneWithWhereWithoutInvoicesInput = {
+    where?: CouponWhereInput
+    data: XOR<CouponUpdateWithoutInvoicesInput, CouponUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type CouponUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    discountType?: StringFieldUpdateOperationsInput | string
+    discountValue?: FloatFieldUpdateOperationsInput | number
+    expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxRedemptions?: NullableIntFieldUpdateOperationsInput | number | null
+    redemptions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CouponUncheckedUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    discountType?: StringFieldUpdateOperationsInput | string
+    discountValue?: FloatFieldUpdateOperationsInput | number
+    expiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    maxRedemptions?: NullableIntFieldUpdateOperationsInput | number | null
+    redemptions?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantCreateWithoutAuditLogsInput = {
+    id?: string
+    name: string
+    domain: string
+    dbConnectionString: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    status?: string
+    address?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    gstin?: string | null
+    phone?: string | null
+    subscriptionPlan?: string
+    menuTheme?: string | null
+    currency?: string
+    logoUrl?: string | null
+    timezone?: string
+    website?: string | null
+    aadharCardUrl?: string | null
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    customers?: CustomerCreateNestedManyWithoutTenantInput
+    discounts?: DiscountCreateNestedManyWithoutTenantInput
+    employees?: EmployeeCreateNestedManyWithoutTenantInput
+    expenses?: ExpenseCreateNestedManyWithoutTenantInput
+    notifications?: NotificationCreateNestedManyWithoutTenantInput
+    orderRequests?: OrderRequestCreateNestedManyWithoutTenantInput
+    products?: ProductCreateNestedManyWithoutTenantInput
+    roles?: RoleCreateNestedManyWithoutTenantInput
+    shop?: ShopCreateNestedOneWithoutTenantInput
+    transactions?: TransactionCreateNestedManyWithoutTenantInput
+    users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutAuditLogsInput = {
+    id?: string
+    name: string
+    domain: string
+    dbConnectionString: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    status?: string
+    address?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    gstin?: string | null
+    phone?: string | null
+    subscriptionPlan?: string
+    menuTheme?: string | null
+    currency?: string
+    logoUrl?: string | null
+    timezone?: string
+    website?: string | null
+    aadharCardUrl?: string | null
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
+    discounts?: DiscountUncheckedCreateNestedManyWithoutTenantInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutTenantInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutTenantInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutTenantInput
+    orderRequests?: OrderRequestUncheckedCreateNestedManyWithoutTenantInput
+    products?: ProductUncheckedCreateNestedManyWithoutTenantInput
+    roles?: RoleUncheckedCreateNestedManyWithoutTenantInput
+    shop?: ShopUncheckedCreateNestedOneWithoutTenantInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutTenantInput
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: TenantSubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutAuditLogsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutAuditLogsInput, TenantUncheckedCreateWithoutAuditLogsInput>
+  }
+
+  export type UserCreateWithoutAuditLogsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    phone?: string | null
+    jobTitle?: string | null
+    profilePictureUrl?: string | null
+    tokenVersion?: number
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    tenant: TenantCreateNestedOneWithoutUsersInput
+    tenantRole?: RoleCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutAuditLogsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    role?: string
+    tenantId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenantRoleId?: string | null
+    phone?: string | null
+    jobTitle?: string | null
+    profilePictureUrl?: string | null
+    tokenVersion?: number
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAuditLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+  }
+
+  export type TenantUpsertWithoutAuditLogsInput = {
+    update: XOR<TenantUpdateWithoutAuditLogsInput, TenantUncheckedUpdateWithoutAuditLogsInput>
+    create: XOR<TenantCreateWithoutAuditLogsInput, TenantUncheckedCreateWithoutAuditLogsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutAuditLogsInput, TenantUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type TenantUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    dbConnectionString?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    gstin?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timezone?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    customers?: CustomerUpdateManyWithoutTenantNestedInput
+    discounts?: DiscountUpdateManyWithoutTenantNestedInput
+    employees?: EmployeeUpdateManyWithoutTenantNestedInput
+    expenses?: ExpenseUpdateManyWithoutTenantNestedInput
+    notifications?: NotificationUpdateManyWithoutTenantNestedInput
+    orderRequests?: OrderRequestUpdateManyWithoutTenantNestedInput
+    products?: ProductUpdateManyWithoutTenantNestedInput
+    roles?: RoleUpdateManyWithoutTenantNestedInput
+    shop?: ShopUpdateOneWithoutTenantNestedInput
+    transactions?: TransactionUpdateManyWithoutTenantNestedInput
+    users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    dbConnectionString?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    gstin?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    menuTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    timezone?: StringFieldUpdateOperationsInput | string
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
+    discounts?: DiscountUncheckedUpdateManyWithoutTenantNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutTenantNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutTenantNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutTenantNestedInput
+    orderRequests?: OrderRequestUncheckedUpdateManyWithoutTenantNestedInput
+    products?: ProductUncheckedUpdateManyWithoutTenantNestedInput
+    roles?: RoleUncheckedUpdateManyWithoutTenantNestedInput
+    shop?: ShopUncheckedUpdateOneWithoutTenantNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutTenantNestedInput
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: TenantSubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type UserUpsertWithoutAuditLogsInput = {
+    update: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
+    create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type UserUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenVersion?: IntFieldUpdateOperationsInput | number
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
+    tenantRole?: RoleUpdateOneWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenantRoleId?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenVersion?: IntFieldUpdateOperationsInput | number
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type CustomerCreateManyTenantInput = {
     id?: string
     name: string
@@ -36417,6 +46568,52 @@ export namespace Prisma {
     jobTitle?: string | null
     profilePictureUrl?: string | null
     tokenVersion?: number
+  }
+
+  export type TenantSubscriptionCreateManyTenantInput = {
+    id?: string
+    planId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceCreateManyTenantInput = {
+    id?: string
+    subscriptionId?: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    couponId?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AuditLogCreateManyTenantInput = {
+    id?: string
+    userId?: string | null
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
   }
 
   export type CustomerUpdateWithoutTenantInput = {
@@ -36832,6 +47029,7 @@ export namespace Prisma {
     tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     tenantRole?: RoleUpdateOneWithoutUsersNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTenantInput = {
@@ -36848,6 +47046,7 @@ export namespace Prisma {
     profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutTenantInput = {
@@ -36863,6 +47062,146 @@ export namespace Prisma {
     jobTitle?: NullableStringFieldUpdateOperationsInput | string | null
     profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TenantSubscriptionUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    plan?: SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+    invoices?: InvoiceUpdateManyWithoutSubscriptionNestedInput
+  }
+
+  export type TenantSubscriptionUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoices?: InvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
+  }
+
+  export type TenantSubscriptionUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: TenantSubscriptionUpdateOneWithoutInvoicesNestedInput
+    coupon?: CouponUpdateOneWithoutInvoicesNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    couponId?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    couponId?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutAuditLogsNestedInput
+  }
+
+  export type AuditLogUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateManyTenantRoleInput = {
@@ -36894,6 +47233,7 @@ export namespace Prisma {
     tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTenantRoleInput = {
@@ -36910,6 +47250,7 @@ export namespace Prisma {
     profilePictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
     tokenVersion?: IntFieldUpdateOperationsInput | number
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutTenantRoleInput = {
@@ -36945,6 +47286,15 @@ export namespace Prisma {
     notes?: string | null
     paymentMethod?: string | null
     taxAmount?: number
+  }
+
+  export type AuditLogCreateManyUserInput = {
+    id?: string
+    tenantId?: string | null
+    action: string
+    details: string
+    ipAddress?: string | null
+    createdAt?: Date | string
   }
 
   export type TransactionUpdateWithoutUserInput = {
@@ -37007,6 +47357,33 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     taxAmount?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type AuditLogUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutAuditLogsNestedInput
+  }
+
+  export type AuditLogUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    details?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductBatchCreateManyProductInput = {
@@ -37555,6 +47932,240 @@ export namespace Prisma {
     batchId?: NullableStringFieldUpdateOperationsInput | string | null
     serialId?: NullableStringFieldUpdateOperationsInput | string | null
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TenantSubscriptionCreateManyPlanInput = {
+    id?: string
+    tenantId: string
+    status: string
+    razorpaySubscriptionId?: string | null
+    startDate?: Date | string
+    endDate: Date | string
+    trialStartDate?: Date | string | null
+    trialEndDate?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    canceledAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenantSubscriptionUpdateWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutSubscriptionsNestedInput
+    invoices?: InvoiceUpdateManyWithoutSubscriptionNestedInput
+  }
+
+  export type TenantSubscriptionUncheckedUpdateWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invoices?: InvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
+  }
+
+  export type TenantSubscriptionUncheckedUpdateManyWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    razorpaySubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trialEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    canceledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceCreateManySubscriptionInput = {
+    id?: string
+    tenantId: string
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    couponId?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutInvoicesNestedInput
+    coupon?: CouponUpdateOneWithoutInvoicesNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    couponId?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    couponId?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceCreateManyCouponInput = {
+    id?: string
+    tenantId: string
+    subscriptionId?: string | null
+    invoiceNumber: string
+    amount: number
+    discountAmount?: number
+    netAmount: number
+    currency?: string
+    status: string
+    billingDate?: Date | string
+    dueDate?: Date | string | null
+    paidAt?: Date | string | null
+    razorpayPaymentId?: string | null
+    razorpayOrderId?: string | null
+    razorpaySignature?: string | null
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvoiceUpdateWithoutCouponInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutInvoicesNestedInput
+    subscription?: TenantSubscriptionUpdateOneWithoutInvoicesNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateWithoutCouponInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutCouponInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    discountAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    billingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    razorpayPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

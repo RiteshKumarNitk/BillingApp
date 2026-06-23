@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { requirePermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
+import { checkFeatureLimit } from "@/lib/subscription";
 import bcrypt from "bcryptjs";
 
 export async function getTenantUsers() {
@@ -102,6 +103,11 @@ export async function createTenantUser(data: { name: string, email: string, pass
   if (!session?.user?.tenantId) throw new Error("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
+
+  const limitCheck = await checkFeatureLimit(session.user.tenantId, "users");
+  if (!limitCheck.allowed) {
+    throw new Error(limitCheck.reason);
+  }
 
   if (!data.name || !data.email || !data.password || !data.tenantRoleId) {
     throw new Error("Missing required fields");

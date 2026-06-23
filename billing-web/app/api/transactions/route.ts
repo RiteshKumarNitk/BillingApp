@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import prisma from '@/lib/prisma';
+import prisma from "@/lib/prisma";
+import { checkFeatureLimit } from "@/lib/subscription";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +48,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
+      );
+    }
+
+    // Verify transaction limit
+    const limitCheck = await checkFeatureLimit(user.tenantId, "transactions");
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { error: limitCheck.reason },
+        { status: 403 }
       );
     }
 
