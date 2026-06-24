@@ -1,18 +1,20 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { format, subDays } from "date-fns";
-import { 
-  Building, 
-  Users, 
-  Activity, 
-  ArrowRight, 
-  ShieldAlert, 
-  UserPlus, 
-  DollarSign, 
-  Calendar, 
-  TrendingUp 
+import {
+  Building,
+  Users,
+  Activity,
+  ArrowRight,
+  ShieldAlert,
+  UserPlus,
+  DollarSign,
+  Calendar,
+  TrendingUp,
+  ActivitySquare
 } from "lucide-react";
 import SuperAdminChart from "./SuperAdminChart";
+import RevenueChart from "./RevenueChart";
 
 type TenantRow = {
   id: string;
@@ -27,9 +29,9 @@ export default async function SuperAdminDashboard() {
   const totalTenants = await prisma.tenant.count({
     where: { name: { not: "System Administration" } }
   });
-  
+
   const activeTenants = await prisma.tenant.count({
-    where: { 
+    where: {
       name: { not: "System Administration" },
       status: "ACTIVE"
     }
@@ -94,7 +96,7 @@ export default async function SuperAdminDashboard() {
   }));
 
   // 7. Plan performance: subscriber count per plan
-  const plansStats = await prisma.subscriptionPlan.findMany({
+  const plansStatsRaw = await prisma.subscriptionPlan.findMany({
     include: {
       _count: {
         select: {
@@ -106,9 +108,48 @@ export default async function SuperAdminDashboard() {
     }
   });
 
+  // 8. Revenue over time (last 30 days)
+  const rawRevenueData = await prisma.$queryRaw<any[]>`
+    SELECT
+      DATE("billingDate") as date,
+      SUM("netAmount") as revenue
+    FROM "Invoice"
+    WHERE "billingDate" >= ${thirtyDaysAgo} AND "status" = 'PAID'
+    GROUP BY DATE("billingDate")
+    ORDER BY DATE("billingDate")
+  `;
+  const revenueData = rawRevenueData.map((item: { date: string | Date; revenue: string | number }) => ({
+    date: format(new Date(item.date), "MMM dd"),
+    revenue: Number(item.revenue || 0)
+  }));
+
+  // 9. Churn Rate (approximated: cancelled last 30 days / active 30 days ago)
+  const cancelledLast30Days = await prisma.tenantSubscription.count({
+    where: {
+      status: "CANCELLED",
+      canceledAt: { gte: thirtyDaysAgo }
+    }
+  });
+  // Rough active 30 days ago estimate: current active + cancelled in last 30 days
+  const churnRate = activeSubscriptionsCount + cancelledLast30Days > 0 
+    ? (cancelledLast30Days / (activeSubscriptionsCount + cancelledLast30Days)) * 100 
+    : 0;
+
+  // Deduplicate by plan name to prevent UI duplication if multiple same-named plans exist
+  const plansMap = new Map();
+  for (const plan of plansStatsRaw) {
+    if (!plansMap.has(plan.name)) {
+      plansMap.set(plan.name, { ...plan });
+    } else {
+      const existing = plansMap.get(plan.name);
+      existing._count.subscriptions += plan._count.subscriptions;
+    }
+  }
+  const plansStats = Array.from(plansMap.values());
+
   return (
-    <div className="font-sans">
-      <div className="mx-auto max-w-7xl">
+    <div className="font-sans px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto py-8">
+      <div className="w-full">
         {/* Header */}
         <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
@@ -116,8 +157,8 @@ export default async function SuperAdminDashboard() {
             <p className="mt-1 text-sm text-gray-500">Overview of subscription revenue, active subscribers, and SaaS growth</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link 
-              href="/tenants" 
+            <Link
+              href="/tenants"
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors"
             >
               <Building className="h-4 w-4" />
@@ -128,8 +169,8 @@ export default async function SuperAdminDashboard() {
 
         {/* Stats Grid */}
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total SaaS Revenue" 
+          <StatCard
+            title="Total SaaS Revenue"
             value={`₹${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             subtitle="Subscription Payments Received"
             icon={<DollarSign className="h-5 w-5 text-indigo-600" />}
@@ -143,6 +184,13 @@ export default async function SuperAdminDashboard() {
             gradient="from-emerald-500/20 to-emerald-500/5"
           />
           <StatCard 
+            title="SaaS Churn Rate" 
+            value={`${churnRate.toFixed(1)}%`}
+            subtitle={`${cancelledLast30Days} cancellations (30d)`}
+            icon={<ActivitySquare className="h-5 w-5 text-rose-600" />}
+            gradient="from-rose-500/20 to-rose-500/5"
+          />
+          <StatCard 
             title="Active Subscribers" 
             value={activeSubscriptionsCount.toString()}
             subtitle={`${trialSubscriptionsCount} tenants in free trials`}
@@ -150,7 +198,7 @@ export default async function SuperAdminDashboard() {
             gradient="from-blue-500/20 to-blue-500/5"
           />
           <StatCard 
-            title="Total Tenant Accounts" 
+            title="Total Tenant Accounts"
             value={totalTenants.toString()}
             subtitle={`${activeTenants} active businesses`}
             icon={<Building className="h-5 w-5 text-violet-600" />}
@@ -158,10 +206,25 @@ export default async function SuperAdminDashboard() {
           />
         </div>
 
-        {/* Plan Breakdown / Distribution */}
-        <section className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
-            <h2 className="mb-6 text-xl font-bold text-gray-800">Tenant Growth (Last 30 Days)</h2>
+        {/* Advanced Charts Section */}
+        <section className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Revenue Over Time */}
+          <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+            <h2 className="mb-6 text-xl font-bold text-gray-800">MRR Revenue Growth (Last 30 Days)</h2>
+            <div className="h-64 w-full">
+              {revenueData.length > 0 ? (
+                <RevenueChart data={revenueData} />
+              ) : (
+                <div className="h-full flex items-center justify-center text-sm text-gray-400">
+                  No revenue data recorded yet.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tenant Growth */}
+          <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+            <h2 className="mb-6 text-xl font-bold text-gray-800">New Signups (Last 30 Days)</h2>
             <div className="h-64 w-full">
               {growthData.length > 0 ? (
                 <SuperAdminChart growthData={growthData} />
@@ -172,8 +235,10 @@ export default async function SuperAdminDashboard() {
               )}
             </div>
           </div>
+        </section>
 
-          <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl flex flex-col justify-between">
+        {/* Plan Breakdown / Distribution */}
+        <section className="mb-8 rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
             <div>
               <h2 className="mb-4 text-xl font-bold text-gray-800">Subscribers per Plan</h2>
               <div className="space-y-4 pt-2">
@@ -184,12 +249,12 @@ export default async function SuperAdminDashboard() {
                       <span className="text-gray-500 font-bold">{plan._count.subscriptions} subscribers</span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-indigo-600 rounded-full"
-                        style={{ 
-                          width: `${activeSubscriptionsCount > 0 
-                            ? (plan._count.subscriptions / activeSubscriptionsCount) * 100 
-                            : 0}%` 
+                        style={{
+                          width: `${activeSubscriptionsCount > 0
+                            ? (plan._count.subscriptions / activeSubscriptionsCount) * 100
+                            : 0}%`
                         }}
                       />
                     </div>
@@ -203,7 +268,6 @@ export default async function SuperAdminDashboard() {
                 Manage Plans
               </Link>
             </div>
-          </div>
         </section>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -215,8 +279,8 @@ export default async function SuperAdminDashboard() {
                 View all <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+
+            <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -276,15 +340,15 @@ export default async function SuperAdminDashboard() {
   );
 }
 
-function StatCard({ 
-  title, 
+function StatCard({
+  title,
   value,
   subtitle,
-  icon, 
+  icon,
   gradient
-}: { 
-  title: string; 
-  value: string; 
+}: {
+  title: string;
+  value: string;
   subtitle?: string;
   icon: React.ReactNode;
   gradient: string;

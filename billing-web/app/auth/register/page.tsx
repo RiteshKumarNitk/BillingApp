@@ -47,7 +47,7 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      setSuccess('Registration successful! Redirecting to login...');
+      setSuccess('Registration successful! Your account is pending admin approval. Redirecting to login...');
       setTimeout(() => router.push('/auth/login'), 1500);
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration');
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN (Optional)</label>
                       <input type="text" name="gstin" value={formData.gstin} onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 uppercase"
                         placeholder="22AAAAA0000A1Z5" />

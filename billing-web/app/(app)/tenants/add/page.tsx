@@ -3,13 +3,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createTenant } from '@/lib/actions/tenants';
-import { ArrowLeft, Building2, User, Key, CreditCard, Globe, Clock, Briefcase, IndianRupee } from 'lucide-react';
+import { validateCouponByPlanName } from '@/lib/actions/subscription';
+import { ArrowLeft, Building2, User, Key, CreditCard, Globe, Clock, Briefcase, IndianRupee, Tag, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/Toast';
 import ImageUpload from './ImageUpload';
 
 export default function AddTenantPage() {
   const router = useRouter();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponResult, setCouponResult] = useState<{ discountAmount: number, finalAmount: number, originalAmount: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Form State
@@ -28,12 +33,34 @@ export default function AddTenantPage() {
     timezone: 'Asia/Kolkata',
     profilePictureUrl: '',
     jobTitle: '',
-    aadharCardUrl: ''
+    aadharCardUrl: '',
+    discountCode: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'subscriptionPlan' || name === 'discountCode') {
+      setCouponResult(null); // reset coupon result if plan or code changes
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!formData.discountCode || !formData.discountCode.trim()) {
+      addToast('error', 'Please enter a discount code first');
+      return;
+    }
+    setValidatingCoupon(true);
+    try {
+      const res = await validateCouponByPlanName(formData.discountCode, formData.subscriptionPlan);
+      setCouponResult(res);
+      addToast('success', 'Coupon applied successfully!');
+    } catch (err: any) {
+      addToast('error', err.message || 'Invalid coupon');
+      setCouponResult(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +70,10 @@ export default function AddTenantPage() {
 
     try {
       await createTenant(formData);
-      router.push('/tenants');
+      addToast('success', `Tenant ${formData.name} created successfully!`);
+      setTimeout(() => {
+        router.push('/tenants');
+      }, 1500);
     } catch (err: any) {
       setError(err.message || 'Failed to create tenant');
       setLoading(false);
@@ -295,20 +325,58 @@ export default function AddTenantPage() {
               <h2 className="text-lg font-semibold text-gray-900">Subscription & Billing</h2>
             </div>
             
-            <div className="max-w-md">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Plan Tier *</label>
-              <select
-                name="subscriptionPlan"
-                required
-                value={formData.subscriptionPlan}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all bg-white text-gray-900"
-              >
-                <option value="FREE">Free Tier (Limited features)</option>
-                <option value="BASIC">Basic Plan (Standard business)</option>
-                <option value="PREMIUM">Premium Plan (Unlimited access)</option>
-                <option value="ENTERPRISE">Enterprise Plan (Custom solutions)</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Plan Tier *</label>
+                <select
+                  name="subscriptionPlan"
+                  required
+                  value={formData.subscriptionPlan}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all bg-white text-gray-900"
+                >
+                  <option value="FREE">Free Tier (Limited features)</option>
+                  <option value="BASIC">Basic Plan (Standard business)</option>
+                  <option value="PREMIUM">Premium Plan (Unlimited access)</option>
+                  <option value="ENTERPRISE">Enterprise Plan (Custom solutions)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Discount Code</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    name="discountCode"
+                    value={formData.discountCode || ''}
+                    onChange={handleChange}
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900 uppercase"
+                    placeholder="e.g. SAVE20"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={validatingCoupon || !formData.discountCode}
+                    className="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold rounded-lg text-sm transition-colors disabled:opacity-50"
+                  >
+                    {validatingCoupon ? 'Checking...' : 'Apply'}
+                  </button>
+                </div>
+                {couponResult && (
+                  <div className="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-lg flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-emerald-800">Discount Applied Successfully</p>
+                      <p className="text-xs text-emerald-600 mt-1">
+                        Original: ₹{couponResult.originalAmount} | Discount: -₹{couponResult.discountAmount}
+                      </p>
+                      <p className="text-sm font-bold text-emerald-900 mt-1">
+                        Final Amount: ₹{couponResult.finalAmount}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

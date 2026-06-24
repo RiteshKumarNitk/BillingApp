@@ -7,6 +7,10 @@ import {
   applyCoupon 
 } from "@/lib/actions/subscription";
 import { 
+  calculateProration, 
+  changeSubscriptionPlan 
+} from "@/lib/actions/proration";
+import { 
   CreditCard, 
   Check, 
   Users, 
@@ -57,6 +61,11 @@ export default function BillingClient({
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+
+  // Proration states
+  const [prorationDetails, setProrationDetails] = useState<any | null>(null);
+  const [showProrationModal, setShowProrationModal] = useState(false);
+  const [prorationLoading, setProrationLoading] = useState(false);
 
   // Active Plan features
   const currentPlanName = tenant.subscriptionPlan || "FREE";
@@ -112,6 +121,38 @@ export default function BillingClient({
       alert(e.message || "Checkout failed");
     } finally {
       setCheckoutLoading(null);
+    }
+  };
+
+  const handleUpgradeClick = async (planId: string) => {
+    if (!activeSub) {
+      handleCheckout(planId);
+      return;
+    }
+    
+    setCheckoutLoading(planId);
+    try {
+      const details = await calculateProration(tenant.id, planId);
+      setProrationDetails({ ...details, planId });
+      setShowProrationModal(true);
+    } catch (e: any) {
+      alert(e.message || "Failed to calculate upgrade costs");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
+
+  const handleConfirmUpgrade = async () => {
+    if (!prorationDetails) return;
+    setProrationLoading(true);
+    try {
+      await changeSubscriptionPlan(tenant.id, prorationDetails.planId);
+      setShowProrationModal(false);
+      window.location.reload();
+    } catch (e: any) {
+      alert(e.message || "Failed to complete upgrade");
+    } finally {
+      setProrationLoading(false);
     }
   };
 
@@ -444,9 +485,9 @@ export default function BillingClient({
                         onClick={() => {
                           // Apply coupon to this plan first if they clicked checkout
                           if (couponCode.trim() && selectedPlanForCoupon !== plan.id && !isFree) {
-                            handleApplyCoupon(plan.id).then(() => handleCheckout(plan.id));
+                            handleApplyCoupon(plan.id).then(() => handleUpgradeClick(plan.id));
                           } else {
-                            handleCheckout(plan.id);
+                            handleUpgradeClick(plan.id);
                           }
                         }}
                         disabled={checkoutLoading !== null}
@@ -654,6 +695,50 @@ export default function BillingClient({
                 className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-xs font-semibold cursor-pointer"
               >
                 Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Proration / Upgrade Modal */}
+      {showProrationModal && prorationDetails && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full border border-gray-100 p-6 space-y-4 shadow-xl animate-scale-up">
+            <h3 className="text-xl font-bold text-gray-900">Confirm Plan Change</h3>
+            <p className="text-sm text-gray-500">
+              You are about to change your subscription plan. We have calculated the prorated difference.
+            </p>
+
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-2 mt-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">New Plan Amount:</span>
+                <span className="font-semibold">₹{prorationDetails.newPlanAmount.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-indigo-600">
+                <span>Credit for Unused Time ({prorationDetails.daysRemaining} days):</span>
+                <span>- ₹{prorationDetails.unusedValue.toLocaleString()}</span>
+              </div>
+              <div className="pt-2 border-t border-gray-200 flex justify-between font-bold text-gray-900">
+                <span>Total Due Today:</span>
+                <span>₹{prorationDetails.proratedAmount.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 gap-3">
+              <button
+                onClick={() => setShowProrationModal(false)}
+                disabled={prorationLoading}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-950 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUpgrade}
+                disabled={prorationLoading}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 cursor-pointer disabled:opacity-50"
+              >
+                {prorationLoading ? "Processing..." : "Confirm & Pay"}
               </button>
             </div>
           </div>

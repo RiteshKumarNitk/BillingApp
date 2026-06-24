@@ -17,9 +17,9 @@ model Tenant {
   status             String         @default("ACTIVE")
   address            String?
   contactPerson      String?
-  email              String?
+  email              String?        @unique
   gstin              String?
-  phone              String?
+  phone              String?        @unique
   subscriptionPlan   String         @default("FREE")
   menuTheme          String?
   currency           String         @default("INR")
@@ -28,6 +28,8 @@ model Tenant {
   website            String?
   aadharCardUrl      String?
   version            Int            @default(0)
+  primaryColor       String?
+  fontFamily         String?
   latitude           Float?
   longitude          Float?
   customers          Customer[]
@@ -414,8 +416,10 @@ model Invoice {
   razorpaySignature  String?
   couponId           String?
   pdfUrl             String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  failedPaymentAttempts Int         @default(0)
+  nextRetryDate      DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
   tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   subscription       TenantSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)

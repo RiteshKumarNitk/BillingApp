@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import razorpayClient, { isSimulationMode } from "@/lib/razorpay";
 import { revalidatePath } from "next/cache";
+import { sendEmail, EmailTemplates } from "@/lib/mail";
 
 // Ensure the caller is authenticated
 async function requireAuth() {
@@ -279,6 +280,95 @@ export async function applyCoupon(code: string, planId: string) {
   };
 }
 
+export async function validateCouponByPlanName(code: string, planName: string) {
+  await requireSuperAdmin();
+
+  const plan = await prisma.subscriptionPlan.findFirst({
+    where: { name: planName }
+  });
+  if (!plan) throw new Error("Plan not found");
+
+  const coupon = await prisma.coupon.findUnique({
+    where: { code: code.trim().toUpperCase() }
+  });
+
+  if (!coupon || !coupon.isActive) {
+    throw new Error("Invalid or inactive coupon code");
+  }
+
+  if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+    throw new Error("Coupon has expired");
+  }
+
+  if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
+    throw new Error("Coupon redemption limit reached");
+  }
+
+  let discountAmount = 0;
+  if (coupon.discountType === "PERCENTAGE") {
+    discountAmount = (plan.amount * coupon.discountValue) / 100;
+  } else {
+    discountAmount = coupon.discountValue;
+  }
+
+  const finalAmount = Math.max(0, plan.amount - discountAmount);
+
+  return {
+    valid: true,
+    discountAmount,
+    finalAmount,
+    originalAmount: plan.amount,
+    code: coupon.code
+  };
+}
+
+export async function markInvoiceAsPaid(invoiceId: string, paymentMethod: string = 'Manual Transfer') {
+  await requireSuperAdmin();
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { 
+      subscription: true,
+      tenant: true
+    }
+  });
+
+  if (!invoice) throw new Error("Invoice not found");
+  if (invoice.status === 'PAID') throw new Error("Invoice is already paid");
+
+  await prisma.$transaction(async (tx) => {
+    // 1. Mark invoice as paid
+    await tx.invoice.update({
+      where: { id: invoiceId },
+      data: {
+        status: 'PAID',
+        paidAt: new Date(),
+        // We can optionally store payment method if there was a field, but for now we just mark status
+      }
+    });
+
+    // 2. If it is linked to an UNPAID or PAST_DUE subscription, mark it ACTIVE
+    if (invoice.subscriptionId && ['UNPAID', 'PAST_DUE', 'PENDING'].includes(invoice.subscription?.status || '')) {
+      await tx.tenantSubscription.update({
+        where: { id: invoice.subscriptionId },
+        data: { status: 'ACTIVE' }
+      });
+    }
+  });
+
+  // Send Email Notification
+  if (invoice.tenant.email) {
+    await sendEmail({
+      to: invoice.tenant.email,
+      subject: `Payment Received - Invoice #${invoice.invoiceNumber}`,
+      html: EmailTemplates.InvoicePaid(invoice.tenant.name, invoice.invoiceNumber, invoice.netAmount)
+    });
+  }
+
+  revalidatePath('/tenants');
+  return true;
+}
+
 // Super Admin actions for managing plans
 export async function createSubscriptionPlan(data: any) {
   await requireSuperAdmin();
@@ -325,6 +415,26 @@ export async function updateSubscriptionPlan(id: string, data: any) {
 
   revalidatePath("/admin/plans");
   return plan;
+}
+
+export async function deleteSubscriptionPlan(id: string) {
+  await requireSuperAdmin();
+  
+  // Verify if it's safe to delete (e.g. no active subscriptions)
+  const activeSubs = await prisma.tenantSubscription.count({
+    where: { planId: id, status: { in: ["ACTIVE", "TRIAL"] } }
+  });
+
+  if (activeSubs > 0) {
+    throw new Error("Cannot delete plan. There are active subscriptions using this plan.");
+  }
+
+  await prisma.subscriptionPlan.delete({
+    where: { id }
+  });
+
+  revalidatePath("/admin/plans");
+  return true;
 }
 
 // Super Admin actions for managing coupons

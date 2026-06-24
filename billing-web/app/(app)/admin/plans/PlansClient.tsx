@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createSubscriptionPlan, updateSubscriptionPlan } from "@/lib/actions/subscription";
+import { createSubscriptionPlan, updateSubscriptionPlan, deleteSubscriptionPlan } from "@/lib/actions/subscription";
 import { Plus, Edit2, ShieldAlert, Check, X } from "lucide-react";
 
 type PlansClientProps = {
@@ -87,6 +87,17 @@ export default function PlansClient({ plans }: PlansClientProps) {
     }
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete the plan "${name}"? This cannot be undone.`)) return;
+    
+    try {
+      await deleteSubscriptionPlan(id);
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message || "Failed to delete plan");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top action */}
@@ -151,6 +162,12 @@ export default function PlansClient({ plans }: PlansClientProps) {
                 className="w-full py-2 bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Edit2 className="w-3.5 h-3.5" /> Edit Configuration
+              </button>
+              <button
+                onClick={() => handleDelete(plan.id, plan.name)}
+                className="w-full py-2 bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" /> Delete Plan
               </button>
             </div>
           </div>

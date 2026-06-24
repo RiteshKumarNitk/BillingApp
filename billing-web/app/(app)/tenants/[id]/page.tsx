@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import TenantStatusToggle from './TenantStatusToggle';
+import InvoiceActions from './InvoiceActions';
 
 export default async function TenantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: tenantId } = await params;
@@ -15,6 +16,14 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           products: true,
           transactions: true
         }
+      },
+      invoices: {
+        orderBy: { createdAt: 'desc' },
+        include: { coupon: true }
+      },
+      subscriptions: {
+        orderBy: { createdAt: 'desc' },
+        include: { plan: true }
       }
     }
   });
@@ -149,6 +158,95 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
             <div className="text-xs sm:text-sm text-gray-500">Transactions</div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 bg-white shadow rounded-lg p-4 sm:p-6 overflow-hidden">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Billing Receipts & Invoices</h2>
+        {tenant.invoices && tenant.invoices.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice No.</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tenant.invoices.map((inv) => (
+                  <tr key={inv.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{inv.invoiceNumber}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(inv.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{inv.amount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {inv.discountAmount > 0 ? (
+                        <span className="text-emerald-600 font-medium">-₹{inv.discountAmount} {inv.coupon?.code ? `(${inv.coupon.code})` : ''}</span>
+                      ) : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">₹{inv.netAmount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        inv.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {inv.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <InvoiceActions invoiceId={inv.id} status={inv.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">No invoices or receipts generated yet.</p>
+        )}
+      </div>
+
+      <div className="mt-6 bg-white shadow rounded-lg p-4 sm:p-6 overflow-hidden">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Services History</h2>
+        {tenant.subscriptions && tenant.subscriptions.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interval</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tenant.subscriptions.map((sub) => (
+                  <tr key={sub.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{sub.plan.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{sub.plan.interval}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(sub.startDate).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(sub.endDate).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        sub.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                        sub.status === 'TRIAL' ? 'bg-blue-100 text-blue-800' :
+                        sub.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {sub.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">No service subscriptions found.</p>
+        )}
       </div>
     </div>
   );

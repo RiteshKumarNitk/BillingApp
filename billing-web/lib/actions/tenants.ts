@@ -6,6 +6,24 @@ import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 
+export async function updateBranding(data: { primaryColor: string; fontFamily: string }) {
+  const session = await getServerSession(authOptions);
+  if (!session) throw new Error("Unauthorized");
+
+  const tenantId = session.user.tenantId;
+
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: {
+      primaryColor: data.primaryColor,
+      fontFamily: data.fontFamily,
+    }
+  });
+
+  revalidatePath("/settings/branding");
+  return true;
+}
+
 async function requireSuperAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'SUPERADMIN') {
@@ -20,6 +38,30 @@ export async function createTenant(data: any) {
   // Validate basic data
   if (!data.name || !data.email || !data.password) {
     throw new Error("Missing required fields (name, email, password)");
+  }
+
+  // Check if email or phone already exists
+  if (data.email) {
+    const existingEmail = await prisma.tenant.findFirst({ where: { email: data.email } });
+    if (existingEmail) {
+      throw new Error("A tenant with this email already exists.");
+    }
+  }
+  if (data.phone) {
+    const existingPhone = await prisma.tenant.findFirst({ where: { phone: data.phone } });
+    if (existingPhone) {
+      throw new Error("A tenant with this phone number already exists.");
+    }
+  }
+
+  // Fetch the selected subscription plan
+  const planName = data.subscriptionPlan || 'FREE';
+  const selectedPlan = await prisma.subscriptionPlan.findFirst({
+    where: { name: planName }
+  });
+  
+  if (!selectedPlan) {
+    throw new Error(`Invalid subscription plan selected: ${planName}`);
   }
 
   // Generate unique domain
@@ -54,7 +96,7 @@ export async function createTenant(data: any) {
     phone: data.phone || null,
     address: data.address || null,
     gstin: data.gstin || null,
-    subscriptionPlan: data.subscriptionPlan || 'FREE',
+    subscriptionPlan: selectedPlan.name,
     logoUrl: data.logoUrl || null,
     website: data.website || null,
     currency: data.currency || 'INR',
@@ -63,6 +105,95 @@ export async function createTenant(data: any) {
   };
 
   const tenant = await prisma.tenant.create({ data: tenantCreateData });
+
+  // Create initial subscription for the new tenant
+  const startDate = new Date();
+  let endDate = new Date();
+  let status = "ACTIVE";
+  
+  if (selectedPlan.interval === 'YEARLY') {
+    endDate.setFullYear(endDate.getFullYear() + 1);
+  } else {
+    endDate.setMonth(endDate.getMonth() + 1);
+  }
+  
+  if (selectedPlan.amount > 0) {
+    if (selectedPlan.trialDays > 0) {
+      status = "TRIAL";
+      endDate = new Date();
+      endDate.setDate(endDate.getDate() + selectedPlan.trialDays);
+    } else {
+      status = "UNPAID";
+    }
+  }
+
+  // Process Discount Code if provided
+  let coupon = null;
+  let discountAmount = 0;
+  let netAmount = selectedPlan.amount;
+
+  if (data.discountCode && data.discountCode.trim() !== '') {
+    coupon = await prisma.coupon.findUnique({
+      where: { code: data.discountCode.trim().toUpperCase() }
+    });
+    
+    if (!coupon || !coupon.isActive) {
+      throw new Error("Invalid or inactive discount code.");
+    }
+    if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+      throw new Error("Discount code has expired.");
+    }
+    if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
+      throw new Error("Discount code redemption limit reached.");
+    }
+
+    if (coupon.discountType === "PERCENTAGE") {
+      discountAmount = (selectedPlan.amount * coupon.discountValue) / 100;
+    } else {
+      discountAmount = coupon.discountValue;
+    }
+    netAmount = Math.max(0, selectedPlan.amount - discountAmount);
+    
+    if (netAmount === 0 && selectedPlan.amount > 0) {
+      status = "ACTIVE"; // Fully discounted to 0
+    }
+  }
+
+  const subscription = await prisma.tenantSubscription.create({
+    data: {
+      tenantId: tenant.id,
+      planId: selectedPlan.id,
+      status: status,
+      startDate: startDate,
+      endDate: endDate,
+      ...(status === 'TRIAL' ? { trialStartDate: startDate, trialEndDate: endDate } : {})
+    }
+  });
+
+  // Create an initial invoice if there is a plan amount or discount applied
+  if (selectedPlan.amount > 0 || coupon) {
+    await prisma.invoice.create({
+      data: {
+        tenantId: tenant.id,
+        subscriptionId: subscription.id,
+        invoiceNumber: `INV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`,
+        amount: selectedPlan.amount,
+        discountAmount: discountAmount,
+        netAmount: netAmount,
+        currency: selectedPlan.currency || 'INR',
+        status: netAmount === 0 ? "PAID" : "PENDING",
+        couponId: coupon?.id,
+        ...(netAmount === 0 ? { paidAt: new Date() } : {})
+      }
+    });
+
+    if (coupon) {
+      await prisma.coupon.update({
+        where: { id: coupon.id },
+        data: { redemptions: { increment: 1 } }
+      });
+    }
+  }
 
   // Create default roles
   let ownerRoleId = null;

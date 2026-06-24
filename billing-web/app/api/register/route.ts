@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
           name: tenantName,
           domain,
           dbConnectionString: '',
-          status: 'ACTIVE',
+          status: 'PENDING',
           contactPerson: name,
           email,
           phone: phone || null,

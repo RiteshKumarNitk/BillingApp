@@ -3424,6 +3424,8 @@ export namespace Prisma {
     website: string | null
     aadharCardUrl: string | null
     version: number | null
+    primaryColor: string | null
+    fontFamily: string | null
     latitude: number | null
     longitude: number | null
   }
@@ -3449,6 +3451,8 @@ export namespace Prisma {
     website: string | null
     aadharCardUrl: string | null
     version: number | null
+    primaryColor: string | null
+    fontFamily: string | null
     latitude: number | null
     longitude: number | null
   }
@@ -3474,6 +3478,8 @@ export namespace Prisma {
     website: number
     aadharCardUrl: number
     version: number
+    primaryColor: number
+    fontFamily: number
     latitude: number
     longitude: number
     _all: number
@@ -3513,6 +3519,8 @@ export namespace Prisma {
     website?: true
     aadharCardUrl?: true
     version?: true
+    primaryColor?: true
+    fontFamily?: true
     latitude?: true
     longitude?: true
   }
@@ -3538,6 +3546,8 @@ export namespace Prisma {
     website?: true
     aadharCardUrl?: true
     version?: true
+    primaryColor?: true
+    fontFamily?: true
     latitude?: true
     longitude?: true
   }
@@ -3563,6 +3573,8 @@ export namespace Prisma {
     website?: true
     aadharCardUrl?: true
     version?: true
+    primaryColor?: true
+    fontFamily?: true
     latitude?: true
     longitude?: true
     _all?: true
@@ -3675,6 +3687,8 @@ export namespace Prisma {
     website: string | null
     aadharCardUrl: string | null
     version: number
+    primaryColor: string | null
+    fontFamily: string | null
     latitude: number | null
     longitude: number | null
     _count: TenantCountAggregateOutputType | null
@@ -3719,6 +3733,8 @@ export namespace Prisma {
     website?: boolean
     aadharCardUrl?: boolean
     version?: boolean
+    primaryColor?: boolean
+    fontFamily?: boolean
     latitude?: boolean
     longitude?: boolean
     customers?: boolean | Tenant$customersArgs<ExtArgs>
@@ -3759,6 +3775,8 @@ export namespace Prisma {
     website?: boolean
     aadharCardUrl?: boolean
     version?: boolean
+    primaryColor?: boolean
+    fontFamily?: boolean
     latitude?: boolean
     longitude?: boolean
   }, ExtArgs["result"]["tenant"]>
@@ -3784,6 +3802,8 @@ export namespace Prisma {
     website?: boolean
     aadharCardUrl?: boolean
     version?: boolean
+    primaryColor?: boolean
+    fontFamily?: boolean
     latitude?: boolean
     longitude?: boolean
   }, ExtArgs["result"]["tenant"]>
@@ -3809,11 +3829,13 @@ export namespace Prisma {
     website?: boolean
     aadharCardUrl?: boolean
     version?: boolean
+    primaryColor?: boolean
+    fontFamily?: boolean
     latitude?: boolean
     longitude?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "createdAt" | "updatedAt" | "status" | "address" | "contactPerson" | "email" | "gstin" | "phone" | "subscriptionPlan" | "menuTheme" | "currency" | "logoUrl" | "timezone" | "website" | "aadharCardUrl" | "version" | "latitude" | "longitude", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "domain" | "dbConnectionString" | "createdAt" | "updatedAt" | "status" | "address" | "contactPerson" | "email" | "gstin" | "phone" | "subscriptionPlan" | "menuTheme" | "currency" | "logoUrl" | "timezone" | "website" | "aadharCardUrl" | "version" | "primaryColor" | "fontFamily" | "latitude" | "longitude", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customers?: boolean | Tenant$customersArgs<ExtArgs>
     discounts?: boolean | Tenant$discountsArgs<ExtArgs>
@@ -3873,6 +3895,8 @@ export namespace Prisma {
       website: string | null
       aadharCardUrl: string | null
       version: number
+      primaryColor: string | null
+      fontFamily: string | null
       latitude: number | null
       longitude: number | null
     }, ExtArgs["result"]["tenant"]>
@@ -4332,6 +4356,8 @@ export namespace Prisma {
     readonly website: FieldRef<"Tenant", 'String'>
     readonly aadharCardUrl: FieldRef<"Tenant", 'String'>
     readonly version: FieldRef<"Tenant", 'Int'>
+    readonly primaryColor: FieldRef<"Tenant", 'String'>
+    readonly fontFamily: FieldRef<"Tenant", 'String'>
     readonly latitude: FieldRef<"Tenant", 'Float'>
     readonly longitude: FieldRef<"Tenant", 'Float'>
   }
@@ -29175,12 +29201,14 @@ export namespace Prisma {
     amount: number | null
     discountAmount: number | null
     netAmount: number | null
+    failedPaymentAttempts: number | null
   }
 
   export type InvoiceSumAggregateOutputType = {
     amount: number | null
     discountAmount: number | null
     netAmount: number | null
+    failedPaymentAttempts: number | null
   }
 
   export type InvoiceMinAggregateOutputType = {
@@ -29201,6 +29229,8 @@ export namespace Prisma {
     razorpaySignature: string | null
     couponId: string | null
     pdfUrl: string | null
+    failedPaymentAttempts: number | null
+    nextRetryDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -29223,6 +29253,8 @@ export namespace Prisma {
     razorpaySignature: string | null
     couponId: string | null
     pdfUrl: string | null
+    failedPaymentAttempts: number | null
+    nextRetryDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -29245,6 +29277,8 @@ export namespace Prisma {
     razorpaySignature: number
     couponId: number
     pdfUrl: number
+    failedPaymentAttempts: number
+    nextRetryDate: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -29255,12 +29289,14 @@ export namespace Prisma {
     amount?: true
     discountAmount?: true
     netAmount?: true
+    failedPaymentAttempts?: true
   }
 
   export type InvoiceSumAggregateInputType = {
     amount?: true
     discountAmount?: true
     netAmount?: true
+    failedPaymentAttempts?: true
   }
 
   export type InvoiceMinAggregateInputType = {
@@ -29281,6 +29317,8 @@ export namespace Prisma {
     razorpaySignature?: true
     couponId?: true
     pdfUrl?: true
+    failedPaymentAttempts?: true
+    nextRetryDate?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -29303,6 +29341,8 @@ export namespace Prisma {
     razorpaySignature?: true
     couponId?: true
     pdfUrl?: true
+    failedPaymentAttempts?: true
+    nextRetryDate?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -29325,6 +29365,8 @@ export namespace Prisma {
     razorpaySignature?: true
     couponId?: true
     pdfUrl?: true
+    failedPaymentAttempts?: true
+    nextRetryDate?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -29434,6 +29476,8 @@ export namespace Prisma {
     razorpaySignature: string | null
     couponId: string | null
     pdfUrl: string | null
+    failedPaymentAttempts: number
+    nextRetryDate: Date | null
     createdAt: Date
     updatedAt: Date
     _count: InvoiceCountAggregateOutputType | null
@@ -29475,6 +29519,8 @@ export namespace Prisma {
     razorpaySignature?: boolean
     couponId?: boolean
     pdfUrl?: boolean
+    failedPaymentAttempts?: boolean
+    nextRetryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -29500,6 +29546,8 @@ export namespace Prisma {
     razorpaySignature?: boolean
     couponId?: boolean
     pdfUrl?: boolean
+    failedPaymentAttempts?: boolean
+    nextRetryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -29525,6 +29573,8 @@ export namespace Prisma {
     razorpaySignature?: boolean
     couponId?: boolean
     pdfUrl?: boolean
+    failedPaymentAttempts?: boolean
+    nextRetryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -29550,11 +29600,13 @@ export namespace Prisma {
     razorpaySignature?: boolean
     couponId?: boolean
     pdfUrl?: boolean
+    failedPaymentAttempts?: boolean
+    nextRetryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "subscriptionId" | "invoiceNumber" | "amount" | "discountAmount" | "netAmount" | "currency" | "status" | "billingDate" | "dueDate" | "paidAt" | "razorpayPaymentId" | "razorpayOrderId" | "razorpaySignature" | "couponId" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "subscriptionId" | "invoiceNumber" | "amount" | "discountAmount" | "netAmount" | "currency" | "status" | "billingDate" | "dueDate" | "paidAt" | "razorpayPaymentId" | "razorpayOrderId" | "razorpaySignature" | "couponId" | "pdfUrl" | "failedPaymentAttempts" | "nextRetryDate" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
   export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     subscription?: boolean | Invoice$subscriptionArgs<ExtArgs>
@@ -29596,6 +29648,8 @@ export namespace Prisma {
       razorpaySignature: string | null
       couponId: string | null
       pdfUrl: string | null
+      failedPaymentAttempts: number
+      nextRetryDate: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["invoice"]>
@@ -30041,6 +30095,8 @@ export namespace Prisma {
     readonly razorpaySignature: FieldRef<"Invoice", 'String'>
     readonly couponId: FieldRef<"Invoice", 'String'>
     readonly pdfUrl: FieldRef<"Invoice", 'String'>
+    readonly failedPaymentAttempts: FieldRef<"Invoice", 'Int'>
+    readonly nextRetryDate: FieldRef<"Invoice", 'DateTime'>
     readonly createdAt: FieldRef<"Invoice", 'DateTime'>
     readonly updatedAt: FieldRef<"Invoice", 'DateTime'>
   }
@@ -31670,6 +31726,8 @@ export namespace Prisma {
     website: 'website',
     aadharCardUrl: 'aadharCardUrl',
     version: 'version',
+    primaryColor: 'primaryColor',
+    fontFamily: 'fontFamily',
     latitude: 'latitude',
     longitude: 'longitude'
   };
@@ -32034,6 +32092,8 @@ export namespace Prisma {
     razorpaySignature: 'razorpaySignature',
     couponId: 'couponId',
     pdfUrl: 'pdfUrl',
+    failedPaymentAttempts: 'failedPaymentAttempts',
+    nextRetryDate: 'nextRetryDate',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -32173,6 +32233,8 @@ export namespace Prisma {
     website?: StringNullableFilter<"Tenant"> | string | null
     aadharCardUrl?: StringNullableFilter<"Tenant"> | string | null
     version?: IntFilter<"Tenant"> | number
+    primaryColor?: StringNullableFilter<"Tenant"> | string | null
+    fontFamily?: StringNullableFilter<"Tenant"> | string | null
     latitude?: FloatNullableFilter<"Tenant"> | number | null
     longitude?: FloatNullableFilter<"Tenant"> | number | null
     customers?: CustomerListRelationFilter
@@ -32212,6 +32274,8 @@ export namespace Prisma {
     website?: SortOrderInput | SortOrder
     aadharCardUrl?: SortOrderInput | SortOrder
     version?: SortOrder
+    primaryColor?: SortOrderInput | SortOrder
+    fontFamily?: SortOrderInput | SortOrder
     latitude?: SortOrderInput | SortOrder
     longitude?: SortOrderInput | SortOrder
     customers?: CustomerOrderByRelationAggregateInput
@@ -32233,6 +32297,8 @@ export namespace Prisma {
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     domain?: string
+    email?: string
+    phone?: string
     AND?: TenantWhereInput | TenantWhereInput[]
     OR?: TenantWhereInput[]
     NOT?: TenantWhereInput | TenantWhereInput[]
@@ -32243,9 +32309,7 @@ export namespace Prisma {
     status?: StringFilter<"Tenant"> | string
     address?: StringNullableFilter<"Tenant"> | string | null
     contactPerson?: StringNullableFilter<"Tenant"> | string | null
-    email?: StringNullableFilter<"Tenant"> | string | null
     gstin?: StringNullableFilter<"Tenant"> | string | null
-    phone?: StringNullableFilter<"Tenant"> | string | null
     subscriptionPlan?: StringFilter<"Tenant"> | string
     menuTheme?: StringNullableFilter<"Tenant"> | string | null
     currency?: StringFilter<"Tenant"> | string
@@ -32254,6 +32318,8 @@ export namespace Prisma {
     website?: StringNullableFilter<"Tenant"> | string | null
     aadharCardUrl?: StringNullableFilter<"Tenant"> | string | null
     version?: IntFilter<"Tenant"> | number
+    primaryColor?: StringNullableFilter<"Tenant"> | string | null
+    fontFamily?: StringNullableFilter<"Tenant"> | string | null
     latitude?: FloatNullableFilter<"Tenant"> | number | null
     longitude?: FloatNullableFilter<"Tenant"> | number | null
     customers?: CustomerListRelationFilter
@@ -32270,7 +32336,7 @@ export namespace Prisma {
     subscriptions?: TenantSubscriptionListRelationFilter
     invoices?: InvoiceListRelationFilter
     auditLogs?: AuditLogListRelationFilter
-  }, "id" | "domain">
+  }, "id" | "domain" | "email" | "phone">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
@@ -32293,6 +32359,8 @@ export namespace Prisma {
     website?: SortOrderInput | SortOrder
     aadharCardUrl?: SortOrderInput | SortOrder
     version?: SortOrder
+    primaryColor?: SortOrderInput | SortOrder
+    fontFamily?: SortOrderInput | SortOrder
     latitude?: SortOrderInput | SortOrder
     longitude?: SortOrderInput | SortOrder
     _count?: TenantCountOrderByAggregateInput
@@ -32326,6 +32394,8 @@ export namespace Prisma {
     website?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     aadharCardUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     version?: IntWithAggregatesFilter<"Tenant"> | number
+    primaryColor?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    fontFamily?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     latitude?: FloatNullableWithAggregatesFilter<"Tenant"> | number | null
     longitude?: FloatNullableWithAggregatesFilter<"Tenant"> | number | null
   }
@@ -34152,6 +34222,8 @@ export namespace Prisma {
     razorpaySignature?: StringNullableFilter<"Invoice"> | string | null
     couponId?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    failedPaymentAttempts?: IntFilter<"Invoice"> | number
+    nextRetryDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     createdAt?: DateTimeFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeFilter<"Invoice"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -34177,6 +34249,8 @@ export namespace Prisma {
     razorpaySignature?: SortOrderInput | SortOrder
     couponId?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
+    failedPaymentAttempts?: SortOrder
+    nextRetryDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
@@ -34205,6 +34279,8 @@ export namespace Prisma {
     razorpaySignature?: StringNullableFilter<"Invoice"> | string | null
     couponId?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    failedPaymentAttempts?: IntFilter<"Invoice"> | number
+    nextRetryDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     createdAt?: DateTimeFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeFilter<"Invoice"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -34230,6 +34306,8 @@ export namespace Prisma {
     razorpaySignature?: SortOrderInput | SortOrder
     couponId?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
+    failedPaymentAttempts?: SortOrder
+    nextRetryDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: InvoiceCountOrderByAggregateInput
@@ -34260,6 +34338,8 @@ export namespace Prisma {
     razorpaySignature?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     couponId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
+    failedPaymentAttempts?: IntWithAggregatesFilter<"Invoice"> | number
+    nextRetryDate?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
   }
@@ -34353,6 +34433,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -34392,6 +34474,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -34431,6 +34515,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -34470,6 +34556,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -34509,6 +34597,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
   }
@@ -34534,6 +34624,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
   }
@@ -34559,6 +34651,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
   }
@@ -36573,6 +36667,8 @@ export namespace Prisma {
     razorpayOrderId?: string | null
     razorpaySignature?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutInvoicesInput
@@ -36598,6 +36694,8 @@ export namespace Prisma {
     razorpaySignature?: string | null
     couponId?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36617,6 +36715,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutInvoicesNestedInput
@@ -36642,6 +36742,8 @@ export namespace Prisma {
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36664,6 +36766,8 @@ export namespace Prisma {
     razorpaySignature?: string | null
     couponId?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36683,6 +36787,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36705,6 +36811,8 @@ export namespace Prisma {
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37001,6 +37109,8 @@ export namespace Prisma {
     website?: SortOrder
     aadharCardUrl?: SortOrder
     version?: SortOrder
+    primaryColor?: SortOrder
+    fontFamily?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
   }
@@ -37032,6 +37142,8 @@ export namespace Prisma {
     website?: SortOrder
     aadharCardUrl?: SortOrder
     version?: SortOrder
+    primaryColor?: SortOrder
+    fontFamily?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
   }
@@ -37057,6 +37169,8 @@ export namespace Prisma {
     website?: SortOrder
     aadharCardUrl?: SortOrder
     version?: SortOrder
+    primaryColor?: SortOrder
+    fontFamily?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
   }
@@ -38419,6 +38533,8 @@ export namespace Prisma {
     razorpaySignature?: SortOrder
     couponId?: SortOrder
     pdfUrl?: SortOrder
+    failedPaymentAttempts?: SortOrder
+    nextRetryDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38427,6 +38543,7 @@ export namespace Prisma {
     amount?: SortOrder
     discountAmount?: SortOrder
     netAmount?: SortOrder
+    failedPaymentAttempts?: SortOrder
   }
 
   export type InvoiceMaxOrderByAggregateInput = {
@@ -38447,6 +38564,8 @@ export namespace Prisma {
     razorpaySignature?: SortOrder
     couponId?: SortOrder
     pdfUrl?: SortOrder
+    failedPaymentAttempts?: SortOrder
+    nextRetryDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38469,6 +38588,8 @@ export namespace Prisma {
     razorpaySignature?: SortOrder
     couponId?: SortOrder
     pdfUrl?: SortOrder
+    failedPaymentAttempts?: SortOrder
+    nextRetryDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38477,6 +38598,7 @@ export namespace Prisma {
     amount?: SortOrder
     discountAmount?: SortOrder
     netAmount?: SortOrder
+    failedPaymentAttempts?: SortOrder
   }
 
   export type TenantNullableScalarRelationFilter = {
@@ -41047,6 +41169,8 @@ export namespace Prisma {
     razorpayOrderId?: string | null
     razorpaySignature?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     subscription?: TenantSubscriptionCreateNestedOneWithoutInvoicesInput
@@ -41070,6 +41194,8 @@ export namespace Prisma {
     razorpaySignature?: string | null
     couponId?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -41560,6 +41686,8 @@ export namespace Prisma {
     razorpaySignature?: StringNullableFilter<"Invoice"> | string | null
     couponId?: StringNullableFilter<"Invoice"> | string | null
     pdfUrl?: StringNullableFilter<"Invoice"> | string | null
+    failedPaymentAttempts?: IntFilter<"Invoice"> | number
+    nextRetryDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     createdAt?: DateTimeFilter<"Invoice"> | Date | string
     updatedAt?: DateTimeFilter<"Invoice"> | Date | string
   }
@@ -41614,6 +41742,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -41652,6 +41782,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -41750,6 +41882,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -41788,6 +41922,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -41894,6 +42030,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -41932,6 +42070,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -42053,6 +42193,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -42091,6 +42233,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -42174,6 +42318,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -42212,6 +42358,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -42388,6 +42536,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -42426,6 +42576,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -43144,6 +43296,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     discounts?: DiscountCreateNestedManyWithoutTenantInput
@@ -43182,6 +43336,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     discounts?: DiscountUncheckedCreateNestedManyWithoutTenantInput
@@ -43353,6 +43509,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     discounts?: DiscountUpdateManyWithoutTenantNestedInput
@@ -43391,6 +43549,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     discounts?: DiscountUncheckedUpdateManyWithoutTenantNestedInput
@@ -43529,6 +43689,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -43567,6 +43729,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -43731,6 +43895,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -43769,6 +43935,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -43913,6 +44081,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -43951,6 +44121,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -44073,6 +44245,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -44111,6 +44285,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -44229,6 +44405,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -44267,6 +44445,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -44321,6 +44501,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -44359,6 +44541,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -44397,6 +44581,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -44435,6 +44621,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -44489,6 +44677,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -44527,6 +44717,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -44565,6 +44757,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -44603,6 +44797,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -44657,6 +44853,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -44695,6 +44893,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -44733,6 +44933,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -44771,6 +44973,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -44825,6 +45029,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -44863,6 +45069,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -44901,6 +45109,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -44939,6 +45149,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -45072,6 +45284,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -45110,6 +45324,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -45489,6 +45705,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -45527,6 +45745,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -45603,6 +45823,8 @@ export namespace Prisma {
     razorpayOrderId?: string | null
     razorpaySignature?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutInvoicesInput
@@ -45626,6 +45848,8 @@ export namespace Prisma {
     razorpaySignature?: string | null
     couponId?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -45672,6 +45896,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -45710,6 +45936,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -45803,6 +46031,8 @@ export namespace Prisma {
     razorpayOrderId?: string | null
     razorpaySignature?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutInvoicesInput
@@ -45826,6 +46056,8 @@ export namespace Prisma {
     razorpayOrderId?: string | null
     razorpaySignature?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -45877,6 +46109,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -45915,6 +46149,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -46039,6 +46275,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -46077,6 +46315,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -46197,6 +46437,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerCreateNestedManyWithoutTenantInput
@@ -46235,6 +46477,8 @@ export namespace Prisma {
     website?: string | null
     aadharCardUrl?: string | null
     version?: number
+    primaryColor?: string | null
+    fontFamily?: string | null
     latitude?: number | null
     longitude?: number | null
     customers?: CustomerUncheckedCreateNestedManyWithoutTenantInput
@@ -46328,6 +46572,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUpdateManyWithoutTenantNestedInput
@@ -46366,6 +46612,8 @@ export namespace Prisma {
     website?: NullableStringFieldUpdateOperationsInput | string | null
     aadharCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    fontFamily?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     customers?: CustomerUncheckedUpdateManyWithoutTenantNestedInput
@@ -46603,6 +46851,8 @@ export namespace Prisma {
     razorpaySignature?: string | null
     couponId?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47129,6 +47379,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     subscription?: TenantSubscriptionUpdateOneWithoutInvoicesNestedInput
@@ -47152,6 +47404,8 @@ export namespace Prisma {
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47173,6 +47427,8 @@ export namespace Prisma {
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48017,6 +48273,8 @@ export namespace Prisma {
     razorpaySignature?: string | null
     couponId?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -48036,6 +48294,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutInvoicesNestedInput
@@ -48059,6 +48319,8 @@ export namespace Prisma {
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48080,6 +48342,8 @@ export namespace Prisma {
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48101,6 +48365,8 @@ export namespace Prisma {
     razorpayOrderId?: string | null
     razorpaySignature?: string | null
     pdfUrl?: string | null
+    failedPaymentAttempts?: number
+    nextRetryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -48120,6 +48386,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutInvoicesNestedInput
@@ -48143,6 +48411,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48164,6 +48434,8 @@ export namespace Prisma {
     razorpayOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     razorpaySignature?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    failedPaymentAttempts?: IntFieldUpdateOperationsInput | number
+    nextRetryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

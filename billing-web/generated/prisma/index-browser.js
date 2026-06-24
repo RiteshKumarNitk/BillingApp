@@ -141,6 +141,8 @@ exports.Prisma.TenantScalarFieldEnum = {
   website: 'website',
   aadharCardUrl: 'aadharCardUrl',
   version: 'version',
+  primaryColor: 'primaryColor',
+  fontFamily: 'fontFamily',
   latitude: 'latitude',
   longitude: 'longitude'
 };
@@ -442,6 +444,8 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   razorpaySignature: 'razorpaySignature',
   couponId: 'couponId',
   pdfUrl: 'pdfUrl',
+  failedPaymentAttempts: 'failedPaymentAttempts',
+  nextRetryDate: 'nextRetryDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
