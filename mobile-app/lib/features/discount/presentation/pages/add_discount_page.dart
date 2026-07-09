@@ -11,7 +11,11 @@ import '../../../../core/widgets/input_label.dart';
 import '../../../../core/widgets/primary_button.dart';
 
 class AddDiscountPage extends StatefulWidget {
-  const AddDiscountPage({super.key});
+  final Discount? existing;
+
+  const AddDiscountPage({super.key, this.existing});
+
+  bool get isEdit => existing != null;
 
   @override
   State<AddDiscountPage> createState() => _AddDiscountPageState();
@@ -19,13 +23,26 @@ class AddDiscountPage extends StatefulWidget {
 
 class _AddDiscountPageState extends State<AddDiscountPage> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  String _description = '';
-  double _discountPercentage = 0.0;
+  late String _name;
+  late String _description;
+  late double _discountPercentage;
   String? _applicableCategory;
   int? _minimumQuantity;
-  DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(const Duration(days: 30));
+  late DateTime _startDate;
+  late DateTime _endDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existing;
+    _name = existing?.name ?? '';
+    _description = existing?.description ?? '';
+    _discountPercentage = existing?.discountPercentage ?? 0.0;
+    _applicableCategory = existing?.applicableCategory;
+    _minimumQuantity = existing?.minimumQuantity;
+    _startDate = existing?.startDate ?? DateTime.now();
+    _endDate = existing?.endDate ?? DateTime.now().add(const Duration(days: 30));
+  }
 
   final List<String> _categories = [
     'Groceries',
@@ -74,7 +91,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
       _formKey.currentState!.save();
 
       final discount = Discount(
-        id: const Uuid().v4(),
+        id: widget.existing?.id ?? const Uuid().v4(),
         name: _name,
         description: _description,
         discountPercentage: _discountPercentage,
@@ -82,9 +99,14 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
         minimumQuantity: _minimumQuantity,
         startDate: _startDate,
         endDate: _endDate,
+        isActive: widget.existing?.isActive ?? true,
       );
 
-      context.read<DiscountBloc>().add(SaveDiscount(discount));
+      if (widget.isEdit) {
+        context.read<DiscountBloc>().add(UpdateDiscount(discount));
+      } else {
+        context.read<DiscountBloc>().add(SaveDiscount(discount));
+      }
       context.pop();
     }
   }
@@ -100,8 +122,8 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
               size: 28, color: Theme.of(context).primaryColor),
           onPressed: () => context.go('/dashboard'),
         ),
-        title: const Text('Add Discount',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(widget.isEdit ? 'Edit Discount' : 'Add Discount',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -114,6 +136,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
               children: [
                 const InputLabel(text: 'Discount Name'),
                 TextFormField(
+                  initialValue: _name,
                   decoration: const InputDecoration(
                     hintText: 'e.g. Summer Sale',
                   ),
@@ -124,6 +147,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
                 const SizedBox(height: 24),
                 const InputLabel(text: 'Description'),
                 TextFormField(
+                  initialValue: _description,
                   decoration: const InputDecoration(
                     hintText: 'Describe the offer',
                   ),
@@ -135,6 +159,8 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
                 const SizedBox(height: 24),
                 const InputLabel(text: 'Discount Percentage'),
                 TextFormField(
+                  initialValue:
+                      _discountPercentage > 0 ? _discountPercentage.toString() : null,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(
@@ -157,7 +183,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
                 const SizedBox(height: 24),
                 const InputLabel(text: 'Applicable Category'),
                 DropdownButtonFormField<String>(
-                  value: _applicableCategory,
+                  value: _categories.contains(_applicableCategory) ? _applicableCategory : null,
                   decoration: const InputDecoration(
                     hintText: 'Select category (optional)',
                   ),
@@ -175,6 +201,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
                 const SizedBox(height: 24),
                 const InputLabel(text: 'Minimum Quantity'),
                 TextFormField(
+                  initialValue: _minimumQuantity?.toString(),
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     hintText: 'Optional - for bulk discounts',
@@ -233,7 +260,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
       bottomNavigationBar: PrimaryButton(
         onPressed: _submit,
         icon: Icons.local_offer,
-        label: 'Add Discount',
+        label: widget.isEdit ? 'Save Changes' : 'Add Discount',
       ),
     );
   }

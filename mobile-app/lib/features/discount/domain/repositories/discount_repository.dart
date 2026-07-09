@@ -4,6 +4,9 @@ abstract class IDiscountRepository {
   /// Add or update a discount
   Future<void> saveDiscount(Discount discount);
 
+  /// Update an existing discount's fields
+  Future<void> updateDiscount(Discount discount);
+
   /// Get discount by ID
   Future<Discount?> getDiscountById(String discountId);
 

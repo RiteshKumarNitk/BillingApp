@@ -6,6 +6,7 @@ import '../../features/product/presentation/pages/product_list_page.dart';
 import '../../features/product/presentation/pages/add_product_page.dart';
 import '../../features/product/presentation/pages/edit_product_page.dart';
 import '../../features/product/presentation/pages/bulk_import_page.dart';
+import '../../features/product/presentation/pages/inventory_bulk_edit_page.dart';
 import '../../features/shop/presentation/pages/shop_details_page.dart';
 import '../../features/product/presentation/pages/barcode_labels_page.dart';
 import '../../features/shop/presentation/pages/digital_menu_page.dart';
@@ -16,6 +17,7 @@ import '../../features/customer/presentation/pages/customer_list_page.dart';
 import '../../features/customer/presentation/pages/add_customer_page.dart';
 import '../../features/discount/presentation/pages/discount_list_page.dart';
 import '../../features/discount/presentation/pages/add_discount_page.dart';
+import '../../features/discount/domain/entities/discount.dart';
 import '../../features/product/presentation/pages/expiry_alert_page.dart';
 import '../../features/product/domain/entities/product.dart';
 import '../../features/users/presentation/pages/user_list_page.dart';
@@ -122,6 +124,10 @@ final router = GoRouter(
           builder: (context, state) => const BulkImportPage(),
         ),
         GoRoute(
+          path: 'bulk-edit',
+          builder: (context, state) => const InventoryBulkEditPage(),
+        ),
+        GoRoute(
           path: 'edit/:id',
           builder: (context, state) {
             final product = state.extra as Product?;
@@ -162,6 +168,13 @@ final router = GoRouter(
         GoRoute(
           path: 'add',
           builder: (context, state) => const AddDiscountPage(),
+        ),
+        GoRoute(
+          path: 'edit',
+          builder: (context, state) {
+            final discount = state.extra as Discount?;
+            return AddDiscountPage(existing: discount);
+          },
         ),
       ],
     ),

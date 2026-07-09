@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env' });
-import prisma from './lib/prisma';
+dotenv.config({ path: '../.env' });
+import prisma from '../lib/prisma';
 
 async function clear() {
   await prisma.transactionItem.deleteMany({});

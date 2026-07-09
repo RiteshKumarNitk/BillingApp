@@ -90,6 +90,7 @@ class _MenuPage extends StatelessWidget {
             _MenuItem(icon: Icons.qr_code, title: 'Barcode Labels', route: '/barcode-labels', color: Colors.teal),
             _MenuItem(icon: Icons.warning_amber, title: 'Expiry Alerts', route: '/expiry-alerts', color: Colors.red),
             _MenuItem(icon: Icons.document_scanner, title: 'Bulk Import', route: '/products/bulk-import', color: Colors.cyan),
+            _MenuItem(icon: Icons.edit_note, title: 'Bulk Edit Inventory', route: '/products/bulk-edit', color: Colors.deepOrange),
           ]),
           const SizedBox(height: 16),
           _buildMenuCategory(context, 'Team Management', [

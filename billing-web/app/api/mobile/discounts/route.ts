@@ -2,6 +2,12 @@ import prisma from '@/lib/prisma';
 import { getMobileUserFromAuthHeader } from '@/lib/auth/mobile';
 import { corsResponse } from '@/lib/cors';
 
+async function getRequesterPermissions(tenantRoleId: string | null | undefined): Promise<string[]> {
+  if (!tenantRoleId) return [];
+  const role = await prisma.role.findUnique({ where: { id: tenantRoleId } });
+  return role?.permissions || [];
+}
+
 export async function GET(request: Request) {
   try {
     const user = getMobileUserFromAuthHeader(request);
@@ -39,6 +45,13 @@ export async function POST(request: Request) {
     const user = getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (user.role !== 'SUPERADMIN') {
+      const permissions = await getRequesterPermissions(user.tenantRole as string | null);
+      if (!permissions.includes('EDIT_PRODUCT')) {
+        return corsResponse({ error: 'Forbidden: Requires EDIT_PRODUCT permission' }, { status: 403 });
+      }
     }
 
     const data = await request.json();

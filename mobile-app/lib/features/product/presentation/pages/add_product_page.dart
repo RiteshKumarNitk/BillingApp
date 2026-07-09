@@ -96,7 +96,7 @@ class _AddProductPageState extends State<AddProductPage> {
         stock: _stock,
         category: _category.isEmpty ? null : _category,
         minStockThreshold: _minStockThreshold,
-        variants: _productType == 'VARIANT' ? _variants : const [],
+        variants: (_productType == 'VARIANT' || _productType == 'WEIGHT') ? _variants : const [],
         batches: _productType == 'BATCH' ? _batches : const [],
         serials: _productType == 'SERIAL' ? _serials : const [],
       );
@@ -270,7 +270,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 ],
 
                 // Variants Section
-                if (_productType == 'VARIANT') ...[
+                if (_productType == 'VARIANT' || _productType == 'WEIGHT') ...[
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -353,8 +353,8 @@ class _AddProductPageState extends State<AddProductPage> {
         ),
       ),
       bottomNavigationBar: PrimaryButton(
-        onPressed: _productType == 'VARIANT' && _variants.isEmpty 
-            ? null 
+        onPressed: (_productType == 'VARIANT' || _productType == 'WEIGHT') && _variants.isEmpty
+            ? null
             : _submit,
         icon: Icons.add_circle,
         label: 'Add Product',

@@ -24,8 +24,11 @@ class DiscountState extends Equatable {
     return DiscountState(
       status: status ?? this.status,
       discounts: discounts ?? this.discounts,
-      errorMessage: errorMessage ?? this.errorMessage,
-      successMessage: successMessage ?? this.successMessage,
+      // Messages are never carried over implicitly — every emission states
+      // its own message (or '') so a stale success/error can't leak into an
+      // unrelated later state (e.g. a plain reload after a save completes).
+      errorMessage: errorMessage ?? '',
+      successMessage: successMessage ?? '',
     );
   }
 

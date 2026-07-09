@@ -32,6 +32,13 @@ class DiscountRepositoryImpl extends IDiscountRepository {
   }
 
   @override
+  Future<void> updateDiscount(Discount discount) async {
+    final model = DiscountModel.fromEntity(discount);
+    await _discountBox.put(discount.id, model);
+    await _apiClient.updateDiscount(discount.id, model.toJson());
+  }
+
+  @override
   Future<Discount?> getDiscountById(String discountId) async {
     final model = _discountBox.get(discountId);
     return model?.toEntity();

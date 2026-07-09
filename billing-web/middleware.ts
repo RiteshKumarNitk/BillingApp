@@ -26,8 +26,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If no valid token (or empty/invalid token from session expiry) and trying to access protected route, redirect to login
+  // If no valid token (or empty/invalid token from session expiry) and trying to access protected route,
+  // return a JSON 401 for API consumers and redirect browser page requests to login.
   if (!token?.id && pathname !== '/auth/login') {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);

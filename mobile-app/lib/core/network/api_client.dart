@@ -233,6 +233,10 @@ class ApiClient {
     await delete('/products/$id');
   }
 
+  Future<Map<String, dynamic>> bulkUpdateInventory(List<Map<String, dynamic>> products) async {
+    return await put('/inventory/bulk', body: {'products': products});
+  }
+
   // ================== User (Team) API ==================
   Future<Map<String, dynamic>> getUsers() async {
     return await get('/users');
@@ -253,6 +257,14 @@ class ApiClient {
 
   Future<Map<String, dynamic>> createRole(Map<String, dynamic> data) async {
     return await post('/roles', body: data);
+  }
+
+  Future<Map<String, dynamic>> updateRole(String id, Map<String, dynamic> data) async {
+    return await put('/roles/$id', body: data);
+  }
+
+  Future<void> deleteRole(String id) async {
+    await delete('/roles/$id');
   }
 
   // ================== Employee API ==================

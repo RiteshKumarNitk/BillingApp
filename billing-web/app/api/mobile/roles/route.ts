@@ -2,6 +2,12 @@ import prisma from '@/lib/prisma';
 import { getMobileUserFromAuthHeader } from '@/lib/auth/mobile';
 import { corsResponse } from '@/lib/cors';
 
+async function getRequesterPermissions(tenantRoleId: string | null | undefined): Promise<string[]> {
+  if (!tenantRoleId) return [];
+  const role = await prisma.role.findUnique({ where: { id: tenantRoleId } });
+  return role?.permissions || [];
+}
+
 export async function GET(request: Request) {
   try {
     const user = getMobileUserFromAuthHeader(request);
@@ -27,6 +33,13 @@ export async function POST(request: Request) {
     const authUser = getMobileUserFromAuthHeader(request);
     if (!authUser || !authUser.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (authUser.role !== 'SUPERADMIN') {
+      const permissions = await getRequesterPermissions(authUser.tenantRole as string | null);
+      if (!permissions.includes('MANAGE_USERS')) {
+        return corsResponse({ error: 'Forbidden: Requires MANAGE_USERS permission' }, { status: 403 });
+      }
     }
 
     const data = await request.json();

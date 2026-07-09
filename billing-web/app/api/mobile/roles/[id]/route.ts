@@ -18,36 +18,42 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     if (user.role !== 'SUPERADMIN') {
       const permissions = await getRequesterPermissions(user.tenantRole as string | null);
-      if (!permissions.includes('EDIT_PRODUCT')) {
-        return corsResponse({ error: 'Forbidden: Requires EDIT_PRODUCT permission' }, { status: 403 });
+      if (!permissions.includes('MANAGE_USERS')) {
+        return corsResponse({ error: 'Forbidden: Requires MANAGE_USERS permission' }, { status: 403 });
       }
     }
 
-    const existing = await prisma.discount.findFirst({
-      where: { id, tenantId: user.tenantId },
+    const existing = await prisma.role.findFirst({
+      where: { id, tenantId: user.tenantId as string },
     });
     if (!existing) {
-      return corsResponse({ error: 'Discount not found' }, { status: 404 });
+      return corsResponse({ error: 'Role not found' }, { status: 404 });
+    }
+    if (existing.name === 'Owner') {
+      return corsResponse({ error: 'Cannot edit the default Owner role' }, { status: 400 });
     }
 
     const data = await request.json();
-    const discount = await prisma.discount.update({
+    if (!data.name || !data.name.trim()) {
+      return corsResponse({ error: 'Role name is required' }, { status: 400 });
+    }
+
+    const role = await prisma.role.update({
       where: { id },
       data: {
-        name: data.name?.trim(),
-        description: data.description,
-        discountPercentage: data.discountPercentage !== undefined ? parseFloat(data.discountPercentage) : undefined,
-        applicableCategory: data.applicableCategory,
-        minimumQuantity: data.minimumQuantity !== undefined ? parseInt(data.minimumQuantity) : undefined,
-        startDate: data.startDate ? new Date(data.startDate) : undefined,
-        endDate: data.endDate ? new Date(data.endDate) : undefined,
-        isActive: data.isActive,
+        name: data.name.trim(),
+        permissions: data.permissions || [],
       },
     });
 
-    return corsResponse({ discount });
+    await prisma.user.updateMany({
+      where: { tenantRoleId: id },
+      data: { tokenVersion: { increment: 1 } },
+    });
+
+    return corsResponse({ role });
   } catch (error: any) {
-    console.error('Mobile discounts PUT error:', error);
+    console.error('Mobile roles PUT error:', error);
     return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -62,22 +68,30 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     if (user.role !== 'SUPERADMIN') {
       const permissions = await getRequesterPermissions(user.tenantRole as string | null);
-      if (!permissions.includes('EDIT_PRODUCT')) {
-        return corsResponse({ error: 'Forbidden: Requires EDIT_PRODUCT permission' }, { status: 403 });
+      if (!permissions.includes('MANAGE_USERS')) {
+        return corsResponse({ error: 'Forbidden: Requires MANAGE_USERS permission' }, { status: 403 });
       }
     }
 
-    const existing = await prisma.discount.findFirst({
-      where: { id, tenantId: user.tenantId },
+    const existing = await prisma.role.findFirst({
+      where: { id, tenantId: user.tenantId as string },
+      include: { _count: { select: { users: true } } },
     });
     if (!existing) {
-      return corsResponse({ error: 'Discount not found' }, { status: 404 });
+      return corsResponse({ error: 'Role not found' }, { status: 404 });
+    }
+    if (existing.name === 'Owner') {
+      return corsResponse({ error: 'Cannot delete the Owner role' }, { status: 400 });
+    }
+    if (existing._count.users > 0) {
+      return corsResponse({ error: 'Cannot delete a role that is assigned to users' }, { status: 400 });
     }
 
-    await prisma.discount.delete({ where: { id } });
+    await prisma.role.delete({ where: { id } });
+
     return corsResponse({ success: true });
   } catch (error: any) {
-    console.error('Mobile discounts DELETE error:', error);
+    console.error('Mobile roles DELETE error:', error);
     return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -19,6 +19,22 @@ class SaveDiscount extends DiscountEvent {
   List<Object?> get props => [discount];
 }
 
+class UpdateDiscount extends DiscountEvent {
+  final Discount discount;
+  const UpdateDiscount(this.discount);
+
+  @override
+  List<Object?> get props => [discount];
+}
+
+class DeleteDiscount extends DiscountEvent {
+  final String discountId;
+  const DeleteDiscount(this.discountId);
+
+  @override
+  List<Object?> get props => [discountId];
+}
+
 class ResetDiscountState extends DiscountEvent {
   const ResetDiscountState();
 }

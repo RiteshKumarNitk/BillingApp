@@ -35,6 +35,8 @@ import '../../features/discount/presentation/bloc/discount_bloc.dart';
 import '../../features/employee/domain/usecases/authenticate_employee_usecase.dart';
 import '../../features/product/domain/usecases/get_low_stock_products_usecase.dart';
 import '../../features/discount/domain/usecases/save_discount_usecase.dart';
+import '../../features/discount/domain/usecases/update_discount_usecase.dart';
+import '../../features/discount/domain/usecases/delete_discount_usecase.dart';
 import '../../features/product/domain/usecases/create_expiry_alert_usecase.dart';
 import '../../features/customer_app/presentation/bloc/customer_auth_bloc.dart';
 import '../../features/customer_app/presentation/bloc/customer_dashboard_bloc.dart';
@@ -160,10 +162,14 @@ Future<void> init() async {
     () => DiscountBloc(
       getTodayDiscountsUseCase: sl(),
       saveDiscountUseCase: sl(),
+      updateDiscountUseCase: sl(),
+      deleteDiscountUseCase: sl(),
     ),
   );
   sl.registerLazySingleton(() => GetTodayDiscountsUseCase(sl()));
   sl.registerLazySingleton(() => SaveDiscountUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateDiscountUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteDiscountUseCase(sl()));
   sl.registerLazySingleton<IDiscountRepository>(
     () => DiscountRepositoryImpl(HiveDatabase.discountBox, apiClient),
   );

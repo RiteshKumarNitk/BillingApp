@@ -51,15 +51,18 @@ class _RoleListPageState extends State<RoleListPage> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _createRole() async {
-    final nameCtl = TextEditingController();
-    final selectedPerms = <String>{};
+  Future<void> _showRoleDialog({Map<String, dynamic>? role}) async {
+    final isEdit = role != null;
+    final nameCtl = TextEditingController(text: role?['name'] ?? '');
+    final selectedPerms = <String>{
+      ...((role?['permissions'] as List<dynamic>?)?.cast<String>() ?? const []),
+    };
 
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Create Role'),
+          title: Text(isEdit ? 'Edit Role' : 'Create Role'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -83,7 +86,7 @@ class _RoleListPageState extends State<RoleListPage> {
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Create')),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(isEdit ? 'Save' : 'Create')),
           ],
         ),
       ),
@@ -91,11 +94,46 @@ class _RoleListPageState extends State<RoleListPage> {
 
     if (result == true) {
       try {
-        await _api.createRole({
-          'name': nameCtl.text.trim(),
-          'permissions': selectedPerms.toList(),
-        });
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Role created')));
+        if (isEdit) {
+          await _api.updateRole(role['id'] as String, {
+            'name': nameCtl.text.trim(),
+            'permissions': selectedPerms.toList(),
+          });
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Role updated')));
+        } else {
+          await _api.createRole({
+            'name': nameCtl.text.trim(),
+            'permissions': selectedPerms.toList(),
+          });
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Role created')));
+        }
+        _loadRoles();
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteRole(Map<String, dynamic> role) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Role'),
+        content: Text('Delete "${role['name']}"? This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _api.deleteRole(role['id'] as String);
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Role deleted')));
         _loadRoles();
       } catch (e) {
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
@@ -107,7 +145,7 @@ class _RoleListPageState extends State<RoleListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Roles & Permissions'), actions: [
-        IconButton(icon: const Icon(Icons.add), onPressed: _createRole),
+        IconButton(icon: const Icon(Icons.add), onPressed: () => _showRoleDialog()),
       ]),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -121,6 +159,7 @@ class _RoleListPageState extends State<RoleListPage> {
                       final r = _roles[i];
                       final perms = (r['permissions'] as List<dynamic>?) ?? [];
                       final userCount = r['_count']?['users'] ?? 0;
+                      final isOwner = r['name'] == 'Owner';
                       return Card(
                         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         child: Padding(
@@ -130,9 +169,22 @@ class _RoleListPageState extends State<RoleListPage> {
                             children: [
                               Row(
                                 children: [
-                                  Text(r['name'] ?? '', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                  const Spacer(),
+                                  Expanded(
+                                    child: Text(r['name'] ?? '', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                  ),
                                   Chip(label: Text('$userCount users', style: const TextStyle(fontSize: 12))),
+                                  if (!isOwner) ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, size: 20),
+                                      visualDensity: VisualDensity.compact,
+                                      onPressed: () => _showRoleDialog(role: r as Map<String, dynamic>),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                                      visualDensity: VisualDensity.compact,
+                                      onPressed: userCount > 0 ? null : () => _deleteRole(r as Map<String, dynamic>),
+                                    ),
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: 8),

@@ -30,7 +30,18 @@ class _DiscountListPageState extends State<DiscountListPage> {
           onPressed: () => context.go('/dashboard'),
         ),
       ),
-      body: BlocBuilder<DiscountBloc, DiscountState>(
+      body: BlocConsumer<DiscountBloc, DiscountState>(
+        listener: (context, state) {
+          if (state.status == DiscountStatus.error && state.errorMessage.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage), backgroundColor: Colors.red),
+            );
+          } else if (state.status == DiscountStatus.success && state.successMessage.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.successMessage)),
+            );
+          }
+        },
         builder: (context, state) {
           if (state.status == DiscountStatus.loading) {
             return const Center(child: CircularProgressIndicator());
@@ -153,8 +164,44 @@ class _DiscountListPageState extends State<DiscountListPage> {
               'Valid: ${_formatDate(discount.startDate)} to ${_formatDate(discount.endDate)}',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () => context.push('/discounts/edit', extra: discount),
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text('Edit'),
+                ),
+                TextButton.icon(
+                  onPressed: () => _confirmDelete(context, discount),
+                  icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                  label: const Text('Delete', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Discount discount) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Discount'),
+        content: Text('Delete "${discount.name}"? This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<DiscountBloc>().add(DeleteDiscount(discount.id));
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

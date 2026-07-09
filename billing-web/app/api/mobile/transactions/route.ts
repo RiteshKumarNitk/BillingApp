@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { getMobileUserFromAuthHeader } from '@/lib/auth/mobile';
 import { corsResponse } from '@/lib/cors';
+import { createTransaction, TransactionError } from '@/lib/services/transactions';
 
 export async function GET(request: Request) {
   try {
@@ -40,111 +41,41 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = getMobileUserFromAuthHeader(request);
-    if (!user || !user.tenantId) {
+    const mobileUser = getMobileUserFromAuthHeader(request);
+    if (!mobileUser || !mobileUser.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { items, discount, taxAmount, paymentMethod, amountReceived, changeAmount, customerId, customerName, customerPhone, notes } = await request.json();
-
-    if (!items || !items.length) {
-      return corsResponse({ error: 'No items provided' }, { status: 400 });
+    let permissions: string[] = [];
+    if (mobileUser.tenantRole) {
+      const roleRecord = await prisma.role.findUnique({ where: { id: mobileUser.tenantRole as string } });
+      permissions = roleRecord?.permissions || [];
     }
 
-    const discountValue = parseFloat(discount) || 0;
+    const body = await request.json();
 
-    let subtotal = 0;
-    const transactionItemsData = items.map((item: any) => {
-      const qty = parseFloat(item.quantity) || 1;
-      const price = parseFloat(item.salePrice) || 0;
-      const itemTotal = price * qty;
-      subtotal += itemTotal;
-      return {
-        productId: item.productId,
-        name: item.name,
-        barcode: item.barcode || 'N/A',
-        purchasePrice: parseFloat(item.purchasePrice) || 0,
-        mrp: parseFloat(item.mrp) || 0,
-        salePrice: price,
-        quantity: qty,
-        itemTotal,
-        variantId: item.variantId || null,
-        batchId: item.batchId || null,
-        serialId: item.serialId || null,
-      };
-    });
-
-    const taxValue = parseFloat(taxAmount) || 0;
-    const netAmount = Math.max(0, subtotal - discountValue + taxValue);
-
-    // Verify all products belong to the user's tenant
-    const productIds = items.map((item: any) => item.productId);
-    const uniqueProductIds = [...new Set<string>(productIds)];
-    
-    const ownedProducts = await prisma.product.findMany({
-      where: { 
-        id: { in: uniqueProductIds },
-        tenantId: user.tenantId
-      },
-      select: { id: true }
-    });
-
-    if (ownedProducts.length !== uniqueProductIds.length) {
-      return corsResponse({ error: 'Unauthorized: One or more products do not belong to your tenant' }, { status: 403 });
-    }
-
-    const transaction = await prisma.$transaction(async (tx: any) => {
-      const newTransaction = await tx.transaction.create({
-        data: {
-          tenantId: user.tenantId,
-          userId: user.id,
-          totalAmount: subtotal,
-          discount: discountValue,
-          discountType: 'PERCENTAGE',
-          taxAmount: taxValue,
-          netAmount,
-          paymentMethod: paymentMethod || null,
-          amountReceived: amountReceived ? parseFloat(amountReceived) : null,
-          changeAmount: changeAmount ? parseFloat(changeAmount) : null,
-          customerId: customerId || null,
-          customerName: customerName || null,
-          customerPhone: customerPhone || null,
-          notes: notes || null,
-          items: { create: transactionItemsData },
-        },
-        include: { items: true }
-      });
-
-      for (const item of transactionItemsData) {
-        if (item.variantId) {
-          await tx.productVariant.updateMany({
-            where: { id: item.variantId, productId: item.productId },
-            data: { stock: { decrement: item.quantity } }
-          });
-        } else if (item.batchId) {
-          await tx.productBatch.updateMany({
-            where: { id: item.batchId, productId: item.productId },
-            data: { stock: { decrement: item.quantity } }
-          });
-        } else if (item.serialId) {
-          await tx.productSerial.updateMany({
-            where: { id: item.serialId, productId: item.productId },
-            data: { status: 'SOLD' }
-          });
-        } else {
-          // Safe: productId is verified above
-          await tx.product.update({
-            where: { id: item.productId },
-            data: { stock: { decrement: item.quantity } }
-          });
-        }
-      }
-
-      return newTransaction;
+    const transaction = await createTransaction({
+      tenantId: mobileUser.tenantId as string,
+      userId: mobileUser.id as string,
+      role: mobileUser.role as string,
+      permissions,
+      items: body.items,
+      discount: body.discount,
+      taxAmount: body.taxAmount,
+      paymentMethod: body.paymentMethod,
+      amountReceived: body.amountReceived,
+      changeAmount: body.changeAmount,
+      customerId: body.customerId,
+      customerName: body.customerName,
+      customerPhone: body.customerPhone,
+      notes: body.notes,
     });
 
     return corsResponse({ transaction }, { status: 201 });
   } catch (error: any) {
+    if (error instanceof TransactionError) {
+      return corsResponse({ error: error.message }, { status: error.status });
+    }
     console.error('Mobile transactions POST error:', error);
     return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }
