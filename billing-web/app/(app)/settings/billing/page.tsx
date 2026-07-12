@@ -52,6 +52,7 @@ export default async function BillingPage() {
   const transactionCount = await prisma.transaction.count({
     where: {
       tenantId,
+      status: { not: 'HELD' },
       createdAt: { gte: startOfMonth }
     }
   });

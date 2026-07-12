@@ -25,7 +25,9 @@ export default async function TransactionsPage({
   const dateFrom = (searchParams?.from as string) || '';
   const dateTo = (searchParams?.to as string) || '';
 
-  const where: any = { tenantId };
+  // HELD bills are drafts, not completed sales — they live in the billing page's
+  // "Held Bills" panel, not the sales history list.
+  const where: any = { tenantId, status: { not: 'HELD' } };
 
   if (query) {
     where.id = { startsWith: query, mode: 'insensitive' };

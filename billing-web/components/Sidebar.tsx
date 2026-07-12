@@ -14,7 +14,8 @@ import {
   Tag,
   History,
   X,
-  ClipboardList
+  ClipboardList,
+  Ruler
 } from 'lucide-react';
 
 export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
@@ -43,6 +44,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Transactions', href: '/transactions', icon: History },
       { name: 'Order Requests', href: '/orders', icon: ClipboardList },
       { name: 'Products', href: '/products', icon: Package },
+      { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
       { name: 'Digital Menu QR', href: '/settings/menu', icon: Package },

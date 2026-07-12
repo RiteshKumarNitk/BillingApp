@@ -6,6 +6,7 @@ export const PERMISSIONS = {
   CREATE_BILL: "CREATE_BILL",
   MANAGE_USERS: "MANAGE_USERS",
   VIEW_PROFIT: "VIEW_PROFIT",
+  OVERRIDE_PRICE: "OVERRIDE_PRICE",
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;

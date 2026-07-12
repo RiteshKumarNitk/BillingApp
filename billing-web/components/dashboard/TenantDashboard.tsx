@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import prisma from '@/lib/prisma';
-import { format, subDays, startOfDay, endOfDay, subMonths } from 'date-fns';
+import { format } from 'date-fns';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth';
 import {
   TrendingUp,
   TrendingDown,
@@ -9,12 +10,34 @@ import {
   AlertTriangle,
   ArrowRight,
   Plus,
+  DollarSign,
+  Wallet,
+  Percent,
   Receipt,
-  BarChart3,
-  Clock,
-  DollarSign
+  Users,
+  UserPlus,
+  Trophy,
+  TrendingDown as TrendingDownIcon,
 } from 'lucide-react';
 import DashboardCharts from './DashboardCharts';
+import RevenueChart from './RevenueChart';
+import { CustomerGrowthChart, ComparisonBarChart } from './AdvancedCharts';
+import {
+  getSalesOverview,
+  getPeriodTotals,
+  getProfitOverview,
+  getAverageBillValue,
+  getBestWorstProducts,
+  getCustomerGrowth,
+  getSalesChartData,
+  getCategoryChartData,
+  getProfitTrendData,
+  getCustomerGrowthChartData,
+  getMonthlyComparison,
+  getRecentTransactions,
+  getLowStockItems,
+  getOverviewCounts,
+} from '@/lib/analytics';
 
 export default async function TenantDashboard({
   searchParams,
@@ -24,164 +47,50 @@ export default async function TenantDashboard({
   tenantId: string;
 }) {
   const timeRange = (searchParams?.timeRange as string) || "7d";
-
-  // 1. Fetch Overall Stats
-  const totalSalesResult = await prisma.transaction.aggregate({
-    _sum: { netAmount: true },
-    where: { tenantId }
-  });
-  const totalSales = totalSalesResult._sum.netAmount || 0;
-  const totalTransactions = await prisma.transaction.count({
-    where: { tenantId }
-  });
-  const totalProducts = await prisma.product.count({
-    where: { tenantId }
-  });
-  const lowStockProducts = await prisma.product.count({
-    where: {
-      stock: { lte: 10 },
-      tenantId
-    }
-  });
-
-  // 2. Today's Sales
-  const todayStart = startOfDay(new Date());
-  const todayEnd = endOfDay(new Date());
-  const todaySalesResult = await prisma.transaction.aggregate({
-    _sum: { netAmount: true },
-    where: {
-      tenantId,
-      createdAt: { gte: todayStart, lte: todayEnd }
-    }
-  });
-  const todaySales = todaySalesResult._sum.netAmount || 0;
-  const todayTransactions = await prisma.transaction.count({
-    where: {
-      tenantId,
-      createdAt: { gte: todayStart, lte: todayEnd }
-    }
-  });
-
-  // Compare today vs yesterday for trend
-  const yesterdayStart = startOfDay(subDays(new Date(), 1));
-  const yesterdayEnd = endOfDay(subDays(new Date(), 1));
-  const yesterdaySalesResult = await prisma.transaction.aggregate({
-    _sum: { netAmount: true },
-    where: {
-      tenantId,
-      createdAt: { gte: yesterdayStart, lte: yesterdayEnd }
-    }
-  });
-  const yesterdaySales = yesterdaySalesResult._sum.netAmount || 0;
-  const todayTrend = yesterdaySales > 0
-    ? ((todaySales - yesterdaySales) / yesterdaySales * 100)
-    : null;
-
-  // Compare last 30 days vs prior 30 days for overall trend
-  const last30Start = subDays(new Date(), 30);
-  const prior30Start = subDays(new Date(), 60);
-  const last30SalesResult = await prisma.transaction.aggregate({
-    _sum: { netAmount: true },
-    where: { tenantId, createdAt: { gte: last30Start } }
-  });
-  const prior30SalesResult = await prisma.transaction.aggregate({
-    _sum: { netAmount: true },
-    where: { tenantId, createdAt: { gte: prior30Start, lt: last30Start } }
-  });
-  const last30Sales = last30SalesResult._sum.netAmount || 0;
-  const prior30Sales = prior30SalesResult._sum.netAmount || 0;
-  const revenueTrend = prior30Sales > 0
-    ? ((last30Sales - prior30Sales) / prior30Sales * 100)
-    : null;
-
-  const last30TxCount = await prisma.transaction.count({
-    where: { tenantId, createdAt: { gte: last30Start } }
-  });
-  const prior30TxCount = await prisma.transaction.count({
-    where: { tenantId, createdAt: { gte: prior30Start, lt: last30Start } }
-  });
-  const txTrend = prior30TxCount > 0
-    ? ((last30TxCount - prior30TxCount) / prior30TxCount * 100)
-    : null;
-
-  // 3. Fetch Sales Data for Charts
   let days = 7;
   if (timeRange === '30d') days = 30;
   else if (timeRange === '90d') days = 90;
 
-  const startDate = subDays(new Date(), days);
+  const session = await getServerSession(authOptions);
+  const canViewProfit = session?.user?.role === 'SUPERADMIN' || (session?.user?.permissions || []).includes('VIEW_PROFIT');
 
-  const rawSalesData = await prisma.$queryRaw<any[]>`
-    SELECT
-      DATE("createdAt") as date,
-      SUM("netAmount") as total
-    FROM "Transaction"
-    WHERE "createdAt" >= ${startDate} AND "tenantId" = ${tenantId}
-    GROUP BY DATE("createdAt")
-    ORDER BY DATE("createdAt")
-  `;
-  const salesData = rawSalesData.map((item: { date: string | Date; total: string | number }) => ({
-    date: format(new Date(item.date), 'MM/dd'),
-    total: Number(item.total)
-  }));
+  const [
+    overview,
+    periodTotals,
+    avgBillValue,
+    bestWorstProducts,
+    customerGrowth,
+    salesData,
+    categoryData,
+    customerGrowthChartData,
+    monthlyComparison,
+    recentTransactions,
+    lowStockItems,
+    overviewCounts,
+    profitOverview,
+    profitTrendData,
+  ] = await Promise.all([
+    getSalesOverview(tenantId),
+    getPeriodTotals(tenantId),
+    getAverageBillValue(tenantId),
+    getBestWorstProducts(tenantId),
+    getCustomerGrowth(tenantId),
+    getSalesChartData(tenantId, days),
+    getCategoryChartData(tenantId),
+    getCustomerGrowthChartData(tenantId, days),
+    getMonthlyComparison(tenantId),
+    getRecentTransactions(tenantId),
+    getLowStockItems(tenantId),
+    getOverviewCounts(tenantId),
+    canViewProfit ? getProfitOverview(tenantId) : Promise.resolve(null),
+    canViewProfit ? getProfitTrendData(tenantId, days) : Promise.resolve([]),
+  ]);
 
-  // 4. Fetch Category Data
-  const rawCategoryData = await prisma.$queryRaw<any[]>`
-    SELECT
-      p."category",
-      SUM(ti."itemTotal") as total
-    FROM "TransactionItem" ti
-    JOIN "Product" p ON ti."productId" = p."id"
-    JOIN "Transaction" t ON ti."transactionId" = t."id"
-    WHERE p."category" IS NOT NULL AND t."tenantId" = ${tenantId}
-    GROUP BY p."category"
-    ORDER BY total DESC
-    LIMIT 5
-  `;
-  const categoryData = rawCategoryData.map((item: { category?: string; total: string | number }) => ({
-    name: item.category || 'Uncategorized',
-    value: Number(item.total)
-  }));
-
-  // 5. Fetch Recent Transactions
-  const recentTransactions = await prisma.transaction.findMany({
-    take: 5,
-    orderBy: { createdAt: 'desc' },
-    where: { tenantId },
-    include: { user: true }
-  });
-
-  // 6. Fetch Top Products
-  const topProductsRaw = await prisma.$queryRaw<any[]>`
-    SELECT
-      p."id", p."name", p."stock", p."salePrice",
-      SUM(ti."quantity") as soldCount,
-      SUM(ti."itemTotal") as revenue
-    FROM "TransactionItem" ti
-    JOIN "Product" p ON ti."productId" = p."id"
-    JOIN "Transaction" t ON ti."transactionId" = t."id"
-    WHERE t."tenantId" = ${tenantId}
-    GROUP BY p."id", p."name", p."stock", p."salePrice"
-    ORDER BY soldCount DESC
-    LIMIT 5
-  `;
-  const topProducts = topProductsRaw.map((p: any) => ({
-    ...p,
-    soldCount: Number(p.soldcount ?? 0),
-    revenue: Number(p.revenue ?? 0)
-  }));
-
-  // 7. Fetch Low Stock Products
-  const lowStockItems: Array<{ id: string; name: string; stock: number; minStockThreshold: number | null; unit: string }> =
-    await prisma.product.findMany({
-      where: {
-        stock: { lte: 10 },
-        tenantId
-      },
-      orderBy: { stock: 'asc' },
-      take: 5,
-      select: { id: true, name: true, stock: true, minStockThreshold: true, unit: true }
-    });
+  const { totalSales, totalTransactions, todaySales, todayTransactions, todayTrend, revenueTrend, txTrend } = overview;
+  const { weekSales, monthSales, yearSales } = periodTotals;
+  const { totalProducts, lowStockProducts } = overviewCounts;
+  const salesComparison = monthlyComparison.find(m => m.metric === 'Sales')!;
+  const txComparison = monthlyComparison.find(m => m.metric === 'Transactions')!;
 
   return (
     <div className="font-sans">
@@ -210,7 +119,7 @@ export default async function TenantDashboard({
         </header>
 
         {/* Stats Grid - 5 cards */}
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard
             title="Total Revenue"
             value={`₹${totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -254,8 +163,92 @@ export default async function TenantDashboard({
           />
         </div>
 
+        {/* Period totals + profit + avg bill + customers */}
+        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Sales (7 / 30 / 365d)"
+            value={`₹${weekSales.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            subtitle={`₹${monthSales.toLocaleString(undefined, { maximumFractionDigits: 0 })} this month · ₹${yearSales.toLocaleString(undefined, { maximumFractionDigits: 0 })} this year`}
+            icon={<Receipt className="h-5 w-5 text-cyan-600" />}
+            gradient="from-cyan-500/20 to-cyan-500/5"
+          />
+          {profitOverview && (
+            <StatCard
+              title="Profit (30d)"
+              value={`₹${profitOverview.totalProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              subtitle={`${profitOverview.grossMarginPercent.toFixed(1)}% gross margin`}
+              icon={<Wallet className="h-5 w-5 text-emerald-600" />}
+              gradient="from-emerald-500/20 to-emerald-500/5"
+            />
+          )}
+          <StatCard
+            title="Average Bill Value (30d)"
+            value={`₹${avgBillValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+            icon={<Percent className="h-5 w-5 text-amber-600" />}
+            gradient="from-amber-500/20 to-amber-500/5"
+          />
+          <StatCard
+            title="Customers This Month"
+            value={customerGrowth.newCustomers.toString()}
+            subtitle={`${customerGrowth.returningCustomers} returning`}
+            icon={<UserPlus className="h-5 w-5 text-pink-600" />}
+            gradient="from-pink-500/20 to-pink-500/5"
+          />
+        </div>
+
         {/* Charts */}
         <DashboardCharts salesData={salesData} categoryData={categoryData} />
+
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {profitOverview && (
+            <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+              <h2 className="mb-4 text-lg font-bold text-gray-800">Profit Trend</h2>
+              <div className="h-64">
+                {profitTrendData.length === 0 ? (
+                  <div className="flex h-full items-center justify-center text-sm text-gray-400">No profit data yet</div>
+                ) : (
+                  <RevenueChart data={profitTrendData} label="Profit" color="#10B981" />
+                )}
+              </div>
+            </div>
+          )}
+          <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+            <h2 className="mb-4 text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Users className="h-5 w-5 text-sky-500" />
+              Customer Growth
+            </h2>
+            <div className="h-64">
+              {customerGrowthChartData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-sm text-gray-400">No new customers in this period</div>
+              ) : (
+                <CustomerGrowthChart data={customerGrowthChartData} />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+            <h2 className="mb-4 text-lg font-bold text-gray-800">Sales: This Month vs Last Month</h2>
+            <div className="h-40">
+              <ComparisonBarChart
+                thisMonth={salesComparison.thisMonth}
+                lastMonth={salesComparison.lastMonth}
+                format="currency"
+              />
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+            <h2 className="mb-4 text-lg font-bold text-gray-800">Transactions: This Month vs Last Month</h2>
+            <div className="h-40">
+              <ComparisonBarChart
+                thisMonth={txComparison.thisMonth}
+                lastMonth={txComparison.lastMonth}
+                format="number"
+              />
+            </div>
+          </div>
+        </div>
 
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Recent Transactions */}
@@ -317,18 +310,21 @@ export default async function TenantDashboard({
             </div>
           </section>
 
-          {/* Right Column: Top Products + Low Stock */}
+          {/* Right Column: Best/Worst Products + Low Stock */}
           <section className="flex flex-col gap-6">
-            {/* Top Products */}
+            {/* Best Sellers */}
             <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
-              <h2 className="mb-6 text-xl font-bold text-gray-800">Top Products</h2>
+              <h2 className="mb-6 text-xl font-bold text-gray-800 flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                Best Sellers
+              </h2>
               <div className="space-y-4">
-                {topProducts.length === 0 ? (
+                {bestWorstProducts.best.length === 0 ? (
                   <div className="text-center text-sm text-gray-500 py-8">
                     Not enough data to determine top products.
                   </div>
                 ) : (
-                  topProducts.map((product: { id: string; name: string; soldCount: number; revenue: number }, index: number) => (
+                  bestWorstProducts.best.map((product: { id: string; name: string; soldCount: number; revenue: number }, index: number) => (
                     <div key={product.id} className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md">
                       <div className="flex items-center gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold">
@@ -347,6 +343,24 @@ export default async function TenantDashboard({
                 )}
               </div>
             </div>
+
+            {/* Worst Sellers */}
+            {bestWorstProducts.worst.length > 0 && (
+              <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+                <h2 className="mb-4 text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <TrendingDownIcon className="h-5 w-5 text-gray-400" />
+                  Slow Movers
+                </h2>
+                <div className="space-y-2">
+                  {bestWorstProducts.worst.map((product: { id: string; name: string; soldCount: number; revenue: number }) => (
+                    <div key={product.id} className="flex items-center justify-between rounded-lg bg-white border border-gray-100 p-3">
+                      <p className="text-sm font-medium text-gray-700 truncate max-w-[140px]">{product.name}</p>
+                      <p className="text-xs text-gray-500">{product.soldCount} sold</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Low Stock Products Widget */}
             {lowStockItems.length > 0 && (

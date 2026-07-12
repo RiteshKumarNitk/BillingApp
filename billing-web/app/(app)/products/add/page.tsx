@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProduct } from '@/lib/actions/products';
+import { getUnits, createUnit } from '@/lib/actions/units';
 import Link from 'next/link';
 import {
   ArrowLeft, Package, Tag, IndianRupee, Boxes, Hash, Info, Plus, Trash2
@@ -40,6 +41,31 @@ export default function AddProductPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const [units, setUnits] = useState<{ id: string; name: string }[]>([]);
+  const [showAddUnit, setShowAddUnit] = useState(false);
+  const [newUnitName, setNewUnitName] = useState('');
+  const [addUnitLoading, setAddUnitLoading] = useState(false);
+
+  useEffect(() => {
+    getUnits().then(setUnits).catch(() => {});
+  }, []);
+
+  const handleAddUnit = async () => {
+    if (!newUnitName.trim()) return;
+    setAddUnitLoading(true);
+    try {
+      const unit = await createUnit(newUnitName);
+      setUnits(prev => [...prev, unit].sort((a, b) => a.name.localeCompare(b.name)));
+      setFormData(prev => ({ ...prev, unit: unit.name }));
+      setNewUnitName('');
+      setShowAddUnit(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to add unit');
+    } finally {
+      setAddUnitLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -222,17 +248,56 @@ export default function AddProductPage() {
             
             <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Base Unit</label>
-                <input
-                  type="text"
-                  name="unit"
-                  value={formData.unit}
-                  onChange={handleChange}
-                  placeholder="e.g. PIECE, KG, GRAM"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all uppercase"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700">Base Unit</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUnit(v => !v)}
+                    className="text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                  >
+                    {showAddUnit ? 'Cancel' : '+ New unit'}
+                  </button>
+                </div>
+                {showAddUnit ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      autoFocus
+                      value={newUnitName}
+                      onChange={(e) => setNewUnitName(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddUnit(); } }}
+                      placeholder="e.g. BAG, ROLL, BOTTLE"
+                      className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddUnit}
+                      disabled={addUnitLoading || !newUnitName.trim()}
+                      className="rounded-xl bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+                    >
+                      {addUnitLoading ? 'Adding...' : 'Add'}
+                    </button>
+                  </div>
+                ) : (
+                  <select
+                    name="unit"
+                    value={formData.unit}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  >
+                    {formData.unit && !units.some(u => u.name === formData.unit) && (
+                      <option value={formData.unit}>{formData.unit}</option>
+                    )}
+                    {units.map(u => (
+                      <option key={u.id} value={u.name}>{u.name}</option>
+                    ))}
+                  </select>
+                )}
+                <Link href="/products/units" className="mt-1 inline-block text-xs text-gray-400 hover:text-gray-600">
+                  Manage units
+                </Link>
               </div>
-              
+
               {formData.productType === 'WEIGHT' && (
                 <div className="flex items-center h-full pt-6">
                   <label className="flex items-center gap-3 cursor-pointer">

@@ -198,8 +198,8 @@ export async function createTenant(data: any) {
   // Create default roles
   let ownerRoleId = null;
   const rolesData = [
-    { name: 'Owner', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT'] },
-    { name: 'Manager', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'VIEW_PROFIT'] },
+    { name: 'Owner', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT', 'OVERRIDE_PRICE'] },
+    { name: 'Manager', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'VIEW_PROFIT', 'OVERRIDE_PRICE'] },
     { name: 'Cashier', permissions: ['CREATE_BILL', 'VIEW_PRODUCT'] }
   ];
 
@@ -318,13 +318,41 @@ export async function updateTenantTheme(theme: string) {
   if (!session?.user?.tenantId) {
     throw new Error("Unauthorized");
   }
-  
+
   await prisma.tenant.update({
     where: { id: session.user.tenantId },
     data: { menuTheme: theme }
   });
-  
+
   revalidatePath('/settings/menu');
+  return true;
+}
+
+export interface MenuContentInput {
+  tagline?: string;
+  aboutText?: string;
+  coverImageUrl?: string;
+  businessHours?: string;
+}
+
+export async function updateMenuContent(data: MenuContentInput) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.tenant.update({
+    where: { id: session.user.tenantId },
+    data: {
+      tagline: data.tagline?.trim() || null,
+      aboutText: data.aboutText?.trim() || null,
+      coverImageUrl: data.coverImageUrl?.trim() || null,
+      businessHours: data.businessHours?.trim() || null,
+    }
+  });
+
+  revalidatePath('/settings/menu');
+  revalidatePath(`/menu/${session.user.tenantId}`);
   return true;
 }
 

@@ -21,6 +21,7 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
           product: true
         }
       },
+      payments: true,
       user: {
         select: {
           name: true,
@@ -59,9 +60,18 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
     });
   };
 
-  const subtotal = transaction.items.reduce((sum: number, item: any) => sum + item.itemTotal, 0);
-  const discountAmount = (subtotal * transaction.discount) / 100;
-  const netAmount = subtotal - discountAmount;
+  // netAmount is the stored, authoritative total (computed server-side by
+  // lib/services/transactions.ts, which applies the full item -> coupon ->
+  // bill% -> loyalty discount hierarchy). Everything below is derived only
+  // for display purposes, not recomputed as the source of truth.
+  const subtotal = transaction.totalAmount;
+  const netAmount = transaction.netAmount;
+  const itemDiscountTotal = transaction.items.reduce((sum: number, item: any) => sum + (item.discountAmount || 0), 0);
+  const afterItemDiscounts = subtotal - itemDiscountTotal;
+  const billDiscountAmount = Math.max(
+    0,
+    afterItemDiscounts - transaction.couponDiscountAmount - transaction.loyaltyDiscountAmount - netAmount + transaction.taxAmount
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 print:p-0 print:min-h-0">
@@ -169,13 +179,47 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
               <span>Subtotal</span>
               <span className="tabular-nums">₹{subtotal.toFixed(2)}</span>
             </div>
-            {discountAmount > 0 && (
+            {itemDiscountTotal > 0 && (
               <div className="flex justify-between text-emerald-600">
-                <span>Discount ({transaction.discount}%)</span>
-                <span className="tabular-nums">-₹{discountAmount.toFixed(2)}</span>
+                <span>Item Discounts</span>
+                <span className="tabular-nums">-₹{itemDiscountTotal.toFixed(2)}</span>
               </div>
             )}
-            {transaction.paymentMethod && (
+            {transaction.couponDiscountAmount > 0 && (
+              <div className="flex justify-between text-emerald-600">
+                <span>Coupon {transaction.couponCode ? `(${transaction.couponCode})` : ''}</span>
+                <span className="tabular-nums">-₹{transaction.couponDiscountAmount.toFixed(2)}</span>
+              </div>
+            )}
+            {billDiscountAmount > 0 && (
+              <div className="flex justify-between text-emerald-600">
+                <span>Discount ({transaction.discount}%)</span>
+                <span className="tabular-nums">-₹{billDiscountAmount.toFixed(2)}</span>
+              </div>
+            )}
+            {transaction.loyaltyDiscountAmount > 0 && (
+              <div className="flex justify-between text-emerald-600">
+                <span>Loyalty Points ({transaction.loyaltyPointsRedeemed})</span>
+                <span className="tabular-nums">-₹{transaction.loyaltyDiscountAmount.toFixed(2)}</span>
+              </div>
+            )}
+            {transaction.taxAmount > 0 && (
+              <div className="flex justify-between text-gray-600">
+                <span>Tax</span>
+                <span className="tabular-nums">₹{transaction.taxAmount.toFixed(2)}</span>
+              </div>
+            )}
+            {transaction.payments.length > 1 ? (
+              <div className="pt-1">
+                <div className="text-gray-500 mb-1">Payment (Split)</div>
+                {transaction.payments.map((p: any) => (
+                  <div key={p.id} className="flex justify-between text-gray-500 pl-2">
+                    <span>{p.method}</span>
+                    <span className="tabular-nums">₹{p.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            ) : transaction.paymentMethod && (
               <div className="flex justify-between text-gray-500">
                 <span>Payment</span>
                 <span className="font-medium">{transaction.paymentMethod}</span>
@@ -191,6 +235,11 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
           <div className="text-center border-t-2 border-dashed border-gray-300 pt-4">
             <p className="text-xs font-bold text-gray-800 tracking-wide">THANK YOU FOR YOUR BUSINESS!</p>
             <p className="text-[10px] text-gray-400 mt-0.5">This is a computer-generated invoice</p>
+            {transaction.loyaltyPointsEarned > 0 && (
+              <p className="text-[10px] text-amber-600 font-medium mt-1.5">
+                You earned {transaction.loyaltyPointsEarned} loyalty points on this purchase
+              </p>
+            )}
             {transaction.amountReceived && (
               <div className="mt-3 text-[10px] text-gray-500 space-y-0.5">
                 <div className="flex justify-between max-w-[200px] mx-auto">

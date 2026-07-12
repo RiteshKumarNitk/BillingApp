@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { createTransaction, TransactionError } from '@/lib/services/transactions';
+import { holdBill, TransactionError } from '@/lib/services/transactions';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,15 +10,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!token?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
 
-    const transaction = await createTransaction({
+    const held = await holdBill({
       tenantId: token.tenantId as string,
       userId: token.id as string,
       role: token.role as string,
@@ -26,10 +23,6 @@ export async function POST(request: NextRequest) {
       items: body.items,
       discount: body.discount,
       taxAmount: body.taxAmount,
-      paymentMethod: body.paymentMethod,
-      amountReceived: body.amountReceived,
-      changeAmount: body.changeAmount,
-      payments: body.payments,
       customerId: body.customerId,
       customerName: body.customerName,
       customerPhone: body.customerPhone,
@@ -38,21 +31,12 @@ export async function POST(request: NextRequest) {
       loyaltyPointsRedeemed: body.loyaltyPointsRedeemed,
     });
 
-    return NextResponse.json(
-      {
-        message: 'Transaction created successfully',
-        transaction
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: 'Bill held', transaction: held }, { status: 201 });
   } catch (error: any) {
     if (error instanceof TransactionError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error('Transaction creation error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Hold bill error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

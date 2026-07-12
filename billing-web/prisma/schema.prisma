@@ -8,30 +8,34 @@ datasource db {
 }
 
 model Tenant {
-  id                 String         @id @default(uuid())
+  id                 String               @id @default(uuid())
   name               String
-  domain             String         @unique
+  domain             String               @unique
   dbConnectionString String
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  status             String         @default("ACTIVE")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  status             String               @default("ACTIVE")
   address            String?
   contactPerson      String?
-  email              String?        @unique
+  email              String?              @unique
   gstin              String?
-  phone              String?        @unique
-  subscriptionPlan   String         @default("FREE")
+  phone              String?              @unique
+  subscriptionPlan   String               @default("FREE")
   menuTheme          String?
-  currency           String         @default("INR")
+  currency           String               @default("INR")
   logoUrl            String?
-  timezone           String         @default("Asia/Kolkata")
+  timezone           String               @default("Asia/Kolkata")
   website            String?
   aadharCardUrl      String?
-  version            Int            @default(0)
+  version            Int                  @default(0)
   primaryColor       String?
   fontFamily         String?
   latitude           Float?
   longitude          Float?
+  tagline            String?
+  aboutText          String?
+  coverImageUrl      String?
+  businessHours      String?
   customers          Customer[]
   discounts          Discount[]
   employees          Employee[]
@@ -40,6 +44,7 @@ model Tenant {
   orderRequests      OrderRequest[]
   products           Product[]
   roles              Role[]
+  units              Unit[]
   shop               Shop?
   transactions       Transaction[]
   users              User[]
@@ -59,6 +64,20 @@ model Role {
   users       User[]
 
   @@unique([tenantId, name])
+}
+
+// Tenant-managed master list of base units (PIECE, KG, LITRE, ...) offered as a dropdown when
+// adding a product. Product.unit stays a plain string (not a FK) so deleting a Unit here never
+// invalidates existing products — it just stops appearing as a pickable option going forward.
+model Unit {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
 }
 
 model User {
@@ -216,25 +235,25 @@ model OrderRequestItem {
 }
 
 model Notification {
-  id                String         @id @default(uuid())
-  type              String         @default("ORDER_STATUS") // ORDER_STATUS, GENERAL, PROMOTION
-  title             String
-  message           String
-  isRead            Boolean        @default(false)
-  orderId           String?
-  metadata          String?        // JSON string for extra data
+  id       String  @id @default(uuid())
+  type     String  @default("ORDER_STATUS") // ORDER_STATUS, GENERAL, PROMOTION
+  title    String
+  message  String
+  isRead   Boolean @default(false)
+  orderId  String?
+  metadata String? // JSON string for extra data
 
-  tenantId          String
-  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   customerAccountId String
   customerAccount   CustomerAccount @relation(fields: [customerAccountId], references: [id], onDelete: Cascade)
 
-  customerId        String?
-  customer          Customer?      @relation(fields: [customerId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
 
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([customerAccountId, isRead])
   @@index([tenantId, createdAt])
@@ -260,6 +279,7 @@ model Discount {
   id                 String    @id @default(uuid())
   name               String
   description        String?
+  code               String?   @unique
   discountPercentage Float
   applicableCategory String?
   minimumQuantity    Int       @default(1)
@@ -302,45 +322,64 @@ model Shop {
 }
 
 model Transaction {
-  id             String            @id @default(uuid())
-  tenantId       String
-  userId         String
-  status         String            @default("COMPLETED")
-  totalAmount    Float
-  discount       Float             @default(0)
-  netAmount      Float
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  amountReceived Float?
-  changeAmount   Float?
-  customerId     String?
-  customerName   String?
-  customerPhone  String?
-  discountType   String            @default("PERCENTAGE")
-  notes          String?
-  paymentMethod  String?
-  taxAmount      Float             @default(0)
-  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user           User              @relation(fields: [userId], references: [id])
-  items          TransactionItem[]
+  id                    String               @id @default(uuid())
+  tenantId              String
+  userId                String
+  status                String               @default("COMPLETED")
+  totalAmount           Float
+  discount              Float                @default(0)
+  netAmount             Float
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  amountReceived        Float?
+  changeAmount          Float?
+  customerId            String?
+  customerName          String?
+  customerPhone         String?
+  discountType          String               @default("PERCENTAGE")
+  notes                 String?
+  paymentMethod         String?
+  taxAmount             Float                @default(0)
+  couponCode            String?
+  couponDiscountAmount  Float                @default(0)
+  loyaltyPointsRedeemed Int                  @default(0)
+  loyaltyDiscountAmount Float                @default(0)
+  loyaltyPointsEarned   Int                  @default(0)
+  tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user                  User                 @relation(fields: [userId], references: [id])
+  items                 TransactionItem[]
+  payments              TransactionPayment[]
+}
+
+model TransactionPayment {
+  id            String      @id @default(uuid())
+  transactionId String
+  method        String
+  amount        Float
+  createdAt     DateTime    @default(now())
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([transactionId])
 }
 
 model TransactionItem {
-  id            String      @id @default(uuid())
-  transactionId String
-  productId     String
-  name          String
-  barcode       String
-  purchasePrice Float
-  mrp           Float
-  salePrice     Float
-  quantity      Float
-  itemTotal     Float
-  batchId       String?
-  serialId      String?
-  variantId     String?
-  product       Product     @relation(fields: [productId], references: [id])
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  id             String      @id @default(uuid())
+  transactionId  String
+  productId      String
+  name           String
+  barcode        String
+  purchasePrice  Float
+  mrp            Float
+  salePrice      Float
+  quantity       Float
+  itemTotal      Float
+  discountAmount Float       @default(0)
+  productType    String?
+  batchId        String?
+  serialId       String?
+  variantId      String?
+  product        Product     @relation(fields: [productId], references: [id])
+  transaction    Transaction @relation(fields: [transactionId], references: [id])
 }
 
 model SubscriptionPlan {
@@ -349,7 +388,7 @@ model SubscriptionPlan {
   description     String?
   amount          Float
   currency        String               @default("INR")
-  interval        String               // "MONTHLY" or "YEARLY"
+  interval        String // "MONTHLY" or "YEARLY"
   razorpayPlanId  String?
   trialDays       Int                  @default(0)
   maxProducts     Int                  @default(-1)
@@ -362,24 +401,24 @@ model SubscriptionPlan {
 }
 
 model TenantSubscription {
-  id                     String           @id @default(uuid())
+  id                     String    @id @default(uuid())
   tenantId               String
   planId                 String
-  status                 String           // "ACTIVE", "TRIAL", "CANCELLED", "PAST_DUE", "EXPIRED", "UNPAID"
-  razorpaySubscriptionId String?          @unique
-  startDate              DateTime         @default(now())
+  status                 String // "ACTIVE", "TRIAL", "CANCELLED", "PAST_DUE", "EXPIRED", "UNPAID"
+  razorpaySubscriptionId String?   @unique
+  startDate              DateTime  @default(now())
   endDate                DateTime
   trialStartDate         DateTime?
   trialEndDate           DateTime?
-  cancelAtPeriodEnd      Boolean          @default(false)
+  cancelAtPeriodEnd      Boolean   @default(false)
   canceledAt             DateTime?
   endedAt                DateTime?
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
-  tenant                 Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  plan                   SubscriptionPlan @relation(fields: [planId], references: [id])
-  invoices               Invoice[]
+  tenant   Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  plan     SubscriptionPlan @relation(fields: [planId], references: [id])
+  invoices Invoice[]
 
   @@index([tenantId])
 }
@@ -387,7 +426,7 @@ model TenantSubscription {
 model Coupon {
   id             String    @id @default(uuid())
   code           String    @unique
-  discountType   String    // "PERCENTAGE" or "FIXED"
+  discountType   String // "PERCENTAGE" or "FIXED"
   discountValue  Float
   expiryDate     DateTime?
   maxRedemptions Int?
@@ -399,31 +438,31 @@ model Coupon {
 }
 
 model Invoice {
-  id                 String              @id @default(uuid())
-  tenantId           String
-  subscriptionId     String?
-  invoiceNumber      String              @unique
-  amount             Float
-  discountAmount     Float               @default(0)
-  netAmount          Float
-  currency           String              @default("INR")
-  status             String              // "PAID", "PENDING", "FAILED"
-  billingDate        DateTime            @default(now())
-  dueDate            DateTime?
-  paidAt             DateTime?
-  razorpayPaymentId  String?
-  razorpayOrderId    String?
-  razorpaySignature  String?
-  couponId           String?
-  pdfUrl             String?
-  failedPaymentAttempts Int         @default(0)
-  nextRetryDate      DateTime?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  id                    String    @id @default(uuid())
+  tenantId              String
+  subscriptionId        String?
+  invoiceNumber         String    @unique
+  amount                Float
+  discountAmount        Float     @default(0)
+  netAmount             Float
+  currency              String    @default("INR")
+  status                String // "PAID", "PENDING", "FAILED"
+  billingDate           DateTime  @default(now())
+  dueDate               DateTime?
+  paidAt                DateTime?
+  razorpayPaymentId     String?
+  razorpayOrderId       String?
+  razorpaySignature     String?
+  couponId              String?
+  pdfUrl                String?
+  failedPaymentAttempts Int       @default(0)
+  nextRetryDate         DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  subscription       TenantSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-  coupon             Coupon?             @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  tenant       Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  subscription TenantSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  coupon       Coupon?             @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
 }
@@ -437,9 +476,8 @@ model AuditLog {
   ipAddress String?
   createdAt DateTime @default(now())
 
-  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
 }
-

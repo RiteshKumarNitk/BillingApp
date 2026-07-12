@@ -8,6 +8,20 @@ import { revalidatePath } from "next/cache";
 import { checkFeatureLimit } from "@/lib/subscription";
 import bcrypt from "bcryptjs";
 
+// Lets a client component (e.g. the billing cart) check the current user's role/permissions
+// for UI gating — mirrors what's already on the session JWT (token.role/token.permissions) but
+// client components can't read the server session directly.
+export async function getMyPermissions() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return { role: null as string | null, permissions: [] as string[] };
+  }
+  return {
+    role: session.user.role as string,
+    permissions: (session.user.permissions as string[]) || [],
+  };
+}
+
 export async function getTenantUsers() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) throw new Error("Unauthorized");

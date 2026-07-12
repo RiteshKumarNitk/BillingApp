@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Transaction"
+  ADD COLUMN "couponCode" TEXT,
+  ADD COLUMN "couponDiscountAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN "loyaltyPointsRedeemed" INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN "loyaltyDiscountAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  ADD COLUMN "loyaltyPointsEarned" INTEGER NOT NULL DEFAULT 0;

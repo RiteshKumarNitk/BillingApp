@@ -1,4 +1,9 @@
 import prisma from "@/lib/prisma";
+import type { PrismaClient } from "../generated/prisma";
+
+// Accepts either the default prisma client or an interactive-transaction client (`tx`), so
+// callers can re-run these checks inside a `prisma.$transaction(...)` for a tight race window.
+type QueryClient = Pick<PrismaClient, "tenant" | "product" | "user" | "transaction">;
 
 export interface ActiveSubscriptionInfo {
   status: string;
@@ -11,8 +16,11 @@ export interface ActiveSubscriptionInfo {
   maxTransactions: number;
 }
 
-export async function getActiveSubscription(tenantId: string): Promise<ActiveSubscriptionInfo | null> {
-  const tenant = await prisma.tenant.findUnique({
+export async function getActiveSubscription(
+  tenantId: string,
+  client: QueryClient = prisma
+): Promise<ActiveSubscriptionInfo | null> {
+  const tenant = await client.tenant.findUnique({
     where: { id: tenantId },
     include: {
       subscriptions: {
@@ -46,10 +54,11 @@ export async function getActiveSubscription(tenantId: string): Promise<ActiveSub
 
 export async function checkFeatureLimit(
   tenantId: string,
-  feature: "products" | "users" | "transactions"
+  feature: "products" | "users" | "transactions",
+  client: QueryClient = prisma
 ): Promise<{ allowed: boolean; reason?: string }> {
   // Try to get subscription
-  const activeSub = await getActiveSubscription(tenantId);
+  const activeSub = await getActiveSubscription(tenantId, client);
   
   // If no active subscription, we fetch or assume default FREE plan configuration
   const defaultFreePlan = {
@@ -63,7 +72,7 @@ export async function checkFeatureLimit(
 
   if (feature === "products") {
     if (plan.maxProducts === -1) return { allowed: true };
-    const count = await prisma.product.count({
+    const count = await client.product.count({
       where: { tenantId }
     });
     if (count >= plan.maxProducts) {
@@ -76,7 +85,7 @@ export async function checkFeatureLimit(
 
   if (feature === "users") {
     if (plan.maxUsers === -1) return { allowed: true };
-    const count = await prisma.user.count({
+    const count = await client.user.count({
       where: { tenantId }
     });
     if (count >= plan.maxUsers) {
@@ -95,9 +104,12 @@ export async function checkFeatureLimit(
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const count = await prisma.transaction.count({
+    // HELD bills are unfinished drafts, not completed sales — they shouldn't consume the
+    // tenant's monthly transaction quota until (if ever) they're resumed and completed.
+    const count = await client.transaction.count({
       where: {
         tenantId,
+        status: { not: 'HELD' },
         createdAt: { gte: startOfMonth }
       }
     });

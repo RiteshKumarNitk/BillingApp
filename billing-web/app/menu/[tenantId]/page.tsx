@@ -8,7 +8,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ ten
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
-    select: { name: true, address: true, phone: true, menuTheme: true, latitude: true, longitude: true }
+    select: {
+      name: true, address: true, phone: true, menuTheme: true, latitude: true, longitude: true,
+      logoUrl: true, tagline: true, aboutText: true, coverImageUrl: true, businessHours: true,
+    }
   });
 
   if (!tenant) {
@@ -38,8 +41,8 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ ten
     <MenuClient 
       tenantId={tenantId}
       tenant={tenant}
-      categorizedProducts={categorizedProducts} 
-      theme={tenant.menuTheme || "DEFAULT"} 
+      categorizedProducts={categorizedProducts}
+      theme={tenant.menuTheme}
     />
   );
 }

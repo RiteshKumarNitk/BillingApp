@@ -15,9 +15,12 @@ export async function GET(request: Request) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
     const skip = (page - 1) * limit;
 
+    // HELD bills are drafts, not completed sales — exclude them from the sales history mobile sees.
+    const where = { tenantId: user.tenantId, status: { not: 'HELD' } };
+
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
-        where: { tenantId: user.tenantId },
+        where,
         include: {
           items: true,
           user: { select: { name: true, email: true } },
@@ -26,7 +29,7 @@ export async function GET(request: Request) {
         skip,
         take: limit,
       }),
-      prisma.transaction.count({ where: { tenantId: user.tenantId } }),
+      prisma.transaction.count({ where }),
     ]);
 
     return corsResponse({
