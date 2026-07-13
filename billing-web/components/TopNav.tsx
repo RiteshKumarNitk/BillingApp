@@ -84,7 +84,11 @@ export default function TopNav({ user }: { user: any }) {
                   <span className="inline-block mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{user?.role}</span>
                 </div>
                 <button
-                  onClick={() => signOut({ callbackUrl: '/auth/login' })}
+                  onClick={() => {
+                    localStorage.removeItem("user_session");
+                    localStorage.removeItem("tenant_info");
+                    signOut({ callbackUrl: '/auth/login' });
+                  }}
                   className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
                   role="menuitem"
                 >

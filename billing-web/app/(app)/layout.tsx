@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
 import { ToastProvider } from "@/components/ui/Toast";
 import { SidebarProvider } from "@/components/SidebarContext";
+import SessionSync from "@/components/SessionSync";
 
 export default async function AppLayout({
   children,
@@ -30,6 +31,7 @@ export default async function AppLayout({
 
   return (
     <SidebarProvider>
+      <SessionSync session={session} tenant={tenant} />
       <div className="flex h-screen bg-gray-50 overflow-hidden">
         <Sidebar user={session.user} tenant={tenant} />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">

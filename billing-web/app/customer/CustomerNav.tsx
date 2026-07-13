@@ -80,7 +80,12 @@ export function CustomerTopBar() {
   useEffect(() => {
     fetch("/api/customer/auth/session")
       .then((r) => r.json())
-      .then((d) => { if (d.user?.name) setName(d.user.name); })
+      .then((d) => { 
+        if (d.user?.name) {
+          setName(d.user.name); 
+          localStorage.setItem("customer_session", JSON.stringify(d));
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -101,7 +106,10 @@ export function CustomerTopBar() {
             </div>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/customer/auth/login" })}
+            onClick={() => {
+              localStorage.removeItem("customer_session");
+              signOut({ callbackUrl: "/customer/auth/login" });
+            }}
             className="p-2 text-[#2D2D2D]/40 hover:text-[#2D2D2D] hover:bg-white/30 rounded-xl transition-colors"
             title="Sign Out"
           >
