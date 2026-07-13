@@ -7,7 +7,7 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
   const tenant = await getMenuTenant(tenantId);
 
   const products = await prisma.product.findMany({
-    where: { tenantId },
+    where: { tenantId: tenant.id },
     include: { variants: true },
     orderBy: { name: 'asc' }
   });

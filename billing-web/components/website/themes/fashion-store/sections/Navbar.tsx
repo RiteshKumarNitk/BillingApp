@@ -8,16 +8,17 @@ import { ShoppingBag, Search, User, Menu, X } from 'lucide-react';
 export default function Navbar({ tenant, config }: { tenant: any, config: WebsiteConfig }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const siteId = tenant.websiteSlug || tenant.id;
 
   const links = [
-    { label: 'Home', href: `/site/${tenant.id}` },
-    { label: 'Shop', href: `/menu/${tenant.id}/shop` },
-    { label: 'About', href: `/site/${tenant.id}/about` },
-    { label: 'Contact', href: `/site/${tenant.id}/contact` },
+    { label: 'Home', href: `/site/${siteId}` },
+    { label: 'Shop', href: `/menu/${siteId}/shop` },
+    { label: 'About', href: `/site/${siteId}/about` },
+    { label: 'Contact', href: `/site/${siteId}/contact` },
   ];
 
   const isActive = (href: string) => {
-    if (href === `/site/${tenant.id}`) return pathname === href;
+    if (href === `/site/${siteId}`) return pathname === href;
     return pathname.startsWith(href);
   };
 
@@ -31,7 +32,7 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
             </button>
           </div>
 
-          <Link href={`/site/${tenant.id}`} className="flex items-center gap-2 flex-1 md:flex-none justify-center md:justify-start">
+          <Link href={`/site/${siteId}`} className="flex items-center gap-2 flex-1 md:flex-none justify-center md:justify-start">
             {tenant.logoUrl ? (
               <img src={tenant.logoUrl} alt={tenant.name} className="h-8 object-contain" />
             ) : (

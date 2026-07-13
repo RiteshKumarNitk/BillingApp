@@ -67,6 +67,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         status: body.status || existing.status,
         logoUrl: body.logoUrl || null,
         website: body.website || null,
+        websiteSlug: body.websiteSlug || null,
         currency: body.currency || 'INR',
         timezone: body.timezone || 'Asia/Kolkata',
         aadharCardUrl: body.aadharCardUrl || null,

@@ -26,6 +26,7 @@ model Tenant {
   logoUrl            String?
   timezone           String               @default("Asia/Kolkata")
   website            String?
+  websiteSlug        String?              @unique
   aadharCardUrl      String?
   version            Int                  @default(0)
   primaryColor       String?

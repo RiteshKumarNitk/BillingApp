@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { toUrlSlug } from "@/lib/website/slug";
 
 export async function updateBranding(data: { primaryColor: string; fontFamily: string }) {
   const session = await getServerSession(authOptions);
@@ -99,6 +100,7 @@ export async function createTenant(data: any) {
     subscriptionPlan: selectedPlan.name,
     logoUrl: data.logoUrl || null,
     website: data.website || null,
+    websiteSlug: data.websiteSlug || toUrlSlug(data.name),
     currency: data.currency || 'INR',
     timezone: data.timezone || 'Asia/Kolkata',
     aadharCardUrl: data.aadharCardUrl || null
@@ -250,6 +252,7 @@ export async function updateTenant(tenantId: string, data: any) {
     subscriptionPlan: data.subscriptionPlan || 'FREE',
     logoUrl: data.logoUrl || null,
     website: data.website || null,
+    websiteSlug: data.websiteSlug || null,
     currency: data.currency || 'INR',
     timezone: data.timezone || 'Asia/Kolkata',
     aadharCardUrl: data.aadharCardUrl || null

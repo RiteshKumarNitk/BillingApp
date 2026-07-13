@@ -7,13 +7,14 @@ export default function Footer({ data, config, tenant }: { data: FooterSection['
   const year = new Date().getFullYear();
   const copyrightText = data.copyrightText.replace('{year}', year.toString()).replace('{tenant}', tenant.name);
   const socialLinks = config.businessInfo?.socialLinks;
+  const siteId = tenant.websiteSlug || tenant.id;
 
   return (
     <footer className="bg-gray-900 text-gray-300" id="contact">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href={`/site/${tenant.id}`} className="flex items-center gap-3 mb-5">
+            <Link href={`/site/${siteId}`} className="flex items-center gap-3 mb-5">
               {tenant.logoUrl ? (
                 <img src={tenant.logoUrl} alt={tenant.name} className="h-9 object-contain brightness-0 invert" />
               ) : (
@@ -47,10 +48,10 @@ export default function Footer({ data, config, tenant }: { data: FooterSection['
             <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-5">Quick Links</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Home', href: `/site/${tenant.id}` },
-                { label: 'About Us', href: `/site/${tenant.id}/about` },
-                { label: 'Menu', href: `/menu/${tenant.id}/shop` },
-                { label: 'Contact', href: `/site/${tenant.id}/contact` },
+                { label: 'Home', href: `/site/${siteId}` },
+                { label: 'About Us', href: `/site/${(tenant.websiteSlug || tenant.id)}/about` },
+                { label: 'Menu', href: `/menu/${siteId}/shop` },
+                { label: 'Contact', href: `/site/${(tenant.websiteSlug || tenant.id)}/contact` },
               ].map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">{link.label}</Link>

@@ -2,7 +2,7 @@ import React from 'react';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { resolveTenantWithProducts, getWebsiteConfig } from '@/lib/website/utils';
+import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
 
 interface SitePageProps {
   params: Promise<{
@@ -12,7 +12,7 @@ interface SitePageProps {
 
 export async function generateMetadata({ params }: SitePageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const tenant = await resolveTenantWithProducts(resolvedParams.tenantId);
+  const tenant = await resolveTenant(resolvedParams.tenantId);
 
   if (!tenant) {
     return { title: 'Site Not Found' };
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: SitePageProps): Promise<Metad
 
 export default async function SitePage({ params }: SitePageProps) {
   const resolvedParams = await params;
-  const tenant = await resolveTenantWithProducts(resolvedParams.tenantId);
+  const tenant = await resolveTenant(resolvedParams.tenantId);
 
   if (!tenant) {
     notFound();

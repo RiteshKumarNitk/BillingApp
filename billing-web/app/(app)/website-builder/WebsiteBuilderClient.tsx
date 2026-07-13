@@ -6,7 +6,8 @@ import { themes } from '@/lib/website/registry';
 import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink } from 'lucide-react';
 import { useToast } from "@/components/ui/Toast";
 
-export default function WebsiteBuilderClient({ initialConfig, tenantId }: { initialConfig: WebsiteConfig, tenantId: string }) {
+export default function WebsiteBuilderClient({ initialConfig, tenantId, tenantWebsiteSlug }: { initialConfig: WebsiteConfig, tenantId: string, tenantWebsiteSlug?: string }) {
+  const siteId = tenantWebsiteSlug || tenantId;
   const { addToast } = useToast();
   const [config, setConfig] = useState<WebsiteConfig>(initialConfig);
   const [isSaving, setIsSaving] = useState(false);
@@ -292,10 +293,10 @@ export default function WebsiteBuilderClient({ initialConfig, tenantId }: { init
                 <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Quick Links</h4>
                   <div className="space-y-2">
-                    <a href={`/site/${tenantId}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
+                    <a href={`/site/${siteId}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
                       <ExternalLink className="w-4 h-4" /> View Live Website
                     </a>
-                    <a href={`/menu/${tenantId}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
+                    <a href={`/menu/${siteId}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
                       <ExternalLink className="w-4 h-4" /> View Menu / Shop
                     </a>
                   </div>
@@ -368,11 +369,11 @@ export default function WebsiteBuilderClient({ initialConfig, tenantId }: { init
                 <div className="w-3 h-3 rounded-full bg-green-400" />
               </div>
               <div className="mx-auto bg-white border border-gray-200 rounded-md px-3 py-1 text-xs text-gray-500 font-mono w-1/2 text-center truncate">
-                Preview Mode - /site/{tenantId}
+                Preview Mode
               </div>
             </div>
             <iframe 
-              src={`/site/${tenantId}`}
+              src={`/site/${siteId}`}
               className="flex-1 w-full bg-white"
               title="Live Preview"
             />

@@ -14,12 +14,13 @@ async function main() {
   // 1. Create the System Tenant (Master Tenant for Superadmin)
   const systemTenant = await prisma.tenant.upsert({
     where: { domain: "system" },
-    update: {},
+    update: { websiteSlug: "system-administration" },
     create: {
       name: "System Administration",
       domain: "system",
       dbConnectionString: "system_default",
-      status: "ACTIVE"
+      status: "ACTIVE",
+      websiteSlug: "system-administration"
     }
   });
 
@@ -131,14 +132,16 @@ async function main() {
   const acmeTenant = await prisma.tenant.upsert({
     where: { domain: "acme.example.com" },
     update: {
-      subscriptionPlan: growthPlan.name
+      subscriptionPlan: growthPlan.name,
+      websiteSlug: "acme-corp"
     },
     create: {
       name: "Acme Corp",
       domain: "acme.example.com",
       dbConnectionString: "",
       status: "ACTIVE",
-      subscriptionPlan: growthPlan.name
+      subscriptionPlan: growthPlan.name,
+      websiteSlug: "acme-corp"
     }
   });
 
@@ -273,6 +276,7 @@ async function main() {
         domain: "demo.example.com",
         dbConnectionString: "demo_default",
         status: "ACTIVE",
+        websiteSlug: "demo-general-store",
         contactPerson: "Demo Owner",
         email: "owner@demo.com",
         phone: "9876543210",

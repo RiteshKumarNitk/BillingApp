@@ -9,16 +9,17 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const brandName = tenant?.name || 'Restaurant';
+  const siteId = tenant.websiteSlug || tenant.id;
 
   const links = [
-    { label: 'Home', href: `/site/${tenant.id}` },
-    { label: 'Menu', href: `/menu/${tenant.id}` },
-    { label: 'About', href: `/site/${tenant.id}/about` },
-    { label: 'Contact', href: `/site/${tenant.id}/contact` },
+    { label: 'Home', href: `/site/${siteId}` },
+    { label: 'Menu', href: `/menu/${siteId}` },
+    { label: 'About', href: `/site/${siteId}/about` },
+    { label: 'Contact', href: `/site/${siteId}/contact` },
   ];
 
   const isActive = (href: string) => {
-    if (href === `/site/${tenant.id}`) return pathname === href;
+    if (href === `/site/${siteId}`) return pathname === href;
     return pathname.startsWith(href);
   };
 
@@ -26,7 +27,7 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
     <nav className="w-full bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link href={`/site/${tenant.id}`} className="flex items-center gap-3 group">
+          <Link href={`/site/${siteId}`} className="flex items-center gap-3 group">
             {tenant.logoUrl ? (
               <img className="h-10 w-auto" src={tenant.logoUrl} alt={brandName} />
             ) : (
@@ -54,7 +55,7 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
               </Link>
             ))}
             <Link
-              href={`/menu/${tenant.id}`}
+              href={`/menu/${siteId}`}
               className="ml-3 px-5 py-2.5 bg-[var(--theme-primary)] text-white font-semibold rounded-full hover:opacity-90 transition-all text-sm shadow-sm"
             >
               Order Online
@@ -63,7 +64,7 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
 
           <div className="md:hidden flex items-center">
             <Link
-              href={`/menu/${tenant.id}`}
+              href={`/menu/${siteId}`}
               className="mr-2 px-4 py-2 bg-[var(--theme-primary)] text-white text-sm font-semibold rounded-full"
             >
               Order

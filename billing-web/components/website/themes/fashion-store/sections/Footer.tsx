@@ -7,13 +7,14 @@ export default function Footer({ data, config, tenant }: { data: FooterSection['
   const year = new Date().getFullYear();
   const copyrightText = data.copyrightText.replace('{year}', year.toString()).replace('{tenant}', tenant.name);
   const socialLinks = config.businessInfo?.socialLinks;
+  const siteId = tenant.websiteSlug || tenant.id;
 
   return (
     <footer className="bg-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href={`/site/${tenant.id}`} className="block mb-5">
+            <Link href={`/site/${siteId}`} className="block mb-5">
               {tenant.logoUrl ? (
                 <img src={tenant.logoUrl} alt={tenant.name} className="h-8 object-contain" />
               ) : (
@@ -41,9 +42,9 @@ export default function Footer({ data, config, tenant }: { data: FooterSection['
           <div>
             <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-5">Shop</h4>
             <ul className="space-y-3 text-sm text-gray-500">
-              <li><Link href={`/site/${tenant.id}`} className="hover:text-gray-900 transition-colors">Home</Link></li>
-              <li><Link href={`/menu/${tenant.id}/shop`} className="hover:text-gray-900 transition-colors">All Products</Link></li>
-              <li><Link href={`/site/${tenant.id}/about`} className="hover:text-gray-900 transition-colors">About</Link></li>
+              <li><Link href={`/site/${siteId}`} className="hover:text-gray-900 transition-colors">Home</Link></li>
+              <li><Link href={`/menu/${siteId}/shop`} className="hover:text-gray-900 transition-colors">All Products</Link></li>
+              <li><Link href={`/site/${(tenant.websiteSlug || tenant.id)}/about`} className="hover:text-gray-900 transition-colors">About</Link></li>
             </ul>
           </div>
 

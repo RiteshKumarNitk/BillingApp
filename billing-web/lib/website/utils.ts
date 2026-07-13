@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
 import prisma from '@/lib/prisma';
 
@@ -100,22 +101,31 @@ export function getWebsiteConfig(tenant: any): WebsiteConfig {
   return settings || themeDefaults['premium-food'](tenant);
 }
 
-export async function resolveTenant(tenantId: string) {
+export const resolveTenant = cache(async (tenantId: string) => {
   const { isValidUuid } = await import('./slug');
+
   if (isValidUuid(tenantId)) {
     return prisma.tenant.findUnique({
       where: { id: tenantId },
       include: { websiteSettings: true }
     });
   }
+
   return prisma.tenant.findFirst({
-    where: { OR: [{ website: tenantId }, { domain: tenantId }] },
+    where: {
+      OR: [
+        { websiteSlug: tenantId },
+        { website: tenantId },
+        { domain: tenantId },
+      ]
+    },
     include: { websiteSettings: true }
   });
-}
+});
 
-export async function resolveTenantWithProducts(tenantId: string) {
+export const resolveTenantWithProducts = cache(async (tenantId: string) => {
   const { isValidUuid } = await import('./slug');
+
   if (isValidUuid(tenantId)) {
     return prisma.tenant.findUnique({
       where: { id: tenantId },
@@ -125,11 +135,22 @@ export async function resolveTenantWithProducts(tenantId: string) {
       }
     });
   }
+
   return prisma.tenant.findFirst({
-    where: { OR: [{ website: tenantId }, { domain: tenantId }] },
+    where: {
+      OR: [
+        { websiteSlug: tenantId },
+        { website: tenantId },
+        { domain: tenantId },
+      ]
+    },
     include: {
       websiteSettings: true,
       products: { include: { variants: true }, where: { stock: { gt: -1 } } }
     }
   });
+});
+
+export function getTenantSiteUrl(tenant: any): string {
+  return tenant.websiteSlug || tenant.id;
 }

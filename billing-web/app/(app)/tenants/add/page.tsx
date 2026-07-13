@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createTenant } from '@/lib/actions/tenants';
 import { validateCouponByPlanName } from '@/lib/actions/subscription';
 import { ArrowLeft, Building2, User, Key, CreditCard, Globe, Clock, Briefcase, IndianRupee, Tag, CheckCircle } from 'lucide-react';
+import { toUrlSlug } from '@/lib/website/slug';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
 import ImageUpload from './ImageUpload';
@@ -29,6 +30,7 @@ export default function AddTenantPage() {
     gstin: '',
     logoUrl: '',
     website: '',
+    websiteSlug: '',
     currency: 'INR',
     timezone: 'Asia/Kolkata',
     profilePictureUrl: '',
@@ -39,7 +41,13 @@ export default function AddTenantPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      if (name === 'name' && !prev.websiteSlug) {
+        updated.websiteSlug = toUrlSlug(value);
+      }
+      return updated;
+    });
     if (name === 'subscriptionPlan' || name === 'discountCode') {
       setCouponResult(null); // reset coupon result if plan or code changes
     }
@@ -172,6 +180,25 @@ export default function AddTenantPage() {
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all uppercase text-gray-900"
                   placeholder="29ABCDE1234F1Z5"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Website Slug
+                  <span className="text-gray-400 font-normal ml-1">(unique URL name)</span>
+                </label>
+                <div className="relative">
+                  <Globe className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    name="websiteSlug"
+                    value={formData.websiteSlug}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 pl-9 pr-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900 font-mono text-sm"
+                    placeholder="kunal-sons"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Public URL: /site/{formData.websiteSlug || '(slug)'}</p>
               </div>
 
               <div>

@@ -28,6 +28,7 @@ export default function EditTenantPage() {
     gstin: '',
     logoUrl: '',
     website: '',
+    websiteSlug: '',
     currency: 'INR',
     timezone: 'Asia/Kolkata',
     aadharCardUrl: '',
@@ -54,6 +55,7 @@ export default function EditTenantPage() {
           gstin: data.gstin || '',
           logoUrl: data.logoUrl || '',
           website: data.website || '',
+          websiteSlug: data.websiteSlug || '',
           currency: data.currency || 'INR',
           timezone: data.timezone || 'Asia/Kolkata',
           aadharCardUrl: data.aadharCardUrl || '',
@@ -184,6 +186,25 @@ export default function EditTenantPage() {
                   onChange={handleChange}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all uppercase text-gray-900"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Website Slug
+                  <span className="text-gray-400 font-normal ml-1">(unique URL name)</span>
+                </label>
+                <div className="relative">
+                  <Globe className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    name="websiteSlug"
+                    value={formData.websiteSlug}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 pl-9 pr-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900 font-mono text-sm"
+                    placeholder="kunal-sons"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Public URL: /site/{formData.websiteSlug || '(slug)'}</p>
               </div>
 
               <div>

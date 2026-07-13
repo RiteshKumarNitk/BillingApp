@@ -120,7 +120,7 @@ export default async function WebsiteBuilderPage() {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href={`/site/${tenant.id}`}
+            href={`/site/${tenant.websiteSlug || tenant.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-colors"
@@ -130,7 +130,7 @@ export default async function WebsiteBuilderPage() {
         </div>
       </div>
 
-      <WebsiteBuilderClient initialConfig={config} tenantId={tenant.id} />
+      <WebsiteBuilderClient initialConfig={config} tenantId={tenant.id} tenantWebsiteSlug={tenant.websiteSlug || tenant.id} />
     </div>
   );
 }
