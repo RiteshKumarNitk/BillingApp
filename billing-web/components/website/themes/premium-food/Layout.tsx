@@ -14,9 +14,10 @@ import Navbar from './sections/Navbar';
 interface LayoutProps {
   config: WebsiteConfig;
   tenant: any;
+  children?: React.ReactNode;
 }
 
-export default function PremiumFoodLayout({ config, tenant }: LayoutProps) {
+export default function PremiumFoodLayout({ config, tenant, children }: LayoutProps) {
   // Sort sections by order
   const sections = [...(config.sections || [])]
     .filter(s => s.isVisible)
@@ -63,8 +64,9 @@ export default function PremiumFoodLayout({ config, tenant }: LayoutProps) {
     >
       <Navbar tenant={tenant} config={config} />
       <main className="flex-grow">
-        {sections.map(renderSection)}
+        {children ? children : sections.filter(s => s.type !== 'footer').map(renderSection)}
       </main>
+      {sections.filter(s => s.type === 'footer').map(renderSection)}
     </div>
   );
 }

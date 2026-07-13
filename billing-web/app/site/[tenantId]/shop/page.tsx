@@ -1,10 +1,16 @@
 import prisma from '@/lib/prisma';
-import { getMenuTenant } from '../data';
+import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
+import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import ShopClient from './ShopClient';
+import { notFound } from 'next/navigation';
 
 export default async function ShopPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await params;
-  const tenant = await getMenuTenant(tenantId);
+  const tenant = await resolveTenant(tenantId);
+
+  if (!tenant) {
+    notFound();
+  }
 
   const products = await prisma.product.findMany({
     where: { tenantId: tenant.id },
@@ -24,5 +30,11 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
     items
   })).sort((a, b) => a.category.localeCompare(b.category));
 
-  return <ShopClient categorizedProducts={categorizedProducts} theme={tenant.menuTheme} />;
+  const config = getWebsiteConfig(tenant);
+
+  return (
+    <WebsiteRenderer config={config} tenant={tenant}>
+      <ShopClient categorizedProducts={categorizedProducts} theme={tenant.menuTheme} />
+    </WebsiteRenderer>
+  );
 }

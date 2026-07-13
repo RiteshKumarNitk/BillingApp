@@ -7,7 +7,7 @@ import {
   User, Mail, Lock, Phone, LogIn, Store
 } from 'lucide-react';
 import { getMenuTheme, menuThemeCssVars, MenuTheme } from './menuThemes';
-import { CartProvider, useCart } from './CartContext';
+import { CartProvider, useCart } from '@/components/website/CartContext';
 import { getDirectionsUrl } from './menuUtils';
 import type { MenuTenant } from './data';
 

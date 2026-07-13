@@ -3,17 +3,19 @@ import React, { useState } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChefHat } from 'lucide-react';
+import { Menu, X, ChefHat, ShoppingCart } from 'lucide-react';
+import { useCart } from '@/components/website/CartContext';
 
 export default function Navbar({ tenant, config }: { tenant: any, config: WebsiteConfig }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { cartCount, setShowCart } = useCart();
   const brandName = tenant?.name || 'Restaurant';
   const siteId = tenant.websiteSlug || tenant.id;
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
-    { label: 'Menu', href: `/menu/${siteId}` },
+    { label: 'Menu', href: `/site/${siteId}/shop` },
     { label: 'About', href: `/site/${siteId}/about` },
     { label: 'Contact', href: `/site/${siteId}/contact` },
   ];
@@ -54,17 +56,27 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
                 {link.label}
               </Link>
             ))}
-            <Link
-              href={`/menu/${siteId}`}
-              className="ml-3 px-5 py-2.5 bg-[var(--theme-primary)] text-white font-semibold rounded-full hover:opacity-90 transition-all text-sm shadow-sm"
-            >
-              Order Online
-            </Link>
+            <div className="flex items-center gap-3 ml-3">
+              <button onClick={() => setShowCart(true)} className="p-2 text-gray-600 hover:text-[var(--theme-primary)] transition-colors relative">
+                <ShoppingCart className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-[var(--theme-primary)] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+              <Link
+                href={`/site/${siteId}/shop`}
+                className="px-5 py-2.5 bg-[var(--theme-primary)] text-white font-semibold rounded-full hover:opacity-90 transition-all text-sm shadow-sm"
+              >
+                Order Online
+              </Link>
+            </div>
           </div>
 
           <div className="md:hidden flex items-center">
             <Link
-              href={`/menu/${siteId}`}
+              href={`/site/${siteId}/shop`}
               className="mr-2 px-4 py-2 bg-[var(--theme-primary)] text-white text-sm font-semibold rounded-full"
             >
               Order

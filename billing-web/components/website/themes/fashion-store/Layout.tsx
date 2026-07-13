@@ -9,7 +9,7 @@ import PromoBanner from './sections/PromoBanner';
 import Newsletter from './sections/Newsletter';
 import Footer from './sections/Footer';
 
-export default function FashionStoreLayout({ config, tenant }: { config: WebsiteConfig, tenant: any }) {
+export default function FashionStoreLayout({ config, tenant, children }: { config: WebsiteConfig, tenant: any, children?: React.ReactNode }) {
   const sections = config.sections || [];
 
   const renderSection = (section: WebsiteSection) => {
@@ -35,7 +35,7 @@ export default function FashionStoreLayout({ config, tenant }: { config: Website
 
   return (
     <div 
-      className="min-h-screen bg-white"
+      className="min-h-screen bg-white flex flex-col"
       style={{ 
         '--theme-primary': config.appearance?.colors?.primary || '#111827',
         '--theme-secondary': config.appearance?.colors?.secondary || '#6b7280',
@@ -45,9 +45,10 @@ export default function FashionStoreLayout({ config, tenant }: { config: Website
     >
       <Navbar tenant={tenant} config={config} />
       
-      <main>
-        {sections.sort((a, b) => a.order - b.order).map(renderSection)}
+      <main className="flex-grow">
+        {children ? children : sections.filter(s => s.type !== 'footer').sort((a, b) => a.order - b.order).map(renderSection)}
       </main>
+      {sections.filter(s => s.type === 'footer').map(renderSection)}
     </div>
   );
 }

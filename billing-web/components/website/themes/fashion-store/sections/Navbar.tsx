@@ -4,15 +4,17 @@ import { WebsiteConfig } from '@/lib/website/types';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, Search, User, Menu, X } from 'lucide-react';
+import { useCart } from '@/components/website/CartContext';
 
 export default function Navbar({ tenant, config }: { tenant: any, config: WebsiteConfig }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { cartCount, setShowCart } = useCart();
   const siteId = tenant.websiteSlug || tenant.id;
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
-    { label: 'Shop', href: `/menu/${siteId}/shop` },
+    { label: 'Shop', href: `/site/${siteId}/shop` },
     { label: 'About', href: `/site/${siteId}/about` },
     { label: 'Contact', href: `/site/${siteId}/contact` },
   ];
@@ -63,9 +65,13 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
             <button className="hidden sm:block p-2 text-gray-600 hover:text-gray-900 transition-colors">
               <User className="w-4 h-4" />
             </button>
-            <button className="p-2 text-gray-900 relative">
+            <button onClick={() => setShowCart(true)} className="p-2 text-gray-900 relative">
               <ShoppingBag className="w-4 h-4" />
-              <span className="absolute top-0.5 right-0.5 bg-gray-900 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">0</span>
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 bg-gray-900 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </button>
           </div>
         </div>

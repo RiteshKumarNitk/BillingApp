@@ -4,17 +4,19 @@ import { WebsiteConfig } from '@/lib/website/types';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X, UtensilsCrossed } from 'lucide-react';
+import { useCart } from '@/components/website/CartContext';
 
 export default function Navbar({ tenant, config }: { tenant: any, config: WebsiteConfig }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { cartCount, setShowCart } = useCart();
   const primary = config.appearance?.colors?.primary || '#EAB308';
   const siteId = tenant.websiteSlug || tenant.id;
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
     { label: 'About', href: `/site/${siteId}/about` },
-    { label: 'Menu', href: `/menu/${siteId}/shop` },
+    { label: 'Menu', href: `/site/${siteId}/shop` },
     { label: 'Contact', href: `/site/${siteId}/contact` },
   ];
 
@@ -57,12 +59,16 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="w-10 h-10 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[var(--theme-primary)] hover:text-[var(--theme-primary)] transition-all relative">
+            <button onClick={() => setShowCart(true)} className="w-10 h-10 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[var(--theme-primary)] hover:text-[var(--theme-primary)] transition-all relative">
               <ShoppingCart className="w-4 h-4" />
-              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </button>
             <Link
-              href={`/menu/${siteId}/shop`}
+              href={`/site/${siteId}/shop`}
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--theme-primary)] text-gray-900 font-bold rounded-full hover:shadow-lg hover:scale-105 transition-all text-sm"
             >
               Order Online
@@ -91,7 +97,7 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
                 {link.label}
               </Link>
             ))}
-            <Link href={`/menu/${siteId}/shop`} onClick={() => setIsOpen(false)}
+            <Link href={`/site/${siteId}/shop`} onClick={() => setIsOpen(false)}
               className="block mt-3 px-4 py-2.5 text-sm font-bold text-center bg-[var(--theme-primary)] text-gray-900 rounded-xl">
               Order Online
             </Link>

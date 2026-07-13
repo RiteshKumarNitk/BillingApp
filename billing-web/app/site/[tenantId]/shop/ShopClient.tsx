@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Search, Plus, Minus, Trash2, ChevronRight } from 'lucide-react';
-import { getMenuTheme } from '../menuThemes';
-import { useCart } from '../CartContext';
+import { getMenuTheme } from '@/app/menu/[tenantId]/menuThemes';
+import { useCart } from '@/components/website/CartContext';
 
 interface ShopClientProps {
   categorizedProducts: {
