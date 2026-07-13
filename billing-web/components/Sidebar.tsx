@@ -15,7 +15,8 @@ import {
   History,
   X,
   ClipboardList,
-  Ruler
+  Ruler,
+  Globe
 } from 'lucide-react';
 
 export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
@@ -47,7 +48,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
-      { name: 'Digital Menu QR', href: '/settings/menu', icon: Package },
+      { name: 'Website Builder', href: '/website-builder', icon: Globe },
     ];
     
     if (hasManageUsers) {

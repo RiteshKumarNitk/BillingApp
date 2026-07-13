@@ -51,6 +51,9 @@ model Tenant {
   subscriptions      TenantSubscription[]
   invoices           Invoice[]
   auditLogs          AuditLog[]
+  websiteSettings    Website?
+  websiteVisits      WebsiteVisit[]
+  contactLeads       ContactLead[]
 }
 
 model Role {
@@ -480,4 +483,62 @@ model AuditLog {
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
+}
+
+model Website {
+  id            String   @id @default(uuid())
+  tenantId      String   @unique
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  theme         String   @default("modern-restaurant")
+  
+  // Appearance (Colors, Fonts, Styles)
+  appearance    Json?    // { colors: { primary, secondary, ... }, typography, buttonStyle, cardStyle }
+  
+  // SEO & Meta
+  seo           Json?    // { metaTitle, metaDescription, ogImage, keywords }
+  
+  // Business Info overrides (Social links, Maps, WhatsApp)
+  businessInfo  Json?    
+  
+  // Sections Configuration
+  // JSON array defining the sections, their order, visibility, and content data.
+  // Example: [ { id: "1", type: "hero", isVisible: true, data: { title: "Welcome", ... } } ]
+  sections      Json?    
+
+  visits        WebsiteVisit[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model WebsiteVisit {
+  id          String   @id @default(uuid())
+  websiteId   String
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  path        String   // e.g., /site/{id}, /site/{id}/about
+  referrer    String?
+  pageTitle   String?
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([websiteId, createdAt])
+}
+
+model ContactLead {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  phone       String?
+  subject     String?
+  message     String
+  source      String   @default("website") // website, menu, qr
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId, createdAt])
 }

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
+import prisma from '@/lib/prisma';
 import {
   TrendingUp,
   TrendingDown,
@@ -18,6 +19,8 @@ import {
   UserPlus,
   Trophy,
   TrendingDown as TrendingDownIcon,
+  Globe,
+  MessageSquare,
 } from 'lucide-react';
 import DashboardCharts from './DashboardCharts';
 import RevenueChart from './RevenueChart';
@@ -91,6 +94,15 @@ export default async function TenantDashboard({
   const { totalProducts, lowStockProducts } = overviewCounts;
   const salesComparison = monthlyComparison.find(m => m.metric === 'Sales')!;
   const txComparison = monthlyComparison.find(m => m.metric === 'Transactions')!;
+
+  const websiteVisitCount = await prisma.websiteVisit.count({ where: { tenantId } });
+  const todayVisitCount = await prisma.websiteVisit.count({
+    where: { tenantId, createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) } }
+  });
+  const unreadLeadCount = await prisma.contactLead.count({ where: { tenantId, read: false } });
+  const recentLeads = await prisma.contactLead.findMany({
+    where: { tenantId }, orderBy: { createdAt: 'desc' }, take: 5
+  });
 
   return (
     <div className="font-sans">
@@ -399,6 +411,55 @@ export default async function TenantDashboard({
             )}
           </section>
         </div>
+
+        {/* Website & Leads Section */}
+        {websiteVisitCount > 0 && (
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-4">
+            <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-medium text-gray-500">Website Visitors</p>
+                <Globe className="h-4 w-4 text-indigo-500" />
+              </div>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{websiteVisitCount}</p>
+              <p className="text-xs text-gray-400 mt-1">{todayVisitCount} visited today</p>
+            </div>
+            <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-medium text-gray-500">Contact Leads</p>
+                <MessageSquare className="h-4 w-4 text-amber-500" />
+              </div>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{recentLeads.length + (unreadLeadCount > 5 ? unreadLeadCount - 5 : 0)}</p>
+              {unreadLeadCount > 0 && (
+                <p className="text-xs font-semibold text-amber-600 mt-1">{unreadLeadCount} unread</p>
+              )}
+            </div>
+            <div className="lg:col-span-2 rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
+              <h3 className="text-sm font-medium text-gray-500 mb-3 flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-amber-500" />
+                Recent Contact Messages
+              </h3>
+              {recentLeads.length === 0 ? (
+                <p className="text-sm text-gray-400 py-4 text-center">No messages yet</p>
+              ) : (
+                <div className="space-y-2">
+                  {recentLeads.map(lead => (
+                    <div key={lead.id} className="flex items-start justify-between rounded-lg bg-white border border-gray-100 p-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm text-gray-900">{lead.name}</span>
+                          {!lead.read && <span className="w-2 h-2 rounded-full bg-amber-400" />}
+                        </div>
+                        <p className="text-xs text-gray-500 truncate">{lead.message}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{format(new Date(lead.createdAt), 'MMM dd, h:mm a')}</p>
+                      </div>
+                      <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{lead.email}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
