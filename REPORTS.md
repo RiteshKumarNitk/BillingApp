@@ -7,6 +7,30 @@ Newest entries first. When adding a new report, keep the same structure: date, s
 
 ---
 
+## 2026-07-13 — Feature work: public tenant site goes multi-page
+
+**Scope:** The single scrolling `/menu/[tenantId]` page (hero + catalog on one page) became a real
+multi-page site: **Home**, **Shop**, **About**, **Contact**, sharing one nav bar and cart.
+
+### Done
+
+| # | Item | Notes |
+|---|---|---|
+| 1 | Multi-page routing | New routes: `/menu/[tenantId]` (Home), `/shop`, `/about`, `/contact`. Fixed page set (not admin-configurable) per user's choice — content is editable, pages themselves aren't added/removed/reordered. |
+| 2 | Cart survives page navigation | Extracted cart/checkout/customer-auth state into `CartContext.tsx` (`CartProvider` + `useCart()`), mounted once in `layout.tsx` → `MenuShell.tsx` so it doesn't reset when navigating Home → Shop → About (React Context in a shared layout persists across client-side `<Link>` navigation; it would NOT have persisted if left as page-local `useState`, which is what the single-page version had). |
+| 3 | Shared shell | `MenuShell.tsx` owns the nav bar (Home/Shop/About/Contact links, active-state via `usePathname`, cart icon with live count), floating cart bar, cart drawer, auth modal, and footer — rendered once, wraps every page. |
+| 4 | Server-first pages | Home/About/Contact are plain Server Components (no client JS) — `getMenuTheme()` in `menuThemes.ts` is a pure function so theme-driven copy/labels can be computed server-side too. Only Shop (search/filter/cart interactions) and the shell (cart/auth) are client components. |
+| 5 | Avoided a real gotcha | `getDirectionsUrl` needed to be callable from both a Server Component (Contact page) and a Client Component (MenuShell's cart drawer) — pulled it into a plain `menuUtils.ts` with no `"use client"` directive, since a Server Component can't safely import a plain function out of a `"use client"`-boundary module. |
+
+### New backlog items surfaced this session
+
+| # | Finding | Area |
+|---|---|---|
+| 23 | Sticky-header offset math (`top-[113px]` etc. in `shop/ShopClient.tsx`) is a hand-estimated pixel value, not measured — could drift a few px out of alignment if the nav bar's height changes later (e.g. longer tenant name wrapping to two lines). Worth swapping for a ResizeObserver-driven CSS variable if it's ever visibly off. | `app/menu/[tenantId]/shop/ShopClient.tsx` |
+| 24 | Home/About/Contact are Server Components with zero client JS by design (fast, no hydration cost) — if future content needs interactivity (e.g. a photo carousel on About), that page will need a small client island rather than converting the whole page to `"use client"`. | `app/menu/[tenantId]/` |
+
+---
+
 ## 2026-07-12 — Feature work: image upload, Base Unit master, public menu theming
 
 **Scope:** Follow-up session after the review below — fixed the broken image upload, added a

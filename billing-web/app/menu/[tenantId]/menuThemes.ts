@@ -1,9 +1,10 @@
 import type { CSSProperties } from 'react';
 
-// Design tokens for the public tenant menu (app/menu/[tenantId]). Two committed identities —
-// MARKET (general retail/grocery) and RESTAURANT (food service) — driven from one shared screen
-// structure in MenuClient.tsx. Legacy `menuTheme` values saved before this system existed
-// (DEFAULT, DARK, ELEGANT, PLAYFUL) all fall back to MARKET; see getMenuTheme below.
+// Design tokens for the public tenant site (app/menu/[tenantId]/*). Two committed identities —
+// MARKET (general retail/grocery) and RESTAURANT (food service) — driven by CSS custom properties
+// applied once in MenuShell.tsx and consumed by every page (Home/Shop/About/Contact). Legacy
+// `menuTheme` values saved before this system existed (DEFAULT, DARK, ELEGANT, PLAYFUL) all fall
+// back to MARKET; see getMenuTheme below.
 
 export interface MenuTheme {
   id: 'MARKET' | 'RESTAURANT';
