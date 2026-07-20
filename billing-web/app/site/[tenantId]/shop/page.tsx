@@ -1,8 +1,11 @@
 import prisma from '@/lib/prisma';
 import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
+import PageDisabled from '@/components/website/PageDisabled';
 import ShopClient from './ShopClient';
 import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export default async function ShopPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await params;
@@ -10,6 +13,16 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
 
   if (!tenant) {
     notFound();
+  }
+
+  const config = getWebsiteConfig(tenant);
+
+  if (config.pages?.shop === false) {
+    return (
+      <WebsiteRenderer config={config} tenant={tenant}>
+        <PageDisabled label="Shop" />
+      </WebsiteRenderer>
+    );
   }
 
   const products = await prisma.product.findMany({
@@ -29,8 +42,6 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
     category,
     items
   })).sort((a, b) => a.category.localeCompare(b.category));
-
-  const config = getWebsiteConfig(tenant);
 
   return (
     <WebsiteRenderer config={config} tenant={tenant}>

@@ -53,13 +53,15 @@ export default function PremiumFoodLayout({ config, tenant, children }: LayoutPr
   const textColor = config.appearance?.colors?.text || '#1F2937';
 
   return (
-    <div 
-      className="min-h-screen flex flex-col" 
-      style={{ 
-        backgroundColor, 
+    <div
+      className="site-shell min-h-screen flex flex-col"
+      style={{
+        backgroundColor,
         color: textColor,
         '--theme-primary': primaryColor,
-        fontFamily: '"Nunito", "Quicksand", sans-serif'
+        '--theme-accent': config.appearance?.colors?.accent || primaryColor,
+        '--theme-font-heading': config.appearance?.typography?.headingFont || undefined,
+        '--theme-font-body': config.appearance?.typography?.bodyFont || '"Nunito", "Quicksand", sans-serif',
       } as React.CSSProperties}
     >
       <Navbar tenant={tenant} config={config} />

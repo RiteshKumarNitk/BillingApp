@@ -12,9 +12,9 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
-    { label: 'Shop', href: `/menu/${siteId}/shop` },
-    { label: 'About', href: `/site/${siteId}/about` },
-    { label: 'Contact', href: `/site/${siteId}/contact` },
+    ...(config.pages?.shop !== false ? [{ label: 'Shop', href: `/site/${siteId}/shop` }] : []),
+    ...(config.pages?.about !== false ? [{ label: 'About', href: `/site/${siteId}/about` }] : []),
+    ...(config.pages?.contact !== false ? [{ label: 'Contact', href: `/site/${siteId}/contact` }] : []),
   ];
 
   const isActive = (href: string) => {
@@ -56,13 +56,15 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href={`/menu/${siteId}/shop`}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:shadow-md hover:scale-105 transition-all text-sm"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Shop Now
-            </Link>
+            {config.pages?.shop !== false && (
+              <Link
+                href={`/site/${siteId}/shop`}
+                className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-full hover:shadow-md hover:scale-105 transition-all text-sm"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Shop Now
+              </Link>
+            )}
             <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-green-700 hover:text-green-500">
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -87,10 +89,12 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
                 {link.label}
               </Link>
             ))}
-            <Link href={`/menu/${siteId}/shop`} onClick={() => setIsOpen(false)}
-              className="block mt-3 px-4 py-2.5 text-sm font-bold text-center bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl">
-              Shop Now
-            </Link>
+            {config.pages?.shop !== false && (
+              <Link href={`/site/${siteId}/shop`} onClick={() => setIsOpen(false)}
+                className="block mt-3 px-4 py-2.5 text-sm font-bold text-center bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl">
+                Shop Now
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -3,6 +3,8 @@ import { GallerySection, WebsiteConfig } from '@/lib/website/types';
 import Image from 'next/image';
 
 export default function Gallery({ data, config }: { data: GallerySection['data'], config: WebsiteConfig }) {
+  if (!data.images?.length) return null;
+
   return (
     <section className="py-20 px-4 bg-white text-gray-900">
       <div className="max-w-7xl mx-auto">

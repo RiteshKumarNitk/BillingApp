@@ -43,8 +43,12 @@ export default function Footer({ data, config, tenant }: { data: FooterSection['
             <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-5">Shop</h4>
             <ul className="space-y-3 text-sm text-gray-500">
               <li><Link href={`/site/${siteId}`} className="hover:text-gray-900 transition-colors">Home</Link></li>
-              <li><Link href={`/menu/${siteId}/shop`} className="hover:text-gray-900 transition-colors">All Products</Link></li>
-              <li><Link href={`/site/${(tenant.websiteSlug || tenant.id)}/about`} className="hover:text-gray-900 transition-colors">About</Link></li>
+              {config.pages?.shop !== false && (
+                <li><Link href={`/site/${siteId}/shop`} className="hover:text-gray-900 transition-colors">All Products</Link></li>
+              )}
+              {config.pages?.about !== false && (
+                <li><Link href={`/site/${(tenant.websiteSlug || tenant.id)}/about`} className="hover:text-gray-900 transition-colors">About</Link></li>
+              )}
             </ul>
           </div>
 

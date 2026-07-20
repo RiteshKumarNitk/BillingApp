@@ -2,30 +2,16 @@ import React from 'react';
 import { TeamSection, WebsiteConfig } from '@/lib/website/types';
 
 export default function Team({ data, config }: { data: TeamSection['data'], config: WebsiteConfig }) {
-  const defaultMembers = [
-    { id: '1', name: 'Savannah Nguyen', role: 'Head Chef', imageUrl: 'https://i.pravatar.cc/300?u=10' },
-    { id: '2', name: 'Esther Howard', role: 'Sous Chef', imageUrl: 'https://i.pravatar.cc/300?u=11' },
-    { id: '3', name: 'Marvin McKinney', role: 'Pastry Chef', imageUrl: 'https://i.pravatar.cc/300?u=12' },
-    { id: '4', name: 'Albert Flores', role: 'Line Cook', imageUrl: 'https://i.pravatar.cc/300?u=13' },
-  ];
-
-  const members = data.members?.length ? data.members : defaultMembers;
+  const members = data.members || [];
+  if (!members.length) return null;
 
   return (
     <section className="py-20 bg-[var(--theme-background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-end mb-12">
+        <div className="mb-12">
           <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
             {data.title || "Meet Our Chefs"}
           </h2>
-          <div className="flex gap-2">
-             <button className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[var(--theme-primary)] hover:border-[var(--theme-primary)] transition-colors">
-              &lt;
-            </button>
-            <button className="w-10 h-10 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-gray-900 hover:opacity-90">
-              &gt;
-            </button>
-          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">

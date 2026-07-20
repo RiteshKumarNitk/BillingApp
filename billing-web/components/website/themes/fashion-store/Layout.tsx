@@ -34,13 +34,16 @@ export default function FashionStoreLayout({ config, tenant, children }: { confi
   };
 
   return (
-    <div 
-      className="min-h-screen bg-white flex flex-col"
-      style={{ 
+    <div
+      className="site-shell min-h-screen bg-white flex flex-col"
+      style={{
         '--theme-primary': config.appearance?.colors?.primary || '#111827',
         '--theme-secondary': config.appearance?.colors?.secondary || '#6b7280',
+        '--theme-accent': config.appearance?.colors?.accent || config.appearance?.colors?.primary || '#111827',
         '--theme-background': config.appearance?.colors?.background || '#ffffff',
         '--theme-text': config.appearance?.colors?.text || '#111827',
+        '--theme-font-heading': config.appearance?.typography?.headingFont || undefined,
+        '--theme-font-body': config.appearance?.typography?.bodyFont || undefined,
       } as React.CSSProperties}
     >
       <Navbar tenant={tenant} config={config} />

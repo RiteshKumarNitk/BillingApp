@@ -2,16 +2,8 @@ import React from 'react';
 import { GallerySection, WebsiteConfig } from '@/lib/website/types';
 
 export default function Gallery({ data, config }: { data: GallerySection['data'], config: WebsiteConfig }) {
-  const defaultImages = [
-    { url: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Fresh Fruits' },
-    { url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Leafy Greens' },
-    { url: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Farm Fresh' },
-    { url: 'https://images.unsplash.com/photo-1590165482129-1b8b27698780?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Root Vegetables' },
-    { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Organic Produce' },
-    { url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Fresh Herbs' },
-  ];
-
-  const images = data.images?.length ? data.images : defaultImages;
+  const images = data.images || [];
+  if (!images.length) return null;
 
   return (
     <section className="py-20 bg-green-50">

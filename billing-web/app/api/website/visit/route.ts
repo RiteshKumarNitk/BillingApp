@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { websiteVisitSchema } from '@/lib/website/schema';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tenantId, path, referrer, pageTitle } = await req.json();
-    if (!tenantId || !path) {
-      return NextResponse.json({ error: 'tenantId and path are required' }, { status: 400 });
+    const ip = getClientIp(req);
+    if (!checkRateLimit(`visit:${ip}`, 60, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
+
+    const body = await req.json().catch(() => null);
+    const result = websiteVisitSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+    }
+    const { tenantId, path, referrer, pageTitle } = result.data;
 
     const website = await prisma.website.findUnique({ where: { tenantId } });
     if (!website) {

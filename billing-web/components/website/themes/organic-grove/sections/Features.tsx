@@ -1,16 +1,10 @@
 import React from 'react';
 import { FeaturesSection, WebsiteConfig } from '@/lib/website/types';
-import { Shield, Sprout, Heart, Globe } from 'lucide-react';
+import { Sprout } from 'lucide-react';
 
 export default function Features({ data, config }: { data: FeaturesSection['data'], config: WebsiteConfig }) {
-  const defaultFeatures = [
-    { title: 'Certified Organic', description: 'All our products are certified organic by leading agricultural authorities.', icon: Shield },
-    { title: 'Farm Direct', description: 'Sourced directly from local organic farms — no middlemen, no compromises.', icon: Sprout },
-    { title: 'Health First', description: 'Packed with nutrients, free from pesticides, GMOs, and artificial additives.', icon: Heart },
-    { title: 'Sustainable', description: 'Eco-friendly packaging and practices to protect our planet for future generations.', icon: Globe },
-  ];
-
-  const features = data.features?.length ? data.features : defaultFeatures;
+  const features = data.features || [];
+  if (!features.length) return null;
 
   return (
     <section id="about" className="py-24 bg-white">

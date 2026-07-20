@@ -11,14 +11,21 @@ export async function middleware(request: NextRequest) {
   
   const { pathname } = request.nextUrl;
 
-  // Allow access to auth routes, API routes, customer routes, and public assets without admin auth
+  // Allow access to auth routes, API routes, customer routes, public tenant websites, and public
+  // assets without admin auth. /site is the public tenant website (anonymous shoppers/visitors —
+  // must never require a staff login); /s is its QR-code short link; /menu is kept for old
+  // bookmarked/indexed links, which now just redirect into /site.
   if (
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/mobile') ||
     pathname.startsWith('/api/customer') ||
+    pathname.startsWith('/api/website/lead') ||
+    pathname.startsWith('/api/website/visit') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/auth') ||
     pathname.startsWith('/menu') ||
+    pathname.startsWith('/site') ||
+    pathname.startsWith('/s/') ||
     pathname.startsWith('/customer') ||
     pathname === '/' ||
     pathname.startsWith('/favicon.ico')

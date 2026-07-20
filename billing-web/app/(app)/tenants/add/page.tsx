@@ -8,7 +8,7 @@ import { ArrowLeft, Building2, User, Key, CreditCard, Globe, Clock, Briefcase, I
 import { toUrlSlug } from '@/lib/website/slug';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
-import ImageUpload from './ImageUpload';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function AddTenantPage() {
   const router = useRouter();

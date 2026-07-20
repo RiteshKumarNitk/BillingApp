@@ -30,7 +30,7 @@ export default function Hero({ data, config, tenant }: { data: HeroSection['data
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href={data.ctaPrimary?.url || `/menu/${tenant?.id}/shop`}
+              href={data.ctaPrimary?.url || `/site/${tenant?.id}/shop`}
               className="px-8 py-4 bg-[var(--theme-primary)] text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all text-center flex items-center justify-center gap-2"
             >
               {data.ctaPrimary?.label || "Explore Products"}

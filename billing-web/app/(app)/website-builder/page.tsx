@@ -98,6 +98,17 @@ export default async function WebsiteBuilderPage() {
     return null;
   }
 
+  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPERADMIN') {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center text-red-600 bg-red-50 p-6 rounded-lg border border-red-200">
+          <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
+          <p>Only the store owner can access the Website Builder.</p>
+        </div>
+      </div>
+    );
+  }
+
   const tenant = await prisma.tenant.findUnique({
     where: { id: session.user.tenantId },
     include: { websiteSettings: true }
@@ -130,7 +141,17 @@ export default async function WebsiteBuilderPage() {
         </div>
       </div>
 
-      <WebsiteBuilderClient initialConfig={config} tenantId={tenant.id} tenantWebsiteSlug={tenant.websiteSlug || tenant.id} />
+      <WebsiteBuilderClient
+        initialConfig={config}
+        tenantId={tenant.id}
+        tenantWebsiteSlug={tenant.websiteSlug || tenant.id}
+        initialAboutInfo={{
+          tagline: tenant.tagline || '',
+          aboutText: tenant.aboutText || '',
+          coverImageUrl: tenant.coverImageUrl || '',
+          businessHours: tenant.businessHours || '',
+        }}
+      />
     </div>
   );
 }

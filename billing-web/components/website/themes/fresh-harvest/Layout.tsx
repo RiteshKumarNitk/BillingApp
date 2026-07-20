@@ -49,13 +49,15 @@ export default function FreshHarvestLayout({ config, tenant }: LayoutProps) {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="site-shell min-h-screen flex flex-col"
       style={{
         backgroundColor,
         color: textColor,
         '--theme-primary': primaryColor,
         '--theme-secondary': config.appearance?.colors?.secondary || '#16a34a',
-        fontFamily: '"Inter", "Plus Jakarta Sans", sans-serif'
+        '--theme-accent': config.appearance?.colors?.accent || primaryColor,
+        '--theme-font-heading': config.appearance?.typography?.headingFont || undefined,
+        '--theme-font-body': config.appearance?.typography?.bodyFont || '"Inter", "Plus Jakarta Sans", sans-serif',
       } as React.CSSProperties}
     >
       <Navbar tenant={tenant} config={config} />

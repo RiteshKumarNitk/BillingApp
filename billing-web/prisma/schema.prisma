@@ -505,7 +505,11 @@ model Website {
   // Sections Configuration
   // JSON array defining the sections, their order, visibility, and content data.
   // Example: [ { id: "1", type: "hero", isVisible: true, data: { title: "Welcome", ... } } ]
-  sections      Json?    
+  sections      Json?
+
+  // Page visibility toggles: { about?: boolean, shop?: boolean, contact?: boolean }. Missing key
+  // or missing object means enabled (backward compatible with configs saved before this existed).
+  pages         Json?
 
   visits        WebsiteVisit[]
 

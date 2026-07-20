@@ -2,16 +2,8 @@ import React from 'react';
 import { GallerySection, WebsiteConfig } from '@/lib/website/types';
 
 export default function Gallery({ data, config }: { data: GallerySection['data'], config: WebsiteConfig }) {
-  const defaultImages = [
-    { url: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Fresh Fruits' },
-    { url: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Berry Collection' },
-    { url: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Citrus Delight' },
-    { url: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Stone Fruits' },
-    { url: 'https://images.unsplash.com/photo-1519996529931-28324d90a0d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Exotic Selection' },
-    { url: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Juicy Treats' },
-  ];
-
-  const images = data.images?.length ? data.images : defaultImages;
+  const images = data.images || [];
+  if (!images.length) return null;
 
   return (
     <section className="py-20 bg-gradient-to-b from-orange-50 to-white">

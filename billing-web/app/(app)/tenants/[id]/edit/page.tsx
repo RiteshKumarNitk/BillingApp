@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { updateTenant } from '@/lib/actions/tenants';
 import { ArrowLeft, Building2, User, CreditCard, Globe, Clock, IndianRupee, Briefcase } from 'lucide-react';
 import Link from 'next/link';
-import ImageUpload from '../../add/ImageUpload';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function EditTenantPage() {
   const router = useRouter();

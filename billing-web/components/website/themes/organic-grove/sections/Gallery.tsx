@@ -2,14 +2,8 @@ import React from 'react';
 import { GallerySection, WebsiteConfig } from '@/lib/website/types';
 
 export default function Gallery({ data, config }: { data: GallerySection['data'], config: WebsiteConfig }) {
-  const defaultImages = [
-    { url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Organic Farm' },
-    { url: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Fresh Harvest' },
-    { url: 'https://images.unsplash.com/photo-1570197785657-d9fe0bcc0f47?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Natural Products' },
-    { url: 'https://images.unsplash.com/photo-1590779033100-9f8a05c0136f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', caption: 'Pure Ingredients' },
-  ];
-
-  const images = data.images?.length ? data.images : defaultImages;
+  const images = data.images || [];
+  if (!images.length) return null;
 
   return (
     <section className="py-24 bg-white">

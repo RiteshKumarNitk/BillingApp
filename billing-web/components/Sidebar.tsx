@@ -48,9 +48,12 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
-      { name: 'Website Builder', href: '/website-builder', icon: Globe },
     ];
-    
+
+    if (user?.role === 'ADMIN') {
+      navLinks.push({ name: 'Website Builder', href: '/website-builder', icon: Globe });
+    }
+
     if (hasManageUsers) {
       navLinks.push({ name: 'Team Members', href: '/users', icon: Users });
       navLinks.push({ name: 'Roles', href: '/roles', icon: Shield });

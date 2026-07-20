@@ -17,6 +17,20 @@ select {
   color: #111827;
 }
 
+/* Tenant website typography overrides (Website Builder → Style tab). Scoped to .site-shell so it
+   never leaks into the admin app, which has its own font system. */
+.site-shell {
+  font-family: var(--theme-font-body, inherit);
+}
+.site-shell h1,
+.site-shell h2,
+.site-shell h3,
+.site-shell h4,
+.site-shell h5,
+.site-shell h6 {
+  font-family: var(--theme-font-heading, var(--theme-font-body, inherit));
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #6b7280;

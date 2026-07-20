@@ -49,8 +49,8 @@ export function useCart() {
 }
 
 // Owns cart + customer-auth + checkout state for the whole tenant site (Home/Shop/About/Contact).
-// Lives in MenuShell, which wraps every page under app/menu/[tenantId]/layout.tsx, so the cart
-// survives client-side navigation between pages instead of resetting per-page.
+// Mounted once in app/site/[tenantId]/layout.tsx so it wraps every page, so the cart survives
+// client-side navigation between pages instead of resetting per-page.
 export function CartProvider({ tenantId, children }: { tenantId: string; children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);

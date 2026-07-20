@@ -15,9 +15,9 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
-    { label: 'About', href: `/site/${siteId}/about` },
-    { label: 'Menu', href: `/site/${siteId}/shop` },
-    { label: 'Contact', href: `/site/${siteId}/contact` },
+    ...(config.pages?.about !== false ? [{ label: 'About', href: `/site/${siteId}/about` }] : []),
+    ...(config.pages?.shop !== false ? [{ label: 'Menu', href: `/site/${siteId}/shop` }] : []),
+    ...(config.pages?.contact !== false ? [{ label: 'Contact', href: `/site/${siteId}/contact` }] : []),
   ];
 
   const isActive = (href: string) => {
@@ -67,12 +67,14 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
                 </span>
               )}
             </button>
-            <Link
-              href={`/site/${siteId}/shop`}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--theme-primary)] text-gray-900 font-bold rounded-full hover:shadow-lg hover:scale-105 transition-all text-sm"
-            >
-              Order Online
-            </Link>
+            {config.pages?.shop !== false && (
+              <Link
+                href={`/site/${siteId}/shop`}
+                className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--theme-primary)] text-gray-900 font-bold rounded-full hover:shadow-lg hover:scale-105 transition-all text-sm"
+              >
+                Order Online
+              </Link>
+            )}
             <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-gray-600 hover:text-[var(--theme-primary)]">
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -97,10 +99,12 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
                 {link.label}
               </Link>
             ))}
-            <Link href={`/site/${siteId}/shop`} onClick={() => setIsOpen(false)}
-              className="block mt-3 px-4 py-2.5 text-sm font-bold text-center bg-[var(--theme-primary)] text-gray-900 rounded-xl">
-              Order Online
-            </Link>
+            {config.pages?.shop !== false && (
+              <Link href={`/site/${siteId}/shop`} onClick={() => setIsOpen(false)}
+                className="block mt-3 px-4 py-2.5 text-sm font-bold text-center bg-[var(--theme-primary)] text-gray-900 rounded-xl">
+                Order Online
+              </Link>
+            )}
           </div>
         </div>
       )}

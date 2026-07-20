@@ -2,8 +2,8 @@
 
 import { useCart } from './CartContext';
 import { ShoppingCart, X, Trash2, Plus, Minus, MapPin, ExternalLink, LogIn, Mail, Lock, Phone, User } from 'lucide-react';
-import { getDirectionsUrl } from '@/app/menu/[tenantId]/menuUtils';
-import type { MenuTheme } from '@/app/menu/[tenantId]/menuThemes';
+import { getDirectionsUrl } from '@/lib/website/directions';
+import type { MenuTheme } from '@/lib/website/menuTheme';
 
 export function OrderSuccessToast({ theme }: { theme?: MenuTheme }) {
   const { orderSuccess } = useCart();

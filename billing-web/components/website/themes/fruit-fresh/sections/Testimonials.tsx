@@ -3,13 +3,8 @@ import { TestimonialsSection, WebsiteConfig } from '@/lib/website/types';
 import { Star } from 'lucide-react';
 
 export default function Testimonials({ data, config }: { data: TestimonialsSection['data'], config: WebsiteConfig }) {
-  const defaultReviews = [
-    { id: '1', text: 'The fruits are always fresh and perfectly ripe. The mangoes taste like heaven! Delivery is always on time.', authorName: 'Sneha Kapoor', authorRole: 'Food Blogger' },
-    { id: '2', text: 'Best place for exotic fruits in the city. The dragon fruit and avocados are always top quality.', authorName: 'Vikram Singh', authorRole: 'Health Enthusiast' },
-    { id: '3', text: 'My kids love the fruit baskets! Great variety and everything is so fresh. Highly recommend the subscription.', authorName: 'Neha Agarwal', authorRole: 'Mom of Two' },
-  ];
-
-  const reviews = data.reviews?.length ? data.reviews : defaultReviews;
+  const reviews = data.reviews || [];
+  if (!reviews.length) return null;
 
   return (
     <section className="py-24 bg-white">

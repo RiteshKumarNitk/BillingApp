@@ -85,6 +85,7 @@ export interface TestimonialsSection extends SectionBase {
       authorName: string;
       authorRole?: string;
       avatarUrl?: string;
+      rating?: number;
     }>;
   };
 }
@@ -162,6 +163,7 @@ export interface WebsiteConfig {
     colors?: {
       primary?: string;
       secondary?: string;
+      accent?: string;
       background?: string;
       text?: string;
     };
@@ -177,6 +179,7 @@ export interface WebsiteConfig {
     metaDescription?: string;
     ogImageUrl?: string;
     keywords?: string;
+    canonicalUrl?: string;
   };
   businessInfo?: {
     address?: string;
@@ -188,7 +191,14 @@ export interface WebsiteConfig {
       facebook?: string;
       instagram?: string;
       twitter?: string;
+      youtube?: string;
+      linkedin?: string;
     };
   };
   sections?: WebsiteSection[];
+  pages?: {
+    about?: boolean;
+    shop?: boolean;
+    contact?: boolean;
+  };
 }

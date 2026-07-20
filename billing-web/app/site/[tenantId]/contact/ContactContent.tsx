@@ -84,11 +84,25 @@ export default function ContactContent({ config, tenant }: { config: WebsiteConf
             <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Email</h3>
             <p className="opacity-70">{tenant.email || 'N/A'}</p>
           </div>
-          <div>
-            <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Business Hours</h3>
-            <p className="opacity-70">Mon - Fri: 9:00 AM - 9:00 PM</p>
-            <p className="opacity-70">Sat - Sun: 10:00 AM - 6:00 PM</p>
-          </div>
+          {tenant.businessHours && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Business Hours</h3>
+              <p className="opacity-70 whitespace-pre-line">{tenant.businessHours}</p>
+            </div>
+          )}
+          {config.businessInfo?.whatsapp && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>WhatsApp</h3>
+              <a
+                href={`https://wa.me/${config.businessInfo.whatsapp.replace(/[^0-9]/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-opacity"
+              >
+                {config.businessInfo.whatsapp}
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

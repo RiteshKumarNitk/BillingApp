@@ -2,7 +2,9 @@ import React from 'react';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
+import { resolveTenant, resolveTenantWithProducts, getWebsiteConfig } from '@/lib/website/utils';
+
+export const dynamic = 'force-dynamic';
 
 interface SitePageProps {
   params: Promise<{
@@ -23,15 +25,25 @@ export async function generateMetadata({ params }: SitePageProps): Promise<Metad
   }
 
   const config = getWebsiteConfig(tenant);
+  const title = config.seo?.metaTitle || tenant.name;
+  const description = config.seo?.metaDescription || tenant.aboutText || `${tenant.name} - Built with BillingApp`;
+
   return {
-    title: config.seo?.metaTitle || tenant.name,
-    description: config.seo?.metaDescription || tenant.aboutText || `${tenant.name} - Built with BillingApp`,
+    title,
+    description,
+    keywords: config.seo?.keywords || undefined,
+    alternates: config.seo?.canonicalUrl ? { canonical: config.seo.canonicalUrl } : undefined,
+    openGraph: {
+      title,
+      description,
+      images: config.seo?.ogImageUrl ? [{ url: config.seo.ogImageUrl }] : undefined,
+    },
   };
 }
 
 export default async function SitePage({ params }: SitePageProps) {
   const resolvedParams = await params;
-  const tenant = await resolveTenant(resolvedParams.tenantId);
+  const tenant = await resolveTenantWithProducts(resolvedParams.tenantId);
 
   if (!tenant) {
     notFound();

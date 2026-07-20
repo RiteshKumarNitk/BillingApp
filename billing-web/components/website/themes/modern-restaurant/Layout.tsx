@@ -38,12 +38,15 @@ export default function ModernRestaurantLayout({ config, tenant, children }: Lay
   const textColor = config.appearance?.colors?.text || '#1f2937';
 
   return (
-    <div 
-      className="min-h-screen flex flex-col font-sans" 
-      style={{ 
-        backgroundColor, 
+    <div
+      className="site-shell min-h-screen flex flex-col font-sans"
+      style={{
+        backgroundColor,
         color: textColor,
         '--theme-primary': primaryColor,
+        '--theme-accent': config.appearance?.colors?.accent || primaryColor,
+        '--theme-font-heading': config.appearance?.typography?.headingFont || undefined,
+        '--theme-font-body': config.appearance?.typography?.bodyFont || undefined,
       } as React.CSSProperties}
     >
       <Navbar tenant={tenant} config={config} />

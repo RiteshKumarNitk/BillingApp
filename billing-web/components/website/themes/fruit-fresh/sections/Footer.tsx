@@ -41,9 +41,9 @@ export default function Footer({ data, config, tenant }: { data: FooterSection['
             <ul className="space-y-3">
               {[
                 { label: 'Home', href: `/site/${siteId}` },
-                { label: 'Shop', href: `/menu/${siteId}/shop` },
-                { label: 'About', href: `/site/${(tenant.websiteSlug || tenant.id)}/about` },
-                { label: 'Contact', href: `/site/${(tenant.websiteSlug || tenant.id)}/contact` },
+                ...(config.pages?.shop !== false ? [{ label: 'Shop', href: `/site/${siteId}/shop` }] : []),
+                ...(config.pages?.about !== false ? [{ label: 'About', href: `/site/${(tenant.websiteSlug || tenant.id)}/about` }] : []),
+                ...(config.pages?.contact !== false ? [{ label: 'Contact', href: `/site/${(tenant.websiteSlug || tenant.id)}/contact` }] : []),
               ].map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-orange-400/50 hover:text-orange-300 transition-colors">{link.label}</Link>

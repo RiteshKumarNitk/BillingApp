@@ -15,9 +15,9 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
-    { label: 'Menu', href: `/site/${siteId}/shop` },
-    { label: 'About', href: `/site/${siteId}/about` },
-    { label: 'Contact', href: `/site/${siteId}/contact` },
+    ...(config.pages?.shop !== false ? [{ label: 'Menu', href: `/site/${siteId}/shop` }] : []),
+    ...(config.pages?.about !== false ? [{ label: 'About', href: `/site/${siteId}/about` }] : []),
+    ...(config.pages?.contact !== false ? [{ label: 'Contact', href: `/site/${siteId}/contact` }] : []),
   ];
 
   const isActive = (href: string) => {
@@ -65,22 +65,26 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
                   </span>
                 )}
               </button>
-              <Link
-                href={`/site/${siteId}/shop`}
-                className="px-5 py-2.5 bg-[var(--theme-primary)] text-white font-semibold rounded-full hover:opacity-90 transition-all text-sm shadow-sm"
-              >
-                Order Online
-              </Link>
+              {config.pages?.shop !== false && (
+                <Link
+                  href={`/site/${siteId}/shop`}
+                  className="px-5 py-2.5 bg-[var(--theme-primary)] text-white font-semibold rounded-full hover:opacity-90 transition-all text-sm shadow-sm"
+                >
+                  Order Online
+                </Link>
+              )}
             </div>
           </div>
 
           <div className="md:hidden flex items-center">
-            <Link
-              href={`/site/${siteId}/shop`}
-              className="mr-2 px-4 py-2 bg-[var(--theme-primary)] text-white text-sm font-semibold rounded-full"
-            >
-              Order
-            </Link>
+            {config.pages?.shop !== false && (
+              <Link
+                href={`/site/${siteId}/shop`}
+                className="mr-2 px-4 py-2 bg-[var(--theme-primary)] text-white text-sm font-semibold rounded-full"
+              >
+                Order
+              </Link>
+            )}
             <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-gray-500 hover:text-gray-700">
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

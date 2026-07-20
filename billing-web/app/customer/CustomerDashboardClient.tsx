@@ -232,7 +232,7 @@ export default function CustomerDashboardClient() {
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {stores.filter((s) => !searchTerm || s.name.toLowerCase().includes(searchTerm.toLowerCase())).map((store) => (
-              <Link key={store.id} href={`/menu/${store.id}`} className="bg-white rounded-2xl border border-gray-100 shadow-sm min-w-[160px] max-w-[160px] overflow-hidden active:scale-[0.97] transition-transform">
+              <Link key={store.id} href={`/site/${store.id}/shop`} className="bg-white rounded-2xl border border-gray-100 shadow-sm min-w-[160px] max-w-[160px] overflow-hidden active:scale-[0.97] transition-transform">
                 <div className="h-20 bg-gradient-to-br from-indigo-100 to-violet-100 flex items-center justify-center">
                   {store.logoUrl ? (
                     <img src={store.logoUrl} alt="" className="w-full h-full object-cover" />

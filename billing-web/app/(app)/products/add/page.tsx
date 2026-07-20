@@ -8,7 +8,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Package, Tag, IndianRupee, Boxes, Hash, Info, Plus, Trash2
 } from 'lucide-react';
-import ImageUpload from '../../tenants/add/ImageUpload';
+import ImageUpload from '@/components/ImageUpload';
 
 const PRESET_CATEGORIES = [
   'Vegetables', 'Fruits', 'Grocery', 'FMCG', 'Medical',

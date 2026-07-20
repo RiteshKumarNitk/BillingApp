@@ -138,7 +138,7 @@ export default function CustomerOrdersClient() {
                       {order.taxAmount > 0 && <div className="flex justify-between text-gray-500"><span>Tax</span><span>₹{order.taxAmount.toFixed(2)}</span></div>}
                       <div className="flex justify-between font-black text-[#2D2D2D] pt-1 border-t border-gray-100"><span>Total</span><span>₹{order.netAmount.toFixed(2)}</span></div>
                     </div>
-                    <a href={`/menu/${order.tenantId}`} className="block w-full text-center py-2.5 bg-[#FFE11B] text-[#2D2D2D] text-xs font-black rounded-xl hover:bg-[#FFD000] transition-colors">
+                    <a href={`/site/${order.tenantId}/shop`} className="block w-full text-center py-2.5 bg-[#FFE11B] text-[#2D2D2D] text-xs font-black rounded-xl hover:bg-[#FFD000] transition-colors">
                       Reorder from {order.tenant.name}
                     </a>
                   </div>

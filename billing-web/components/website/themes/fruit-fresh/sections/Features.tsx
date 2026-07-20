@@ -1,16 +1,10 @@
 import React from 'react';
 import { FeaturesSection, WebsiteConfig } from '@/lib/website/types';
-import { Droplets, Sun, Heart, Truck } from 'lucide-react';
+import { Sun } from 'lucide-react';
 
 export default function Features({ data, config }: { data: FeaturesSection['data'], config: WebsiteConfig }) {
-  const defaultFeatures = [
-    { title: 'Orchard Fresh', description: 'Picked at peak ripeness and delivered within 24 hours for maximum flavor.', icon: Sun },
-    { title: 'Hand Selected', description: 'Every fruit is carefully handpicked and quality-checked by our experts.', icon: Heart },
-    { title: 'Stay Fresh Longer', description: 'Optimal storage and quick delivery ensure your fruits stay fresh for days.', icon: Droplets },
-    { title: 'Doorstep Delivery', description: 'Free delivery on all orders. Carefully packed to prevent any damage.', icon: Truck },
-  ];
-
-  const features = data.features?.length ? data.features : defaultFeatures;
+  const features = data.features || [];
+  if (!features.length) return null;
 
   return (
     <section className="py-24 bg-white">

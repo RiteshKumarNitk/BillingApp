@@ -14,9 +14,9 @@ export default function Navbar({ tenant, config }: { tenant: any, config: Websit
 
   const links = [
     { label: 'Home', href: `/site/${siteId}` },
-    { label: 'Shop', href: `/site/${siteId}/shop` },
-    { label: 'About', href: `/site/${siteId}/about` },
-    { label: 'Contact', href: `/site/${siteId}/contact` },
+    ...(config.pages?.shop !== false ? [{ label: 'Shop', href: `/site/${siteId}/shop` }] : []),
+    ...(config.pages?.about !== false ? [{ label: 'About', href: `/site/${siteId}/about` }] : []),
+    ...(config.pages?.contact !== false ? [{ label: 'Contact', href: `/site/${siteId}/contact` }] : []),
   ];
 
   const isActive = (href: string) => {

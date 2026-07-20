@@ -16,20 +16,26 @@ export default function AboutContent({ config, tenant }: { config: WebsiteConfig
         <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: primary }} />
       </div>
 
+      {tenant.tagline && (
+        <p className="text-center text-lg opacity-70 -mt-10 mb-16">{tenant.tagline}</p>
+      )}
+
       {/* Our Story */}
       <section className="mb-16">
         <h2 className="text-2xl font-semibold mb-6" style={{ color: primary }}>Our Story</h2>
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <p className="text-lg leading-relaxed opacity-80">
+            <p className="text-lg leading-relaxed opacity-80 whitespace-pre-line">
               {tenant.aboutText || `Welcome to ${tenant.name}. We are dedicated to providing the best experience for our customers.`}
             </p>
-            <p className="text-lg leading-relaxed opacity-80 mt-4">
-              Our journey began with a simple mission: to deliver quality and excellence in everything we do.
-              We believe in building lasting relationships with our community through trust, transparency, and outstanding service.
-            </p>
           </div>
-          <div className="rounded-2xl overflow-hidden shadow-xl" style={{ backgroundColor: primary + '15', minHeight: '300px' }} />
+          {tenant.coverImageUrl ? (
+            <div className="rounded-2xl overflow-hidden shadow-xl" style={{ minHeight: '300px' }}>
+              <img src={tenant.coverImageUrl} alt={tenant.name} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="rounded-2xl overflow-hidden shadow-xl" style={{ backgroundColor: primary + '15', minHeight: '300px' }} />
+          )}
         </div>
       </section>
 

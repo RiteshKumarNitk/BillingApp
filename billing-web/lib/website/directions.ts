@@ -1,7 +1,3 @@
-// Plain helpers shared by server pages (about/contact) and client components (MenuShell) — kept
-// out of MenuShell.tsx specifically because that file is "use client" and a Server Component
-// can't safely import a plain function from a client-boundary module.
-
 interface DirectionsTarget {
   latitude?: number | null;
   longitude?: number | null;

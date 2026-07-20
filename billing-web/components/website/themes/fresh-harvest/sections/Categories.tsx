@@ -38,7 +38,7 @@ export default function Categories({ data, config, tenant }: { data: CategoriesS
           {displayCategories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/menu/${tenant?.id}/shop`}
+              href={`/site/${tenant?.id}/shop`}
               className="group relative overflow-hidden rounded-2xl aspect-square shadow-sm hover:shadow-xl transition-all duration-300"
             >
               <img

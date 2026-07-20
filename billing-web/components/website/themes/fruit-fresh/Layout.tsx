@@ -52,13 +52,15 @@ export default function FruitFreshLayout({ config, tenant }: LayoutProps) {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="site-shell min-h-screen flex flex-col"
       style={{
         backgroundColor,
         color: textColor,
         '--theme-primary': primaryColor,
         '--theme-secondary': config.appearance?.colors?.secondary || '#ec4899',
-        fontFamily: '"Poppins", "Outfit", sans-serif'
+        '--theme-accent': config.appearance?.colors?.accent || primaryColor,
+        '--theme-font-heading': config.appearance?.typography?.headingFont || undefined,
+        '--theme-font-body': config.appearance?.typography?.bodyFont || '"Poppins", "Outfit", sans-serif',
       } as React.CSSProperties}
     >
       <Navbar tenant={tenant} config={config} />

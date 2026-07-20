@@ -14,14 +14,17 @@ export default function SitePageShell({ config, tenant, children }: { config: We
     <>
       <VisitTracker tenantId={tenant.id} pageTitle={config.seo?.metaTitle || tenant.name} />
       <div
-        className="min-h-screen flex flex-col"
+        className="site-shell min-h-screen flex flex-col"
         style={{
         backgroundColor: config.appearance?.colors?.background || '#FAF9F5',
         color: config.appearance?.colors?.text || '#1F2937',
         '--theme-primary': config.appearance?.colors?.primary || '#EAB308',
         '--theme-secondary': config.appearance?.colors?.secondary || '#6b7280',
+        '--theme-accent': config.appearance?.colors?.accent || config.appearance?.colors?.primary || '#EAB308',
         '--theme-background': config.appearance?.colors?.background || '#FAF9F5',
         '--theme-text': config.appearance?.colors?.text || '#1F2937',
+        '--theme-font-heading': config.appearance?.typography?.headingFont || undefined,
+        '--theme-font-body': config.appearance?.typography?.bodyFont || undefined,
       } as React.CSSProperties}
     >
       <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse" />}>

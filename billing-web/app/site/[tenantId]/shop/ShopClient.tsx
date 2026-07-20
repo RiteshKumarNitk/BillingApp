@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Search, Plus, Minus, Trash2, ChevronRight } from 'lucide-react';
-import { getMenuTheme } from '@/app/menu/[tenantId]/menuThemes';
+import { getMenuTheme } from '@/lib/website/menuTheme';
 import { useCart } from '@/components/website/CartContext';
 
 interface ShopClientProps {

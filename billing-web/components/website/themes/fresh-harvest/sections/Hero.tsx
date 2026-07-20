@@ -33,7 +33,7 @@ export default function Hero({ data, config, tenant }: { data: HeroSection['data
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <Link
-              href={data.ctaPrimary?.url || `/menu/${tenant?.id}/shop`}
+              href={data.ctaPrimary?.url || `/site/${tenant?.id}/shop`}
               className="px-8 py-4 bg-green-500 text-white font-bold rounded-full hover:bg-green-600 hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2 w-full sm:w-auto justify-center"
             >
               <ShoppingCart className="w-5 h-5" />

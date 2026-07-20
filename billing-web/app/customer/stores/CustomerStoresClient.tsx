@@ -107,7 +107,7 @@ export default function CustomerStoresClient() {
               </div>
               {/* Actions */}
               <div className="flex">
-                <Link href={`/menu/${store.id}`} className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-black text-[#2D2D2D] hover:bg-gray-50 transition-colors">
+                <Link href={`/site/${store.id}/shop`} className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-black text-[#2D2D2D] hover:bg-gray-50 transition-colors">
                   Browse Menu <ArrowRight className="w-3 h-3" />
                 </Link>
                 {store.phone && (

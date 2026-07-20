@@ -3,13 +3,8 @@ import { TestimonialsSection, WebsiteConfig } from '@/lib/website/types';
 import { Star } from 'lucide-react';
 
 export default function Testimonials({ data, config }: { data: TestimonialsSection['data'], config: WebsiteConfig }) {
-  const defaultReviews = [
-    { id: '1', text: 'Switching to organic was the best decision for my family. The quality and freshness are unmatched. Highly recommended!', authorName: 'Meera Joshi', authorRole: 'Nutritionist' },
-    { id: '2', text: 'I love that I can trust everything here is genuinely organic. The delivery is always on time and the produce is exceptional.', authorName: 'Arjun Nair', authorRole: 'Yoga Instructor' },
-    { id: '3', text: 'The subscription box is perfect for my weekly needs. Great variety of seasonal organic produce at fair prices.', authorName: 'Kavita Desai', authorRole: 'Home Baker' },
-  ];
-
-  const reviews = data.reviews?.length ? data.reviews : defaultReviews;
+  const reviews = data.reviews || [];
+  if (!reviews.length) return null;
 
   return (
     <section className="py-24 bg-[var(--theme-background)]">

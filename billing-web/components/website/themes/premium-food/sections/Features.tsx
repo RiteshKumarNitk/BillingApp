@@ -1,14 +1,9 @@
 import React from 'react';
 import { FeaturesSection, WebsiteConfig } from '@/lib/website/types';
-import { ShoppingBag, Clock, ShieldCheck, UserCheck } from 'lucide-react';
+import { Sparkle } from 'lucide-react';
 
 export default function Features({ data, config }: { data: FeaturesSection['data'], config: WebsiteConfig }) {
-  const defaultFeatures = [
-    { title: 'Online Order', icon: ShoppingBag },
-    { title: '24/7 Service', icon: Clock },
-    { title: 'Clean Kitchen', icon: ShieldCheck },
-    { title: 'Super Chefs', icon: UserCheck }
-  ];
+  const features = data.features || [];
 
   return (
     <section className="py-20 bg-[var(--theme-background)]">
@@ -32,16 +27,18 @@ export default function Features({ data, config }: { data: FeaturesSection['data
               {data.subtitle || "This is a type of restaurant which typically serves food and drinks, in addition to light refreshments such as baked goods or snacks. The term comes from the ranch word meaning food."}
             </p>
             
-            <div className="grid grid-cols-2 gap-y-6 gap-x-8 mb-10">
-              {defaultFeatures.map((feat, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-gray-900 shadow-sm flex-shrink-0">
-                    <feat.icon className="w-4 h-4" />
+            {features.length > 0 && (
+              <div className="grid grid-cols-2 gap-y-6 gap-x-8 mb-10">
+                {features.slice(0, 4).map((feat, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-gray-900 shadow-sm flex-shrink-0 text-sm">
+                      {feat.icon || <Sparkle className="w-4 h-4" />}
+                    </div>
+                    <span className="font-bold text-gray-800">{feat.title}</span>
                   </div>
-                  <span className="font-bold text-gray-800">{feat.title}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <button className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-full hover:bg-gray-800 transition-colors shadow-lg">
               About Us

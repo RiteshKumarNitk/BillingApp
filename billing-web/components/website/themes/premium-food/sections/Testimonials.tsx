@@ -3,28 +3,8 @@ import { TestimonialsSection, WebsiteConfig } from '@/lib/website/types';
 import { Quote } from 'lucide-react';
 
 export default function Testimonials({ data, config }: { data: TestimonialsSection['data'], config: WebsiteConfig }) {
-  const defaultReviews = [
-    {
-      id: '1',
-      text: "This place is great! Atmosphere is chill and cool but the staff is also really friendly. They know what they're doing and what they're talking about, and you can tell making the customers happy is their main priority.",
-      authorName: "Savannah Nguyen",
-      avatarUrl: "https://i.pravatar.cc/150?u=1"
-    },
-    {
-      id: '2',
-      text: "This place is great! Atmosphere is chill and cool but the staff is also really friendly. They know what they're doing and what they're talking about, and you can tell making the customers happy is their main priority.",
-      authorName: "Savannah Nguyen",
-      avatarUrl: "https://i.pravatar.cc/150?u=2"
-    },
-    {
-      id: '3',
-      text: "This place is great! Atmosphere is chill and cool but the staff is also really friendly. They know what they're doing and what they're talking about, and you can tell making the customers happy is their main priority.",
-      authorName: "Savannah Nguyen",
-      avatarUrl: "https://i.pravatar.cc/150?u=3"
-    }
-  ];
-
-  const reviews = data.reviews?.length ? data.reviews : defaultReviews;
+  const reviews = data.reviews || [];
+  if (!reviews.length) return null;
 
   return (
     <section className="py-24 bg-white overflow-hidden">

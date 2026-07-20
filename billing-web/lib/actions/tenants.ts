@@ -336,12 +336,16 @@ export interface MenuContentInput {
   aboutText?: string;
   coverImageUrl?: string;
   businessHours?: string;
+  logoUrl?: string;
 }
 
 export async function updateMenuContent(data: MenuContentInput) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) {
     throw new Error("Unauthorized");
+  }
+  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPERADMIN') {
+    throw new Error("Forbidden - only the store owner can edit the website");
   }
 
   await prisma.tenant.update({
@@ -351,11 +355,12 @@ export async function updateMenuContent(data: MenuContentInput) {
       aboutText: data.aboutText?.trim() || null,
       coverImageUrl: data.coverImageUrl?.trim() || null,
       businessHours: data.businessHours?.trim() || null,
+      logoUrl: data.logoUrl?.trim() || null,
     }
   });
 
-  revalidatePath('/settings/menu');
-  revalidatePath(`/menu/${session.user.tenantId}`);
+  revalidatePath(`/site/${session.user.tenantId}`);
+  revalidatePath(`/site/${session.user.tenantId}/about`);
   return true;
 }
 
