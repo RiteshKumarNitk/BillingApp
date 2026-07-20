@@ -8,15 +8,18 @@ import { useToast } from "@/components/ui/Toast";
 import { updateMenuContent, type MenuContentInput } from '@/lib/actions/tenants';
 import SectionEditor from './SectionEditor';
 import ImageUpload from '@/components/ImageUpload';
+import WebsiteRenderer from '@/components/website/WebsiteRenderer';
+import { CartProvider } from '@/components/website/CartContext';
 
 type TabId = 'theme' | 'appearance' | 'sections' | 'about' | 'contact' | 'seo' | 'pages' | 'settings';
 
 export default function WebsiteBuilderClient({
-  initialConfig, tenantId, tenantWebsiteSlug, initialAboutInfo,
+  initialConfig, tenantId, tenantWebsiteSlug, tenant, initialAboutInfo,
 }: {
   initialConfig: WebsiteConfig;
   tenantId: string;
   tenantWebsiteSlug?: string;
+  tenant: any;
   initialAboutInfo: MenuContentInput;
 }) {
   const siteId = tenantWebsiteSlug || tenantId;
@@ -537,26 +540,34 @@ export default function WebsiteBuilderClient({
         </div>
       </div>
 
-      {/* Preview Area */}
+      {/* Preview Area — renders the real theme components live from in-memory state, so every
+          edit shows up immediately with no save and no reload. Link clicks inside the preview are
+          swallowed so the builder page itself never navigates away. */}
       <div className="flex-1 bg-gray-100 relative overflow-hidden flex flex-col">
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-50" />
         <div className="flex-1 p-4 md:p-8 overflow-y-auto relative z-10 flex justify-center">
           <div className="w-full max-w-5xl h-[800px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col">
-            <div className="h-10 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2">
+            <div className="h-10 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2 flex-shrink-0">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-green-400" />
               </div>
               <div className="mx-auto bg-white border border-gray-200 rounded-md px-3 py-1 text-xs text-gray-500 font-mono w-1/2 text-center truncate">
-                Preview Mode
+                Live Preview
               </div>
             </div>
-            <iframe 
-              src={`/site/${siteId}`}
-              className="flex-1 w-full bg-white"
-              title="Live Preview"
-            />
+            <div
+              className="flex-1 w-full bg-white overflow-y-auto"
+              onClickCapture={(e) => {
+                const anchor = (e.target as HTMLElement).closest('a');
+                if (anchor) e.preventDefault();
+              }}
+            >
+              <CartProvider tenantId={tenantId}>
+                <WebsiteRenderer config={config} tenant={tenant} trackVisit={false} />
+              </CartProvider>
+            </div>
           </div>
         </div>
       </div>
