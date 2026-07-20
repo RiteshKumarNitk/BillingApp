@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateProduct } from '@/lib/actions/products';
+import { updateProduct, getProductsForComboPicker } from '@/lib/actions/products';
 import { getUnits, createUnit } from '@/lib/actions/units';
 import Link from 'next/link';
 import {
@@ -11,7 +11,7 @@ import {
 import ImageUpload from '@/components/ImageUpload';
 import {
   getProductTypeOptions, getPresetCategories, getCategoryLabel,
-  hideStockFields, showGarmentType, showDuration
+  hideStockFields, showGarmentType, showDuration, showAddOns, showComboComponents
 } from '@/lib/productForm/businessTypeConfig';
 
 export default function EditProductClient({ product, businessType }: { product: any; businessType: string | null }) {
@@ -70,6 +70,16 @@ export default function EditProductClient({ product, businessType }: { product: 
     product.serials?.map((s: any) => ({ ...s })) || []
   );
 
+  const [addOns, setAddOns] = useState<{ name: string; price: string }[]>(
+    product.addOns?.map((a: any) => ({ name: a.name, price: a.price?.toString() || '0' })) || []
+  );
+  const [comboComponents, setComboComponents] = useState<{ componentId: string; quantity: string }[]>(
+    product.comboComponents?.map((c: any) => ({ componentId: c.componentId, quantity: c.quantity?.toString() || '1' })) || []
+  );
+  const [comboCandidates, setComboCandidates] = useState<{ id: string; name: string; salePrice: number }[]>(
+    product.comboComponents?.map((c: any) => c.component) || []
+  );
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -82,6 +92,12 @@ export default function EditProductClient({ product, businessType }: { product: 
   useEffect(() => {
     getUnits().then(setUnits).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (showComboComponents(businessType, formData.productType)) {
+      getProductsForComboPicker(product.id).then(setComboCandidates).catch(() => {});
+    }
+  }, [businessType, formData.productType]);
 
   const handleAddUnit = async () => {
     if (!newUnitName.trim()) return;
@@ -132,7 +148,23 @@ export default function EditProductClient({ product, businessType }: { product: 
     setSerials(newSerials);
   };
 
-  const showStock = !hideStockFields(businessType) && formData.productType !== 'SERVICE';
+  const handleAddAddOn = () => setAddOns([...addOns, { name: '', price: '' }]);
+  const handleRemoveAddOn = (idx: number) => setAddOns(addOns.filter((_, i) => i !== idx));
+  const handleAddOnChange = (idx: number, field: 'name' | 'price', value: string) => {
+    const next = [...addOns];
+    next[idx][field] = value;
+    setAddOns(next);
+  };
+
+  const handleAddComboComponent = () => setComboComponents([...comboComponents, { componentId: '', quantity: '1' }]);
+  const handleRemoveComboComponent = (idx: number) => setComboComponents(comboComponents.filter((_, i) => i !== idx));
+  const handleComboComponentChange = (idx: number, field: 'componentId' | 'quantity', value: string) => {
+    const next = [...comboComponents];
+    next[idx][field] = value;
+    setComboComponents(next);
+  };
+
+  const showStock = !hideStockFields(businessType) && formData.productType !== 'SERVICE' && formData.productType !== 'COMBO';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +180,8 @@ export default function EditProductClient({ product, businessType }: { product: 
         variants: (formData.productType === 'VARIANT' || formData.productType === 'WEIGHT') ? variants : undefined,
         batches: formData.productType === 'BATCH' ? batches : undefined,
         serials: formData.productType === 'SERIAL' ? serials : undefined,
+        addOns: showAddOns(businessType, formData.productType) ? addOns : undefined,
+        comboComponents: showComboComponents(businessType, formData.productType) ? comboComponents : undefined,
       });
 
       setSuccess(true);
@@ -421,6 +455,78 @@ export default function EditProductClient({ product, businessType }: { product: 
                         <div className="w-full md:w-1/3">
                           <label className="block text-xs font-medium text-gray-500 mb-1">Barcode (Optional)</label>
                           <input type="text" value={v.barcode || ''} onChange={(e) => handleVariantChange(idx, 'barcode', e.target.value)} className="w-full text-sm border-gray-300 rounded-lg" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Cafe: Add-ons */}
+            {showAddOns(businessType, formData.productType) && (
+              <div className="pt-5 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-gray-800">Add-ons</h3>
+                  <button type="button" onClick={handleAddAddOn} className="text-sm bg-white border border-gray-300 px-3 py-1.5 rounded-lg flex items-center gap-1 hover:bg-gray-50">
+                    <Plus className="w-4 h-4" /> Add Add-on
+                  </button>
+                </div>
+                {addOns.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">No add-ons yet, e.g. "Extra Shot +₹15".</p>
+                ) : (
+                  <div className="space-y-3">
+                    {addOns.map((a, idx) => (
+                      <div key={idx} className="flex gap-3 items-end p-3 bg-gray-50 border border-gray-100 rounded-xl relative">
+                        <button type="button" onClick={() => handleRemoveAddOn(idx)} className="absolute -top-2 -right-2 bg-white border border-rose-200 text-rose-500 p-1.5 rounded-full shadow-sm hover:bg-rose-50">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                          <input type="text" value={a.name} onChange={(e) => handleAddOnChange(idx, 'name', e.target.value)} placeholder="e.g. Extra Shot" required className="w-full text-sm border-gray-300 rounded-lg" />
+                        </div>
+                        <div className="w-32">
+                          <label className="block text-xs font-medium text-gray-500 mb-1">Price (₹)</label>
+                          <input type="number" step="0.01" min="0" value={a.price} onChange={(e) => handleAddOnChange(idx, 'price', e.target.value)} className="w-full text-sm border-gray-300 rounded-lg" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Cafe: Combo Components */}
+            {showComboComponents(businessType, formData.productType) && (
+              <div className="pt-5 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-gray-800">Combo Components</h3>
+                  <button type="button" onClick={handleAddComboComponent} className="text-sm bg-white border border-gray-300 px-3 py-1.5 rounded-lg flex items-center gap-1 hover:bg-gray-50">
+                    <Plus className="w-4 h-4" /> Add Item
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mb-3">What's included, shown on receipts and the kitchen ticket. The combo is billed at its own Sale Price above, not the sum of these.</p>
+                {comboComponents.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">No items added yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {comboComponents.map((c, idx) => (
+                      <div key={idx} className="flex gap-3 items-end p-3 bg-gray-50 border border-gray-100 rounded-xl relative">
+                        <button type="button" onClick={() => handleRemoveComboComponent(idx)} className="absolute -top-2 -right-2 bg-white border border-rose-200 text-rose-500 p-1.5 rounded-full shadow-sm hover:bg-rose-50">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium text-gray-500 mb-1">Item</label>
+                          <select value={c.componentId} onChange={(e) => handleComboComponentChange(idx, 'componentId', e.target.value)} required className="w-full text-sm border-gray-300 rounded-lg bg-white">
+                            <option value="">Select item…</option>
+                            {comboCandidates.map(p => (
+                              <option key={p.id} value={p.id}>{p.name} (₹{p.salePrice})</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="w-24">
+                          <label className="block text-xs font-medium text-gray-500 mb-1">Qty</label>
+                          <input type="number" min="1" value={c.quantity} onChange={(e) => handleComboComponentChange(idx, 'quantity', e.target.value)} className="w-full text-sm border-gray-300 rounded-lg" />
                         </div>
                       </div>
                     ))}

@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
       notes: body.notes,
       couponCode: body.couponCode,
       loyaltyPointsRedeemed: body.loyaltyPointsRedeemed,
+      tableNumber: body.tableNumber,
+      orderType: body.orderType,
     });
 
     return NextResponse.json({ message: 'Bill held', transaction: held }, { status: 201 });

@@ -38,6 +38,7 @@ const PRODUCT_TYPE_OPTIONS_BY_TYPE: Record<BusinessType, { value: string; label:
     { value: 'SIMPLE', label: 'Simple Item (fixed price)' },
     { value: 'VARIANT', label: 'Sized (Small / Medium / Large)' },
     { value: 'SERVICE', label: 'Made to Order (no stock tracking)' },
+    { value: 'COMBO', label: 'Combo Meal (bundle of other items)' },
   ],
   LAUNDRY: [
     { value: 'SIMPLE', label: 'Simple Service (fixed price)' },
@@ -83,4 +84,12 @@ export function showGarmentType(businessType: string | null | undefined) {
 
 export function showDuration(businessType: string | null | undefined) {
   return normalize(businessType) === 'SALON';
+}
+
+export function showAddOns(businessType: string | null | undefined, productType: string) {
+  return normalize(businessType) === 'CAFE' && productType !== 'COMBO';
+}
+
+export function showComboComponents(businessType: string | null | undefined, productType: string) {
+  return normalize(businessType) === 'CAFE' && productType === 'COMBO';
 }

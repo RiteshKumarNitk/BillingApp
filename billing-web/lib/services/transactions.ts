@@ -14,6 +14,12 @@ export class TransactionError extends Error {
 const LOYALTY_POINT_VALUE = 1;
 const LOYALTY_EARN_RATE = 100;
 
+interface SelectedAddOnInput {
+  id?: string;
+  name: string;
+  price: number | string;
+}
+
 interface CreateTransactionItemInput {
   productId: string;
   quantity: number | string;
@@ -28,6 +34,9 @@ interface CreateTransactionItemInput {
   mrp?: number | string;
   productType?: string;
   barcode?: string;
+  // Cafe: add-ons selected for this line item (e.g. "Extra Shot"). Validated against the
+  // product's real ProductAddOn rows and folded into the price-override check below.
+  selectedAddOns?: SelectedAddOnInput[];
 }
 
 interface PaymentInput {
@@ -53,6 +62,9 @@ interface CreateTransactionParams {
   notes?: string | null;
   couponCode?: string | null;
   loyaltyPointsRedeemed?: number | string | null;
+  // Cafe POS. Nullable/ignored by every other business type.
+  tableNumber?: string | null;
+  orderType?: string | null;
 }
 
 function parseOptionalAmount(value: number | string | null | undefined): number | null {
@@ -77,6 +89,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
     paymentMethod, amountReceived, changeAmount, payments,
     customerId, customerName, customerPhone, notes,
     couponCode, loyaltyPointsRedeemed,
+    tableNumber, orderType,
   } = params;
 
   if (role !== "SUPERADMIN" && !permissions.includes("CREATE_BILL")) {
@@ -116,6 +129,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       batchId: item.batchId || null,
       serialId: item.serialId || null,
       productType: item.productType,
+      selectedAddOns: item.selectedAddOns || [],
     };
   });
 
@@ -129,6 +143,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       purchasePrice: true,
       mrp: true,
       variants: { select: { id: true, salePrice: true, purchasePrice: true, mrp: true } },
+      addOns: { select: { id: true, name: true, price: true } },
     },
   });
   if (ownedProducts.length !== uniqueProductIds.length) {
@@ -159,6 +174,19 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       mrp = variant.mrp;
     }
 
+    // Cafe: each selected add-on must be a real ProductAddOn on this product — the client sends
+    // a name for display, but price is always re-resolved from the catalog, same rule as the
+    // base item.
+    const resolvedAddOns = item.selectedAddOns.map((selected) => {
+      const catalogAddOn = product.addOns.find((a) => a.id === selected.id || a.name === selected.name);
+      if (!catalogAddOn) {
+        throw new TransactionError(`Add-on "${selected.name}" not found for item ${item.name}`, 400);
+      }
+      return { name: catalogAddOn.name, price: catalogAddOn.price };
+    });
+    const addOnsTotal = resolvedAddOns.reduce((sum, a) => sum + a.price, 0);
+    catalogSalePrice += addOnsTotal;
+
     const priceOverridden = Math.abs(item.requestedSalePrice - catalogSalePrice) > 0.01;
     if (priceOverridden && !canOverridePrice) {
       throw new TransactionError(
@@ -188,6 +216,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       batchId: item.batchId,
       serialId: item.serialId,
       productType: item.productType,
+      selectedAddOns: resolvedAddOns,
     };
   });
 
@@ -310,6 +339,8 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
     customerName: customerName || null,
     customerPhone: customerPhone || null,
     notes: notes || null,
+    tableNumber: tableNumber || null,
+    orderType: orderType || null,
     resolvedCouponCode,
     couponDiscountAmount,
     requestedLoyaltyRedemption,
@@ -330,7 +361,7 @@ async function executeTransactionPlan(
   const {
     tenantId, userId, grossTotal, discountValue, taxValue, netAmount,
     resolvedPaymentMethod, resolvedAmountReceived, resolvedChangeAmount,
-    customerId, customerName, customerPhone, notes,
+    customerId, customerName, customerPhone, notes, tableNumber, orderType,
     resolvedCouponCode, couponDiscountAmount,
     requestedLoyaltyRedemption, loyaltyDiscountAmount, loyaltyPointsEarned,
     normalizedItems, normalizedPayments,
@@ -361,6 +392,8 @@ async function executeTransactionPlan(
       customerName,
       customerPhone,
       notes,
+      tableNumber,
+      orderType,
       couponCode: resolvedCouponCode,
       couponDiscountAmount,
       loyaltyPointsRedeemed: requestedLoyaltyRedemption,
@@ -381,6 +414,7 @@ async function executeTransactionPlan(
           variantId: item.variantId,
           batchId: item.batchId,
           serialId: item.serialId,
+          selectedAddOns: item.selectedAddOns.length > 0 ? item.selectedAddOns : undefined,
         })),
       },
       ...(normalizedPayments.length > 0
@@ -424,8 +458,10 @@ async function executeTransactionPlan(
       if (result.count === 0) {
         throw new TransactionError(`Serial item unavailable for ${item.name}`, 409);
       }
-    } else if (item.productType !== "SERVICE") {
-      // SIMPLE / WEIGHT / unspecified -> decrement base product stock
+    } else if (item.productType !== "SERVICE" && item.productType !== "COMBO") {
+      // SIMPLE / WEIGHT / unspecified -> decrement base product stock. SERVICE and COMBO (Cafe)
+      // never carry their own stock — combo component-level deduction is deferred (see the
+      // ComboItem model comment in schema.prisma).
       const result = await tx.product.updateMany({
         where: { id: item.productId, tenantId, stock: { gte: item.quantity } },
         data: { stock: { decrement: item.quantity } },
@@ -473,6 +509,8 @@ interface HoldBillParams {
   notes?: string | null;
   couponCode?: string | null;
   loyaltyPointsRedeemed?: number | string | null;
+  tableNumber?: string | null;
+  orderType?: string | null;
 }
 
 // Holds a bill without touching stock or loyalty points — those are only ever mutated when the
@@ -486,6 +524,7 @@ export async function holdBill(params: HoldBillParams) {
     items, discount = 0, taxAmount = 0,
     customerId, customerName, customerPhone, notes,
     couponCode, loyaltyPointsRedeemed,
+    tableNumber, orderType,
   } = params;
 
   if (role !== "SUPERADMIN" && !permissions.includes("CREATE_BILL")) {
@@ -517,6 +556,7 @@ export async function holdBill(params: HoldBillParams) {
       variantId: item.variantId || null,
       batchId: item.batchId || null,
       serialId: item.serialId || null,
+      selectedAddOns: item.selectedAddOns || [],
     };
   });
 
@@ -529,6 +569,7 @@ export async function holdBill(params: HoldBillParams) {
       purchasePrice: true,
       mrp: true,
       variants: { select: { id: true, salePrice: true, purchasePrice: true, mrp: true } },
+      addOns: { select: { id: true, name: true, price: true } },
     },
   });
   if (ownedProducts.length !== uniqueProductIds.length) {
@@ -555,6 +596,16 @@ export async function holdBill(params: HoldBillParams) {
       purchasePrice = variant.purchasePrice;
       mrp = variant.mrp;
     }
+
+    const resolvedAddOns = item.selectedAddOns.map((selected) => {
+      const catalogAddOn = product.addOns.find((a) => a.id === selected.id || a.name === selected.name);
+      if (!catalogAddOn) {
+        throw new TransactionError(`Add-on "${selected.name}" not found for item ${item.name}`, 400);
+      }
+      return { name: catalogAddOn.name, price: catalogAddOn.price };
+    });
+    const addOnsTotal = resolvedAddOns.reduce((sum, a) => sum + a.price, 0);
+    catalogSalePrice += addOnsTotal;
 
     const priceOverridden = Math.abs(item.requestedSalePrice - catalogSalePrice) > 0.01;
     if (priceOverridden && !canOverridePrice) {
@@ -585,6 +636,7 @@ export async function holdBill(params: HoldBillParams) {
       variantId: item.variantId,
       batchId: item.batchId,
       serialId: item.serialId,
+      selectedAddOns: resolvedAddOns,
     };
   });
 
@@ -612,6 +664,8 @@ export async function holdBill(params: HoldBillParams) {
       customerName: customerName || null,
       customerPhone: customerPhone || null,
       notes: notes || null,
+      tableNumber: tableNumber || null,
+      orderType: orderType || null,
       couponCode: couponCode || null,
       loyaltyPointsRedeemed: Math.max(0, Math.floor(Number(loyaltyPointsRedeemed) || 0)),
       items: {
@@ -629,6 +683,7 @@ export async function holdBill(params: HoldBillParams) {
           variantId: item.variantId,
           batchId: item.batchId,
           serialId: item.serialId,
+          selectedAddOns: item.selectedAddOns.length > 0 ? item.selectedAddOns : undefined,
         })),
       },
     },
@@ -702,6 +757,7 @@ export async function resumeBill(params: ResumeBillParams) {
     mrp: item.mrp,
     productType: item.productType || undefined,
     barcode: item.barcode,
+    selectedAddOns: Array.isArray(item.selectedAddOns) ? (item.selectedAddOns as unknown as SelectedAddOnInput[]) : [],
   }));
 
   const plan = await buildTransactionPlan({
@@ -722,6 +778,8 @@ export async function resumeBill(params: ResumeBillParams) {
     notes: held.notes,
     couponCode: held.couponCode,
     loyaltyPointsRedeemed: held.loyaltyPointsRedeemed,
+    tableNumber: held.tableNumber,
+    orderType: held.orderType,
   });
 
   // Completing the sale and deleting the held record happen inside one transaction: if the

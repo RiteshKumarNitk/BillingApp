@@ -133,6 +133,9 @@ model Product {
   // existing productType/business flow.
   durationMinutes   Int?              // Salon: service duration
   garmentType       String?           // Laundry: distinct from `category` (Service Category)
+  addOns            ProductAddOn[]
+  comboComponents   ComboItem[]       @relation("ComboItems")
+  usedInCombos      ComboItem[]       @relation("ComboComponents")
   tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   batches           ProductBatch[]
   serials           ProductSerial[]
@@ -152,6 +155,33 @@ model ProductVariant {
   salePrice     Float
   stock         Float   @default(0)
   product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// Cafe: add-ons belong to one specific product (e.g. "Extra Shot +15" on a Cappuccino), not a
+// tenant-wide list — a coffee's add-ons rarely make sense on a sandwich.
+model ProductAddOn {
+  id        String  @id @default(uuid())
+  productId String
+  name      String
+  price     Float   @default(0)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+// Cafe: links a Product with productType "COMBO" to the regular Products it bundles. The combo
+// sells at its own flat price (like any other Product.salePrice) — this table is for
+// receipt/kitchen display only, not per-component pricing or stock deduction (component-level
+// stock/recipe deduction is deferred, see "Recipe-ready architecture" in the phase 1 spec).
+model ComboItem {
+  id          String  @id @default(uuid())
+  comboId     String
+  componentId String
+  quantity    Int     @default(1)
+  combo       Product @relation("ComboItems", fields: [comboId], references: [id], onDelete: Cascade)
+  component   Product @relation("ComboComponents", fields: [componentId], references: [id])
+
+  @@index([comboId])
 }
 
 model ProductBatch {
@@ -357,6 +387,9 @@ model Transaction {
   loyaltyPointsRedeemed Int                  @default(0)
   loyaltyDiscountAmount Float                @default(0)
   loyaltyPointsEarned   Int                  @default(0)
+  // Cafe: table + fulfillment type. Nullable — irrelevant to every other business type.
+  tableNumber           String?
+  orderType             String?              // DINE_IN | TAKE_AWAY | DELIVERY
   tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user                  User                 @relation(fields: [userId], references: [id])
   items                 TransactionItem[]
@@ -390,6 +423,9 @@ model TransactionItem {
   batchId        String?
   serialId       String?
   variantId      String?
+  // Cafe: snapshot of selected add-ons at sale time (name + price), e.g. [{"name":"Extra Shot","price":15}].
+  // Snapshotted rather than a live relation so a later ProductAddOn price/name change never rewrites history.
+  selectedAddOns Json?
   product        Product     @relation(fields: [productId], references: [id])
   transaction    Transaction @relation(fields: [transactionId], references: [id])
 }

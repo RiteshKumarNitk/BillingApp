@@ -11,6 +11,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Cafe POS cart panel: mobile drawer (fixed) becomes an in-flow sidebar at desktop widths.
+   Plain CSS, not a Tailwind lg: utility, because this build isn't generating a `static` utility. */
+@media (min-width: 1024px) {
+  .cafe-cart-panel {
+    position: static;
+    inset: auto;
+  }
+}
+
 input,
 textarea,
 select {

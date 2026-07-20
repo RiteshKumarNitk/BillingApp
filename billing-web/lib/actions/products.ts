@@ -108,6 +108,44 @@ export async function getProductCategories() {
   return distinctCategories.map((c: { category?: string | null }) => c.category).filter(Boolean) as string[];
 }
 
+// Cafe POS: full menu grid, unlike searchProducts()'s 50-item cap (meant for a search-as-you-type
+// list, not a full category/card grid where every item needs to be visible up front).
+export async function getCafeMenu() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    return [];
+  }
+
+  return prisma.product.findMany({
+    where: { tenantId: session.user.tenantId },
+    include: {
+      variants: true,
+      addOns: true,
+      comboComponents: { include: { component: { select: { id: true, name: true } } } },
+    },
+    orderBy: { name: 'asc' },
+  });
+}
+
+// Cafe: candidate list for the Combo Components picker. Excludes COMBO products themselves to
+// keep combos one level deep (no combo-of-combos).
+export async function getProductsForComboPicker(excludeProductId?: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    return [];
+  }
+
+  return prisma.product.findMany({
+    where: {
+      tenantId: session.user.tenantId,
+      productType: { not: 'COMBO' },
+      ...(excludeProductId ? { id: { not: excludeProductId } } : {}),
+    },
+    select: { id: true, name: true, salePrice: true },
+    orderBy: { name: 'asc' },
+  });
+}
+
 export async function createProduct(data: any) {
   const session = await getServerSession(authOptions);
 
@@ -181,6 +219,24 @@ export async function createProduct(data: any) {
     createData.stock = data.serials.length;
   }
 
+  // Cafe: add-ons belong to any product type except COMBO; combo components only apply to COMBO.
+  if (data.addOns && data.addOns.length > 0 && productType !== 'COMBO') {
+    createData.addOns = {
+      create: data.addOns.filter((a: any) => a.name?.trim()).map((a: any) => ({
+        name: a.name.trim(),
+        price: parseFloat(a.price) || 0,
+      }))
+    };
+  }
+  if (productType === 'COMBO' && data.comboComponents && data.comboComponents.length > 0) {
+    createData.comboComponents = {
+      create: data.comboComponents.filter((c: any) => c.componentId).map((c: any) => ({
+        componentId: c.componentId,
+        quantity: parseInt(c.quantity, 10) || 1,
+      }))
+    };
+  }
+
   const product = await prisma.product.create({ data: createData });
 
   revalidatePath('/products');
@@ -252,6 +308,27 @@ export async function updateProduct(productId: string, data: any) {
       }))
     };
     updateData.stock = data.serials.filter((s:any) => s.status !== 'SOLD').length;
+  }
+
+  // Cafe: replace add-ons / combo components wholesale on every save, same simplicity tradeoff
+  // as variants/batches/serials above.
+  if (data.addOns !== undefined && productType !== 'COMBO') {
+    updateData.addOns = {
+      deleteMany: {},
+      create: data.addOns.filter((a: any) => a.name?.trim()).map((a: any) => ({
+        name: a.name.trim(),
+        price: parseFloat(a.price) || 0,
+      }))
+    };
+  }
+  if (productType === 'COMBO' && data.comboComponents !== undefined) {
+    updateData.comboComponents = {
+      deleteMany: {},
+      create: data.comboComponents.filter((c: any) => c.componentId).map((c: any) => ({
+        componentId: c.componentId,
+        quantity: parseInt(c.quantity, 10) || 1,
+      }))
+    };
   }
 
   const product = await prisma.product.update({ where: { id: productId, tenantId: tenantId }, data: updateData });

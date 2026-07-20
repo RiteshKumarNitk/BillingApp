@@ -18,7 +18,9 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       include: {
         variants: true,
         batches: true,
-        serials: true
+        serials: true,
+        addOns: true,
+        comboComponents: { include: { component: { select: { id: true, name: true, salePrice: true } } } },
       }
     }),
     prisma.tenant.findUnique({
