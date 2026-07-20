@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateProduct } from '@/lib/actions/products';
+import { createProduct } from '@/lib/actions/products';
 import { getUnits, createUnit } from '@/lib/actions/units';
 import Link from 'next/link';
 import {
@@ -14,61 +14,35 @@ import {
   hideStockFields, showGarmentType, showDuration
 } from '@/lib/productForm/businessTypeConfig';
 
-export default function EditProductClient({ product, businessType }: { product: any; businessType: string | null }) {
+export default function AddProductClient({ businessType }: { businessType: string | null }) {
   const router = useRouter();
 
   const productTypeOptions = getProductTypeOptions(businessType);
   const presetCategories = getPresetCategories(businessType);
   const categoryLabel = getCategoryLabel(businessType);
 
-  const formatDateForInput = (dateString: string | null | undefined) => {
-    if (!dateString) return '';
-    return new Date(dateString).toISOString().split('T')[0];
-  };
-
-  const isPresetCategory = presetCategories.includes(product.category || '');
-
   const [formData, setFormData] = useState({
-    name: product.name || '',
-    category: isPresetCategory ? product.category : (product.category ? 'Other' : ''),
-    customCategory: isPresetCategory ? '' : (product.category || ''),
-    productType: product.productType || 'SIMPLE',
-    unit: product.unit || 'PIECE',
-    allowDecimal: product.allowDecimal || false,
-    purchasePrice: product.purchasePrice?.toString() || '0',
-    mrp: product.mrp?.toString() || '0',
-    salePrice: product.salePrice?.toString() || '0',
-    stock: product.stock?.toString() || '0',
-    minStockThreshold: product.minStockThreshold?.toString() || '10',
-    barcode: product.barcode || '',
-    imageUrl: product.imageUrl || '',
-    description: product.description || '',
-    durationMinutes: product.durationMinutes?.toString() || '',
-    garmentType: product.garmentType || '',
+    name: '',
+    category: '',
+    customCategory: '',
+    productType: 'SIMPLE',
+    unit: 'PIECE',
+    allowDecimal: false,
+    purchasePrice: '',
+    mrp: '',
+    salePrice: '',
+    stock: '',
+    minStockThreshold: '10',
+    barcode: '',
+    imageUrl: '',
+    description: '',
+    durationMinutes: '',
+    garmentType: '',
   });
 
-  const [variants, setVariants] = useState<any[]>(
-    product.variants?.map((v: any) => ({
-      ...v,
-      purchasePrice: v.purchasePrice?.toString() || '0',
-      mrp: v.mrp?.toString() || '0',
-      salePrice: v.salePrice?.toString() || '0',
-      stock: v.stock?.toString() || '0',
-    })) || []
-  );
-
-  const [batches, setBatches] = useState<any[]>(
-    product.batches?.map((b: any) => ({
-      ...b,
-      manufacturingDate: formatDateForInput(b.manufacturingDate),
-      expiryDate: formatDateForInput(b.expiryDate),
-      stock: b.stock?.toString() || '0',
-    })) || []
-  );
-
-  const [serials, setSerials] = useState<any[]>(
-    product.serials?.map((s: any) => ({ ...s })) || []
-  );
+  const [variants, setVariants] = useState<any[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [serials, setSerials] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,10 +75,12 @@ export default function EditProductClient({ product, businessType }: { product: 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+
     let parsedValue: any = value;
     if (type === 'checkbox') {
       parsedValue = (e.target as HTMLInputElement).checked;
     }
+
     setFormData(prev => ({ ...prev, [name]: parsedValue }));
   };
 
@@ -124,11 +100,11 @@ export default function EditProductClient({ product, businessType }: { product: 
     setBatches(newBatches);
   };
 
-  const handleAddSerial = () => setSerials([...serials, { serialNumber: '', status: 'AVAILABLE' }]);
+  const handleAddSerial = () => setSerials([...serials, { serialNumber: '' }]);
   const handleRemoveSerial = (idx: number) => setSerials(serials.filter((_, i) => i !== idx));
-  const handleSerialChange = (idx: number, field: string, value: string) => {
+  const handleSerialChange = (idx: number, value: string) => {
     const newSerials = [...serials];
-    newSerials[idx][field] = value;
+    newSerials[idx].serialNumber = value;
     setSerials(newSerials);
   };
 
@@ -140,9 +116,11 @@ export default function EditProductClient({ product, businessType }: { product: 
     setError(null);
 
     try {
-      const finalCategory = formData.category === 'Other' ? formData.customCategory : formData.category;
+      const finalCategory = formData.category === 'Other'
+        ? formData.customCategory
+        : formData.category;
 
-      await updateProduct(product.id, {
+      await createProduct({
         ...formData,
         category: finalCategory || null,
         variants: (formData.productType === 'VARIANT' || formData.productType === 'WEIGHT') ? variants : undefined,
@@ -151,9 +129,9 @@ export default function EditProductClient({ product, businessType }: { product: 
       });
 
       setSuccess(true);
-      setTimeout(() => router.push(`/products/${product.id}`), 1200);
+      setTimeout(() => router.push('/products'), 1200);
     } catch (err: any) {
-      setError(err.message || 'Failed to update product');
+      setError(err.message || 'Failed to create product');
       setLoading(false);
     }
   };
@@ -166,8 +144,8 @@ export default function EditProductClient({ product, businessType }: { product: 
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-gray-900">Product Updated!</h2>
-        <p className="text-gray-500 mt-1">Redirecting to product details…</p>
+        <h2 className="text-xl font-bold text-gray-900">Product Added!</h2>
+        <p className="text-gray-500 mt-1">Redirecting to products list…</p>
       </div>
     );
   }
@@ -175,12 +153,12 @@ export default function EditProductClient({ product, businessType }: { product: 
   return (
     <div className="max-w-4xl mx-auto pb-12">
       <div className="mb-8 flex items-center gap-3">
-        <Link href={`/products/${product.id}`} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+        <Link href="/products" className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Update behavior and inventory tracking for {product.name}</p>
+          <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Define behavior and inventory tracking for this item.</p>
         </div>
       </div>
 
@@ -221,7 +199,15 @@ export default function EditProductClient({ product, businessType }: { product: 
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Product Name <span className="text-rose-500">*</span>
                 </label>
-                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900" />
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="e.g. Potato, Dove Soap, iPhone 15"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                />
               </div>
             </div>
 
@@ -245,7 +231,7 @@ export default function EditProductClient({ product, businessType }: { product: 
                     onChange={(e) => setNewUnitName(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddUnit(); } }}
                     placeholder="e.g. BAG, ROLL, BOTTLE"
-                    className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 uppercase"
+                    className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all uppercase"
                   />
                   <button
                     type="button"
@@ -261,9 +247,8 @@ export default function EditProductClient({ product, businessType }: { product: 
                   name="unit"
                   value={formData.unit}
                   onChange={handleChange}
-                  className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900"
+                  className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                 >
-                  {/* Keep the product's current value selectable even if it predates the Units master or was deleted from it */}
                   {formData.unit && !units.some(u => u.name === formData.unit) && (
                     <option value={formData.unit}>{formData.unit}</option>
                   )}
@@ -326,9 +311,16 @@ export default function EditProductClient({ product, businessType }: { product: 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{categoryLabel}</label>
-                <select name="category" value={formData.category} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 bg-white">
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                >
                   <option value="">Select {categoryLabel.toLowerCase()}…</option>
-                  {presetCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  {presetCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
                   <option value="Other">Other (custom)</option>
                 </select>
               </div>
@@ -336,7 +328,13 @@ export default function EditProductClient({ product, businessType }: { product: 
               {formData.category === 'Other' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Custom {categoryLabel}</label>
-                  <input type="text" name="customCategory" value={formData.customCategory} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900" />
+                  <input
+                    type="text"
+                    name="customCategory"
+                    value={formData.customCategory}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  />
                 </div>
               )}
 
@@ -349,7 +347,7 @@ export default function EditProductClient({ product, businessType }: { product: 
                     value={formData.garmentType}
                     onChange={handleChange}
                     placeholder="e.g. Shirt, Trouser, Saree, Bedsheet"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                   />
                 </div>
               )}
@@ -364,7 +362,7 @@ export default function EditProductClient({ product, businessType }: { product: 
                     onChange={handleChange}
                     min="0"
                     placeholder="e.g. 30"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                   />
                 </div>
               )}
@@ -372,7 +370,13 @@ export default function EditProductClient({ product, businessType }: { product: 
               {formData.productType === 'WEIGHT' && (
                 <div className="flex items-center h-full pt-6">
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" name="allowDecimal" checked={formData.allowDecimal} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600" />
+                    <input
+                      type="checkbox"
+                      name="allowDecimal"
+                      checked={formData.allowDecimal}
+                      onChange={handleChange}
+                      className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500"
+                    />
                     <span className="text-sm font-medium text-gray-900">Allow Decimal Quantity (e.g. 1.25 KG)</span>
                   </label>
                 </div>
@@ -381,7 +385,13 @@ export default function EditProductClient({ product, businessType }: { product: 
               {(formData.productType === 'SIMPLE' || formData.productType === 'WEIGHT' || formData.productType === 'SERVICE') && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Master Barcode / SKU</label>
-                  <input type="text" name="barcode" value={formData.barcode} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900" />
+                  <input
+                    type="text"
+                    name="barcode"
+                    value={formData.barcode}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  />
                 </div>
               )}
             </div>
@@ -396,7 +406,7 @@ export default function EditProductClient({ product, businessType }: { product: 
                   </button>
                 </div>
                 {variants.length === 0 ? (
-                  <p className="text-gray-500 text-sm text-center py-6">No variants added yet.</p>
+                  <p className="text-gray-500 text-sm text-center py-6">No variants added yet. Click "Add Variant" to create sizes, weights, or packages.</p>
                 ) : (
                   <div className="space-y-4">
                     {variants.map((v, idx) => (
@@ -420,7 +430,7 @@ export default function EditProductClient({ product, businessType }: { product: 
                         )}
                         <div className="w-full md:w-1/3">
                           <label className="block text-xs font-medium text-gray-500 mb-1">Barcode (Optional)</label>
-                          <input type="text" value={v.barcode || ''} onChange={(e) => handleVariantChange(idx, 'barcode', e.target.value)} className="w-full text-sm border-gray-300 rounded-lg" />
+                          <input type="text" value={v.barcode} onChange={(e) => handleVariantChange(idx, 'barcode', e.target.value)} className="w-full text-sm border-gray-300 rounded-lg" />
                         </div>
                       </div>
                     ))}
@@ -441,7 +451,6 @@ export default function EditProductClient({ product, businessType }: { product: 
             <div className="flex items-start gap-6">
               <ImageUpload
                 label="Product Image (Optional)"
-                defaultImage={formData.imageUrl}
                 onUploadSuccess={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
               />
               <div className="flex-1 mt-2">
@@ -457,7 +466,7 @@ export default function EditProductClient({ product, businessType }: { product: 
                 onChange={handleChange}
                 rows={3}
                 placeholder="Shown to customers on your public menu/shop page"
-                className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 resize-none"
+                className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all resize-none"
               />
             </div>
           </div>
@@ -485,7 +494,7 @@ export default function EditProductClient({ product, businessType }: { product: 
               </div>
 
               {batches.length === 0 ? (
-                <p className="text-gray-500 text-sm text-center py-4">No batches added.</p>
+                <p className="text-gray-500 text-sm text-center py-4">No batches added. Click "Add Batch" to input inventory.</p>
               ) : (
                 <div className="space-y-4">
                   {batches.map((b, idx) => (
@@ -542,19 +551,11 @@ export default function EditProductClient({ product, businessType }: { product: 
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {serials.map((s, idx) => (
-                    <div key={idx} className="flex flex-col relative bg-gray-50 p-3 rounded-xl border border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
-                         <span className="text-xs font-semibold text-gray-500">Serial {idx+1}</span>
-                         <button type="button" onClick={() => handleRemoveSerial(idx)} className="text-gray-400 hover:text-rose-500">
-                          <Trash2 className="w-3.5 h-3.5" />
-                         </button>
-                      </div>
-                      <input type="text" placeholder="Enter IMEI / Serial" value={s.serialNumber} onChange={(e) => handleSerialChange(idx, 'serialNumber', e.target.value)} required className="w-full text-sm border-gray-300 rounded-lg mb-2" />
-                      <select value={s.status} onChange={(e) => handleSerialChange(idx, 'status', e.target.value)} className="w-full text-xs border-gray-300 rounded-lg bg-white">
-                        <option value="AVAILABLE">AVAILABLE</option>
-                        <option value="SOLD">SOLD</option>
-                        <option value="DEFECTIVE">DEFECTIVE</option>
-                      </select>
+                    <div key={idx} className="flex items-center relative">
+                      <input type="text" placeholder="Enter IMEI / Serial" value={s.serialNumber} onChange={(e) => handleSerialChange(idx, e.target.value)} required className="w-full text-sm border-gray-300 rounded-lg pr-10" />
+                      <button type="button" onClick={() => handleRemoveSerial(idx)} className="absolute right-2 text-gray-400 hover:text-rose-500">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -565,7 +566,7 @@ export default function EditProductClient({ product, businessType }: { product: 
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-2">
-          <Link href={`/products/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/products" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
             Cancel
           </Link>
           <button
@@ -573,7 +574,7 @@ export default function EditProductClient({ product, businessType }: { product: 
             disabled={loading}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Saving...' : 'Save Changes'}
+            {loading ? 'Saving...' : 'Add Product'}
           </button>
         </div>
 

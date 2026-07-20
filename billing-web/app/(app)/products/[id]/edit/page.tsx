@@ -12,20 +12,26 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     redirect('/auth/login');
   }
 
-  const product = await prisma.product.findUnique({
-    where: { id: productId, tenantId: session.user.tenantId },
-    include: {
-      variants: true,
-      batches: true,
-      serials: true
-    }
-  });
+  const [product, tenant] = await Promise.all([
+    prisma.product.findUnique({
+      where: { id: productId, tenantId: session.user.tenantId },
+      include: {
+        variants: true,
+        batches: true,
+        serials: true
+      }
+    }),
+    prisma.tenant.findUnique({
+      where: { id: session.user.tenantId },
+      select: { businessType: true }
+    }),
+  ]);
 
   if (!product) {
     notFound();
   }
 
   return (
-    <EditProductClient product={product} />
+    <EditProductClient product={product} businessType={tenant?.businessType ?? null} />
   );
 }

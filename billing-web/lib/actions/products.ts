@@ -142,6 +142,9 @@ export async function createProduct(data: any) {
     stock: parseFloat(data.stock) || 0,
     minStockThreshold: parseFloat(data.minStockThreshold) || 10,
     imageUrl: data.imageUrl || null,
+    description: data.description?.trim() || null,
+    durationMinutes: data.durationMinutes ? parseInt(data.durationMinutes, 10) : null,
+    garmentType: data.garmentType || null,
     tenant: { connect: { id: tenantId } },
   };
 
@@ -208,6 +211,10 @@ export async function updateProduct(productId: string, data: any) {
     salePrice: parseFloat(data.salePrice) || 0,
     stock: parseFloat(data.stock) || 0,
     minStockThreshold: parseFloat(data.minStockThreshold) || 10,
+    imageUrl: data.imageUrl || null,
+    description: data.description?.trim() || null,
+    durationMinutes: data.durationMinutes ? parseInt(data.durationMinutes, 10) : null,
+    garmentType: data.garmentType || null,
   };
 
   // Handling updates for complex types is more intricate (needs delete/re-create or upsert)
