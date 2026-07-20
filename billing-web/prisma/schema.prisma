@@ -37,6 +37,10 @@ model Tenant {
   aboutText          String?
   coverImageUrl      String?
   businessHours      String?
+  // Service-business pivot (Cafe/Laundry/Salon). Nullable and unset by default so existing
+  // general/medical-store-style tenants keep today's generic Product/POS UI unchanged — this only
+  // takes effect for tenants that explicitly opt in (new signups, or existing ones via Settings).
+  businessType       String?
   customers          Customer[]
   discounts          Discount[]
   employees          Employee[]
@@ -125,6 +129,10 @@ model Product {
   productType       String            @default("SIMPLE")
   description       String?
   imageUrl          String?
+  // Business-type-specific catalog fields (Cafe/Laundry/Salon). Nullable, ignored by every
+  // existing productType/business flow.
+  durationMinutes   Int?              // Salon: service duration
+  garmentType       String?           // Laundry: distinct from `category` (Service Category)
   tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   batches           ProductBatch[]
   serials           ProductSerial[]

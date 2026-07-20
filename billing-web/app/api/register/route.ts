@@ -4,7 +4,10 @@ import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password, tenantName, phone, address, gstin } = await request.json();
+    const { name, email, password, tenantName, phone, address, gstin, businessType } = await request.json();
+
+    const VALID_BUSINESS_TYPES = ['CAFE', 'LAUNDRY', 'SALON'];
+    const normalizedBusinessType = VALID_BUSINESS_TYPES.includes(businessType) ? businessType : null;
 
     // Validate input
     if (!name || !email || !password || !tenantName) {
@@ -52,6 +55,7 @@ export async function POST(request: NextRequest) {
           address: address || null,
           gstin: gstin || null,
           subscriptionPlan: 'FREE',
+          businessType: normalizedBusinessType,
         }
       });
 

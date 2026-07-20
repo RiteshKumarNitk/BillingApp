@@ -20,7 +20,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
     }
 
-    const { name, contactPerson, email, phone, address, gstin, website, currency, timezone } = await request.json();
+    const { name, contactPerson, email, phone, address, gstin, website, currency, timezone, businessType } = await request.json();
+
+    const VALID_BUSINESS_TYPES = ['CAFE', 'LAUNDRY', 'SALON'];
 
     const updateData: any = {
       name,
@@ -32,6 +34,7 @@ export async function PUT(request: NextRequest) {
       website: website || null,
       currency: currency || 'INR',
       timezone: timezone || 'Asia/Kolkata',
+      businessType: VALID_BUSINESS_TYPES.includes(businessType) ? businessType : null,
     };
 
     const updatedTenant = await prisma.tenant.update({ where: { id: tenantId }, data: updateData });

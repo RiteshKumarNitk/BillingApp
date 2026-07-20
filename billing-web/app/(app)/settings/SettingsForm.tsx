@@ -16,6 +16,7 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
     website: initialData.website || "",
     currency: initialData.currency || "INR",
     timezone: initialData.timezone || "Asia/Kolkata",
+    businessType: initialData.businessType || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +87,23 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
             placeholder="e.g. 22AAAAA0000A1Z5"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
           />
+        </div>
+
+        <div className="md:col-span-2">
+          <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
+          <select
+            id="businessType"
+            name="businessType"
+            value={formData.businessType}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+          >
+            <option value="">Not set / general</option>
+            <option value="CAFE">Cafe</option>
+            <option value="LAUNDRY">Laundry</option>
+            <option value="SALON">Salon</option>
+          </select>
+          <p className="text-xs text-gray-400 mt-1">Tailors your Products and billing screen to your business. Leave unset to keep the current general setup.</p>
         </div>
 
         <div>

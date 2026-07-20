@@ -14,14 +14,15 @@ export default function RegisterPage() {
     tenantName: '',
     phone: '',
     address: '',
-    gstin: ''
+    gstin: '',
+    businessType: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -169,6 +170,17 @@ export default function RegisterPage() {
                           className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                           placeholder="Your Store Name" />
                       </div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
+                      <select name="businessType" value={formData.businessType} onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white">
+                        <option value="">Not sure yet / other</option>
+                        <option value="CAFE">Cafe</option>
+                        <option value="LAUNDRY">Laundry</option>
+                        <option value="SALON">Salon</option>
+                      </select>
+                      <p className="text-xs text-gray-400 mt-1">Optional — tailors your Products and billing screen to your business. You can set or change this later in Settings.</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
