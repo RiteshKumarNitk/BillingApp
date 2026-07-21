@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Matches the `id` values in lib/website/registry.ts's `themes` array. Kept as a plain literal list
 // here (rather than importing registry.ts) because that module pulls in next/dynamic component
 // wrappers meant for client rendering, not for a server-only validator.
-const THEME_IDS = ['modern-restaurant', 'fashion-store', 'premium-food', 'fresh-harvest', 'organic-grove', 'fruit-fresh'] as const;
+const THEME_IDS = ['modern-restaurant', 'fashion-store', 'premium-food', 'fresh-harvest', 'organic-grove', 'fruit-fresh', 'minimal-cafe', 'modern-coffee'] as const;
 
 const url = z.string().trim().max(2000).optional();
 const shortText = z.string().trim().max(200).optional();

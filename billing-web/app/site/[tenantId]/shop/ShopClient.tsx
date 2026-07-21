@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Search, Plus, Minus, Trash2, ChevronRight } from 'lucide-react';
-import { getMenuTheme } from '@/lib/website/menuTheme';
+import { getMenuTheme, menuThemeCssVars } from '@/lib/website/menuTheme';
+import { WebsiteConfig } from '@/lib/website/types';
 import { useCart } from '@/components/website/CartContext';
 
 interface ShopClientProps {
@@ -10,7 +11,8 @@ interface ShopClientProps {
     category: string;
     items: any[];
   }[];
-  theme: string | null;
+  layoutStyle: string | null;
+  config: WebsiteConfig;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -32,8 +34,8 @@ function getCategoryIcon(cat: string) {
   return '📦';
 }
 
-export default function ShopClient({ categorizedProducts, theme: themeValue }: ShopClientProps) {
-  const theme = getMenuTheme(themeValue);
+export default function ShopClient({ categorizedProducts, layoutStyle, config }: ShopClientProps) {
+  const theme = getMenuTheme(layoutStyle, config);
   const isRestaurant = theme.id === 'RESTAURANT';
   const { addToCart, removeFromCart, updateQuantity, getCartQty } = useCart();
 
@@ -211,7 +213,7 @@ export default function ShopClient({ categorizedProducts, theme: themeValue }: S
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col" style={menuThemeCssVars(theme)}>
       {/* Search bar */}
       <div className={`sticky top-[57px] z-20 ${isRestaurant ? 'bg-[var(--surface)] border-b border-[var(--line)]' : 'bg-[var(--primary)]'}`}>
         <div className="max-w-5xl mx-auto px-4 py-3">

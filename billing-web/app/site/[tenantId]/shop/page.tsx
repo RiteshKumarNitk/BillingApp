@@ -45,7 +45,7 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
 
   return (
     <WebsiteRenderer config={config} tenant={tenant}>
-      <ShopClient categorizedProducts={categorizedProducts} theme={tenant.menuTheme} />
+      <ShopClient categorizedProducts={categorizedProducts} layoutStyle={tenant.menuTheme} config={config} />
     </WebsiteRenderer>
   );
 }

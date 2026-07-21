@@ -43,6 +43,18 @@ export const themes = [
     description: 'Vibrant and colorful theme for fruit shops and juice bars.',
     defaultColors: { primary: '#f97316', secondary: '#ec4899', background: '#fff7ed' },
   },
+  {
+    id: 'minimal-cafe',
+    name: 'Minimal Cafe',
+    description: 'Clean, quiet, menu-first design for coffee shops and cafes.',
+    defaultColors: { primary: '#2D2A26', secondary: '#C9A876', background: '#FAFAF8' },
+  },
+  {
+    id: 'modern-coffee',
+    name: 'Modern Coffee',
+    description: 'Bold, warm coffee-house theme with a card-style menu and gallery.',
+    defaultColors: { primary: '#6F4E37', secondary: '#D4A24C', background: '#FFF8F0' },
+  },
 ];
 
 export const themeLayouts: Record<string, any> = {
@@ -52,6 +64,8 @@ export const themeLayouts: Record<string, any> = {
   'fresh-harvest': dynamic(() => import('@/components/website/themes/fresh-harvest/Layout')),
   'organic-grove': dynamic(() => import('@/components/website/themes/organic-grove/Layout')),
   'fruit-fresh': dynamic(() => import('@/components/website/themes/fruit-fresh/Layout')),
+  'minimal-cafe': dynamic(() => import('@/components/website/themes/minimal-cafe/Layout')),
+  'modern-coffee': dynamic(() => import('@/components/website/themes/modern-coffee/Layout')),
 };
 
 export const themeNavbars: Record<string, any> = {
@@ -61,6 +75,8 @@ export const themeNavbars: Record<string, any> = {
   'fresh-harvest': dynamic(() => import('@/components/website/themes/fresh-harvest/sections/Navbar')),
   'organic-grove': dynamic(() => import('@/components/website/themes/organic-grove/sections/Navbar')),
   'fruit-fresh': dynamic(() => import('@/components/website/themes/fruit-fresh/sections/Navbar')),
+  'minimal-cafe': dynamic(() => import('@/components/website/themes/minimal-cafe/sections/Navbar')),
+  'modern-coffee': dynamic(() => import('@/components/website/themes/modern-coffee/sections/Navbar')),
 };
 
 export const themeFooters: Record<string, any> = {
@@ -70,6 +86,8 @@ export const themeFooters: Record<string, any> = {
   'fresh-harvest': dynamic(() => import('@/components/website/themes/fresh-harvest/sections/Footer')),
   'organic-grove': dynamic(() => import('@/components/website/themes/organic-grove/sections/Footer')),
   'fruit-fresh': dynamic(() => import('@/components/website/themes/fruit-fresh/sections/Footer')),
+  'minimal-cafe': dynamic(() => import('@/components/website/themes/minimal-cafe/sections/Footer')),
+  'modern-coffee': dynamic(() => import('@/components/website/themes/modern-coffee/sections/Footer')),
 };
 
 export const getThemeLayout = (themeId: string) => {

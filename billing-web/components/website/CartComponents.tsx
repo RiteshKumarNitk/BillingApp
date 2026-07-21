@@ -5,6 +5,10 @@ import { ShoppingCart, X, Trash2, Plus, Minus, MapPin, ExternalLink, LogIn, Mail
 import { getDirectionsUrl } from '@/lib/website/directions';
 import type { MenuTheme } from '@/lib/website/menuTheme';
 
+// Falls back to the same near-black used before these components took a real theme color, so
+// pages that don't pass one (or a site with no primary color configured) look unchanged.
+const DEFAULT_ACCENT = '#111827';
+
 export function OrderSuccessToast({ theme }: { theme?: MenuTheme }) {
   const { orderSuccess } = useCart();
   if (!orderSuccess) return null;
@@ -47,7 +51,7 @@ export function FloatingCartBar({ theme }: { theme?: MenuTheme }) {
   );
 }
 
-export function CartDrawer({ tenant, theme }: { tenant: any; theme?: MenuTheme }) {
+export function CartDrawer({ tenant, theme, primaryColor = DEFAULT_ACCENT }: { tenant: any; theme?: MenuTheme; primaryColor?: string }) {
   const { cart, showCart, setShowCart, removeFromCart, updateQuantity, cartCount, cartTotal, handlePlaceOrder, submitting, isLoggedIn } = useCart();
   if (!showCart) return null;
 
@@ -110,8 +114,8 @@ export function CartDrawer({ tenant, theme }: { tenant: any; theme?: MenuTheme }
                 </a>
               </div>
             )}
-            <button onClick={handlePlaceOrder} disabled={submitting}
-              className="w-full py-3.5 rounded-xl bg-gray-900 text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]">
+            <button onClick={handlePlaceOrder} disabled={submitting} style={{ backgroundColor: primaryColor }}
+              className="w-full py-3.5 rounded-xl text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]">
               {submitting ? 'Placing Order...' : isLoggedIn ? `Place Order — ₹${cartTotal.toFixed(2)}` : `Login to Order — ₹${cartTotal.toFixed(2)}`}
             </button>
             <p className="text-[10px] text-center text-gray-400">Pick up from store. Tax calculated at checkout.</p>
@@ -122,7 +126,7 @@ export function CartDrawer({ tenant, theme }: { tenant: any; theme?: MenuTheme }
   );
 }
 
-export function AuthModal({ theme }: { theme?: MenuTheme }) {
+export function AuthModal({ theme, primaryColor = DEFAULT_ACCENT }: { theme?: MenuTheme; primaryColor?: string }) {
   const isRestaurant = theme?.id === 'RESTAURANT';
   const { showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth } = useCart();
   if (!showAuthModal) return null;
@@ -135,8 +139,8 @@ export function AuthModal({ theme }: { theme?: MenuTheme }) {
           <X className="w-5 h-5 text-gray-400" />
         </button>
         <div className="text-center mb-5">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3 bg-gray-100">
-            <LogIn className="w-6 h-6 text-gray-900" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3" style={{ backgroundColor: `${primaryColor}1A` }}>
+            <LogIn className="w-6 h-6" style={{ color: primaryColor }} />
           </div>
           <h2 className="text-lg font-black font-sans">{authMode === 'login' ? 'Sign In to Order' : 'Create Account'}</h2>
           <p className="text-xs text-gray-500 mt-1">{authMode === 'login' ? 'Sign in to place your order' : 'Register to start ordering'}</p>
@@ -171,8 +175,8 @@ export function AuthModal({ theme }: { theme?: MenuTheme }) {
             <input type="password" required minLength={6} placeholder="Password" value={authForm.password} onChange={(e) => setAuthForm(p => ({ ...p, password: e.target.value }))}
               className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
           </div>
-          <button type="submit" disabled={authLoading}
-            className="w-full py-3 rounded-xl bg-gray-900 text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md">
+          <button type="submit" disabled={authLoading} style={{ backgroundColor: primaryColor }}
+            className="w-full py-3 rounded-xl text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md">
             {authLoading ? 'Please wait...' : authMode === 'login' ? 'Sign In' : 'Create Account & Sign In'}
           </button>
         </form>

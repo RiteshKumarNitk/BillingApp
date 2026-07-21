@@ -102,6 +102,31 @@ const factories: Record<string, Factory> = {
       { id: 'ff8', type: 'newsletter', isVisible: true, order: 8, data: { title: 'Get The Juicy Details', subtitle: 'Seasonal fruit alerts and recipe ideas.' } },
       { id: 'ff9', type: 'footer', isVisible: true, order: 9, data: { copyrightText: `© {year} {tenant}. All rights reserved.`, showSocialLinks: true } }
     ]
+  }),
+  'minimal-cafe': (tenant) => ({
+    theme: 'minimal-cafe',
+    appearance: {
+      colors: { primary: '#2D2A26', secondary: '#C9A876', background: '#FAFAF8', text: '#2D2A26' }
+    },
+    sections: [
+      { id: 'mc1', type: 'hero', isVisible: true, order: 1, data: { title: tenant.name ? `${tenant.name}` : 'A Quiet Place For Good Coffee', subtitle: tenant.aboutText || 'Small batch coffee, simple food, made with care.' } },
+      { id: 'mc2', type: 'menu-grid', isVisible: true, order: 2, data: { title: 'The Menu' } },
+      { id: 'mc3', type: 'gallery', isVisible: true, order: 3, data: { title: 'The Space', images: [] } },
+      { id: 'mc4', type: 'footer', isVisible: true, order: 4, data: { copyrightText: `© {year} {tenant}. All rights reserved.`, showSocialLinks: true } }
+    ]
+  }),
+  'modern-coffee': (tenant) => ({
+    theme: 'modern-coffee',
+    appearance: {
+      colors: { primary: '#6F4E37', secondary: '#D4A24C', accent: '#D4A24C', background: '#FFF8F0', text: '#3B2A20' }
+    },
+    sections: [
+      { id: 'mdc1', type: 'hero', isVisible: true, order: 1, data: { title: tenant.name ? `Welcome to ${tenant.name}` : 'Great Coffee, Every Time', subtitle: tenant.aboutText || 'Handcrafted coffee and fresh bakes, made for your day.' } },
+      { id: 'mdc2', type: 'menu-grid', isVisible: true, order: 2, data: { title: 'Our Menu', subtitle: 'Brewed fresh, every single cup' } },
+      { id: 'mdc3', type: 'testimonials', isVisible: true, order: 3, data: { title: 'What People Say', reviews: [] } },
+      { id: 'mdc4', type: 'gallery', isVisible: true, order: 4, data: { title: 'Inside The Cafe', images: [] } },
+      { id: 'mdc5', type: 'footer', isVisible: true, order: 5, data: { copyrightText: `© {year} {tenant}. All rights reserved.`, showSocialLinks: true } }
+    ]
   })
 };
 

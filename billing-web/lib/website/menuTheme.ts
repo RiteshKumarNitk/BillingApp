@@ -1,10 +1,13 @@
 import type { CSSProperties } from 'react';
+import type { WebsiteConfig } from './types';
 
-// Legacy MARKET/RESTAURANT design tokens. Predates the 6-theme Website Builder system
-// (lib/website/registry.ts) but is still live: the /site/[tenantId]/shop page and the shared
-// cart UI (components/website/CartComponents.tsx) render with these tokens rather than the
-// tenant's chosen WebsiteConfig theme. Legacy `menuTheme` values saved before this system existed
-// (DEFAULT, DARK, ELEGANT, PLAYFUL) all fall back to MARKET; see getMenuTheme below.
+// The /site/[tenantId]/shop page and shared cart UI (components/website/CartComponents.tsx) use
+// this MenuTheme shape for their CSS custom properties (--bg, --surface, --ink, --primary, ...).
+// It used to come from a hardcoded MARKET/RESTAURANT color palette that predated the 6-theme
+// Website Builder system and was never actually applied anywhere (menuThemeCssVars had no
+// caller), so the tenant's real site colors never reached the ordering UI. `layoutStyle` (from
+// Tenant.menuTheme) now only controls layout density — compact list rows vs. spacious dish
+// cards — while every color comes from the tenant's actual selected WebsiteConfig theme.
 
 export interface MenuTheme {
   id: 'MARKET' | 'RESTAURANT';
@@ -22,41 +25,40 @@ export interface MenuTheme {
   radius: 'rounded' | 'soft';
 }
 
-export const MENU_THEMES: Record<MenuTheme['id'], MenuTheme> = {
+const LAYOUT_STYLE: Record<'MARKET' | 'RESTAURANT', { label: string; radius: 'rounded' | 'soft'; fallbackFont: string }> = {
   MARKET: {
-    id: 'MARKET',
     label: 'Market',
-    bg: '#F6F7F2',
-    surface: '#FFFFFF',
-    ink: '#16241D',
-    muted: '#66756C',
-    line: '#E7E9E0',
-    primary: '#1F5E4C',
-    primaryInk: '#F2F7F1',
-    accent: '#E3A335',
-    accentInk: '#241B06',
-    displayFont: '-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     radius: 'rounded',
+    fallbackFont: '-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
   },
   RESTAURANT: {
-    id: 'RESTAURANT',
     label: 'Restaurant',
-    bg: '#1B1512',
-    surface: '#241C17',
-    ink: '#F4EBDF',
-    muted: '#B7A594',
-    line: '#3A2E26',
-    primary: '#C97B3D',
-    primaryInk: '#201209',
-    accent: '#7FA37A',
-    accentInk: '#12180F',
-    displayFont: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif',
     radius: 'soft',
+    fallbackFont: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif',
   },
 };
 
-export function getMenuTheme(themeValue: string | null | undefined): MenuTheme {
-  return themeValue === 'RESTAURANT' ? MENU_THEMES.RESTAURANT : MENU_THEMES.MARKET;
+export function getMenuTheme(layoutStyleValue: string | null | undefined, config?: WebsiteConfig): MenuTheme {
+  const id: 'MARKET' | 'RESTAURANT' = layoutStyleValue === 'RESTAURANT' ? 'RESTAURANT' : 'MARKET';
+  const style = LAYOUT_STYLE[id];
+  const colors = config?.appearance?.colors;
+  const isDark = id === 'RESTAURANT';
+
+  return {
+    id,
+    label: style.label,
+    bg: colors?.background || (isDark ? '#1B1512' : '#F6F7F2'),
+    surface: isDark ? '#241C17' : '#FFFFFF',
+    ink: colors?.text || (isDark ? '#F4EBDF' : '#16241D'),
+    muted: isDark ? '#B7A594' : '#66756C',
+    line: isDark ? '#3A2E26' : '#E7E9E0',
+    primary: colors?.primary || (isDark ? '#C97B3D' : '#1F5E4C'),
+    primaryInk: '#FFFFFF',
+    accent: colors?.accent || colors?.secondary || colors?.primary || (isDark ? '#7FA37A' : '#E3A335'),
+    accentInk: '#FFFFFF',
+    displayFont: config?.appearance?.typography?.headingFont || style.fallbackFont,
+    radius: style.radius,
+  };
 }
 
 export function menuThemeCssVars(theme: MenuTheme): CSSProperties {
