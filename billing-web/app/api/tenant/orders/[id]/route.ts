@@ -44,27 +44,31 @@ export async function PATCH(
           data: { status: "REJECTED" },
         });
 
-        // Create notification for the customer
-        await tx.notification.create({
-          data: {
-            type: "ORDER_REJECTED",
-            title: "Order Rejected",
-            message: `${tenant?.name || "The store"} has rejected your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}`,
-            orderId: id,
-            tenantId: session.user.tenantId,
-            customerAccountId: order.customerAccountId,
-            customerId: order.customerId || null,
-          },
-        });
+        // Guest orders (no CustomerAccount) have no in-app notification/push target.
+        if (order.customerAccountId) {
+          await tx.notification.create({
+            data: {
+              type: "ORDER_REJECTED",
+              title: "Order Rejected",
+              message: `${tenant?.name || "The store"} has rejected your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}`,
+              orderId: id,
+              tenantId: session.user.tenantId,
+              customerAccountId: order.customerAccountId,
+              customerId: order.customerId || null,
+            },
+          });
+        }
       });
 
       // Send push notification
-      sendPushNotification(
-        order.customerAccountId,
-        "Order Rejected",
-        `${tenant?.name || "The store"} has rejected your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}`,
-        { type: "ORDER_STATUS", orderId: id, status: "REJECTED" }
-      ).catch(() => {});
+      if (order.customerAccountId) {
+        sendPushNotification(
+          order.customerAccountId,
+          "Order Rejected",
+          `${tenant?.name || "The store"} has rejected your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}`,
+          { type: "ORDER_STATUS", orderId: id, status: "REJECTED" }
+        ).catch(() => {});
+      }
 
       return NextResponse.json({ message: "Order rejected" });
     }
@@ -132,29 +136,33 @@ export async function PATCH(
         data: { status: "COMPLETED", transactionId: txn.id },
       });
 
-      // Create notification for the customer
-      await tx.notification.create({
-        data: {
-          type: "ORDER_APPROVED",
-          title: "Order Approved!",
-          message: `${tenant?.name || "The store"} has approved your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}. Your order is being prepared!`,
-          orderId: id,
-          tenantId: session.user.tenantId,
-          customerAccountId: order.customerAccountId,
-          customerId: order.customerId || null,
-        },
-      });
+      // Guest orders (no CustomerAccount) have no in-app notification/push target.
+      if (order.customerAccountId) {
+        await tx.notification.create({
+          data: {
+            type: "ORDER_APPROVED",
+            title: "Order Approved!",
+            message: `${tenant?.name || "The store"} has approved your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}. Your order is being prepared!`,
+            orderId: id,
+            tenantId: session.user.tenantId,
+            customerAccountId: order.customerAccountId,
+            customerId: order.customerId || null,
+          },
+        });
+      }
 
       return txn;
     });
 
     // Send push notification
-    sendPushNotification(
-      order.customerAccountId,
-      "Order Approved!",
-      `${tenant?.name || "The store"} has approved your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}. Your order is being prepared!`,
-      { type: "ORDER_STATUS", orderId: id, status: "COMPLETED" }
-    ).catch(() => {});
+    if (order.customerAccountId) {
+      sendPushNotification(
+        order.customerAccountId,
+        "Order Approved!",
+        `${tenant?.name || "The store"} has approved your order #${id.slice(0, 8)}. Total: ₹${order.netAmount.toFixed(2)}. Your order is being prepared!`,
+        { type: "ORDER_STATUS", orderId: id, status: "COMPLETED" }
+      ).catch(() => {});
+    }
 
     return NextResponse.json({
       message: "Order approved and invoice generated",

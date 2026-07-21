@@ -51,6 +51,7 @@ model Tenant {
   roles              Role[]
   units              Unit[]
   shop               Shop?
+  tables             Table[]
   transactions       Transaction[]
   users              User[]
   subscriptions      TenantSubscription[]
@@ -131,8 +132,15 @@ model Product {
   imageUrl          String?
   // Business-type-specific catalog fields (Cafe/Laundry/Salon). Nullable, ignored by every
   // existing productType/business flow.
-  durationMinutes   Int?              // Salon: service duration
+  durationMinutes   Int?              // Salon: service duration. Cafe: doubles as prep time (minutes).
   garmentType       String?           // Laundry: distinct from `category` (Service Category)
+  // Cafe GST/menu fields. Nullable — a null gstRate means "no tax", not "inherit tenant rate";
+  // Shop.defaultTaxRate remains the tenant-level fallback used only by the online-order path today.
+  gstRate           Float?
+  gstInclusive      Boolean           @default(false)
+  foodType          String?           // VEG | NON_VEG | VEGAN | JAIN
+  isAvailable       Boolean           @default(true)
+  isFeatured        Boolean           @default(false)
   addOns            ProductAddOn[]
   comboComponents   ComboItem[]       @relation("ComboItems")
   usedInCombos      ComboItem[]       @relation("ComboComponents")
@@ -242,26 +250,57 @@ model Customer {
   @@index([customerAccountId])
 }
 
+// QR ordering: one row per physical table. The QR code encodes `qrToken`, not the raw label, so
+// renaming/renumbering a table (or regenerating a lost/damaged QR) never invalidates other tables'
+// printed codes and never changes the URL a still-valid QR points to.
+model Table {
+  id            String         @id @default(uuid())
+  tenantId      String
+  label         String
+  qrToken       String         @unique @default(uuid())
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderRequests OrderRequest[]
+
+  @@unique([tenantId, label])
+  @@index([tenantId])
+}
+
 model OrderRequest {
   id                String             @id @default(uuid())
+  // PENDING | ACCEPTED | PREPARING | READY | COMPLETED | REJECTED | CANCELLED. Kept as a plain
+  // String (matching Transaction.status/orderType elsewhere in this schema) rather than a Prisma
+  // enum so new stages can be introduced without a migration; only PENDING/COMPLETED/REJECTED are
+  // written by any code path as of this migration — ACCEPTED/PREPARING/READY/CANCELLED are reserved
+  // for the Cafe Dashboard + Kitchen Queue phases.
   status            String             @default("PENDING")
   notes             String?
   totalAmount       Float              @default(0)
   taxAmount         Float              @default(0)
   netAmount         Float              @default(0)
   tenantId          String
-  customerAccountId String
+  // Nullable to support guest checkout (no CustomerAccount). Guest orders instead populate
+  // guestName/guestPhone directly; logged-in orders keep using customerAccount as before.
+  customerAccountId String?
   customerId        String?
   transactionId     String?
+  tableId           String?
+  orderType         String?            // DINE_IN | TAKE_AWAY | DELIVERY, mirrors Transaction.orderType
+  guestName         String?
+  guestPhone        String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  customerAccount   CustomerAccount    @relation(fields: [customerAccountId], references: [id])
+  customerAccount   CustomerAccount?   @relation(fields: [customerAccountId], references: [id])
   customer          Customer?          @relation(fields: [customerId], references: [id])
   tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  table             Table?             @relation(fields: [tableId], references: [id])
   items             OrderRequestItem[]
 
   @@index([tenantId, status])
   @@index([customerAccountId])
+  @@index([tableId])
 }
 
 model OrderRequestItem {

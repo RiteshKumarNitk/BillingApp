@@ -24,15 +24,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // "PENDING"/"COMPLETED"/"REJECTED" are the only statuses any code path writes today.
+    // ACCEPTED/PREPARING/READY/CANCELLED (added in the CafeOS Phase 2 schema) aren't produced by
+    // any current flow, so they're not split out separately here yet.
     const [totalOrders, pendingOrders, completedOrders, rejectedOrders] = await Promise.all([
       prisma.orderRequest.count({ where: { customerAccountId } }),
       prisma.orderRequest.count({ where: { customerAccountId, status: "PENDING" } }),
-      prisma.orderRequest.count({ where: { customerAccountId, status: "APPROVED" } }),
+      prisma.orderRequest.count({ where: { customerAccountId, status: "COMPLETED" } }),
       prisma.orderRequest.count({ where: { customerAccountId, status: "REJECTED" } }),
     ]);
 
     const spentResult = await prisma.orderRequest.aggregate({
-      where: { customerAccountId, status: { in: ["APPROVED", "COMPLETED"] } },
+      where: { customerAccountId, status: "COMPLETED" },
       _sum: { netAmount: true },
     });
     const totalSpent = spentResult._sum.netAmount || 0;

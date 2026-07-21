@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { createDefaultRoles, seedTenantWorkspaceDefaults } from '@/lib/tenantOnboarding';
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,25 +60,8 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      let ownerRoleId = null;
-      const rolesData = [
-        { name: 'Owner', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT', 'OVERRIDE_PRICE'] },
-        { name: 'Manager', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'VIEW_PROFIT', 'OVERRIDE_PRICE'] },
-        { name: 'Cashier', permissions: ['CREATE_BILL', 'VIEW_PRODUCT'] }
-      ];
-
-      for (const roleData of rolesData) {
-        const role = await tx.role.create({
-          data: {
-            name: roleData.name,
-            permissions: roleData.permissions,
-            tenantId: tenant.id
-          }
-        });
-        if (role.name === 'Owner') {
-          ownerRoleId = role.id;
-        }
-      }
+      const ownerRoleId = await createDefaultRoles(tx, tenant.id);
+      await seedTenantWorkspaceDefaults(tx, tenant);
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await tx.user.create({

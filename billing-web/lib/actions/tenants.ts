@@ -6,6 +6,9 @@ import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { toUrlSlug } from "@/lib/website/slug";
+import { createDefaultRoles, seedTenantWorkspaceDefaults } from "@/lib/tenantOnboarding";
+
+const VALID_BUSINESS_TYPES = ['CAFE', 'LAUNDRY', 'SALON'];
 
 export async function updateBranding(data: { primaryColor: string; fontFamily: string }) {
   const session = await getServerSession(authOptions);
@@ -103,10 +106,12 @@ export async function createTenant(data: any) {
     websiteSlug: data.websiteSlug || toUrlSlug(data.name),
     currency: data.currency || 'INR',
     timezone: data.timezone || 'Asia/Kolkata',
-    aadharCardUrl: data.aadharCardUrl || null
+    aadharCardUrl: data.aadharCardUrl || null,
+    businessType: VALID_BUSINESS_TYPES.includes(data.businessType) ? data.businessType : null,
   };
 
   const tenant = await prisma.tenant.create({ data: tenantCreateData });
+  await seedTenantWorkspaceDefaults(prisma, tenant);
 
   // Create initial subscription for the new tenant
   const startDate = new Date();
@@ -198,25 +203,7 @@ export async function createTenant(data: any) {
   }
 
   // Create default roles
-  let ownerRoleId = null;
-  const rolesData = [
-    { name: 'Owner', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'DELETE_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'MANAGE_USERS', 'VIEW_PROFIT', 'OVERRIDE_PRICE'] },
-    { name: 'Manager', permissions: ['CREATE_PRODUCT', 'EDIT_PRODUCT', 'VIEW_REPORTS', 'CREATE_BILL', 'VIEW_PROFIT', 'OVERRIDE_PRICE'] },
-    { name: 'Cashier', permissions: ['CREATE_BILL', 'VIEW_PRODUCT'] }
-  ];
-
-  for (const roleData of rolesData) {
-    const role = await prisma.role.create({
-      data: {
-        name: roleData.name,
-        permissions: roleData.permissions,
-        tenantId: tenant.id
-      }
-    });
-    if (role.name === 'Owner') {
-      ownerRoleId = role.id;
-    }
-  }
+  const ownerRoleId = await createDefaultRoles(prisma, tenant.id);
 
   // Create tenant owner user
   const hashedPassword = await bcrypt.hash(data.password, 10);

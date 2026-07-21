@@ -36,7 +36,8 @@ export default function AddTenantPage() {
     profilePictureUrl: '',
     jobTitle: '',
     aadharCardUrl: '',
-    discountCode: ''
+    discountCode: '',
+    businessType: 'CAFE'
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -168,6 +169,20 @@ export default function AddTenantPage() {
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900"
                   placeholder="123 Market St, City, State, ZIP"
                 ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
+                <select
+                  name="businessType"
+                  value={formData.businessType}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-gray-900 bg-white"
+                >
+                  <option value="CAFE">Cafe</option>
+                  <option value="LAUNDRY">Laundry</option>
+                  <option value="SALON">Salon</option>
+                </select>
               </div>
 
               <div>

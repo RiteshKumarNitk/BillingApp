@@ -93,3 +93,34 @@ export function showAddOns(businessType: string | null | undefined, productType:
 export function showComboComponents(businessType: string | null | undefined, productType: string) {
   return normalize(businessType) === 'CAFE' && productType === 'COMBO';
 }
+
+// CafeOS Phase 2 additions. Gating helpers only — the Menu Management form (Phase 3) wires these
+// into actual fields; kept here so the gating logic has one home, matching every helper above.
+export const FOOD_TYPE_OPTIONS = [
+  { value: 'VEG', label: 'Veg' },
+  { value: 'NON_VEG', label: 'Non-Veg' },
+  { value: 'VEGAN', label: 'Vegan' },
+  { value: 'JAIN', label: 'Jain' },
+];
+
+export function showFoodType(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE';
+}
+
+export function showGstFields(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE';
+}
+
+export function showAvailabilityToggle(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE';
+}
+
+export function showFeaturedToggle(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE';
+}
+
+// Cafe's Menu Management form labels the shared `durationMinutes` column "Prep Time" instead of
+// Salon's "Duration" (showDuration, above) — same column, different business-facing meaning.
+export function showPrepTime(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE';
+}
