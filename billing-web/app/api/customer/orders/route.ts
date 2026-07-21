@@ -3,16 +3,28 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
 import { resolveTenant } from "@/lib/website/utils";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
-// POST: Submit a new order request
+// POST: Submit a new order request. Logged-in customers use their CustomerAccount session; guests
+// (no account, per the CafeOS "Continue as Guest" checkout path) instead supply guestName/guestPhone
+// directly in the body — this route is reachable without a session for that reason, so it's rate
+// limited same as the other unauthenticated website-facing write endpoints.
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id || session.user.role !== "CUSTOMER") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const isCustomerSession = !!session?.user?.id && session.user.role === "CUSTOMER";
 
-    const { tenantId: tenantIdOrSlug, items, notes, tableToken } = await request.json();
+    const { tenantId: tenantIdOrSlug, items, notes, tableToken, guestName, guestPhone } = await request.json();
+
+    if (!isCustomerSession) {
+      const ip = getClientIp(request);
+      if (!checkRateLimit(`guest-order:${ip}`, 10, 10 * 60 * 1000)) {
+        return NextResponse.json({ error: "Too many orders. Please try again later." }, { status: 429 });
+      }
+      if (!guestName?.trim() || !guestPhone?.trim()) {
+        return NextResponse.json({ error: "Sign in or provide your name and phone to order" }, { status: 401 });
+      }
+    }
 
     if (!tenantIdOrSlug || !items || items.length === 0) {
       return NextResponse.json({ error: "Tenant and items are required" }, { status: 400 });
@@ -86,20 +98,18 @@ export async function POST(request: NextRequest) {
     taxAmount = totalAmount * (taxRate / 100);
     const netAmount = totalAmount + taxAmount;
 
-    // Find or create customer record for this tenant
-    let customer = await prisma.customer.findFirst({
-      where: { tenantId, customerAccountId: session.user.id }
-    });
+    // Find or create a Customer record for this tenant — for a logged-in customer, keyed to their
+    // account; for a guest, keyed to their phone number so a repeat guest at the same table/cafe
+    // still accumulates one CRM history instead of a fresh row every order.
+    let customer = isCustomerSession
+      ? await prisma.customer.findFirst({ where: { tenantId, customerAccountId: session!.user.id } })
+      : await prisma.customer.findFirst({ where: { tenantId, phone: guestPhone.trim(), customerAccountId: null } });
 
     if (!customer) {
       customer = await prisma.customer.create({
-        data: {
-          name: session.user.name || "Customer",
-          email: session.user.email,
-          phone: null,
-          tenantId,
-          customerAccountId: session.user.id,
-        }
+        data: isCustomerSession
+          ? { name: session!.user.name || "Customer", email: session!.user.email, phone: null, tenantId, customerAccountId: session!.user.id }
+          : { name: guestName.trim(), phone: guestPhone.trim(), tenantId },
       });
     }
 
@@ -112,8 +122,10 @@ export async function POST(request: NextRequest) {
         taxAmount,
         netAmount,
         tenantId,
-        customerAccountId: session.user.id,
+        customerAccountId: isCustomerSession ? session!.user.id : null,
         customerId: customer.id,
+        guestName: isCustomerSession ? null : guestName.trim(),
+        guestPhone: isCustomerSession ? null : guestPhone.trim(),
         tableId,
         orderType,
         items: {

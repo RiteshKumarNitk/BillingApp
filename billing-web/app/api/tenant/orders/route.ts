@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
       include: {
         items: true,
         customerAccount: { select: { name: true, email: true, phone: true } },
+        table: { select: { label: true } },
       },
       orderBy: { createdAt: "desc" },
       take: 100,

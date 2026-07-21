@@ -20,6 +20,10 @@ interface Order {
   netAmount: number;
   createdAt: string;
   customerAccount: { name: string; email: string; phone: string | null } | null;
+  guestName: string | null;
+  guestPhone: string | null;
+  table: { label: string } | null;
+  orderType: string | null;
   items: OrderItem[];
 }
 
@@ -132,15 +136,28 @@ export default function OrderQueueClient() {
                       {order.status}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 flex-wrap">
                     <span className="flex items-center gap-1">
                       <User className="w-3.5 h-3.5" />
-                      {order.customerAccount?.name || "Guest"}
+                      {order.customerAccount?.name || order.guestName || "Guest"}
+                      {!order.customerAccount && order.guestName && (
+                        <span className="ml-1 text-[10px] font-semibold text-gray-400 uppercase">Guest</span>
+                      )}
                     </span>
-                    {order.customerAccount?.phone && (
+                    {(order.customerAccount?.phone || order.guestPhone) && (
                       <span className="flex items-center gap-1">
                         <Phone className="w-3.5 h-3.5" />
-                        {order.customerAccount.phone}
+                        {order.customerAccount?.phone || order.guestPhone}
+                      </span>
+                    )}
+                    {order.table && (
+                      <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium">
+                        {order.table.label}
+                      </span>
+                    )}
+                    {order.orderType && order.orderType !== 'DINE_IN' && (
+                      <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                        {order.orderType.replace('_', ' ')}
                       </span>
                     )}
                   </div>

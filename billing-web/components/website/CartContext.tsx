@@ -27,13 +27,20 @@ interface CartContextValue {
   isLoggedIn: boolean;
   showAuthModal: boolean;
   setShowAuthModal: (v: boolean) => void;
-  authMode: 'login' | 'register';
-  setAuthMode: (v: 'login' | 'register') => void;
+  authMode: 'login' | 'register' | 'guest';
+  setAuthMode: (v: 'login' | 'register' | 'guest') => void;
   authForm: { name: string; email: string; phone: string; password: string };
   setAuthForm: React.Dispatch<React.SetStateAction<{ name: string; email: string; phone: string; password: string }>>;
   authError: string;
   authLoading: boolean;
   handleAuth: (e: React.FormEvent) => Promise<void>;
+
+  // Guest checkout: name + phone only, no account created. Remembered for the rest of this visit
+  // (CartProvider persists across client-side nav) so a guest isn't asked twice in one session.
+  guestInfo: { name: string; phone: string } | null;
+  guestForm: { name: string; phone: string };
+  setGuestForm: React.Dispatch<React.SetStateAction<{ name: string; phone: string }>>;
+  handleGuestCheckout: (e: React.FormEvent) => Promise<void>;
 
   submitting: boolean;
   orderSuccess: boolean;
@@ -63,11 +70,13 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'guest'>('guest');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '' });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+  const [guestInfo, setGuestInfo] = useState<{ name: string; phone: string } | null>(null);
+  const [guestForm, setGuestForm] = useState({ name: '', phone: '' });
   const [tableToken, setTableToken] = useState<string | null>(null);
   const [tableLabel, setTableLabel] = useState<string | null>(null);
 
@@ -170,15 +179,22 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
     setAuthLoading(false);
   };
 
-  const handlePlaceOrder = async () => {
+  const submitOrder = async (guestOverride?: { name: string; phone: string }) => {
     if (cart.length === 0) return;
-    if (!isLoggedIn) { setShowCart(false); setShowAuthModal(true); return; }
+    const effectiveGuest = guestOverride || guestInfo;
+    if (!isLoggedIn && !effectiveGuest) { setShowCart(false); setShowAuthModal(true); return; }
     setSubmitting(true);
     try {
       const res = await fetch('/api/customer/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenantId, items: cart.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })), notes: null, tableToken }),
+        body: JSON.stringify({
+          tenantId,
+          items: cart.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
+          notes: null,
+          tableToken,
+          ...(!isLoggedIn && effectiveGuest ? { guestName: effectiveGuest.name, guestPhone: effectiveGuest.phone } : {}),
+        }),
       });
       if (res.ok) { setCart([]); setShowCart(false); setOrderSuccess(true); setTimeout(() => setOrderSuccess(false), 5000); }
       else { const data = await res.json(); if (res.status === 401) { setShowCart(false); setShowAuthModal(true); } else { alert(data.error || 'Failed to place order.'); } }
@@ -186,11 +202,26 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
     setSubmitting(false);
   };
 
+  const handlePlaceOrder = () => submitOrder();
+
+  const handleGuestCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = guestForm.name.trim();
+    const phone = guestForm.phone.trim();
+    if (!name || !phone) { setAuthError('Name and phone are required'); return; }
+    setAuthError('');
+    const info = { name, phone };
+    setGuestInfo(info);
+    setShowAuthModal(false);
+    await submitOrder(info);
+  };
+
   return (
     <CartContext.Provider value={{
       cart, addToCart, removeFromCart, updateQuantity, getCartQty, cartTotal, cartCount,
       showCart, setShowCart,
       isLoggedIn, showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth,
+      guestInfo, guestForm, setGuestForm, handleGuestCheckout,
       submitting, orderSuccess, handlePlaceOrder,
       tableToken, tableLabel,
     }}>

@@ -96,9 +96,9 @@ export async function PATCH(
           netAmount: order.netAmount,
           paymentMethod: "PENDING",
           customerId: order.customerId,
-          customerName: order.customerAccount?.name || "Customer",
-          customerPhone: order.customerAccount?.phone || null,
-          notes: `Online order #${order.id.slice(0, 8)}`,
+          customerName: order.customerAccount?.name || order.guestName || "Customer",
+          customerPhone: order.customerAccount?.phone || order.guestPhone || null,
+          notes: `Online order #${order.id.slice(0, 8)}${order.guestName ? " (Guest)" : ""}`,
           items: {
             create: order.items.map((item: any) => ({
               productId: item.productId,

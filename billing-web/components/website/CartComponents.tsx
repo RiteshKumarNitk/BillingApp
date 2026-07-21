@@ -52,7 +52,7 @@ export function FloatingCartBar({ theme }: { theme?: MenuTheme }) {
 }
 
 export function CartDrawer({ tenant, theme, primaryColor = DEFAULT_ACCENT }: { tenant: any; theme?: MenuTheme; primaryColor?: string }) {
-  const { cart, showCart, setShowCart, removeFromCart, updateQuantity, cartCount, cartTotal, handlePlaceOrder, submitting, isLoggedIn, tableLabel } = useCart();
+  const { cart, showCart, setShowCart, removeFromCart, updateQuantity, cartCount, cartTotal, handlePlaceOrder, submitting, isLoggedIn, guestInfo, tableLabel } = useCart();
   if (!showCart) return null;
 
   return (
@@ -121,7 +121,7 @@ export function CartDrawer({ tenant, theme, primaryColor = DEFAULT_ACCENT }: { t
             )}
             <button onClick={handlePlaceOrder} disabled={submitting} style={{ backgroundColor: primaryColor }}
               className="w-full py-3.5 rounded-xl text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]">
-              {submitting ? 'Placing Order...' : isLoggedIn ? `Place Order — ₹${cartTotal.toFixed(2)}` : `Login to Order — ₹${cartTotal.toFixed(2)}`}
+              {submitting ? 'Placing Order...' : (isLoggedIn || guestInfo) ? `Place Order — ₹${cartTotal.toFixed(2)}` : `Checkout — ₹${cartTotal.toFixed(2)}`}
             </button>
             <p className="text-[10px] text-center text-gray-400">Pick up from store. Tax calculated at checkout.</p>
           </div>
@@ -133,8 +133,17 @@ export function CartDrawer({ tenant, theme, primaryColor = DEFAULT_ACCENT }: { t
 
 export function AuthModal({ theme, primaryColor = DEFAULT_ACCENT }: { theme?: MenuTheme; primaryColor?: string }) {
   const isRestaurant = theme?.id === 'RESTAURANT';
-  const { showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth } = useCart();
+  const {
+    showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth,
+    guestForm, setGuestForm, handleGuestCheckout, submitting,
+  } = useCart();
   if (!showAuthModal) return null;
+
+  const titles: Record<string, { title: string; subtitle: string }> = {
+    guest: { title: 'Continue as Guest', subtitle: 'Just your name and phone — no account needed' },
+    login: { title: 'Sign In to Order', subtitle: 'Sign in to place your order' },
+    register: { title: 'Create Account', subtitle: 'Register to start ordering' },
+  };
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
@@ -147,49 +156,83 @@ export function AuthModal({ theme, primaryColor = DEFAULT_ACCENT }: { theme?: Me
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3" style={{ backgroundColor: `${primaryColor}1A` }}>
             <LogIn className="w-6 h-6" style={{ color: primaryColor }} />
           </div>
-          <h2 className="text-lg font-black font-sans">{authMode === 'login' ? 'Sign In to Order' : 'Create Account'}</h2>
-          <p className="text-xs text-gray-500 mt-1">{authMode === 'login' ? 'Sign in to place your order' : 'Register to start ordering'}</p>
+          <h2 className="text-lg font-black font-sans">{titles[authMode].title}</h2>
+          <p className="text-xs text-gray-500 mt-1">{titles[authMode].subtitle}</p>
         </div>
-        <form onSubmit={handleAuth} className="space-y-3">
-          {authError && (
-            <div className={`px-3 py-2 rounded-xl text-xs font-semibold border bg-red-50 border-red-200 text-red-600`}>
-              {authError}
-            </div>
-          )}
-          {authMode === 'register' && (
+
+        {authMode === 'guest' ? (
+          <form onSubmit={handleGuestCheckout} className="space-y-3">
+            {authError && (
+              <div className="px-3 py-2 rounded-xl text-xs font-semibold border bg-red-50 border-red-200 text-red-600">
+                {authError}
+              </div>
+            )}
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input type="text" required placeholder="Your name" value={authForm.name} onChange={(e) => setAuthForm(p => ({ ...p, name: e.target.value }))}
+              <input type="text" required placeholder="Your name" value={guestForm.name} onChange={(e) => setGuestForm(p => ({ ...p, name: e.target.value }))}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
             </div>
-          )}
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input type="email" required placeholder="Email" value={authForm.email} onChange={(e) => setAuthForm(p => ({ ...p, email: e.target.value }))}
-              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
-          </div>
-          {authMode === 'register' && (
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input type="tel" placeholder="Phone (optional)" value={authForm.phone} onChange={(e) => setAuthForm(p => ({ ...p, phone: e.target.value }))}
+              <input type="tel" required placeholder="Phone number" value={guestForm.phone} onChange={(e) => setGuestForm(p => ({ ...p, phone: e.target.value }))}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
             </div>
+            <button type="submit" disabled={submitting} style={{ backgroundColor: primaryColor }}
+              className="w-full py-3 rounded-xl text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md">
+              {submitting ? 'Placing Order...' : 'Continue as Guest'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleAuth} className="space-y-3">
+            {authError && (
+              <div className="px-3 py-2 rounded-xl text-xs font-semibold border bg-red-50 border-red-200 text-red-600">
+                {authError}
+              </div>
+            )}
+            {authMode === 'register' && (
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" required placeholder="Your name" value={authForm.name} onChange={(e) => setAuthForm(p => ({ ...p, name: e.target.value }))}
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
+              </div>
+            )}
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input type="email" required placeholder="Email" value={authForm.email} onChange={(e) => setAuthForm(p => ({ ...p, email: e.target.value }))}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
+            </div>
+            {authMode === 'register' && (
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="tel" placeholder="Phone (optional)" value={authForm.phone} onChange={(e) => setAuthForm(p => ({ ...p, phone: e.target.value }))}
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
+              </div>
+            )}
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input type="password" required minLength={6} placeholder="Password" value={authForm.password} onChange={(e) => setAuthForm(p => ({ ...p, password: e.target.value }))}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
+            </div>
+            <button type="submit" disabled={authLoading} style={{ backgroundColor: primaryColor }}
+              className="w-full py-3 rounded-xl text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md">
+              {authLoading ? 'Please wait...' : authMode === 'login' ? 'Sign In' : 'Create Account & Sign In'}
+            </button>
+          </form>
+        )}
+
+        <div className="mt-4 flex items-center justify-center gap-3 text-xs font-bold text-gray-500">
+          {authMode !== 'guest' && (
+            <button onClick={() => setAuthMode('guest')} className="hover:text-gray-900">← Continue as guest</button>
           )}
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input type="password" required minLength={6} placeholder="Password" value={authForm.password} onChange={(e) => setAuthForm(p => ({ ...p, password: e.target.value }))}
-              className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900" />
-          </div>
-          <button type="submit" disabled={authLoading} style={{ backgroundColor: primaryColor }}
-            className="w-full py-3 rounded-xl text-white font-black text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-md">
-            {authLoading ? 'Please wait...' : authMode === 'login' ? 'Sign In' : 'Create Account & Sign In'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); }}
-            className="text-xs font-bold text-gray-500 hover:text-gray-900">
-            {authMode === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign in'}
-          </button>
+          {authMode === 'guest' && (
+            <button onClick={() => setAuthMode('login')} className="hover:text-gray-900">Have an account? Sign in</button>
+          )}
+          {authMode === 'login' && (
+            <button onClick={() => setAuthMode('register')} className="hover:text-gray-900">· Register</button>
+          )}
+          {authMode === 'register' && (
+            <button onClick={() => setAuthMode('login')} className="hover:text-gray-900">· Sign in instead</button>
+          )}
         </div>
       </div>
     </div>
