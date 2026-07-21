@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import { WebsiteConfig } from '@/lib/website/types';
 import { getThemeDefaultConfig, DEFAULT_THEME_ID } from '@/lib/website/themeDefaults';
+import { getThemesForBusinessType } from '@/lib/website/registry';
 import { getActiveSubscription, DEFAULT_STARTER_THEMES } from '@/lib/subscription';
 import WebsiteBuilderClient from './WebsiteBuilderClient';
 
@@ -45,7 +46,8 @@ export default async function WebsiteBuilderPage() {
   let config: WebsiteConfig = (tenant.websiteSettings as unknown as WebsiteConfig);
 
   if (!config || !config.sections || config.sections.length < 3) {
-    config = getThemeDefaultConfig(DEFAULT_THEME_ID, tenant);
+    const defaultThemeId = getThemesForBusinessType(tenant.businessType)[0]?.id || DEFAULT_THEME_ID;
+    config = getThemeDefaultConfig(defaultThemeId, tenant);
   }
 
   return (

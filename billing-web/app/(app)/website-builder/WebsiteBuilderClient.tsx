@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
-import { themes } from '@/lib/website/registry';
+import { getThemesForBusinessType } from '@/lib/website/registry';
 import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink, BookOpen, MessageCircle, Search, Lock } from 'lucide-react';
 import { useToast } from "@/components/ui/Toast";
 import { updateMenuContent, type MenuContentInput } from '@/lib/actions/tenants';
@@ -37,6 +37,10 @@ export default function WebsiteBuilderClient({
   allowedThemes?: string[];
 }) {
   const isThemeLocked = (themeId: string) => allowedThemes.length > 0 && !allowedThemes.includes(themeId);
+  // Only themes built for this tenant's business type are offered at all — a laundromat has no
+  // use for a cafe/restaurant theme and vice versa. Plan-tier locking (isThemeLocked) is a
+  // separate, independent filter applied on top of this one.
+  const availableThemes = getThemesForBusinessType(tenant?.businessType);
   const siteId = tenantWebsiteSlug || tenantId;
   const { addToast } = useToast();
   const [config, setConfig] = useState<WebsiteConfig>(initialConfig);
@@ -182,7 +186,7 @@ export default function WebsiteBuilderClient({
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Select Theme</h3>
               <div className="grid gap-3">
-                {themes.map(theme => {
+                {availableThemes.map(theme => {
                   const locked = isThemeLocked(theme.id);
                   return (
                     <div
