@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
           phone: phone || null,
           address: address || null,
           gstin: gstin || null,
-          subscriptionPlan: 'FREE',
+          subscriptionPlan: 'Starter',
           businessType: normalizedBusinessType,
         }
       });

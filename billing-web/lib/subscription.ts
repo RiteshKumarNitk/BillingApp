@@ -60,9 +60,9 @@ export async function checkFeatureLimit(
   // Try to get subscription
   const activeSub = await getActiveSubscription(tenantId, client);
   
-  // If no active subscription, we fetch or assume default FREE plan configuration
+  // If no active subscription, assume the entry-tier (Starter) default configuration
   const defaultFreePlan = {
-    planName: "FREE",
+    planName: "Starter",
     maxProducts: 10,
     maxUsers: 2,
     maxTransactions: 20
@@ -78,7 +78,7 @@ export async function checkFeatureLimit(
     if (count >= plan.maxProducts) {
       return {
         allowed: false,
-        reason: `Product limit reached (${plan.maxProducts} allowed on your current plan: ${plan.planName || "FREE"}). Please upgrade to add more products.`
+        reason: `Product limit reached (${plan.maxProducts} allowed on your current plan: ${plan.planName || "Starter"}). Please upgrade to add more products.`
       };
     }
   }
@@ -91,7 +91,7 @@ export async function checkFeatureLimit(
     if (count >= plan.maxUsers) {
       return {
         allowed: false,
-        reason: `User limit reached (${plan.maxUsers} allowed on your current plan: ${plan.planName || "FREE"}). Please upgrade to add more team members.`
+        reason: `User limit reached (${plan.maxUsers} allowed on your current plan: ${plan.planName || "Starter"}). Please upgrade to add more team members.`
       };
     }
   }
@@ -117,7 +117,7 @@ export async function checkFeatureLimit(
     if (count >= plan.maxTransactions) {
       return {
         allowed: false,
-        reason: `Monthly transactions limit reached (${plan.maxTransactions} allowed on your current plan: ${plan.planName || "FREE"}). Please upgrade to create more bills.`
+        reason: `Monthly transactions limit reached (${plan.maxTransactions} allowed on your current plan: ${plan.planName || "Starter"}). Please upgrade to create more bills.`
       };
     }
   }

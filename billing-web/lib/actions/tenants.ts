@@ -59,7 +59,7 @@ export async function createTenant(data: any) {
   }
 
   // Fetch the selected subscription plan
-  const planName = data.subscriptionPlan || 'FREE';
+  const planName = data.subscriptionPlan || 'Starter';
   const selectedPlan = await prisma.subscriptionPlan.findFirst({
     where: { name: planName }
   });
@@ -236,7 +236,7 @@ export async function updateTenant(tenantId: string, data: any) {
     phone: data.phone || null,
     address: data.address || null,
     gstin: data.gstin || null,
-    subscriptionPlan: data.subscriptionPlan || 'FREE',
+    subscriptionPlan: data.subscriptionPlan || 'Starter',
     logoUrl: data.logoUrl || null,
     website: data.website || null,
     websiteSlug: data.websiteSlug || null,

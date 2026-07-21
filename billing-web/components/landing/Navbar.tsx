@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, PartyPopper } from "lucide-react";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -33,6 +33,15 @@ export default function Navbar() {
           : "bg-transparent"
       }`}
     >
+      {/* Launch offer strip */}
+      <a
+        href="/auth/register"
+        className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-center text-xs font-semibold text-white transition-opacity hover:opacity-95 sm:text-sm"
+      >
+        <PartyPopper className="h-3.5 w-3.5 flex-shrink-0" />
+        <span>Launch Offer — Get 3 Months FREE, no credit card required. Limited time.</span>
+      </a>
+
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">

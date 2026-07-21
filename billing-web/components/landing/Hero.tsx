@@ -13,7 +13,7 @@ import {
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-indigo-50/30 pb-20 pt-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-indigo-50/30 pb-20 pt-40">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-indigo-200/40 to-violet-200/40 blur-3xl" />
@@ -100,7 +100,7 @@ export default function Hero() {
               <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              14-day free trial
+              3 months free trial
             </div>
             <div className="flex items-center gap-2">
               <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">

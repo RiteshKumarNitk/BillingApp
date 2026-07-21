@@ -23,7 +23,7 @@ export default function EditTenantPage() {
     email: '',
     phone: '',
     password: '',
-    subscriptionPlan: 'FREE',
+    subscriptionPlan: 'Starter',
     address: '',
     gstin: '',
     logoUrl: '',
@@ -361,10 +361,9 @@ export default function EditTenantPage() {
                 onChange={handleChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all bg-white text-gray-900"
               >
-                <option value="FREE">Free Tier (Limited features)</option>
-                <option value="BASIC">Basic Plan (Standard business)</option>
-                <option value="PREMIUM">Premium Plan (Unlimited access)</option>
-                <option value="ENTERPRISE">Enterprise Plan (Custom solutions)</option>
+                <option value="Starter">Starter (₹299/mo)</option>
+                <option value="Professional">Professional (₹699/mo)</option>
+                <option value="Enterprise">Enterprise (₹1,999/mo)</option>
               </select>
             </div>
           </div>

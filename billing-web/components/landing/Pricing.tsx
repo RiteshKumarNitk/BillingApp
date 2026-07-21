@@ -9,15 +9,15 @@ const plans = [
   {
     name: "Starter",
     description: "Perfect for small shops and single stores.",
-    price: { monthly: 999, yearly: 799 },
+    price: { monthly: 299, yearly: 2999 },
     features: [
       "1 Store",
-      "1,000 Products",
+      "10 Products",
       "POS Billing",
       "GST Invoicing",
       "Basic Reports",
       "Email Support",
-      "500 Customers",
+      "2 Team Members",
     ],
     cta: "Start Free Trial",
     popular: false,
@@ -27,10 +27,10 @@ const plans = [
   {
     name: "Professional",
     description: "Best for growing businesses with multiple needs.",
-    price: { monthly: 2499, yearly: 1999 },
+    price: { monthly: 699, yearly: 6999 },
     features: [
       "5 Stores",
-      "10,000 Products",
+      "100 Products",
       "Everything in Starter",
       "Inventory Management",
       "Customer Loyalty",
@@ -48,7 +48,7 @@ const plans = [
   {
     name: "Enterprise",
     description: "For large businesses with custom requirements.",
-    price: { monthly: 4999, yearly: 3999 },
+    price: { monthly: 1999, yearly: null },
     features: [
       "Unlimited Stores",
       "Unlimited Products",
@@ -99,7 +99,7 @@ export default function Pricing() {
             transition={{ delay: 0.2 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-gray-500"
           >
-            Start free for 14 days. No credit card required. Cancel anytime.
+            🎉 Launch offer: get 3 months free. No credit card required. Cancel anytime.
           </motion.p>
 
           {/* Toggle */}
@@ -126,7 +126,7 @@ export default function Pricing() {
             >
               Yearly
               <span className="ml-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                Save 20%
+                2 months free
               </span>
             </button>
           </motion.div>
@@ -161,16 +161,24 @@ export default function Pricing() {
               </div>
 
               <div className="mb-8">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">
-                    ₹{annual ? plan.price.yearly : plan.price.monthly}
-                  </span>
-                  <span className="text-sm text-gray-500">/month</span>
-                </div>
-                {annual && (
-                  <div className="mt-1 text-xs text-gray-400">
-                    Billed ₹{plan.price.yearly * 12}/year
+                {annual && plan.price.yearly === null ? (
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-extrabold text-gray-900">Custom</span>
                   </div>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-extrabold text-gray-900">
+                        ₹{annual ? plan.price.yearly!.toLocaleString() : plan.price.monthly}
+                      </span>
+                      <span className="text-sm text-gray-500">/{annual ? "year" : "month"}</span>
+                    </div>
+                    {annual && (
+                      <div className="mt-1 text-xs text-gray-400">
+                        vs ₹{(plan.price.monthly * 12).toLocaleString()}/year billed monthly
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

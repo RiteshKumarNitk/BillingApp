@@ -216,11 +216,11 @@ export async function cancelSubscription(subscriptionId: string, cancelAtPeriodE
       }
     });
 
-    // Reset tenant plan back to FREE
+    // Reset tenant plan back to the entry tier
     await prisma.tenant.update({
       where: { id: tenantId },
       data: {
-        subscriptionPlan: "FREE"
+        subscriptionPlan: "Starter"
       }
     });
 

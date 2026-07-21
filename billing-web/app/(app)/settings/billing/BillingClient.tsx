@@ -68,9 +68,9 @@ export default function BillingClient({
   const [prorationLoading, setProrationLoading] = useState(false);
 
   // Active Plan features
-  const currentPlanName = tenant.subscriptionPlan || "FREE";
+  const currentPlanName = tenant.subscriptionPlan || "Starter";
   const activePlanDetails = activeSub?.plan || {
-    name: "FREE",
+    name: "Starter",
     amount: 0,
     interval: "MONTHLY",
     maxProducts: 10,
@@ -386,7 +386,7 @@ export default function BillingClient({
               />
               <button
                 onClick={() => {
-                  const targetPlan = plans.find(p => p.name !== "FREE");
+                  const targetPlan = plans.find(p => p.amount > 0);
                   if (targetPlan) {
                     handleApplyCoupon(targetPlan.id);
                   } else {
