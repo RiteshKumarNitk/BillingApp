@@ -3,8 +3,14 @@ import type { PrismaClient } from "../generated/prisma";
 
 // Accepts either the default prisma client or an interactive-transaction client (`tx`), so
 // callers can re-run these checks inside a `prisma.$transaction(...)` for a tight race window.
-type QueryClient = Pick<PrismaClient, "tenant" | "product" | "user" | "transaction">;
+type QueryClient = Pick<PrismaClient, "tenant" | "product" | "user" | "transaction" | "table">;
 
+// Plan philosophy (see the pricing overhaul this shipped with): a cafe's growth — more menu
+// items, more orders, more customers — should never be the thing a plan restricts. maxProducts
+// and maxTransactions are kept only for backward compatibility with the -1-means-unlimited
+// convention and are set to -1 on every seeded plan; what actually differentiates a tier is
+// business capability — staff seats (maxUsers), QR tables (maxTables), and which website themes
+// are selectable (allowedThemes, checked separately via checkThemeAllowed below).
 export interface ActiveSubscriptionInfo {
   status: string;
   planName: string;
@@ -14,6 +20,8 @@ export interface ActiveSubscriptionInfo {
   maxProducts: number;
   maxUsers: number;
   maxTransactions: number;
+  maxTables: number;
+  allowedThemes: string[];
 }
 
 export async function getActiveSubscription(
@@ -48,24 +56,29 @@ export async function getActiveSubscription(
     cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
     maxProducts: sub.plan.maxProducts,
     maxUsers: sub.plan.maxUsers,
-    maxTransactions: sub.plan.maxTransactions
+    maxTransactions: sub.plan.maxTransactions,
+    maxTables: sub.plan.maxTables,
+    allowedThemes: sub.plan.allowedThemes
   };
 }
 
 export async function checkFeatureLimit(
   tenantId: string,
-  feature: "products" | "users" | "transactions",
+  feature: "products" | "users" | "transactions" | "tables",
   client: QueryClient = prisma
 ): Promise<{ allowed: boolean; reason?: string }> {
   // Try to get subscription
   const activeSub = await getActiveSubscription(tenantId, client);
-  
-  // If no active subscription, assume the entry-tier (Starter) default configuration
+
+  // If no active subscription, assume the entry-tier (Starter) default configuration. Products
+  // and transactions are unlimited on every plan (see the module comment above) — only staff
+  // seats and tables are ever actually capped.
   const defaultFreePlan = {
     planName: "Starter",
-    maxProducts: 10,
+    maxProducts: -1,
     maxUsers: 2,
-    maxTransactions: 20
+    maxTransactions: -1,
+    maxTables: 10
   };
 
   const plan = activeSub || defaultFreePlan;
@@ -122,5 +135,41 @@ export async function checkFeatureLimit(
     }
   }
 
+  if (feature === "tables") {
+    if (plan.maxTables === -1) return { allowed: true };
+    const count = await client.table.count({
+      where: { tenantId }
+    });
+    if (count >= plan.maxTables) {
+      return {
+        allowed: false,
+        reason: `QR table limit reached (${plan.maxTables} allowed on your current plan: ${plan.planName || "Starter"}). Please upgrade to add more tables.`
+      };
+    }
+  }
+
   return { allowed: true };
+}
+
+// No active subscription = treated like the entry tier for theme access too.
+export const DEFAULT_STARTER_THEMES = ["modern-restaurant", "minimal-cafe"];
+
+// Website themes are gated by an allowlist, not a count, so this doesn't fit checkFeatureLimit's
+// count-vs-max shape. Empty allowedThemes means "every theme is available" (Professional/
+// Enterprise); a non-empty list restricts selection to exactly those theme ids (Starter).
+export async function checkThemeAllowed(
+  tenantId: string,
+  themeId: string
+): Promise<{ allowed: boolean; reason?: string }> {
+  const activeSub = await getActiveSubscription(tenantId);
+  const allowedThemes = activeSub?.allowedThemes ?? DEFAULT_STARTER_THEMES;
+
+  if (allowedThemes.length === 0 || allowedThemes.includes(themeId)) {
+    return { allowed: true };
+  }
+
+  return {
+    allowed: false,
+    reason: `The "${themeId}" theme isn't available on your current plan${activeSub ? ` (${activeSub.planName})` : ""}. Please upgrade to unlock more themes.`
+  };
 }

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import prisma from '@/lib/prisma';
 import { websiteConfigSchema } from '@/lib/website/schema';
+import { checkThemeAllowed } from '@/lib/subscription';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 
@@ -39,6 +40,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid website configuration', details: z.flattenError(result.error) }, { status: 400 });
     }
     const config = result.data;
+
+    const themeCheck = await checkThemeAllowed(tenantId, config.theme);
+    if (!themeCheck.allowed) {
+      return NextResponse.json({ error: themeCheck.reason }, { status: 403 });
+    }
 
     // Upsert the Website configuration
     const website = await prisma.website.upsert({

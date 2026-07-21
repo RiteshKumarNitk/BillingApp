@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
+import { checkFeatureLimit } from "@/lib/subscription";
 
 // Table management (QR ordering) is gated the same way as the Website Builder — store-owner only
 // — rather than a new granular permission, since new Role.permissions values aren't backfilled to
@@ -29,6 +30,11 @@ export async function createTable(label: string) {
   const session = await requireOwner();
   const trimmed = label.trim();
   if (!trimmed) throw new Error("Table label is required");
+
+  const limitCheck = await checkFeatureLimit(session.user.tenantId, "tables");
+  if (!limitCheck.allowed) {
+    throw new Error(limitCheck.reason);
+  }
 
   const table = await prisma.table.create({
     data: { tenantId: session.user.tenantId, label: trimmed },

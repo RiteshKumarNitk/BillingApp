@@ -387,6 +387,8 @@ export async function createSubscriptionPlan(data: any) {
       maxProducts: parseInt(data.maxProducts) || -1,
       maxUsers: parseInt(data.maxUsers) || -1,
       maxTransactions: parseInt(data.maxTransactions) || -1,
+      maxTables: parseInt(data.maxTables) || -1,
+      allowedThemes: Array.isArray(data.allowedThemes) ? data.allowedThemes : [],
       isActive: data.isActive !== false
     }
   });
@@ -409,6 +411,8 @@ export async function updateSubscriptionPlan(id: string, data: any) {
       maxProducts: parseInt(data.maxProducts) || -1,
       maxUsers: parseInt(data.maxUsers) || -1,
       maxTransactions: parseInt(data.maxTransactions) || -1,
+      maxTables: parseInt(data.maxTables) || -1,
+      allowedThemes: Array.isArray(data.allowedThemes) ? data.allowedThemes : [],
       isActive: data.isActive !== false
     }
   });

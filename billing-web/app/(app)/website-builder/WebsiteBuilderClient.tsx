@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
 import { themes } from '@/lib/website/registry';
-import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink, BookOpen, MessageCircle, Search } from 'lucide-react';
+import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink, BookOpen, MessageCircle, Search, Lock } from 'lucide-react';
 import { useToast } from "@/components/ui/Toast";
 import { updateMenuContent, type MenuContentInput } from '@/lib/actions/tenants';
 import SectionEditor from './SectionEditor';
@@ -25,14 +25,18 @@ const ADDABLE_SECTION_TYPES: { type: string; label: string; defaultData: any }[]
 ];
 
 export default function WebsiteBuilderClient({
-  initialConfig, tenantId, tenantWebsiteSlug, tenant, initialAboutInfo,
+  initialConfig, tenantId, tenantWebsiteSlug, tenant, initialAboutInfo, allowedThemes = [],
 }: {
   initialConfig: WebsiteConfig;
   tenantId: string;
   tenantWebsiteSlug?: string;
   tenant: any;
   initialAboutInfo: MenuContentInput;
+  // Empty array means every theme is unlocked (matches the SubscriptionPlan.allowedThemes
+  // convention — see lib/subscription.ts).
+  allowedThemes?: string[];
 }) {
+  const isThemeLocked = (themeId: string) => allowedThemes.length > 0 && !allowedThemes.includes(themeId);
   const siteId = tenantWebsiteSlug || tenantId;
   const { addToast } = useToast();
   const [config, setConfig] = useState<WebsiteConfig>(initialConfig);
@@ -53,17 +57,24 @@ export default function WebsiteBuilderClient({
         updateMenuContent(aboutInfo),
       ]);
 
-      if (!websiteRes.ok) throw new Error('Failed to save website config');
+      if (!websiteRes.ok) {
+        const body = await websiteRes.json().catch(() => null);
+        throw new Error(body?.error || 'Failed to save website config');
+      }
       addToast('success', 'Website configuration saved successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      addToast('error', 'Failed to save configuration');
+      addToast('error', error?.message || 'Failed to save configuration');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleThemeChange = async (themeId: string) => {
+    if (isThemeLocked(themeId)) {
+      addToast('error', 'This theme is not available on your current plan. Upgrade to unlock it.');
+      return;
+    }
     if (config.theme !== themeId) {
       const useDefaults = window.confirm("Switch theme? This will load the default sections for the selected theme.");
       if (useDefaults) {
@@ -171,16 +182,30 @@ export default function WebsiteBuilderClient({
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Select Theme</h3>
               <div className="grid gap-3">
-                {themes.map(theme => (
-                  <div 
-                    key={theme.id}
-                    onClick={() => handleThemeChange(theme.id)}
-                    className={`cursor-pointer border rounded-xl p-4 transition-all ${config.theme === theme.id ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}
-                  >
-                    <h4 className="font-medium text-gray-900">{theme.name}</h4>
-                    <p className="text-xs text-gray-500 mt-1">{theme.description}</p>
-                  </div>
-                ))}
+                {themes.map(theme => {
+                  const locked = isThemeLocked(theme.id);
+                  return (
+                    <div
+                      key={theme.id}
+                      onClick={() => handleThemeChange(theme.id)}
+                      className={`border rounded-xl p-4 transition-all ${
+                        locked
+                          ? 'cursor-pointer border-gray-200 bg-gray-50 opacity-60 hover:opacity-80'
+                          : `cursor-pointer ${config.theme === theme.id ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-gray-900">{theme.name}</h4>
+                        {locked && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                            <Lock className="w-2.5 h-2.5" /> Upgrade to unlock
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">{theme.description}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

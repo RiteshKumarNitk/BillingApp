@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createSubscriptionPlan, updateSubscriptionPlan, deleteSubscriptionPlan } from "@/lib/actions/subscription";
+import { themes } from "@/lib/website/registry";
 import { Plus, Edit2, ShieldAlert, Check, X } from "lucide-react";
 
 type PlansClientProps = {
@@ -22,6 +23,8 @@ export default function PlansClient({ plans }: PlansClientProps) {
   const [maxProducts, setMaxProducts] = useState("-1");
   const [maxUsers, setMaxUsers] = useState("-1");
   const [maxTransactions, setMaxTransactions] = useState("-1");
+  const [maxTables, setMaxTables] = useState("-1");
+  const [allowedThemes, setAllowedThemes] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
 
   const openAddModal = () => {
@@ -34,6 +37,8 @@ export default function PlansClient({ plans }: PlansClientProps) {
     setMaxProducts("-1");
     setMaxUsers("-1");
     setMaxTransactions("-1");
+    setMaxTables("-1");
+    setAllowedThemes([]);
     setIsActive(true);
     setShowModal(true);
   };
@@ -48,8 +53,14 @@ export default function PlansClient({ plans }: PlansClientProps) {
     setMaxProducts(String(plan.maxProducts));
     setMaxUsers(String(plan.maxUsers));
     setMaxTransactions(String(plan.maxTransactions));
+    setMaxTables(String(plan.maxTables ?? -1));
+    setAllowedThemes(plan.allowedThemes || []);
     setIsActive(plan.isActive);
     setShowModal(true);
+  };
+
+  const toggleTheme = (themeId: string) => {
+    setAllowedThemes((prev) => (prev.includes(themeId) ? prev.filter((t) => t !== themeId) : [...prev, themeId]));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,6 +80,8 @@ export default function PlansClient({ plans }: PlansClientProps) {
       maxProducts: parseInt(maxProducts) || -1,
       maxUsers: parseInt(maxUsers) || -1,
       maxTransactions: parseInt(maxTransactions) || -1,
+      maxTables: parseInt(maxTables) || -1,
+      allowedThemes,
       isActive
     };
 
@@ -139,15 +152,15 @@ export default function PlansClient({ plans }: PlansClientProps) {
               <ul className="mt-6 space-y-3 pt-6 border-t border-gray-100 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                  <span>Max Products: <strong className="text-gray-900">{plan.maxProducts === -1 ? "Unlimited" : plan.maxProducts}</strong></span>
+                  <span>Staff Accounts: <strong className="text-gray-900">{plan.maxUsers === -1 ? "Unlimited" : plan.maxUsers}</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                  <span>Max Users: <strong className="text-gray-900">{plan.maxUsers === -1 ? "Unlimited" : plan.maxUsers}</strong></span>
+                  <span>QR Tables: <strong className="text-gray-900">{(plan.maxTables ?? -1) === -1 ? "Unlimited" : plan.maxTables}</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                  <span>Max Monthly Txns: <strong className="text-gray-900">{plan.maxTransactions === -1 ? "Unlimited" : plan.maxTransactions}</strong></span>
+                  <span>Website Themes: <strong className="text-gray-900">{!plan.allowedThemes?.length ? "All" : `${plan.allowedThemes.length} selected`}</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
@@ -264,18 +277,7 @@ export default function PlansClient({ plans }: PlansClientProps) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-700">Max Products (-1 = unlimited)</label>
-                  <input
-                    type="number"
-                    min="-1"
-                    value={maxProducts}
-                    onChange={(e) => setMaxProducts(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-700">Max Users (-1 = unlimited)</label>
+                  <label className="text-xs font-bold text-gray-700">Staff Accounts (-1 = unlimited)</label>
                   <input
                     type="number"
                     min="-1"
@@ -286,15 +288,58 @@ export default function PlansClient({ plans }: PlansClientProps) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-700">Max Bills/Month (-1 = unlimited)</label>
+                  <label className="text-xs font-bold text-gray-700">QR Tables (-1 = unlimited)</label>
                   <input
                     type="number"
                     min="-1"
-                    value={maxTransactions}
-                    onChange={(e) => setMaxTransactions(e.target.value)}
+                    value={maxTables}
+                    onChange={(e) => setMaxTables(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
                   />
                 </div>
+
+                <div className="col-span-2 space-y-1.5">
+                  <label className="text-xs font-bold text-gray-700">Website Themes (none checked = all themes allowed)</label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {themes.map((theme) => (
+                      <label key={theme.id} className="flex items-center gap-2 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-700 cursor-pointer hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          checked={allowedThemes.includes(theme.id)}
+                          onChange={() => toggleTheme(theme.id)}
+                          className="w-3.5 h-3.5 rounded text-indigo-600 focus:ring-indigo-500"
+                        />
+                        {theme.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <details className="col-span-2 pt-2">
+                  <summary className="text-xs font-bold text-gray-500 cursor-pointer select-none">Advanced: usage caps (normally left unlimited)</summary>
+                  <div className="grid grid-cols-2 gap-4 mt-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700">Max Products (-1 = unlimited)</label>
+                      <input
+                        type="number"
+                        min="-1"
+                        value={maxProducts}
+                        onChange={(e) => setMaxProducts(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-700">Max Bills/Month (-1 = unlimited)</label>
+                      <input
+                        type="number"
+                        min="-1"
+                        value={maxTransactions}
+                        onChange={(e) => setMaxTransactions(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+                      />
+                    </div>
+                  </div>
+                </details>
 
                 <div className="col-span-2 flex items-center gap-2 pt-2">
                   <input

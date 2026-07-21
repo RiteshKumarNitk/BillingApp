@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import { WebsiteConfig } from '@/lib/website/types';
 import { getThemeDefaultConfig, DEFAULT_THEME_ID } from '@/lib/website/themeDefaults';
+import { getActiveSubscription, DEFAULT_STARTER_THEMES } from '@/lib/subscription';
 import WebsiteBuilderClient from './WebsiteBuilderClient';
 
 export const metadata = {
@@ -38,6 +39,9 @@ export default async function WebsiteBuilderPage() {
 
   if (!tenant) return null;
 
+  const activeSub = await getActiveSubscription(tenant.id);
+  const allowedThemes = activeSub?.allowedThemes ?? DEFAULT_STARTER_THEMES;
+
   let config: WebsiteConfig = (tenant.websiteSettings as unknown as WebsiteConfig);
 
   if (!config || !config.sections || config.sections.length < 3) {
@@ -68,6 +72,7 @@ export default async function WebsiteBuilderPage() {
         tenantId={tenant.id}
         tenantWebsiteSlug={tenant.websiteSlug || tenant.id}
         tenant={tenant}
+        allowedThemes={allowedThemes}
         initialAboutInfo={{
           tagline: tenant.tagline || '',
           aboutText: tenant.aboutText || '',

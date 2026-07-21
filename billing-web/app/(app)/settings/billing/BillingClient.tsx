@@ -448,20 +448,24 @@ export default function BillingClient({
                       <li className="flex items-center gap-2.5 text-sm text-gray-600">
                         <Check className="w-4.5 h-4.5 text-indigo-500 flex-shrink-0" />
                         <span>
-                          {plan.maxProducts === -1 ? "Unlimited" : plan.maxProducts} Products
+                          {plan.maxUsers === -1 ? "Unlimited" : plan.maxUsers} Staff Accounts
                         </span>
                       </li>
                       <li className="flex items-center gap-2.5 text-sm text-gray-600">
                         <Check className="w-4.5 h-4.5 text-indigo-500 flex-shrink-0" />
                         <span>
-                          {plan.maxUsers === -1 ? "Unlimited" : plan.maxUsers} Users
+                          {(plan.maxTables ?? -1) === -1 ? "Unlimited" : plan.maxTables} QR Tables
                         </span>
                       </li>
                       <li className="flex items-center gap-2.5 text-sm text-gray-600">
                         <Check className="w-4.5 h-4.5 text-indigo-500 flex-shrink-0" />
                         <span>
-                          {plan.maxTransactions === -1 ? "Unlimited" : plan.maxTransactions} Bills / Month
+                          {!plan.allowedThemes?.length ? "All" : plan.allowedThemes.length} Website Themes
                         </span>
+                      </li>
+                      <li className="flex items-center gap-2.5 text-sm text-gray-600">
+                        <Check className="w-4.5 h-4.5 text-indigo-500 flex-shrink-0" />
+                        <span>Unlimited Menu Items &amp; Orders</span>
                       </li>
                       {plan.trialDays > 0 && (
                         <li className="flex items-center gap-2.5 text-sm text-indigo-600 font-semibold bg-indigo-50 rounded-lg p-1.5">
