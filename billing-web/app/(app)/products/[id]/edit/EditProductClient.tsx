@@ -11,7 +11,9 @@ import {
 import ImageUpload from '@/components/ImageUpload';
 import {
   getProductTypeOptions, getPresetCategories, getCategoryLabel,
-  hideStockFields, showGarmentType, showDuration, showAddOns, showComboComponents
+  hideStockFields, showGarmentType, showDuration, showAddOns, showComboComponents,
+  showFoodType, showGstFields, showAvailabilityToggle, showFeaturedToggle, showPrepTime,
+  getProductNoun, FOOD_TYPE_OPTIONS
 } from '@/lib/productForm/businessTypeConfig';
 
 export default function EditProductClient({ product, businessType }: { product: any; businessType: string | null }) {
@@ -20,6 +22,7 @@ export default function EditProductClient({ product, businessType }: { product: 
   const productTypeOptions = getProductTypeOptions(businessType);
   const presetCategories = getPresetCategories(businessType);
   const categoryLabel = getCategoryLabel(businessType);
+  const productNoun = getProductNoun(businessType);
 
   const formatDateForInput = (dateString: string | null | undefined) => {
     if (!dateString) return '';
@@ -45,6 +48,11 @@ export default function EditProductClient({ product, businessType }: { product: 
     description: product.description || '',
     durationMinutes: product.durationMinutes?.toString() || '',
     garmentType: product.garmentType || '',
+    gstRate: product.gstRate !== null && product.gstRate !== undefined ? product.gstRate.toString() : '',
+    gstInclusive: product.gstInclusive || false,
+    foodType: product.foodType || '',
+    isAvailable: product.isAvailable !== false,
+    isFeatured: product.isFeatured || false,
   });
 
   const [variants, setVariants] = useState<any[]>(
@@ -200,8 +208,8 @@ export default function EditProductClient({ product, businessType }: { product: 
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-gray-900">Product Updated!</h2>
-        <p className="text-gray-500 mt-1">Redirecting to product details…</p>
+        <h2 className="text-xl font-bold text-gray-900">{productNoun} Updated!</h2>
+        <p className="text-gray-500 mt-1">Redirecting to {productNoun.toLowerCase()} details…</p>
       </div>
     );
   }
@@ -213,7 +221,7 @@ export default function EditProductClient({ product, businessType }: { product: 
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Edit {productNoun}</h1>
           <p className="text-sm text-gray-500 mt-0.5">Update behavior and inventory tracking for {product.name}</p>
         </div>
       </div>
@@ -253,7 +261,7 @@ export default function EditProductClient({ product, businessType }: { product: 
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Product Name <span className="text-rose-500">*</span>
+                  {productNoun} Name <span className="text-rose-500">*</span>
                 </label>
                 <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900" />
               </div>
@@ -335,6 +343,21 @@ export default function EditProductClient({ product, businessType }: { product: 
               </div>
             </div>
 
+            {showGstFields(businessType) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 pt-5 border-t border-gray-100">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">GST Rate (%)</label>
+                  <input type="number" name="gstRate" value={formData.gstRate} onChange={handleChange} min="0" max="100" step="0.01" placeholder="e.g. 5" className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
+                </div>
+                <div className="flex items-center pt-6">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="gstInclusive" checked={formData.gstInclusive} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-sm font-medium text-gray-900">Sale Price already includes GST</span>
+                  </label>
+                </div>
+              </div>
+            )}
+
             {showStock && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -403,6 +426,33 @@ export default function EditProductClient({ product, businessType }: { product: 
                 </div>
               )}
 
+              {showPrepTime(businessType) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Prep Time (minutes)</label>
+                  <input
+                    type="number"
+                    name="durationMinutes"
+                    value={formData.durationMinutes}
+                    onChange={handleChange}
+                    min="0"
+                    placeholder="e.g. 10"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900"
+                  />
+                </div>
+              )}
+
+              {showFoodType(businessType) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Food Type</label>
+                  <select name="foodType" value={formData.foodType} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 bg-white">
+                    <option value="">Not specified</option>
+                    {FOOD_TYPE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {formData.productType === 'WEIGHT' && (
                 <div className="flex items-center h-full pt-6">
                   <label className="flex items-center gap-3 cursor-pointer">
@@ -416,6 +466,23 @@ export default function EditProductClient({ product, businessType }: { product: 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Master Barcode / SKU</label>
                   <input type="text" name="barcode" value={formData.barcode} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900" />
+                </div>
+              )}
+
+              {(showAvailabilityToggle(businessType) || showFeaturedToggle(businessType)) && (
+                <div className="flex items-center gap-6">
+                  {showAvailabilityToggle(businessType) && (
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" name="isAvailable" checked={formData.isAvailable} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500" />
+                      <span className="text-sm font-medium text-gray-900">Available</span>
+                    </label>
+                  )}
+                  {showFeaturedToggle(businessType) && (
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500" />
+                      <span className="text-sm font-medium text-gray-900">Featured</span>
+                    </label>
+                  )}
                 </div>
               )}
             </div>
@@ -546,7 +613,7 @@ export default function EditProductClient({ product, businessType }: { product: 
           <div className="p-6 space-y-5">
             <div className="flex items-start gap-6">
               <ImageUpload
-                label="Product Image (Optional)"
+                label={`${productNoun} Image (Optional)`}
                 defaultImage={formData.imageUrl}
                 onUploadSuccess={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
               />

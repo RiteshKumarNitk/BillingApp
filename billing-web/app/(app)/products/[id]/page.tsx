@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import { Package, Barcode, Tag, Calendar, AlertTriangle, ArrowLeft, Pencil, DollarSign, Box } from 'lucide-react';
 import ProductBarcode from './ProductBarcode';
+import { getProductNoun } from '@/lib/productForm/businessTypeConfig';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: productId } = await params;
@@ -14,16 +15,21 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     redirect('/auth/login');
   }
 
-  const product = await prisma.product.findUnique({ 
-    where: { id: productId, tenantId: session.user.tenantId },
-    include: {
-      variants: true,
-      batches: true,
-      serials: true
-    }
-  });
+  const [product, tenant] = await Promise.all([
+    prisma.product.findUnique({
+      where: { id: productId, tenantId: session.user.tenantId },
+      include: {
+        variants: true,
+        batches: true,
+        serials: true
+      }
+    }),
+    prisma.tenant.findUnique({ where: { id: session.user.tenantId }, select: { businessType: true } }),
+  ]);
 
   if (!product) notFound();
+
+  const productNoun = getProductNoun(tenant?.businessType ?? null);
 
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return 'N/A';
@@ -43,7 +49,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Product Details</p>
+            <p className="text-sm text-gray-500 mt-0.5">{productNoun} Details</p>
           </div>
         </div>
         <Link
@@ -51,7 +57,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm"
         >
           <Pencil className="w-4 h-4" />
-          Edit Product
+          Edit {productNoun}
         </Link>
       </div>
 

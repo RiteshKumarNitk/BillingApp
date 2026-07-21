@@ -11,7 +11,9 @@ import {
 import ImageUpload from '@/components/ImageUpload';
 import {
   getProductTypeOptions, getPresetCategories, getCategoryLabel,
-  hideStockFields, showGarmentType, showDuration, showAddOns, showComboComponents
+  hideStockFields, showGarmentType, showDuration, showAddOns, showComboComponents,
+  showFoodType, showGstFields, showAvailabilityToggle, showFeaturedToggle, showPrepTime,
+  getProductNoun, FOOD_TYPE_OPTIONS
 } from '@/lib/productForm/businessTypeConfig';
 
 export default function AddProductClient({ businessType }: { businessType: string | null }) {
@@ -20,6 +22,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
   const productTypeOptions = getProductTypeOptions(businessType);
   const presetCategories = getPresetCategories(businessType);
   const categoryLabel = getCategoryLabel(businessType);
+  const productNoun = getProductNoun(businessType);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +41,11 @@ export default function AddProductClient({ businessType }: { businessType: strin
     description: '',
     durationMinutes: '',
     garmentType: '',
+    gstRate: '',
+    gstInclusive: false,
+    foodType: '',
+    isAvailable: true,
+    isFeatured: false,
   });
 
   const [variants, setVariants] = useState<any[]>([]);
@@ -171,8 +179,8 @@ export default function AddProductClient({ businessType }: { businessType: strin
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-gray-900">Product Added!</h2>
-        <p className="text-gray-500 mt-1">Redirecting to products list…</p>
+        <h2 className="text-xl font-bold text-gray-900">{productNoun} Added!</h2>
+        <p className="text-gray-500 mt-1">Redirecting to {productNoun.toLowerCase()}s list…</p>
       </div>
     );
   }
@@ -184,7 +192,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Add New {productNoun}</h1>
           <p className="text-sm text-gray-500 mt-0.5">Define behavior and inventory tracking for this item.</p>
         </div>
       </div>
@@ -224,7 +232,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Product Name <span className="text-rose-500">*</span>
+                  {productNoun} Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -232,7 +240,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g. Potato, Dove Soap, iPhone 15"
+                  placeholder={businessType === 'CAFE' ? 'e.g. Cappuccino, Veg Sandwich' : 'e.g. Potato, Dove Soap, iPhone 15'}
                   className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                 />
               </div>
@@ -312,6 +320,21 @@ export default function AddProductClient({ businessType }: { businessType: strin
                 <input type="number" name="salePrice" value={formData.salePrice} onChange={handleChange} min="0" step="0.01" required className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
               </div>
             </div>
+
+            {showGstFields(businessType) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 pt-5 border-t border-gray-100">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">GST Rate (%)</label>
+                  <input type="number" name="gstRate" value={formData.gstRate} onChange={handleChange} min="0" max="100" step="0.01" placeholder="e.g. 5" className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
+                </div>
+                <div className="flex items-center pt-6">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="gstInclusive" checked={formData.gstInclusive} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-sm font-medium text-gray-900">Sale Price already includes GST</span>
+                  </label>
+                </div>
+              </div>
+            )}
 
             {showStock && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -394,6 +417,38 @@ export default function AddProductClient({ businessType }: { businessType: strin
                 </div>
               )}
 
+              {showPrepTime(businessType) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Prep Time (minutes)</label>
+                  <input
+                    type="number"
+                    name="durationMinutes"
+                    value={formData.durationMinutes}
+                    onChange={handleChange}
+                    min="0"
+                    placeholder="e.g. 10"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  />
+                </div>
+              )}
+
+              {showFoodType(businessType) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Food Type</label>
+                  <select
+                    name="foodType"
+                    value={formData.foodType}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  >
+                    <option value="">Not specified</option>
+                    {FOOD_TYPE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {formData.productType === 'WEIGHT' && (
                 <div className="flex items-center h-full pt-6">
                   <label className="flex items-center gap-3 cursor-pointer">
@@ -419,6 +474,23 @@ export default function AddProductClient({ businessType }: { businessType: strin
                     onChange={handleChange}
                     className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                   />
+                </div>
+              )}
+
+              {(showAvailabilityToggle(businessType) || showFeaturedToggle(businessType)) && (
+                <div className="flex items-center gap-6">
+                  {showAvailabilityToggle(businessType) && (
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" name="isAvailable" checked={formData.isAvailable} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500" />
+                      <span className="text-sm font-medium text-gray-900">Available</span>
+                    </label>
+                  )}
+                  {showFeaturedToggle(businessType) && (
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleChange} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500" />
+                      <span className="text-sm font-medium text-gray-900">Featured</span>
+                    </label>
+                  )}
                 </div>
               )}
             </div>
@@ -549,7 +621,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
           <div className="p-6 space-y-5">
             <div className="flex items-start gap-6">
               <ImageUpload
-                label="Product Image (Optional)"
+                label={`${productNoun} Image (Optional)`}
                 onUploadSuccess={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
               />
               <div className="flex-1 mt-2">
@@ -673,7 +745,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
             disabled={loading}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Saving...' : 'Add Product'}
+            {loading ? 'Saving...' : `Add ${productNoun}`}
           </button>
         </div>
 

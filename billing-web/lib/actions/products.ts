@@ -183,6 +183,11 @@ export async function createProduct(data: any) {
     description: data.description?.trim() || null,
     durationMinutes: data.durationMinutes ? parseInt(data.durationMinutes, 10) : null,
     garmentType: data.garmentType || null,
+    gstRate: data.gstRate !== undefined && data.gstRate !== '' ? parseFloat(data.gstRate) : null,
+    gstInclusive: data.gstInclusive === true,
+    foodType: data.foodType || null,
+    isAvailable: data.isAvailable !== false,
+    isFeatured: data.isFeatured === true,
     tenant: { connect: { id: tenantId } },
   };
 
@@ -271,6 +276,11 @@ export async function updateProduct(productId: string, data: any) {
     description: data.description?.trim() || null,
     durationMinutes: data.durationMinutes ? parseInt(data.durationMinutes, 10) : null,
     garmentType: data.garmentType || null,
+    gstRate: data.gstRate !== undefined && data.gstRate !== '' ? parseFloat(data.gstRate) : null,
+    gstInclusive: data.gstInclusive === true,
+    foodType: data.foodType || null,
+    isAvailable: data.isAvailable !== false,
+    isFeatured: data.isFeatured === true,
   };
 
   // Handling updates for complex types is more intricate (needs delete/re-create or upsert)

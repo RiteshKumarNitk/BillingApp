@@ -124,3 +124,14 @@ export function showFeaturedToggle(businessType: string | null | undefined) {
 export function showPrepTime(businessType: string | null | undefined) {
   return normalize(businessType) === 'CAFE';
 }
+
+// CafeOS terminology pass (Phase 3): Cafe tenants see "Menu Management"/"Menu Item" instead of
+// "Products"/"Product" throughout the app; every other business type (including null/legacy
+// tenants) keeps the original wording unchanged.
+export function getProductNoun(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE' ? 'Menu Item' : 'Product';
+}
+
+export function getProductsAreaLabel(businessType: string | null | undefined) {
+  return normalize(businessType) === 'CAFE' ? 'Menu Management' : 'Products';
+}

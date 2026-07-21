@@ -18,11 +18,13 @@ import {
   Ruler,
   Globe
 } from 'lucide-react';
+import { getProductsAreaLabel } from '@/lib/productForm/businessTypeConfig';
 
 export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
   const pathname = usePathname();
   const { isMobileOpen, closeMobile } = useSidebar();
   const isSuperAdmin = user?.role === 'SUPERADMIN';
+  const productsAreaLabel = getProductsAreaLabel(tenant?.businessType);
 
   const hasManageUsers = user?.permissions?.includes('MANAGE_USERS');
 
@@ -44,7 +46,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Billing', href: '/billing', icon: Receipt },
       { name: 'Transactions', href: '/transactions', icon: History },
       { name: 'Order Requests', href: '/orders', icon: ClipboardList },
-      { name: 'Products', href: '/products', icon: Package },
+      { name: productsAreaLabel, href: '/products', icon: Package },
       { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
