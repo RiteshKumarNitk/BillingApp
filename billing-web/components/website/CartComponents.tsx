@@ -52,13 +52,18 @@ export function FloatingCartBar({ theme }: { theme?: MenuTheme }) {
 }
 
 export function CartDrawer({ tenant, theme, primaryColor = DEFAULT_ACCENT }: { tenant: any; theme?: MenuTheme; primaryColor?: string }) {
-  const { cart, showCart, setShowCart, removeFromCart, updateQuantity, cartCount, cartTotal, handlePlaceOrder, submitting, isLoggedIn } = useCart();
+  const { cart, showCart, setShowCart, removeFromCart, updateQuantity, cartCount, cartTotal, handlePlaceOrder, submitting, isLoggedIn, tableLabel } = useCart();
   if (!showCart) return null;
 
   return (
     <div className="fixed inset-0 z-[100]">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setShowCart(false)} />
       <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white text-gray-900 shadow-2xl flex flex-col animate-slide-in-right">
+        {tableLabel && (
+          <div className="px-5 py-2 text-xs font-bold text-center" style={{ backgroundColor: primaryColor, color: '#fff' }}>
+            🍽️ Ordering for {tableLabel}
+          </div>
+        )}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-gray-900" />

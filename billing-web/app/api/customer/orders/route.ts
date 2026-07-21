@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
+import { resolveTenant } from "@/lib/website/utils";
 
 // POST: Submit a new order request
 export async function POST(request: NextRequest) {
@@ -11,16 +12,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { tenantId, items, notes } = await request.json();
+    const { tenantId: tenantIdOrSlug, items, notes, tableToken } = await request.json();
 
-    if (!tenantId || !items || items.length === 0) {
+    if (!tenantIdOrSlug || !items || items.length === 0) {
       return NextResponse.json({ error: "Tenant and items are required" }, { status: 400 });
     }
 
-    // Verify tenant exists and is active
-    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+    // The site is reachable at either /site/<uuid> or /site/<websiteSlug>, and CartContext's
+    // tenantId prop is just whichever segment the customer's URL happened to use — resolve it the
+    // same way the site pages do rather than assuming it's always the raw id.
+    const tenant = await resolveTenant(tenantIdOrSlug);
     if (!tenant || tenant.status !== "ACTIVE") {
       return NextResponse.json({ error: "Store not found or inactive" }, { status: 404 });
+    }
+    const tenantId = tenant.id;
+
+    // QR table ordering: a scanned table QR carries a token in the URL, threaded through to
+    // checkout by CartContext. Re-validated here (not trusted from the client beyond the token
+    // itself) against this tenant's own tables so a token can't be replayed against another tenant.
+    let tableId: string | null = null;
+    let orderType: string | null = null;
+    if (tableToken) {
+      const table = await prisma.table.findUnique({ where: { qrToken: tableToken } });
+      if (table && table.tenantId === tenantId && table.isActive) {
+        tableId = table.id;
+        orderType = "DINE_IN";
+      }
     }
 
     // Calculate totals
@@ -29,8 +46,8 @@ export async function POST(request: NextRequest) {
     const orderItems = [];
 
     for (const item of items) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId },
+      const product = await prisma.product.findFirst({
+        where: { id: item.productId, tenantId },
         include: { variants: true }
       });
 
@@ -97,6 +114,8 @@ export async function POST(request: NextRequest) {
         tenantId,
         customerAccountId: session.user.id,
         customerId: customer.id,
+        tableId,
+        orderType,
         items: {
           create: orderItems,
         },

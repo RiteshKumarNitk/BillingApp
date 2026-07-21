@@ -38,6 +38,12 @@ interface CartContextValue {
   submitting: boolean;
   orderSuccess: boolean;
   handlePlaceOrder: () => Promise<void>;
+
+  // QR table ordering: set once from a `?t=<token>` on the URL the customer landed on (e.g. from
+  // scanning a table's QR code), then carried in state through client-side navigation and into
+  // checkout. tableLabel is resolved async purely for display ("Ordering for Table 5").
+  tableToken: string | null;
+  tableLabel: string | null;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -62,6 +68,8 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
   const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '' });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+  const [tableToken, setTableToken] = useState<string | null>(null);
+  const [tableLabel, setTableLabel] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/customer/auth/session')
@@ -74,6 +82,23 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
       })
       .catch(() => {});
   }, []);
+
+  // Captured once on first mount (this Provider persists across client-side nav within the site,
+  // so a `?t=` present only on the page the customer landed on is still available later). Falls
+  // back to sessionStorage so a mid-visit reload doesn't silently drop the table context.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('t');
+    const token = fromUrl || sessionStorage.getItem(`table_token_${tenantId}`);
+    if (!token) return;
+
+    sessionStorage.setItem(`table_token_${tenantId}`, token);
+    setTableToken(token);
+
+    fetch(`/api/website/table?tenantId=${tenantId}&token=${encodeURIComponent(token)}`)
+      .then(res => res.json())
+      .then(data => { if (data.label) setTableLabel(data.label); })
+      .catch(() => {});
+  }, [tenantId]);
 
   const addToCart = useCallback((product: any, variant?: any) => {
     const name = variant ? `${product.name} - ${variant.name}` : product.name;
@@ -153,7 +178,7 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
       const res = await fetch('/api/customer/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenantId, items: cart.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })), notes: null }),
+        body: JSON.stringify({ tenantId, items: cart.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })), notes: null, tableToken }),
       });
       if (res.ok) { setCart([]); setShowCart(false); setOrderSuccess(true); setTimeout(() => setOrderSuccess(false), 5000); }
       else { const data = await res.json(); if (res.status === 401) { setShowCart(false); setShowAuthModal(true); } else { alert(data.error || 'Failed to place order.'); } }
@@ -167,6 +192,7 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
       showCart, setShowCart,
       isLoggedIn, showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth,
       submitting, orderSuccess, handlePlaceOrder,
+      tableToken, tableLabel,
     }}>
       {children}
     </CartContext.Provider>

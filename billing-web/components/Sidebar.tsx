@@ -16,7 +16,8 @@ import {
   X,
   ClipboardList,
   Ruler,
-  Globe
+  Globe,
+  QrCode
 } from 'lucide-react';
 import { getProductsAreaLabel } from '@/lib/productForm/businessTypeConfig';
 
@@ -54,6 +55,9 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
 
     if (user?.role === 'ADMIN') {
       navLinks.push({ name: 'Website Builder', href: '/website-builder', icon: Globe });
+      if (tenant?.businessType === 'CAFE') {
+        navLinks.push({ name: 'Tables & QR', href: '/tables', icon: QrCode });
+      }
     }
 
     if (hasManageUsers) {
