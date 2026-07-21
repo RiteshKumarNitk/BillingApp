@@ -2,6 +2,9 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { getActiveSubscription } from "@/lib/subscription";
+
+const NO_SUBSCRIPTION_ERROR = "Your trial has ended and there's no active subscription on this account. Please contact your account owner or subscribe to continue.";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -87,6 +90,18 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordValid) {
             return null;
           }
+
+          // Superadmin operates the platform itself and isn't gated by a tenant subscription.
+          // Every other login requires a currently-valid (ACTIVE/TRIAL/PAST_DUE, unexpired)
+          // subscription — a lapsed trial or a tenant that never subscribed shouldn't be able to
+          // keep using the app indefinitely just because their account still exists.
+          if (user.role !== "SUPERADMIN") {
+            const activeSub = await getActiveSubscription(tenant.id);
+            if (!activeSub) {
+              throw new Error(NO_SUBSCRIPTION_ERROR);
+            }
+          }
+
           // Return user object with tenantId, role, and RBAC permissions
           return {
             id: user.id,
@@ -99,6 +114,12 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error('[NEXTAUTH] Error during authorization:', error);
+          // Re-throw the subscription-required error so its specific message reaches the login
+          // page instead of being swallowed into the generic "CredentialsSignin" that a bare
+          // `return null` produces for every other failure below.
+          if (error instanceof Error && error.message === NO_SUBSCRIPTION_ERROR) {
+            throw error;
+          }
           return null;
         }
       }
@@ -151,6 +172,16 @@ export const authOptions: NextAuthOptions = {
           // If tenant is deactivated, force re-login
           if (!dbTenant || dbTenant.status !== 'ACTIVE') {
             return {} as any;
+          }
+
+          // Same subscription check as authorize() — re-run on every token refresh so a session
+          // opened while a trial was still valid gets kicked out once it lapses mid-session,
+          // rather than only blocking new logins.
+          if (dbUser.role !== 'SUPERADMIN') {
+            const activeSub = await getActiveSubscription(token.tenantId as string);
+            if (!activeSub) {
+              return {} as any;
+            }
           }
 
           // If user's tokenVersion changed (role/permissions updated), refresh token data

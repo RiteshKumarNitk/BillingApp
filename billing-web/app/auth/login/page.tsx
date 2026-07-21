@@ -63,7 +63,9 @@ export default function LoginPage() {
       });
 
       if (res?.error) {
-        setError('Invalid email or password. Please try again.');
+        // NextAuth maps a plain `return null` from authorize() to the generic "CredentialsSignin"
+        // code; anything else is the actual message we threw (e.g. no active subscription).
+        setError(res.error === 'CredentialsSignin' ? 'Invalid email or password. Please try again.' : res.error);
         setLoading(false);
       } else {
         router.push('/dashboard');
