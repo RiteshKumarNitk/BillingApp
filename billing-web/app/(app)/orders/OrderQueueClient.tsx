@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, RefreshCw } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, PauseCircle, ChefHat, RefreshCw } from "lucide-react";
 
 interface OrderItem {
   id: string;
@@ -27,15 +27,32 @@ interface Order {
   items: OrderItem[];
 }
 
+const STATUS_STYLE: Record<string, string> = {
+  PENDING: "bg-amber-100 text-amber-700",
+  ON_HOLD: "bg-orange-100 text-orange-700",
+  ACCEPTED: "bg-blue-100 text-blue-700",
+  PREPARING: "bg-blue-100 text-blue-700",
+  READY: "bg-violet-100 text-violet-700",
+  COMPLETED: "bg-emerald-100 text-emerald-700",
+  REJECTED: "bg-rose-100 text-rose-700",
+  CANCELLED: "bg-gray-100 text-gray-500",
+};
+
+// New PENDING orders should surface without a manual refresh — polling is the pragmatic choice
+// here since there's no websocket/SSE layer anywhere else in this codebase to build on.
+const POLL_INTERVAL_MS = 15000;
+
 export default function OrderQueueClient() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState("PENDING");
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
 
-  const fetchOrders = async (status: string) => {
-    setLoading(true);
+  const fetchOrders = useCallback(async (status: string, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetch(`/api/tenant/orders?status=${status}`);
       const data = await res.json();
@@ -44,14 +61,19 @@ export default function OrderQueueClient() {
     } catch (error) {
       console.error("Failed to fetch orders:", error);
     }
-    setLoading(false);
-  };
+    if (!silent) setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchOrders(activeTab);
-  }, [activeTab]);
+  }, [activeTab, fetchOrders]);
 
-  const handleAction = async (orderId: string, action: "APPROVE" | "REJECT") => {
+  useEffect(() => {
+    const interval = setInterval(() => fetchOrders(activeTabRef.current, true), POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [fetchOrders]);
+
+  const handleAction = async (orderId: string, action: "ACCEPT" | "HOLD" | "REJECT") => {
     setProcessingId(orderId);
     try {
       const res = await fetch(`/api/tenant/orders/${orderId}`, {
@@ -59,14 +81,9 @@ export default function OrderQueueClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-
       if (res.ok) {
         setOrders((prev) => prev.filter((o) => o.id !== orderId));
-        setStatusCounts((prev) => ({
-          ...prev,
-          PENDING: Math.max(0, (prev.PENDING || 0) - 1),
-          [action === "APPROVE" ? "COMPLETED" : "REJECTED"]: (prev[action === "APPROVE" ? "COMPLETED" : "REJECTED"] || 0) + 1,
-        }));
+        fetchOrders(activeTab, true);
       }
     } catch (error) {
       console.error("Failed to process order:", error);
@@ -75,25 +92,35 @@ export default function OrderQueueClient() {
   };
 
   const tabs = [
-    { key: "PENDING", label: "Pending", icon: Clock, color: "amber" },
-    { key: "COMPLETED", label: "Completed", icon: CheckCircle, color: "emerald" },
-    { key: "REJECTED", label: "Rejected", icon: XCircle, color: "rose" },
+    { key: "PENDING", label: "Pending", icon: Clock },
+    { key: "ON_HOLD", label: "On Hold", icon: PauseCircle },
+    { key: "ACCEPTED", label: "Accepted", icon: ChefHat },
+    { key: "COMPLETED", label: "Completed", icon: CheckCircle },
+    { key: "REJECTED", label: "Rejected", icon: XCircle },
   ];
 
   return (
     <div>
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Order Requests</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage online orders from customers</p>
+      <header className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Order Requests</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage online orders from customers</p>
+        </div>
+        <button
+          onClick={() => fetchOrders(activeTab)}
+          className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" /> Refresh
+        </button>
       </header>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 bg-white rounded-xl border border-gray-100 p-1 shadow-sm">
+      <div className="flex gap-2 mb-6 bg-white rounded-xl border border-gray-100 p-1 shadow-sm overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center whitespace-nowrap ${
               activeTab === tab.key
                 ? "bg-indigo-600 text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-50"
@@ -118,7 +145,7 @@ export default function OrderQueueClient() {
       ) : orders.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
           <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 font-medium">No {activeTab.toLowerCase()} orders</p>
+          <p className="text-gray-500 font-medium">No {activeTab.toLowerCase().replace('_', ' ')} orders</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -128,12 +155,8 @@ export default function OrderQueueClient() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono text-gray-400">#{order.id.slice(0, 8)}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      order.status === "PENDING" ? "bg-amber-100 text-amber-700" :
-                      order.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" :
-                      "bg-rose-100 text-rose-700"
-                    }`}>
-                      {order.status}
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[order.status] || "bg-gray-100 text-gray-600"}`}>
+                      {order.status.replace('_', ' ')}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 flex-wrap">
@@ -189,22 +212,55 @@ export default function OrderQueueClient() {
               {order.status === "PENDING" && (
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleAction(order.id, "APPROVE")}
+                    onClick={() => handleAction(order.id, "ACCEPT")}
                     disabled={processingId === order.id}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500 disabled:opacity-50 transition-all"
                   >
                     <CheckCircle className="w-4 h-4" />
-                    Approve & Invoice
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleAction(order.id, "HOLD")}
+                    disabled={processingId === order.id}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 disabled:opacity-50 transition-all"
+                  >
+                    <PauseCircle className="w-4 h-4" />
+                    Hold
                   </button>
                   <button
                     onClick={() => handleAction(order.id, "REJECT")}
                     disabled={processingId === order.id}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 disabled:opacity-50 transition-all"
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 disabled:opacity-50 transition-all"
                   >
                     <XCircle className="w-4 h-4" />
                     Reject
                   </button>
                 </div>
+              )}
+              {order.status === "ON_HOLD" && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleAction(order.id, "ACCEPT")}
+                    disabled={processingId === order.id}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500 disabled:opacity-50 transition-all"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleAction(order.id, "REJECT")}
+                    disabled={processingId === order.id}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 disabled:opacity-50 transition-all"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Reject
+                  </button>
+                </div>
+              )}
+              {order.status === "ACCEPTED" && (
+                <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                  <ChefHat className="w-3.5 h-3.5" /> In the Kitchen Queue — track prep &amp; completion from there.
+                </p>
               )}
             </div>
           ))}
