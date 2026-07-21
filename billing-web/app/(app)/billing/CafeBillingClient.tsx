@@ -33,6 +33,9 @@ interface CartLine {
   unitPrice: number;
   quantity: number;
   productType: string;
+  // GST lives on the Product, not the variant/add-on — a coffee's GST% is the same across sizes.
+  gstRate: number | null;
+  gstInclusive: boolean;
 }
 
 export default function CafeBillingClient() {
@@ -116,6 +119,8 @@ export default function CafeBillingClient() {
         unitPrice: selection.unitPrice,
         quantity: selection.quantity,
         productType: product.productType,
+        gstRate: product.gstRate ?? null,
+        gstInclusive: product.gstInclusive === true,
       }];
     });
     setModalProduct(null);
@@ -135,7 +140,18 @@ export default function CafeBillingClient() {
   const subtotal = cart.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
   const discountValue = parseFloat(discount) || 0;
   const discountAmount = (subtotal * discountValue) / 100;
-  const netAmount = Math.max(0, subtotal - discountAmount);
+  // GST-inclusive items already have tax baked into unitPrice (no separate add-on to the total —
+  // it's shown as an "Incl. GST" note instead); only exclusive-rate items add tax on top.
+  const exclusiveTaxAmount = cart.reduce((sum, l) => {
+    if (!l.gstRate || l.gstInclusive) return sum;
+    return sum + (l.unitPrice * l.quantity * l.gstRate) / 100;
+  }, 0);
+  const inclusiveTaxAmount = cart.reduce((sum, l) => {
+    if (!l.gstRate || !l.gstInclusive) return sum;
+    const lineTotal = l.unitPrice * l.quantity;
+    return sum + (lineTotal - lineTotal / (1 + l.gstRate / 100));
+  }, 0);
+  const netAmount = Math.max(0, subtotal - discountAmount) + exclusiveTaxAmount;
   const changeAmount = Math.max(0, (parseFloat(amountReceived) || 0) - netAmount);
 
   const handleLookupCustomer = async () => {
@@ -186,6 +202,7 @@ export default function CafeBillingClient() {
         : {
             items: buildItemsPayload(),
             discount: discountValue,
+            taxAmount: exclusiveTaxAmount,
             customerId: customer?.id,
             customerName: customer?.name,
             customerPhone: customerPhone || undefined,
@@ -229,6 +246,7 @@ export default function CafeBillingClient() {
         body: JSON.stringify({
           items: buildItemsPayload(),
           discount: discountValue,
+          taxAmount: exclusiveTaxAmount,
           customerId: customer?.id,
           customerName: customer?.name,
           customerPhone: customerPhone || undefined,
@@ -259,6 +277,10 @@ export default function CafeBillingClient() {
       unitPrice: item.salePrice,
       quantity: item.quantity,
       productType: item.productType,
+      // Resuming re-sends only payment details, not items/tax (the server re-derives everything
+      // from the original held Transaction's own taxAmount) — these are display-only here.
+      gstRate: null,
+      gstInclusive: false,
     })));
     setDiscount(String(bill.discount || 0));
     setTableNumber(bill.tableNumber || '');
@@ -458,6 +480,15 @@ export default function CafeBillingClient() {
                 <label className="text-sm text-gray-500">Discount %</label>
                 <input type="number" min="0" max="100" value={discount} onChange={(e) => setDiscount(e.target.value)} className="w-20 px-2 py-1.5 text-sm text-right rounded-lg border border-gray-300" />
               </div>
+              {exclusiveTaxAmount > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">GST</span>
+                  <span className="font-semibold text-gray-900">₹{exclusiveTaxAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {inclusiveTaxAmount > 0 && (
+                <p className="text-[11px] text-gray-400 text-right -mt-1">Incl. GST ₹{inclusiveTaxAmount.toFixed(2)}</p>
+              )}
               <div className="flex items-center justify-between text-base font-black text-gray-900 pt-2 border-t border-gray-100">
                 <span>Total</span>
                 <span>₹{netAmount.toFixed(2)}</span>

@@ -394,6 +394,10 @@ async function executeTransactionPlan(
       notes,
       tableNumber,
       orderType,
+      // Cafe Kitchen Queue: any completed sale with an orderType (only ever set by the Cafe POS)
+      // needs the kitchen to actually make it, regardless of payment already being done. Every
+      // other business type never sets orderType, so this stays null for them — no queue clutter.
+      kitchenStatus: orderType ? "PREPARING" : null,
       couponCode: resolvedCouponCode,
       couponDiscountAmount,
       loyaltyPointsRedeemed: requestedLoyaltyRedemption,
