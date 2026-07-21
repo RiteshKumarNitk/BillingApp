@@ -52,8 +52,8 @@ export default function AddProductClient({ businessType }: { businessType: strin
   const [batches, setBatches] = useState<any[]>([]);
   const [serials, setSerials] = useState<any[]>([]);
   const [addOns, setAddOns] = useState<{ name: string; price: string }[]>([]);
-  const [comboComponents, setComboComponents] = useState<{ componentId: string; quantity: string }[]>([]);
-  const [comboCandidates, setComboCandidates] = useState<{ id: string; name: string; salePrice: number }[]>([]);
+  const [comboComponents, setComboComponents] = useState<{ componentId: string; componentVariantId: string | null; quantity: string }[]>([]);
+  const [comboCandidates, setComboCandidates] = useState<{ id: string; name: string; salePrice: number; variants: { id: string; name: string; salePrice: number }[] }[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -133,13 +133,32 @@ export default function AddProductClient({ businessType }: { businessType: strin
     setAddOns(next);
   };
 
-  const handleAddComboComponent = () => setComboComponents([...comboComponents, { componentId: '', quantity: '1' }]);
+  const handleAddComboComponent = () => setComboComponents([...comboComponents, { componentId: '', componentVariantId: null, quantity: '1' }]);
   const handleRemoveComboComponent = (idx: number) => setComboComponents(comboComponents.filter((_, i) => i !== idx));
-  const handleComboComponentChange = (idx: number, field: 'componentId' | 'quantity', value: string) => {
+  const handleComboComponentChange = (idx: number, field: 'quantity', value: string) => {
     const next = [...comboComponents];
     next[idx][field] = value;
     setComboComponents(next);
   };
+  // The picker is one dropdown covering both "whole product" and "specific size" options via a
+  // composite value (productId, or productId::variantId) — parsed back into the two real fields.
+  const handleComboItemSelect = (idx: number, compositeValue: string) => {
+    const [componentId, componentVariantId] = compositeValue.split('::');
+    const next = [...comboComponents];
+    next[idx] = { ...next[idx], componentId: componentId || '', componentVariantId: componentVariantId || null };
+    setComboComponents(next);
+  };
+
+  // Suggested combo price: sum of each selected component's matched variant price (or base price
+  // if no variant was pinned) × quantity. Purely a hint — Sale Price stays freely overridable.
+  const suggestedComboPrice = comboComponents.reduce((sum, c) => {
+    const candidate = comboCandidates.find(p => p.id === c.componentId);
+    if (!candidate) return sum;
+    const unitPrice = c.componentVariantId
+      ? candidate.variants.find(v => v.id === c.componentVariantId)?.salePrice ?? candidate.salePrice
+      : candidate.salePrice;
+    return sum + unitPrice * (parseInt(c.quantity, 10) || 1);
+  }, 0);
 
   const showStock = !hideStockFields(businessType) && formData.productType !== 'SERVICE' && formData.productType !== 'COMBO';
 
@@ -318,6 +337,18 @@ export default function AddProductClient({ businessType }: { businessType: strin
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Sale Price <span className="text-rose-500">*</span></label>
                 <input type="number" name="salePrice" value={formData.salePrice} onChange={handleChange} min="0" step="0.01" required className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
+                {formData.productType === 'COMBO' && suggestedComboPrice > 0 && (
+                  <div className="mt-1.5 flex items-center gap-2 text-xs text-gray-500">
+                    <span>Suggested: ₹{suggestedComboPrice.toFixed(2)} (sum of components)</span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, salePrice: suggestedComboPrice.toFixed(2) }))}
+                      className="font-medium text-indigo-600 hover:text-indigo-700"
+                    >
+                      Use this
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -592,10 +623,21 @@ export default function AddProductClient({ businessType }: { businessType: strin
                         </button>
                         <div className="flex-1">
                           <label className="block text-xs font-medium text-gray-500 mb-1">Item</label>
-                          <select value={c.componentId} onChange={(e) => handleComboComponentChange(idx, 'componentId', e.target.value)} required className="w-full text-sm border-gray-300 rounded-lg bg-white">
+                          <select
+                            value={c.componentVariantId ? `${c.componentId}::${c.componentVariantId}` : c.componentId}
+                            onChange={(e) => handleComboItemSelect(idx, e.target.value)}
+                            required
+                            className="w-full text-sm border-gray-300 rounded-lg bg-white"
+                          >
                             <option value="">Select item…</option>
                             {comboCandidates.map(p => (
-                              <option key={p.id} value={p.id}>{p.name} (₹{p.salePrice})</option>
+                              p.variants.length > 0 ? (
+                                p.variants.map(v => (
+                                  <option key={v.id} value={`${p.id}::${v.id}`}>{p.name} — {v.name} (₹{v.salePrice})</option>
+                                ))
+                              ) : (
+                                <option key={p.id} value={p.id}>{p.name} (₹{p.salePrice})</option>
+                              )
                             ))}
                           </select>
                         </div>

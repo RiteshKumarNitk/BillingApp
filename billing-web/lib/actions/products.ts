@@ -121,14 +121,20 @@ export async function getCafeMenu() {
     include: {
       variants: true,
       addOns: true,
-      comboComponents: { include: { component: { select: { id: true, name: true } } } },
+      comboComponents: {
+        include: {
+          component: { select: { id: true, name: true } },
+          componentVariant: { select: { id: true, name: true } },
+        },
+      },
     },
     orderBy: { name: 'asc' },
   });
 }
 
 // Cafe: candidate list for the Combo Components picker. Excludes COMBO products themselves to
-// keep combos one level deep (no combo-of-combos).
+// keep combos one level deep (no combo-of-combos). Includes each candidate's variants so a combo
+// can pin a specific size (e.g. "Cold Coffee — Small") instead of only the generic product.
 export async function getProductsForComboPicker(excludeProductId?: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) {
@@ -141,7 +147,12 @@ export async function getProductsForComboPicker(excludeProductId?: string) {
       productType: { not: 'COMBO' },
       ...(excludeProductId ? { id: { not: excludeProductId } } : {}),
     },
-    select: { id: true, name: true, salePrice: true },
+    select: {
+      id: true,
+      name: true,
+      salePrice: true,
+      variants: { select: { id: true, name: true, salePrice: true } },
+    },
     orderBy: { name: 'asc' },
   });
 }
@@ -237,6 +248,7 @@ export async function createProduct(data: any) {
     createData.comboComponents = {
       create: data.comboComponents.filter((c: any) => c.componentId).map((c: any) => ({
         componentId: c.componentId,
+        componentVariantId: c.componentVariantId || null,
         quantity: parseInt(c.quantity, 10) || 1,
       }))
     };
@@ -336,6 +348,7 @@ export async function updateProduct(productId: string, data: any) {
       deleteMany: {},
       create: data.comboComponents.filter((c: any) => c.componentId).map((c: any) => ({
         componentId: c.componentId,
+        componentVariantId: c.componentVariantId || null,
         quantity: parseInt(c.quantity, 10) || 1,
       }))
     };

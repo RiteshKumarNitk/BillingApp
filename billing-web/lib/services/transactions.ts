@@ -144,6 +144,13 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       mrp: true,
       variants: { select: { id: true, salePrice: true, purchasePrice: true, mrp: true } },
       addOns: { select: { id: true, name: true, price: true } },
+      comboComponents: {
+        select: {
+          quantity: true,
+          component: { select: { name: true } },
+          componentVariant: { select: { name: true } },
+        },
+      },
     },
   });
   if (ownedProducts.length !== uniqueProductIds.length) {
@@ -202,6 +209,16 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       throw new TransactionError(`Invalid discount for item ${item.name}`, 400);
     }
 
+    // Cafe: a COMBO's contents are never client-selectable — always the catalog's current combo
+    // definition, snapshotted here so a later recipe edit never rewrites this sale's receipt.
+    const resolvedComboComponents = item.productType === "COMBO"
+      ? product.comboComponents.map((c) => ({
+          name: c.component.name,
+          variantName: c.componentVariant?.name ?? null,
+          quantity: c.quantity,
+        }))
+      : [];
+
     return {
       productId: item.productId,
       name: item.name,
@@ -217,6 +234,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       serialId: item.serialId,
       productType: item.productType,
       selectedAddOns: resolvedAddOns,
+      comboComponents: resolvedComboComponents,
     };
   });
 
@@ -419,6 +437,7 @@ async function executeTransactionPlan(
           batchId: item.batchId,
           serialId: item.serialId,
           selectedAddOns: item.selectedAddOns.length > 0 ? item.selectedAddOns : undefined,
+          comboComponents: item.comboComponents.length > 0 ? item.comboComponents : undefined,
         })),
       },
       ...(normalizedPayments.length > 0
@@ -574,6 +593,13 @@ export async function holdBill(params: HoldBillParams) {
       mrp: true,
       variants: { select: { id: true, salePrice: true, purchasePrice: true, mrp: true } },
       addOns: { select: { id: true, name: true, price: true } },
+      comboComponents: {
+        select: {
+          quantity: true,
+          component: { select: { name: true } },
+          componentVariant: { select: { name: true } },
+        },
+      },
     },
   });
   if (ownedProducts.length !== uniqueProductIds.length) {
@@ -626,6 +652,14 @@ export async function holdBill(params: HoldBillParams) {
       throw new TransactionError(`Invalid discount for item ${item.name}`, 400);
     }
 
+    const resolvedComboComponents = item.productType === "COMBO"
+      ? product.comboComponents.map((c) => ({
+          name: c.component.name,
+          variantName: c.componentVariant?.name ?? null,
+          quantity: c.quantity,
+        }))
+      : [];
+
     return {
       productId: item.productId,
       name: item.name,
@@ -641,6 +675,7 @@ export async function holdBill(params: HoldBillParams) {
       batchId: item.batchId,
       serialId: item.serialId,
       selectedAddOns: resolvedAddOns,
+      comboComponents: resolvedComboComponents,
     };
   });
 
@@ -688,6 +723,7 @@ export async function holdBill(params: HoldBillParams) {
           batchId: item.batchId,
           serialId: item.serialId,
           selectedAddOns: item.selectedAddOns.length > 0 ? item.selectedAddOns : undefined,
+          comboComponents: item.comboComponents.length > 0 ? item.comboComponents : undefined,
         })),
       },
     },

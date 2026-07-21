@@ -78,8 +78,12 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
   const AddToCartButton = ({ product, variant }: { product: any; variant?: any }) => {
     const vid = variant?.id;
     const qty = getCartQty(product.id, vid);
-    const stock = variant ? variant.stock : product.stock;
-    const isOutOfStock = stock <= 0 && product.productType !== 'VARIANT' && product.productType !== 'SERVICE';
+    // SERVICE/COMBO never carry a meaningful stock number — see the matching comment in
+    // CartContext.addToCart.
+    const stock = (product.productType === 'SERVICE' || product.productType === 'COMBO')
+      ? Infinity
+      : (variant ? variant.stock : product.stock);
+    const isOutOfStock = stock <= 0 && product.productType !== 'VARIANT' && product.productType !== 'SERVICE' && product.productType !== 'COMBO';
     const shape = isRestaurant ? 'rounded-full' : 'rounded-xl';
 
     if (isOutOfStock) {
@@ -138,7 +142,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
             {item.description && (
               <p className="text-xs text-[var(--muted)] italic mt-1 leading-relaxed line-clamp-2">{item.description}</p>
             )}
-            {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && (
+            {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && (
               <span className="inline-block mt-1.5 text-[9px] font-bold text-red-400 bg-red-950/40 px-1.5 py-0.5 rounded">SOLD OUT</span>
             )}
             {hasVariants && (
@@ -184,7 +188,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
             {item.mrp > item.salePrice && (
               <span className="text-[10px] text-[var(--muted)] line-through">₹{item.mrp.toFixed(0)}</span>
             )}
-            {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && (
+            {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && (
               <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">SOLD OUT</span>
             )}
           </div>

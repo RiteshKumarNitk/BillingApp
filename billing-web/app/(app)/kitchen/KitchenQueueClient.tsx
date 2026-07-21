@@ -12,7 +12,7 @@ interface KitchenTicket {
   orderType: string | null;
   customerName: string;
   notes: string | null;
-  items: { name: string; quantity: number }[];
+  items: { name: string; quantity: number; comboComponents?: { name: string; variantName: string | null; quantity: number }[] }[];
   createdAt: string;
 }
 
@@ -150,7 +150,16 @@ export default function KitchenQueueClient() {
 
                         <ul className="text-xs text-gray-600 space-y-0.5 mb-3">
                           {ticket.items.map((item, idx) => (
-                            <li key={idx}>{item.quantity}× {item.name}</li>
+                            <li key={idx}>
+                              {item.quantity}× {item.name}
+                              {item.comboComponents && item.comboComponents.length > 0 && (
+                                <ul className="pl-3 text-[11px] text-gray-400">
+                                  {item.comboComponents.map((c, cIdx) => (
+                                    <li key={cIdx}>– {c.quantity}× {c.name}{c.variantName ? ` (${c.variantName})` : ''}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
                           ))}
                         </ul>
 

@@ -12,7 +12,7 @@ export interface KitchenTicket {
   orderType: string | null;
   customerName: string;
   notes: string | null;
-  items: { name: string; quantity: number }[];
+  items: { name: string; quantity: number; comboComponents?: { name: string; variantName: string | null; quantity: number }[] }[];
   createdAt: string;
 }
 
@@ -50,7 +50,11 @@ export async function GET(request: NextRequest) {
       orderType: o.orderType,
       customerName: o.customerAccount?.name || o.guestName || "Guest",
       notes: o.notes,
-      items: o.items.map((i) => ({ name: i.name, quantity: i.quantity })),
+      items: o.items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        comboComponents: Array.isArray(i.comboComponents) ? (i.comboComponents as any) : undefined,
+      })),
       createdAt: o.createdAt.toISOString(),
     }));
 
@@ -63,7 +67,11 @@ export async function GET(request: NextRequest) {
       orderType: t.orderType,
       customerName: t.customerName || "Walk-in",
       notes: t.notes,
-      items: t.items.map((i) => ({ name: i.name, quantity: i.quantity })),
+      items: t.items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        comboComponents: Array.isArray(i.comboComponents) ? (i.comboComponents as any) : undefined,
+      })),
       createdAt: t.createdAt.toISOString(),
     }));
 

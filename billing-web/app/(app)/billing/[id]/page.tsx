@@ -165,6 +165,13 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 truncate">{item.name}</div>
                     <div className="text-[10px] text-gray-400">@ ₹{item.salePrice.toFixed(2)}</div>
+                    {Array.isArray(item.comboComponents) && item.comboComponents.length > 0 && (
+                      <div className="text-[10px] text-gray-400 pl-2 mt-0.5">
+                        {item.comboComponents.map((c: any, i: number) => (
+                          <div key={i}>– {c.quantity}× {c.name}{c.variantName ? ` (${c.variantName})` : ''}</div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="w-12 text-center text-gray-900 tabular-nums self-center">{item.quantity}</div>
                   <div className="w-20 text-right font-medium text-gray-900 tabular-nums self-center">₹{item.itemTotal.toFixed(2)}</div>

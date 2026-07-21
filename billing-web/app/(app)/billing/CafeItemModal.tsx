@@ -78,6 +78,21 @@ export default function CafeItemModal({ product, onClose, onConfirm }: CafeItemM
             </div>
           )}
 
+          {product.productType === 'COMBO' && product.comboComponents && product.comboComponents.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">Includes</h3>
+              <div className="space-y-2">
+                {product.comboComponents.map((c: any, idx: number) => (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-gray-200 bg-gray-50">
+                    <span className="text-sm font-medium text-gray-800">
+                      {c.quantity}× {c.component?.name}{c.componentVariant ? ` (${c.componentVariant.name})` : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {product.addOns && product.addOns.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-gray-800 mb-3">Add-ons</h3>

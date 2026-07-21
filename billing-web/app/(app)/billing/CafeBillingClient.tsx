@@ -30,6 +30,9 @@ interface CartLine {
   variantId: string | null;
   variantName: string | null;
   selectedAddOns: { id: string; name: string; price: number }[];
+  // Cafe: what a COMBO line actually contains, for display only — always re-derived server-side
+  // from the catalog at sale time, never trusted from this client payload (see buildItemsPayload).
+  comboComponents: { name: string; variantName: string | null; quantity: number }[];
   unitPrice: number;
   quantity: number;
   productType: string;
@@ -88,7 +91,9 @@ export default function CafeBillingClient() {
 
   const handleProductTap = (product: any) => {
     if (resumingBillId) return; // cart locked while resuming a held bill
-    const hasChoices = (product.variants && product.variants.length > 0) || (product.addOns && product.addOns.length > 0);
+    const hasChoices = (product.variants && product.variants.length > 0)
+      || (product.addOns && product.addOns.length > 0)
+      || (product.productType === 'COMBO' && product.comboComponents && product.comboComponents.length > 0);
     if (hasChoices) {
       setModalProduct(product);
     } else {
@@ -116,6 +121,11 @@ export default function CafeBillingClient() {
         variantId: selection.variantId,
         variantName: selection.variantName,
         selectedAddOns: selection.selectedAddOns,
+        comboComponents: (product.comboComponents || []).map((c: any) => ({
+          name: c.component?.name || '',
+          variantName: c.componentVariant?.name || null,
+          quantity: c.quantity,
+        })),
         unitPrice: selection.unitPrice,
         quantity: selection.quantity,
         productType: product.productType,
@@ -274,6 +284,7 @@ export default function CafeBillingClient() {
       variantId: item.variantId,
       variantName: null,
       selectedAddOns: Array.isArray(item.selectedAddOns) ? item.selectedAddOns : [],
+      comboComponents: Array.isArray(item.comboComponents) ? item.comboComponents : [],
       unitPrice: item.salePrice,
       quantity: item.quantity,
       productType: item.productType,
@@ -433,6 +444,11 @@ export default function CafeBillingClient() {
                         <p className="text-sm font-bold text-gray-900 truncate">{line.name}{line.variantName ? ` (${line.variantName})` : ''}</p>
                         {line.selectedAddOns.length > 0 && (
                           <p className="text-xs text-gray-500 mt-0.5">+ {line.selectedAddOns.map(a => a.name).join(', ')}</p>
+                        )}
+                        {line.comboComponents.length > 0 && (
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Includes: {line.comboComponents.map(c => `${c.quantity}× ${c.name}${c.variantName ? ` (${c.variantName})` : ''}`).join(', ')}
+                          </p>
                         )}
                       </div>
                       {!resumingBillId && (

@@ -60,7 +60,15 @@ export async function POST(request: NextRequest) {
     for (const item of items) {
       const product = await prisma.product.findFirst({
         where: { id: item.productId, tenantId },
-        include: { variants: true }
+        include: {
+          variants: true,
+          comboComponents: {
+            include: {
+              component: { select: { name: true } },
+              componentVariant: { select: { name: true } },
+            },
+          },
+        }
       });
 
       if (!product) continue;
@@ -82,6 +90,17 @@ export async function POST(request: NextRequest) {
       const itemTotal = salePrice * item.quantity;
       totalAmount += itemTotal;
 
+      // Cafe: a COMBO's contents are never customer-selectable — always the catalog's current
+      // combo definition, snapshotted here so a later recipe edit never rewrites a past order
+      // (same reasoning as lib/services/transactions.ts's comboComponents resolution for POS).
+      const comboComponents = product.productType === "COMBO"
+        ? product.comboComponents.map((c) => ({
+            name: c.component.name,
+            variantName: c.componentVariant?.name ?? null,
+            quantity: c.quantity,
+          }))
+        : undefined;
+
       orderItems.push({
         productId: product.id,
         name: itemName,
@@ -89,6 +108,7 @@ export async function POST(request: NextRequest) {
         salePrice,
         quantity: item.quantity,
         itemTotal,
+        ...(comboComponents && comboComponents.length > 0 ? { comboComponents } : {}),
       });
     }
 
