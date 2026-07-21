@@ -17,7 +17,8 @@ import {
   ClipboardList,
   Ruler,
   Globe,
-  QrCode
+  QrCode,
+  ChefHat
 } from 'lucide-react';
 import { getProductsAreaLabel } from '@/lib/productForm/businessTypeConfig';
 
@@ -47,6 +48,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Billing', href: '/billing', icon: Receipt },
       { name: 'Transactions', href: '/transactions', icon: History },
       { name: 'Order Requests', href: '/orders', icon: ClipboardList },
+      ...(tenant?.businessType === 'CAFE' ? [{ name: 'Kitchen Queue', href: '/kitchen', icon: ChefHat }] : []),
       { name: productsAreaLabel, href: '/products', icon: Package },
       { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },

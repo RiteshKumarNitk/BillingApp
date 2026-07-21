@@ -429,6 +429,10 @@ model Transaction {
   // Cafe: table + fulfillment type. Nullable — irrelevant to every other business type.
   tableNumber           String?
   orderType             String?              // DINE_IN | TAKE_AWAY | DELIVERY
+  // Cafe Kitchen Queue: independent of `status` (payment/billing) — a POS sale is already paid
+  // the moment it's created, but the kitchen still needs to prepare it. Null means "never sent to
+  // kitchen" (a non-food sale, or a business type with no kitchen concept). PREPARING | READY | SERVED.
+  kitchenStatus         String?
   tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user                  User                 @relation(fields: [userId], references: [id])
   items                 TransactionItem[]
