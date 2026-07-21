@@ -3,9 +3,29 @@
 import { useState } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
 
+const DAY_LABELS: { key: keyof NonNullable<NonNullable<WebsiteConfig['businessInfo']>['hours']>; label: string }[] = [
+  { key: 'monday', label: 'Monday' },
+  { key: 'tuesday', label: 'Tuesday' },
+  { key: 'wednesday', label: 'Wednesday' },
+  { key: 'thursday', label: 'Thursday' },
+  { key: 'friday', label: 'Friday' },
+  { key: 'saturday', label: 'Saturday' },
+  { key: 'sunday', label: 'Sunday' },
+];
+
+function formatTime(value?: string) {
+  if (!value) return '';
+  const [h, m] = value.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
 export default function ContactContent({ config, tenant }: { config: WebsiteConfig; tenant: any }) {
   const primary = config.appearance?.colors?.primary || '#EAB308';
   const bg = config.appearance?.colors?.background || '#FAF9F5';
+  const structuredHours = config.businessInfo?.hours;
+  const hasStructuredHours = structuredHours && Object.values(structuredHours).some(d => d && (d.closed || d.open || d.close));
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
 
@@ -84,7 +104,24 @@ export default function ContactContent({ config, tenant }: { config: WebsiteConf
             <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Email</h3>
             <p className="opacity-70">{tenant.email || 'N/A'}</p>
           </div>
-          {tenant.businessHours && (
+          {hasStructuredHours ? (
+            <div>
+              <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Business Hours</h3>
+              <dl className="space-y-1.5 text-sm">
+                {DAY_LABELS.map(({ key, label }) => {
+                  const day = structuredHours?.[key];
+                  return (
+                    <div key={key} className="flex justify-between gap-4">
+                      <dt className="opacity-70">{label}</dt>
+                      <dd className="font-medium">
+                        {day?.closed ? 'Closed' : (day?.open && day?.close) ? `${formatTime(day.open)} – ${formatTime(day.close)}` : '—'}
+                      </dd>
+                    </div>
+                  );
+                })}
+              </dl>
+            </div>
+          ) : tenant.businessHours && (
             <div>
               <h3 className="text-xl font-semibold mb-4" style={{ color: primary }}>Business Hours</h3>
               <p className="opacity-70 whitespace-pre-line">{tenant.businessHours}</p>

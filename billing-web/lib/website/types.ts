@@ -54,6 +54,25 @@ export interface MenuGridSection extends SectionBase {
   data: {
     title: string;
     subtitle?: string;
+    // Curated Featured Menu: when true, shows only products the owner flagged Featured in Menu
+    // Management (Product.isFeatured) instead of auto-slicing the full catalog.
+    featuredOnly?: boolean;
+  };
+}
+
+export interface TodaysSpecialSection extends SectionBase {
+  type: 'todays-special';
+  data: {
+    title: string;
+    subtitle?: string;
+  };
+}
+
+export interface GoogleMapSection extends SectionBase {
+  type: 'google-map';
+  data: {
+    title: string;
+    subtitle?: string;
   };
 }
 
@@ -155,7 +174,7 @@ export interface NewsletterSection extends SectionBase {
   };
 }
 
-export type WebsiteSection = HeroSection | FeaturesSection | GallerySection | FooterSection | MenuGridSection | PopularDishesSection | ReservationSection | TestimonialsSection | TeamSection | AppDownloadSection | CategoriesSection | FeaturedProductsSection | PromoBannerSection | NewsletterSection;
+export type WebsiteSection = HeroSection | FeaturesSection | GallerySection | FooterSection | MenuGridSection | PopularDishesSection | ReservationSection | TestimonialsSection | TeamSection | AppDownloadSection | CategoriesSection | FeaturedProductsSection | PromoBannerSection | NewsletterSection | TodaysSpecialSection | GoogleMapSection;
 
 export interface WebsiteConfig {
   theme: string;
@@ -180,6 +199,7 @@ export interface WebsiteConfig {
     ogImageUrl?: string;
     keywords?: string;
     canonicalUrl?: string;
+    faviconUrl?: string;
   };
   businessInfo?: {
     address?: string;
@@ -193,6 +213,16 @@ export interface WebsiteConfig {
       twitter?: string;
       youtube?: string;
       linkedin?: string;
+    };
+    // Structured per-day hours. Optional and additive — Tenant.businessHours (free text) remains
+    // the fallback everywhere this is unset, so tenants who never touch this keep working exactly
+    // as before.
+    hours?: {
+      [day in 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday']?: {
+        closed?: boolean;
+        open?: string;
+        close?: string;
+      };
     };
   };
   sections?: WebsiteSection[];

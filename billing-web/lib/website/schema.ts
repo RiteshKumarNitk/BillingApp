@@ -33,6 +33,23 @@ const seoSchema = z.object({
   ogImageUrl: url,
   keywords: z.string().trim().max(500).optional(),
   canonicalUrl: url,
+  faviconUrl: url,
+}).partial();
+
+const dayHoursSchema = z.object({
+  closed: z.boolean().optional(),
+  open: shortText,
+  close: shortText,
+}).partial();
+
+const hoursSchema = z.object({
+  monday: dayHoursSchema.optional(),
+  tuesday: dayHoursSchema.optional(),
+  wednesday: dayHoursSchema.optional(),
+  thursday: dayHoursSchema.optional(),
+  friday: dayHoursSchema.optional(),
+  saturday: dayHoursSchema.optional(),
+  sunday: dayHoursSchema.optional(),
 }).partial();
 
 const businessInfoSchema = z.object({
@@ -48,6 +65,7 @@ const businessInfoSchema = z.object({
     youtube: url,
     linkedin: url,
   }).partial().optional(),
+  hours: hoursSchema.optional(),
 }).partial();
 
 // Section content shapes vary per section type (hero, features, gallery, ...) and are re-checked

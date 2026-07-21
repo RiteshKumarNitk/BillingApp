@@ -262,6 +262,37 @@ export default function SectionEditor({ section, onUpdate }: { section: WebsiteS
         </>
       );
 
+    case 'menu-grid':
+      return (
+        <>
+          <Field label="Title"><TextInput value={data.title} onChange={(v) => set({ title: v })} /></Field>
+          <Field label="Subtitle"><TextArea value={data.subtitle} onChange={(v) => set({ subtitle: v })} /></Field>
+          <label className="flex items-center gap-2 text-xs font-medium text-gray-700">
+            <input type="checkbox" checked={!!data.featuredOnly} onChange={(e) => set({ featuredOnly: e.target.checked })} className="rounded border-gray-300" />
+            Show Featured items only
+          </label>
+          <p className="text-[10px] text-gray-500">Mark items Featured in Menu Management to curate what shows here — otherwise the full menu is shown.</p>
+        </>
+      );
+
+    case 'todays-special':
+      return (
+        <>
+          <Field label="Title"><TextInput value={data.title} onChange={(v) => set({ title: v })} placeholder="Today's Special" /></Field>
+          <Field label="Subtitle"><TextArea value={data.subtitle} onChange={(v) => set({ subtitle: v })} /></Field>
+          <p className="text-[10px] text-gray-500">Shows items marked Featured in Menu Management. Mark 1-3 items Featured to keep this section punchy.</p>
+        </>
+      );
+
+    case 'google-map':
+      return (
+        <>
+          <Field label="Title"><TextInput value={data.title} onChange={(v) => set({ title: v })} placeholder="Find Us" /></Field>
+          <Field label="Subtitle"><TextArea value={data.subtitle} onChange={(v) => set({ subtitle: v })} /></Field>
+          <p className="text-[10px] text-gray-500">The map uses your business address from Tenant Settings — no extra setup needed.</p>
+        </>
+      );
+
     case 'footer':
       return (
         <>

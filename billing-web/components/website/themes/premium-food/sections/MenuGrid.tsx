@@ -5,8 +5,9 @@ import { MenuGridSection, WebsiteConfig } from '@/lib/website/types';
 import { Star } from 'lucide-react';
 
 export default function MenuGrid({ data, config, tenant }: { data: MenuGridSection['data'], config: WebsiteConfig, tenant: any }) {
-  const products = tenant?.products || [];
-  
+  const allProducts = tenant?.products || [];
+  const products = data.featuredOnly ? allProducts.filter((p: any) => p.isFeatured) : allProducts;
+
   // Extract categories
   const categories: string[] = Array.from(new Set(products.map((p: any) => p.category || 'Special Foods')));
   const displayCategories = categories.slice(0, 6);

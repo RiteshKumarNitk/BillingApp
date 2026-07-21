@@ -13,6 +13,17 @@ import { CartProvider } from '@/components/website/CartContext';
 
 type TabId = 'theme' | 'appearance' | 'sections' | 'about' | 'contact' | 'seo' | 'pages' | 'settings';
 
+// Section types a tenant can add on top of whatever their theme's defaults already include.
+// Not every theme renders every type (matches the existing per-theme section-support pattern);
+// an added type simply won't render on themes whose Layout doesn't have a case for it.
+const ADDABLE_SECTION_TYPES: { type: string; label: string; defaultData: any }[] = [
+  { type: 'todays-special', label: "Today's Special", defaultData: { title: "Today's Special", subtitle: '' } },
+  { type: 'google-map', label: 'Google Map', defaultData: { title: 'Find Us', subtitle: '' } },
+  { type: 'menu-grid', label: 'Menu Grid', defaultData: { title: 'Our Menu', subtitle: '' } },
+  { type: 'gallery', label: 'Gallery', defaultData: { title: 'Gallery', subtitle: '', images: [] } },
+  { type: 'testimonials', label: 'Testimonials', defaultData: { title: 'What People Say', subtitle: '', reviews: [] } },
+];
+
 export default function WebsiteBuilderClient({
   initialConfig, tenantId, tenantWebsiteSlug, tenant, initialAboutInfo,
 }: {
@@ -96,6 +107,20 @@ export default function WebsiteBuilderClient({
       ...config,
       sections: config.sections.map(s => (s.id === sectionId ? { ...s, data } : s)) as any
     });
+  };
+
+  const handleAddSection = (type: string) => {
+    const existingOrders = (config.sections || []).map(s => s.order);
+    const maxOrder = existingOrders.length > 0 ? Math.max(...existingOrders) : 0;
+    const newSection = {
+      id: `${type}-${Date.now()}`,
+      type,
+      isVisible: true,
+      order: maxOrder + 1,
+      data: ADDABLE_SECTION_TYPES.find(t => t.type === type)?.defaultData || { title: '' },
+    };
+    setConfig({ ...config, sections: [...(config.sections || []), newSection] as any });
+    setExpandedSectionId(newSection.id);
   };
 
   const handleSectionMove = (sectionId: string, dir: -1 | 1) => {
@@ -220,7 +245,20 @@ export default function WebsiteBuilderClient({
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Manage Sections</h3>
               <p className="text-sm text-gray-500 mb-4">Toggle visibility and edit the text for your website sections.</p>
-              
+
+              <div className="flex flex-wrap gap-2 mb-2">
+                {ADDABLE_SECTION_TYPES.map(t => (
+                  <button
+                    key={t.type}
+                    type="button"
+                    onClick={() => handleAddSection(t.type)}
+                    className="text-xs font-semibold text-blue-600 border border-dashed border-blue-300 rounded-lg px-2.5 py-1.5 hover:bg-blue-50"
+                  >
+                    + {t.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="space-y-3">
                 {config.sections?.slice().sort((a, b) => a.order - b.order).map((section, idx, sorted) => (
                   <div key={section.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -302,7 +340,51 @@ export default function WebsiteBuilderClient({
           {activeTab === 'contact' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-1">Business Hours</h3>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-1">Opening Hours</h3>
+                <p className="text-xs text-gray-500 mb-3">Set per-day hours below to show structured hours on your site; leave every day blank to fall back to the free-text note underneath.</p>
+                <div className="space-y-1.5">
+                  {([
+                    ['monday', 'Mon'], ['tuesday', 'Tue'], ['wednesday', 'Wed'], ['thursday', 'Thu'],
+                    ['friday', 'Fri'], ['saturday', 'Sat'], ['sunday', 'Sun'],
+                  ] as const).map(([day, label]) => {
+                    const dayHours = config.businessInfo?.hours?.[day] || {};
+                    const setDayHours = (patch: Partial<typeof dayHours>) => setConfig({
+                      ...config,
+                      businessInfo: {
+                        ...config.businessInfo,
+                        hours: { ...config.businessInfo?.hours, [day]: { ...dayHours, ...patch } },
+                      },
+                    });
+                    return (
+                      <div key={day} className="flex items-center gap-2">
+                        <span className="w-9 text-xs font-medium text-gray-600 flex-shrink-0">{label}</span>
+                        <label className="flex items-center gap-1 text-[10px] text-gray-500 flex-shrink-0">
+                          <input type="checkbox" checked={!!dayHours.closed} onChange={(e) => setDayHours({ closed: e.target.checked })} className="rounded border-gray-300" />
+                          Closed
+                        </label>
+                        <input
+                          type="time"
+                          disabled={!!dayHours.closed}
+                          value={dayHours.open || ''}
+                          onChange={(e) => setDayHours({ open: e.target.value })}
+                          className="flex-1 text-xs border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                        />
+                        <span className="text-gray-400 text-xs">–</span>
+                        <input
+                          type="time"
+                          disabled={!!dayHours.closed}
+                          value={dayHours.close || ''}
+                          onChange={(e) => setDayHours({ close: e.target.value })}
+                          className="flex-1 text-xs border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-1">Hours Note (fallback)</h3>
                 <textarea
                   value={aboutInfo.businessHours || ''}
                   onChange={(e) => setAboutInfo({ ...aboutInfo, businessHours: e.target.value })}
@@ -422,6 +504,13 @@ export default function WebsiteBuilderClient({
                 defaultImage={config.seo?.ogImageUrl}
                 onUploadSuccess={(url) => setConfig({ ...config, seo: { ...config.seo, ogImageUrl: url } })}
               />
+
+              <ImageUpload
+                label="Favicon"
+                defaultImage={config.seo?.faviconUrl}
+                onUploadSuccess={(url) => setConfig({ ...config, seo: { ...config.seo, faviconUrl: url } })}
+              />
+              <p className="text-[10px] text-gray-500 -mt-4">Shown as the browser tab icon. A square image (e.g. 512x512 PNG) works best.</p>
 
               <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
                 <h4 className="text-sm font-medium text-gray-900 mb-1">Sitemap & Robots</h4>

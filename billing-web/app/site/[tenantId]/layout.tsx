@@ -1,6 +1,16 @@
 import { CartProvider } from '@/components/website/CartContext';
 import { CartDrawer, AuthModal, OrderSuccessToast } from '@/components/website/CartComponents';
 import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
+import type { Metadata } from 'next';
+
+// Set once here (rather than duplicated in every page's own generateMetadata) since it's the same
+// value across the whole site and Next.js merges layout-level metadata into every child page's.
+export async function generateMetadata({ params }: { params: Promise<{ tenantId: string }> }): Promise<Metadata> {
+  const { tenantId } = await params;
+  const tenant = await resolveTenant(tenantId);
+  const faviconUrl = tenant ? getWebsiteConfig(tenant).seo?.faviconUrl : undefined;
+  return faviconUrl ? { icons: { icon: faviconUrl } } : {};
+}
 
 export default async function SiteLayout({
   children,

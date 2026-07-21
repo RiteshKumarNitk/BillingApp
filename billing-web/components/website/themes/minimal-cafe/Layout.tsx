@@ -1,10 +1,12 @@
 import React from 'react';
-import { WebsiteConfig, WebsiteSection, HeroSection, MenuGridSection, GallerySection, FooterSection } from '@/lib/website/types';
+import { WebsiteConfig, WebsiteSection, HeroSection, MenuGridSection, GallerySection, FooterSection, TodaysSpecialSection, GoogleMapSection } from '@/lib/website/types';
 import Hero from './sections/Hero';
 import MenuGrid from './sections/MenuGrid';
 import Gallery from './sections/Gallery';
 import Footer from './sections/Footer';
 import Navbar from './sections/Navbar';
+import TodaysSpecial from './sections/TodaysSpecial';
+import GoogleMap from './sections/GoogleMap';
 
 interface LayoutProps {
   config: WebsiteConfig;
@@ -23,6 +25,10 @@ export default function MinimalCafeLayout({ config, tenant, children }: LayoutPr
         return <Hero key={section.id} data={(section as HeroSection).data} config={config} />;
       case 'menu-grid':
         return <MenuGrid key={section.id} data={(section as MenuGridSection).data} config={config} tenant={tenant} />;
+      case 'todays-special':
+        return <TodaysSpecial key={section.id} data={(section as TodaysSpecialSection).data} config={config} tenant={tenant} />;
+      case 'google-map':
+        return <GoogleMap key={section.id} data={(section as GoogleMapSection).data} config={config} tenant={tenant} />;
       case 'gallery':
         return <Gallery key={section.id} data={(section as GallerySection).data} config={config} />;
       case 'footer':

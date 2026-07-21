@@ -1,11 +1,13 @@
 import React from 'react';
-import { WebsiteConfig, WebsiteSection, HeroSection, MenuGridSection, TestimonialsSection, GallerySection, FooterSection } from '@/lib/website/types';
+import { WebsiteConfig, WebsiteSection, HeroSection, MenuGridSection, TestimonialsSection, GallerySection, FooterSection, TodaysSpecialSection, GoogleMapSection } from '@/lib/website/types';
 import Hero from './sections/Hero';
 import MenuGrid from './sections/MenuGrid';
 import Testimonials from './sections/Testimonials';
 import Gallery from './sections/Gallery';
 import Footer from './sections/Footer';
 import Navbar from './sections/Navbar';
+import TodaysSpecial from './sections/TodaysSpecial';
+import GoogleMap from './sections/GoogleMap';
 
 interface LayoutProps {
   config: WebsiteConfig;
@@ -24,6 +26,10 @@ export default function ModernCoffeeLayout({ config, tenant, children }: LayoutP
         return <Hero key={section.id} data={(section as HeroSection).data} config={config} />;
       case 'menu-grid':
         return <MenuGrid key={section.id} data={(section as MenuGridSection).data} config={config} tenant={tenant} />;
+      case 'todays-special':
+        return <TodaysSpecial key={section.id} data={(section as TodaysSpecialSection).data} config={config} tenant={tenant} />;
+      case 'google-map':
+        return <GoogleMap key={section.id} data={(section as GoogleMapSection).data} config={config} tenant={tenant} />;
       case 'testimonials':
         return <Testimonials key={section.id} data={(section as TestimonialsSection).data} config={config} />;
       case 'gallery':
