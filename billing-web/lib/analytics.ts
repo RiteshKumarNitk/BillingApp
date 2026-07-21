@@ -181,7 +181,7 @@ export async function getSalesChartData(tenantId: string, days: number) {
   }));
 }
 
-export async function getCategoryChartData(tenantId: string) {
+export async function getCategoryChartData(tenantId: string, limit = 5) {
   const rawCategoryData = await prisma.$queryRaw<any[]>`
     SELECT p."category", SUM(ti."itemTotal") as total
     FROM "TransactionItem" ti
@@ -190,7 +190,7 @@ export async function getCategoryChartData(tenantId: string) {
     WHERE p."category" IS NOT NULL AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
     GROUP BY p."category"
     ORDER BY total DESC
-    LIMIT 5
+    LIMIT ${limit}
   `;
   return rawCategoryData.map((item) => ({
     name: item.category || "Uncategorized",
@@ -282,4 +282,96 @@ export async function getOverviewCounts(tenantId: string) {
     prisma.product.count({ where: { stock: { lte: 10 }, tenantId } }),
   ]);
   return { totalProducts, lowStockProducts };
+}
+
+// Revenue + order count by hour-of-day (0-23), last 30 days. Every hour is present in the
+// result (zero-filled) so the chart's x-axis doesn't skip hours with no sales.
+export async function getPeakHoursData(tenantId: string) {
+  const startDate = subDays(new Date(), 30);
+  const raw = await prisma.$queryRaw<any[]>`
+    SELECT EXTRACT(HOUR FROM "createdAt") as hour, SUM("netAmount") as total, COUNT(*) as count
+    FROM "Transaction"
+    WHERE "tenantId" = ${tenantId} AND "status" != 'HELD' AND "createdAt" >= ${startDate}
+    GROUP BY EXTRACT(HOUR FROM "createdAt")
+  `;
+  const byHour = new Map(raw.map((r) => [Number(r.hour), { total: Number(r.total), count: Number(r.count) }]));
+  return Array.from({ length: 24 }, (_, hour) => ({
+    hour,
+    label: format(new Date(2000, 0, 1, hour), "ha"),
+    total: byHour.get(hour)?.total || 0,
+    count: byHour.get(hour)?.count || 0,
+  }));
+}
+
+export async function getPaymentSummary(tenantId: string) {
+  const startDate = subDays(new Date(), 30);
+  const raw = await prisma.$queryRaw<any[]>`
+    SELECT tp."method", SUM(tp."amount") as total, COUNT(*) as count
+    FROM "TransactionPayment" tp
+    JOIN "Transaction" t ON tp."transactionId" = t."id"
+    WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${startDate}
+    GROUP BY tp."method"
+    ORDER BY total DESC
+  `;
+  return raw.map((r) => ({ method: r.method, total: Number(r.total), count: Number(r.count) }));
+}
+
+// GST/tax collected — mirrors getPeriodTotals' week/month/year window pattern but for taxAmount.
+export async function getGstSummary(tenantId: string) {
+  const now = new Date();
+  const weekStart = subDays(now, 7);
+  const monthStart = startOfMonth(now);
+  const yearStart = startOfYear(now);
+
+  const [weekResult, monthResult, yearResult, taxableCount, totalCount] = await Promise.all([
+    prisma.transaction.aggregate({ _sum: { taxAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: weekStart } } }),
+    prisma.transaction.aggregate({ _sum: { taxAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: monthStart } } }),
+    prisma.transaction.aggregate({ _sum: { taxAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: yearStart } } }),
+    prisma.transaction.count({ where: { tenantId, status: NOT_HELD, taxAmount: { gt: 0 } } }),
+    prisma.transaction.count({ where: { tenantId, status: NOT_HELD } }),
+  ]);
+
+  return {
+    weekTax: weekResult._sum.taxAmount || 0,
+    monthTax: monthResult._sum.taxAmount || 0,
+    yearTax: yearResult._sum.taxAmount || 0,
+    taxableCount,
+    totalCount,
+  };
+}
+
+// Shaped to match RevenueChart's expected {date, revenue} points so the GST trend can reuse
+// the same line-chart component as the dashboard's Profit Trend.
+export async function getGstTrendData(tenantId: string, days: number) {
+  const startDate = subDays(new Date(), days);
+  const raw = await prisma.$queryRaw<any[]>`
+    SELECT DATE("createdAt") as date, SUM("taxAmount") as tax
+    FROM "Transaction"
+    WHERE "createdAt" >= ${startDate} AND "tenantId" = ${tenantId} AND "status" != 'HELD'
+    GROUP BY DATE("createdAt")
+    ORDER BY DATE("createdAt")
+  `;
+  return raw.map((item) => ({
+    date: format(new Date(item.date), "MM/dd"),
+    revenue: Number(item.tax),
+  }));
+}
+
+export async function getTopCustomers(tenantId: string, take = 10) {
+  const raw = await prisma.$queryRaw<any[]>`
+    SELECT c."id", c."name", c."phone", COUNT(t."id") as orders, SUM(t."netAmount") as spend
+    FROM "Transaction" t
+    JOIN "Customer" c ON t."customerId" = c."id"
+    WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD'
+    GROUP BY c."id", c."name", c."phone"
+    ORDER BY spend DESC
+    LIMIT ${take}
+  `;
+  return raw.map((r) => ({
+    id: r.id,
+    name: r.name,
+    phone: r.phone,
+    orders: Number(r.orders),
+    spend: Number(r.spend),
+  }));
 }

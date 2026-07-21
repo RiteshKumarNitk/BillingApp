@@ -18,7 +18,8 @@ import {
   Ruler,
   Globe,
   QrCode,
-  ChefHat
+  ChefHat,
+  BarChart3
 } from 'lucide-react';
 import { getProductsAreaLabel } from '@/lib/productForm/businessTypeConfig';
 
@@ -29,6 +30,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
   const productsAreaLabel = getProductsAreaLabel(tenant?.businessType);
 
   const hasManageUsers = user?.permissions?.includes('MANAGE_USERS');
+  const hasViewReports = user?.permissions?.includes('VIEW_REPORTS');
 
   let navLinks: { name: string, href: string, icon: any }[] = [];
 
@@ -60,6 +62,10 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       if (tenant?.businessType === 'CAFE') {
         navLinks.push({ name: 'Tables & QR', href: '/tables', icon: QrCode });
       }
+    }
+
+    if (hasViewReports) {
+      navLinks.push({ name: 'Reports', href: '/reports', icon: BarChart3 });
     }
 
     if (hasManageUsers) {
