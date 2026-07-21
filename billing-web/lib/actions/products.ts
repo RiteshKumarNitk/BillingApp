@@ -356,9 +356,19 @@ export async function deleteProduct(productId: string) {
 
   const tenantId = session.user.tenantId;
 
-  await prisma.product.delete({
-    where: { id: productId, tenantId }
-  });
+  try {
+    await prisma.product.delete({
+      where: { id: productId, tenantId }
+    });
+  } catch (error: any) {
+    // TransactionItem.productId has no cascade — a product that's already been sold can't be
+    // hard-deleted without rewriting sales history, so surface that as a clear message instead
+    // of a raw FK-violation error.
+    if (error?.code === 'P2003') {
+      throw new Error("Can't delete: this product has existing sales or order history. Mark it unavailable instead.");
+    }
+    throw error;
+  }
 
   revalidatePath('/products');
 }

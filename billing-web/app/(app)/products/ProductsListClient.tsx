@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
-import { getFilteredProducts, getProductCategories } from '@/lib/actions/products';
-import { Package, Search, ChevronLeft, ChevronRight, X, Barcode } from 'lucide-react';
+import { getFilteredProducts, getProductCategories, deleteProduct } from '@/lib/actions/products';
+import { Package, Search, ChevronLeft, ChevronRight, X, Barcode, Trash2, AlertCircle } from 'lucide-react';
 import { getProductsAreaLabel, getProductNoun, showAvailabilityToggle } from '@/lib/productForm/businessTypeConfig';
 
 const ITEMS_PER_PAGE = 20;
@@ -17,6 +17,8 @@ export default function ProductsListClient({ businessType }: { businessType: str
   const [categories, setCategories] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const areaLabel = getProductsAreaLabel(businessType);
   const productNoun = getProductNoun(businessType);
@@ -56,6 +58,20 @@ export default function ProductsListClient({ businessType }: { businessType: str
   }, [fetchProducts]);
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+
+  const handleDelete = async (productId: string, productName: string) => {
+    if (!window.confirm(`Delete "${productName}"? This can't be undone.`)) return;
+    setDeleteError(null);
+    setDeletingId(productId);
+    try {
+      await deleteProduct(productId);
+      await fetchProducts();
+    } catch (error: any) {
+      setDeleteError(error?.message || `Failed to delete ${productNoun.toLowerCase()}.`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div>
@@ -115,6 +131,16 @@ export default function ProductsListClient({ businessType }: { businessType: str
           )}
         </div>
       </div>
+
+      {deleteError && (
+        <div className="mb-6 flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <p className="flex-1">{deleteError}</p>
+          <button onClick={() => setDeleteError(null)} className="text-red-400 hover:text-red-600">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-4">
@@ -202,8 +228,16 @@ export default function ProductsListClient({ businessType }: { businessType: str
                       )}
                     </div>
                   </div>
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 flex items-center gap-3">
                     <Link href={`/products/${product.id}`} className="text-sm text-indigo-600 hover:text-indigo-500 font-medium">View →</Link>
+                    <button
+                      onClick={() => handleDelete(product.id, product.name)}
+                      disabled={deletingId === product.id}
+                      title={`Delete ${productNoun.toLowerCase()}`}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
