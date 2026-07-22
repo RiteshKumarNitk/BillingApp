@@ -11,6 +11,15 @@ export async function middleware(request: NextRequest) {
   
   const { pathname } = request.nextUrl;
 
+  // Public CafeOS marketing site pages — none of these need a staff/tenant login. Listed
+  // explicitly (not a broad prefix) so a future page under app/(app)/ can never accidentally end
+  // up public just by sharing a path prefix with one of these.
+  const MARKETING_PAGES = [
+    '/', '/features', '/pricing', '/website-themes', '/qr-ordering', '/pos',
+    '/kitchen-display', '/online-ordering', '/about', '/contact', '/faq',
+    '/privacy', '/terms', '/cookie-policy',
+  ];
+
   // Allow access to auth routes, API routes, customer routes, public tenant websites, and public
   // assets without admin auth. /site is the public tenant website (anonymous shoppers/visitors —
   // must never require a staff login); /s is its QR-code short link; /menu is kept for old
@@ -19,6 +28,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/mobile') ||
     pathname.startsWith('/api/customer') ||
+    pathname.startsWith('/api/marketing') ||
     pathname.startsWith('/api/website/lead') ||
     pathname.startsWith('/api/website/visit') ||
     pathname.startsWith('/api/website/table') ||
@@ -28,7 +38,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/site') ||
     pathname.startsWith('/s/') ||
     pathname.startsWith('/customer') ||
-    pathname === '/' ||
+    MARKETING_PAGES.includes(pathname) ||
     pathname.startsWith('/favicon.ico')
   ) {
     return NextResponse.next();

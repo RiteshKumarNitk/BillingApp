@@ -14,15 +14,15 @@ import {
 const metrics = [
   {
     label: "Total Revenue",
-    value: "₹12,48,560",
+    value: "₹4,86,240",
     change: "+18.2%",
     trend: "up",
     icon: DollarSign,
     color: "from-emerald-500 to-teal-500",
   },
   {
-    label: "Products Sold",
-    value: "8,240",
+    label: "Orders Served",
+    value: "3,120",
     change: "+12.5%",
     trend: "up",
     icon: Package,
@@ -30,15 +30,15 @@ const metrics = [
   },
   {
     label: "New Customers",
-    value: "1,240",
+    value: "480",
     change: "+24.1%",
     trend: "up",
     icon: Users,
     color: "from-violet-500 to-purple-500",
   },
   {
-    label: "Profit Margin",
-    value: "32.4%",
+    label: "Avg. Order Value",
+    value: "₹312",
     change: "+3.8%",
     trend: "up",
     icon: TrendingUp,
@@ -62,11 +62,11 @@ const chartData = [
 ];
 
 const topProducts = [
-  { name: "iPhone 15 Pro Max", sold: 245, revenue: "₹2.4L" },
-  { name: "Samsung Galaxy S24", sold: 198, revenue: "₹1.6L" },
-  { name: "MacBook Air M3", sold: 87, revenue: "₹1.1L" },
-  { name: "Sony WH-1000XM5", sold: 156, revenue: "₹52K" },
-  { name: "iPad Pro 12.9", sold: 112, revenue: "₹98K" },
+  { name: "Cappuccino", sold: 845, revenue: "₹1.1L" },
+  { name: "Cold Coffee", sold: 612, revenue: "₹85K" },
+  { name: "Veg Sandwich Combo", sold: 398, revenue: "₹79K" },
+  { name: "Chocolate Brownie", sold: 356, revenue: "₹53K" },
+  { name: "Masala Chai", sold: 720, revenue: "₹43K" },
 ];
 
 export default function DashboardShowcase() {
@@ -93,7 +93,7 @@ export default function DashboardShowcase() {
             transition={{ delay: 0.1 }}
             className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl"
           >
-            Your business at a glance
+            Your cafe at a glance
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -123,7 +123,7 @@ export default function DashboardShowcase() {
               <div className="h-3 w-3 rounded-full bg-red-400" />
               <div className="h-3 w-3 rounded-full bg-yellow-400" />
               <div className="h-3 w-3 rounded-full bg-green-400" />
-              <div className="ml-4 text-xs font-medium text-gray-400">Revenue Analytics — BillingApp</div>
+              <div className="ml-4 text-xs font-medium text-gray-400">Revenue Analytics — CafeOS</div>
             </div>
 
             <div className="p-6 sm:p-8">
@@ -198,7 +198,7 @@ export default function DashboardShowcase() {
 
                 {/* Top products */}
                 <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                  <h3 className="mb-4 text-sm font-semibold text-gray-900">Top Products</h3>
+                  <h3 className="mb-4 text-sm font-semibold text-gray-900">Top Menu Items</h3>
                   <div className="space-y-3">
                     {topProducts.map((product, i) => (
                       <motion.div

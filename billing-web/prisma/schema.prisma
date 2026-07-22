@@ -660,3 +660,18 @@ model ContactLead {
 
   @@index([tenantId, createdAt])
 }
+
+// A lead submitted through the CafeOS marketing site's own /contact form — deliberately separate
+// from ContactLead above, which belongs to an individual tenant's cafe storefront (built via the
+// Website Builder), not the SaaS's own site. No tenantId here on purpose: this is platform-level.
+model MarketingLead {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  company   String?
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Zap, PartyPopper } from "lucide-react";
 
 const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Solutions", href: "#industries" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Contact", href: "#contact" },
+  { label: "Features", href: "/features" },
+  { label: "Solutions", href: "/#perfect-for" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -49,7 +49,7 @@ export default function Navbar() {
             <Zap className="h-5 w-5 text-white" fill="white" />
           </div>
           <span className="text-xl font-bold text-gray-900">
-            Billing<span className="text-indigo-600">App</span>
+Cafe<span className="text-indigo-600">OS</span>
           </span>
         </Link>
 

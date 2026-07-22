@@ -34,7 +34,7 @@ export default function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
             </span>
-            Trusted by 500+ businesses across India
+            The all-in-one platform for modern cafes
           </motion.div>
 
           {/* Headline */}
@@ -44,10 +44,10 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            The Modern Way to
+            Run Your Entire Cafe
             <br />
             <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
-              Bill, Manage & Grow
+              From One Platform
             </span>
           </motion.h1>
 
@@ -58,7 +58,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-500 sm:text-xl"
           >
-            All-in-one cloud platform for POS billing, inventory management, GST invoicing, customer analytics, and multi-store operations. Built for modern businesses.
+            Website, QR table ordering, kitchen queue, and POS billing with GST built in — everything a cafe needs, in one place.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -129,7 +129,7 @@ export default function Hero() {
               <div className="h-3 w-3 rounded-full bg-yellow-400" />
               <div className="h-3 w-3 rounded-full bg-green-400" />
               <div className="ml-4 flex-1 text-center text-xs font-medium text-gray-400">
-                BillingApp Dashboard
+                CafeOS Dashboard
               </div>
             </div>
 
@@ -138,10 +138,10 @@ export default function Hero() {
               {/* Top stats row */}
               <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                 {[
-                  { label: "Today's Revenue", value: "₹24,580", change: "+12.5%", icon: Receipt, color: "from-emerald-500 to-teal-500" },
-                  { label: "Products", value: "1,248", change: "+3.2%", icon: Package, color: "from-blue-500 to-indigo-500" },
-                  { label: "Orders", value: "86", change: "+8.1%", icon: ShoppingCart, color: "from-violet-500 to-purple-500" },
-                  { label: "Customers", value: "3,420", change: "+5.4%", icon: BarChart3, color: "from-orange-500 to-amber-500" },
+                  { label: "Today's Revenue", value: "₹18,240", change: "+12.5%", icon: Receipt, color: "from-emerald-500 to-teal-500" },
+                  { label: "Menu Items", value: "42", change: "+3.2%", icon: Package, color: "from-blue-500 to-indigo-500" },
+                  { label: "Orders", value: "126", change: "+8.1%", icon: ShoppingCart, color: "from-violet-500 to-purple-500" },
+                  { label: "Customers", value: "890", change: "+5.4%", icon: BarChart3, color: "from-orange-500 to-amber-500" },
                 ].map((stat, i) => (
                   <motion.div
                     key={stat.label}
@@ -212,17 +212,17 @@ export default function Hero() {
           >
             <div className="flex items-center gap-1.5 border-b border-gray-100 px-4 py-2">
               <div className="h-2 w-2 rounded-full bg-gray-300" />
-              <span className="text-[10px] font-medium text-gray-400">Mobile App</span>
+              <span className="text-[10px] font-medium text-gray-400">Digital Menu</span>
             </div>
             <div className="space-y-3 p-4">
-              {["Paracetamol 500mg", "Amoxicillin 250mg", "Vitamin C 1000mg"].map((item, i) => (
+              {["Cappuccino", "Cold Coffee", "Veg Sandwich"].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-100 to-violet-100" />
                   <div className="flex-1">
                     <div className="text-[10px] font-medium text-gray-800">{item}</div>
-                    <div className="text-[9px] text-gray-400">In Stock</div>
+                    <div className="text-[9px] text-gray-400">Available</div>
                   </div>
-                  <div className="text-[10px] font-bold text-indigo-600">₹{(i + 1) * 25}</div>
+                  <div className="text-[10px] font-bold text-indigo-600">₹{60 + i * 25}</div>
                 </div>
               ))}
             </div>
@@ -239,20 +239,20 @@ export default function Hero() {
             <div className="space-y-1.5">
               <div className="flex justify-between text-[10px]">
                 <span className="text-gray-500">Items</span>
-                <span className="font-medium text-gray-800">12</span>
+                <span className="font-medium text-gray-800">3</span>
               </div>
               <div className="flex justify-between text-[10px]">
                 <span className="text-gray-500">Subtotal</span>
-                <span className="font-medium text-gray-800">₹4,580</span>
+                <span className="font-medium text-gray-800">₹205</span>
               </div>
               <div className="flex justify-between text-[10px]">
-                <span className="text-gray-500">GST (18%)</span>
-                <span className="font-medium text-gray-800">₹824</span>
+                <span className="text-gray-500">GST (5%)</span>
+                <span className="font-medium text-gray-800">₹10</span>
               </div>
               <div className="border-t border-dashed border-gray-200 pt-1.5">
                 <div className="flex justify-between text-xs">
                   <span className="font-bold text-gray-900">Total</span>
-                  <span className="font-bold text-indigo-600">₹5,404</span>
+                  <span className="font-bold text-indigo-600">₹215</span>
                 </div>
               </div>
             </div>

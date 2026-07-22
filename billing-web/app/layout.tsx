@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import NextTopLoader from 'nextjs-toploader';
+import { SITE_URL } from "@/lib/marketing/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,6 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Billing App",
   description: "Tenant-based billing and inventory management system",
 };

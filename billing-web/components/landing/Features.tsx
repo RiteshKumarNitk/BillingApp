@@ -2,77 +2,70 @@
 
 import { motion } from "framer-motion";
 import {
+  Globe,
+  QrCode,
   Receipt,
-  Package,
-  Users,
+  ChefHat,
   BarChart3,
-  Smartphone,
-  Store,
-  ScanBarcode,
+  Palette,
+  Users,
   Shield,
 } from "lucide-react";
 
 const features = [
   {
-    icon: Receipt,
-    title: "POS Billing",
-    description: "Lightning-fast point-of-sale with GST invoice generation, multiple payment modes, and automatic tax calculations.",
-    gradient: "from-emerald-500 to-teal-500",
-    bg: "from-emerald-50 to-teal-50",
-  },
-  {
-    icon: Package,
-    title: "Inventory Management",
-    description: "Real-time stock tracking with batch management, expiry alerts, multi-location support, and automated reorder notifications.",
-    gradient: "from-blue-500 to-indigo-500",
-    bg: "from-blue-50 to-indigo-50",
-  },
-  {
-    icon: Users,
-    title: "Customer Management",
-    description: "Complete CRM with loyalty programs, purchase history, credit management, and automated communication workflows.",
-    gradient: "from-violet-500 to-purple-500",
-    bg: "from-violet-50 to-purple-50",
-  },
-  {
-    icon: BarChart3,
-    title: "Sales Analytics",
-    description: "Powerful dashboards with revenue insights, product performance, employee metrics, and customizable report generation.",
-    gradient: "from-orange-500 to-amber-500",
-    bg: "from-orange-50 to-amber-50",
-  },
-  {
-    icon: ScanBarcode,
-    title: "Barcode & QR Billing",
-    description: "Scan-and-bill with barcode/QR code support for products. Generate labels, manage product variants, and speed up checkout.",
-    gradient: "from-pink-500 to-rose-500",
-    bg: "from-pink-50 to-rose-50",
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile App",
-    description: "Full-featured mobile POS for Android and iOS. Manage your business on the go with offline billing support.",
-    gradient: "from-cyan-500 to-sky-500",
-    bg: "from-cyan-50 to-sky-50",
-  },
-  {
-    icon: Store,
-    title: "Multi-Store Support",
-    description: "Manage multiple stores from a single dashboard. Centralized inventory, store-specific analytics, and inter-store transfers.",
+    icon: Globe,
+    title: "Professional Website",
+    description: "A branded, mobile-friendly website for your cafe — live in minutes, no coding required.",
     gradient: "from-indigo-500 to-blue-500",
     bg: "from-indigo-50 to-blue-50",
   },
   {
+    icon: QrCode,
+    title: "QR Table Ordering",
+    description: "Customers scan, browse your digital menu, and order straight from their table — no app install needed.",
+    gradient: "from-emerald-500 to-teal-500",
+    bg: "from-emerald-50 to-teal-50",
+  },
+  {
+    icon: ChefHat,
+    title: "Kitchen Queue",
+    description: "Every order — table or counter — lands on one live kitchen screen with Preparing/Ready status tracking.",
+    gradient: "from-orange-500 to-amber-500",
+    bg: "from-orange-50 to-amber-50",
+  },
+  {
+    icon: Receipt,
+    title: "POS Billing",
+    description: "A fast touch POS built for cafes — sizes, add-ons, and combos, with GST calculated automatically.",
+    gradient: "from-pink-500 to-rose-500",
+    bg: "from-pink-50 to-rose-50",
+  },
+  {
+    icon: BarChart3,
+    title: "Reports & Analytics",
+    description: "Peak hours, payment mix, and GST summaries so you know exactly how your cafe is performing.",
+    gradient: "from-violet-500 to-purple-500",
+    bg: "from-violet-50 to-purple-50",
+  },
+  {
+    icon: Palette,
+    title: "Multiple Website Themes",
+    description: "Pick from cafe-styled themes and customize colors, fonts, and sections to match your brand.",
+    gradient: "from-cyan-500 to-sky-500",
+    bg: "from-cyan-50 to-sky-50",
+  },
+  {
     icon: Users,
-    title: "Employee Management",
-    description: "Manage staff roles, shifts, attendance, and performance. Assign permissions and track employee activity in real-time.",
+    title: "Customer Database",
+    description: "Every guest and order builds a searchable customer history — no separate CRM needed.",
     gradient: "from-rose-500 to-pink-500",
     bg: "from-rose-50 to-pink-50",
   },
   {
     icon: Shield,
-    title: "Role-Based Access",
-    description: "Granular permission controls for owners, managers, and staff. Secure data with enterprise-grade encryption.",
+    title: "Staff & Role Management",
+    description: "Give owners, managers, and cashiers exactly the access they need, nothing more.",
     gradient: "from-slate-600 to-slate-800",
     bg: "from-slate-50 to-gray-100",
   },
@@ -112,10 +105,10 @@ export default function Features() {
             transition={{ delay: 0.1 }}
             className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl"
           >
-            Everything you need to
+            Everything your cafe
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-              run your business
+              needs, in one place
             </span>
           </motion.h2>
           <motion.p
@@ -125,7 +118,7 @@ export default function Features() {
             transition={{ delay: 0.2 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-gray-500"
           >
-            From billing to inventory to analytics — one platform to manage it all. Built for businesses that move fast.
+            From your website to the kitchen to the till — one platform, so you never need to juggle multiple tools again.
           </motion.p>
         </div>
 

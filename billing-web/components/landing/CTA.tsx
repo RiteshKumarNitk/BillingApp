@@ -6,7 +6,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function CTA() {
   return (
-    <section id="contact" className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 py-24">
+    <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 py-24">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
@@ -42,9 +42,9 @@ export default function CTA() {
           transition={{ delay: 0.1 }}
           className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl"
         >
-          Ready to transform
+          Ready to run
           <br />
-          your business?
+          your whole cafe from here?
         </motion.h2>
 
         <motion.p
@@ -54,7 +54,7 @@ export default function CTA() {
           transition={{ delay: 0.2 }}
           className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-indigo-100"
         >
-          Join 500+ businesses already using BillingApp to streamline their billing, inventory, and operations. Start your free trial today.
+          Website, QR ordering, kitchen queue, and POS — set up your cafe on CafeOS and start your free trial today.
         </motion.p>
 
         <motion.div
@@ -71,12 +71,12 @@ export default function CTA() {
             Start Free Trial
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
-          <a
-            href="#pricing"
+          <Link
+            href="/pricing"
             className="flex items-center gap-2 rounded-2xl border border-white/30 px-8 py-4 text-base font-semibold text-white transition-all hover:border-white/50 hover:bg-white/10"
           >
             View Pricing
-          </a>
+          </Link>
         </motion.div>
 
         <motion.p
@@ -86,7 +86,7 @@ export default function CTA() {
           transition={{ delay: 0.5 }}
           className="mt-8 text-sm text-indigo-200"
         >
-          No credit card required · 14-day free trial · Cancel anytime
+          No credit card required · 90-day free trial · Cancel anytime
         </motion.p>
       </div>
     </section>

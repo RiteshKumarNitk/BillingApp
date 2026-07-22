@@ -1,28 +1,24 @@
-import type { Metadata } from "next";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import WhyChoose from "@/components/landing/WhyChoose";
+import FeatureFlow from "@/components/landing/FeatureFlow";
 import DashboardShowcase from "@/components/landing/DashboardShowcase";
 import Industries from "@/components/landing/Industries";
+import HowItWorks from "@/components/landing/HowItWorks";
+import Benefits from "@/components/landing/Benefits";
 import Testimonials from "@/components/landing/Testimonials";
-import Pricing from "@/components/landing/Pricing";
+import PricingPreview from "@/components/landing/PricingPreview";
 import FAQ from "@/components/landing/FAQ";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
+import { buildMetadata } from "@/lib/marketing/seo";
 
-export const metadata: Metadata = {
-  title: "BillingApp — Modern POS, Inventory & Billing Platform",
+export const metadata = buildMetadata({
+  title: "CafeOS — The Complete Cafe Management Platform",
   description:
-    "All-in-one cloud platform for POS billing, inventory management, GST invoicing, customer analytics, and multi-store operations. Trusted by 500+ businesses across India.",
-  openGraph: {
-    title: "BillingApp — Modern POS, Inventory & Billing Platform",
-    description:
-      "All-in-one cloud platform for POS billing, inventory management, GST invoicing, customer analytics, and multi-store operations.",
-    type: "website",
-    siteName: "BillingApp",
-  },
-};
+    "Website, QR table ordering, kitchen queue, and POS billing with GST built in — everything your cafe needs, in one place. 90-day free trial, no credit card required.",
+});
 
 export default function Home() {
   return (
@@ -31,10 +27,13 @@ export default function Home() {
       <Hero />
       <Features />
       <WhyChoose />
+      <FeatureFlow />
       <DashboardShowcase />
       <Industries />
+      <HowItWorks />
+      <Benefits />
       <Testimonials />
-      <Pricing />
+      <PricingPreview />
       <FAQ />
       <CTA />
       <Footer />

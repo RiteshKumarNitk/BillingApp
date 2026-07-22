@@ -8,42 +8,42 @@ const faqs = [
   {
     question: "Is there a free trial available?",
     answer:
-      "Yes! We offer a full 14-day free trial with access to all Professional plan features. No credit card is required to start. You can explore every feature and decide if BillingApp is right for your business.",
+      "Yes — every plan includes a full 90-day free trial with no credit card required. Explore your website, QR ordering, kitchen queue, and POS before you pay anything.",
   },
   {
-    question: "Can I migrate data from my current billing software?",
+    question: "How does QR table ordering actually work?",
     answer:
-      "Absolutely. We provide free data migration support for all new customers. Our team will help you import your products, customers, and transaction history from any existing system. We support CSV, Excel, and direct database imports.",
+      "Each table gets its own QR code linked to your live menu. A customer scans it, browses, and places their order from their phone — it lands straight on your Kitchen Queue, no app install or staff trip to the table required.",
   },
   {
-    question: "Does BillingApp support GST invoicing?",
+    question: "Can I set up combos, sizes, and add-ons on my menu?",
     answer:
-      "Yes, BillingApp has built-in GST compliance. It automatically calculates CGST, SGST, and IGST based on your products and locations. You can generate GST-compliant invoices, file returns, and download reports in the format required by the government.",
+      "Yes. A menu item can be a simple fixed-price item, sized (Small/Medium/Large), or a combo built from other items — and you can add extras like \"Extra Shot\" or \"Extra Cheese\" with their own price on top.",
   },
   {
-    question: "How does multi-store management work?",
+    question: "Do dine-in, takeaway, and online orders all show up in one place?",
     answer:
-      "You can add multiple stores under a single account. Each store has its own inventory, staff, and settings, but you can view consolidated reports across all locations. You can also transfer inventory between stores and manage centralized purchasing.",
+      "Yes — the Kitchen Queue unifies every order, whether it came from your POS or a customer's phone, into one live screen with Preparing/Ready/Served status.",
+  },
+  {
+    question: "Does CafeOS support GST invoicing?",
+    answer:
+      "Yes. GST is calculated automatically per menu item — inclusive or exclusive — and every bill and receipt is GST-compliant out of the box.",
   },
   {
     question: "Is my data secure?",
     answer:
-      "Security is our top priority. All data is encrypted at rest and in transit using 256-bit AES encryption. We perform daily automated backups, maintain SOC 2 compliance, and offer role-based access controls so you control who sees what.",
-  },
-  {
-    question: "Do you offer a mobile app?",
-    answer:
-      "Yes, BillingApp has a full-featured mobile app for both Android and iOS. You can process POS bills, check inventory, view reports, and manage your store on the go. The app even works offline for billing in areas with poor connectivity.",
+      "Yes. All data is encrypted in transit, access is role-based so staff only see what they need to, and your data is backed up regularly.",
   },
   {
     question: "Can I cancel my subscription anytime?",
     answer:
-      "Of course. There are no long-term contracts. You can cancel your subscription at any time from your account settings. If you cancel, you'll continue to have access until the end of your current billing period.",
+      "Yes. There are no long-term contracts — cancel anytime from your account settings, and you'll keep access until the end of your current billing period.",
   },
   {
     question: "What kind of support do you provide?",
     answer:
-      "We offer email support for all plans, with priority support for Professional and Enterprise customers. Enterprise plans include a dedicated account manager, phone support, and custom training sessions for your team.",
+      "Email support on every plan, with priority support on Professional and dedicated priority support on Enterprise.",
   },
 ];
 
@@ -118,7 +118,7 @@ export default function FAQ() {
             transition={{ delay: 0.2 }}
             className="mx-auto mt-5 max-w-xl text-lg text-gray-500"
           >
-            Everything you need to know about BillingApp.
+            Everything you need to know about CafeOS.
           </motion.p>
         </div>
 

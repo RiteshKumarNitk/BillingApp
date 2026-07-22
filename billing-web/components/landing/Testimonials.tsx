@@ -5,58 +5,58 @@ import { Star, Quote } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Priya Sharma",
-    role: "Owner, Sharma Medical Store",
+    name: "Arjun Mehta",
+    role: "Owner, Cafe Corner",
     content:
-      "BillingApp transformed how we manage our pharmacy. The batch tracking and expiry alerts alone saved us from thousands in losses. The POS is incredibly fast — our checkout time dropped by 60%.",
+      "Our QR ordering setup took an afternoon. Now half our dine-in orders come straight from the table to the kitchen screen — no more shouted tickets, no more mix-ups.",
+    rating: 5,
+    avatar: "AM",
+    color: "from-cyan-500 to-sky-500",
+  },
+  {
+    name: "Priya Sharma",
+    role: "Owner, Brew & Bloom",
+    content:
+      "The kitchen queue alone was worth switching for. Every order — counter or QR — lands in one place, and our prep time dropped noticeably in the first week.",
     rating: 5,
     avatar: "PS",
     color: "from-emerald-500 to-teal-500",
   },
   {
     name: "Rajesh Patel",
-    role: "Director, Patel Electronics",
+    role: "Manager, The Daily Grind",
     content:
-      "We switched from a clunky desktop software to BillingApp. The cloud access means I can check my store performance from anywhere. The multi-store feature is a game-changer for our 3 locations.",
+      "Setting up combos and add-ons for our coffee menu was straightforward, and the POS calculates GST automatically — one less thing to get wrong at close.",
     rating: 5,
     avatar: "RP",
     color: "from-blue-500 to-indigo-500",
   },
   {
     name: "Anita Desai",
-    role: "Manager, Fresh Mart Grocery",
+    role: "Owner, Leaf & Bean Tea House",
     content:
-      "The inventory management is phenomenal. We handle 5,000+ SKUs and BillingApp keeps everything organized. Low stock alerts and auto-reorder suggestions have made our operations seamless.",
+      "We picked a theme, added our menu, and had a real website live the same day. Customers scan the QR code on the table and browse the exact same menu.",
     rating: 5,
     avatar: "AD",
     color: "from-violet-500 to-purple-500",
   },
   {
     name: "Vikram Singh",
-    role: "Owner, VS Fashion Hub",
+    role: "Owner, Sweet Spoon Desserts",
     content:
-      "The mobile app is fantastic! I can manage my fashion store from home. The variant management for sizes and colors works perfectly. Customer loyalty features helped us increase repeat sales by 40%.",
+      "Reports show us our peak hours down to the day of the week — we've adjusted staffing around it and it's made a real difference on weekends.",
     rating: 5,
     avatar: "VS",
     color: "from-orange-500 to-amber-500",
   },
   {
     name: "Meera Reddy",
-    role: "CEO, Reddy Wholesalers",
+    role: "Owner, Third Wave Coffee Co.",
     content:
-      "Managing bulk orders and credit customers was a nightmare before BillingApp. Now everything is automated. The GST compliance and report generation saves us hours every week.",
+      "Running two outlets used to mean two separate systems. Now staff, menu, and reports all live in one place, and onboarding a new cashier takes minutes.",
     rating: 5,
     avatar: "MR",
     color: "from-pink-500 to-rose-500",
-  },
-  {
-    name: "Arjun Mehta",
-    role: "Owner, Cafe Corner",
-    content:
-      "The POS billing is lightning fast. Our wait time for customers has reduced significantly. The analytics dashboard gives me clear insights into what sells and what doesn't. Highly recommended!",
-    rating: 5,
-    avatar: "AM",
-    color: "from-cyan-500 to-sky-500",
   },
 ];
 
@@ -84,7 +84,7 @@ export default function Testimonials() {
             transition={{ delay: 0.1 }}
             className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl"
           >
-            Loved by businesses
+            Loved by cafe owners
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
               across India
