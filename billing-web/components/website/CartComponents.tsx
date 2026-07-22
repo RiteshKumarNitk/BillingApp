@@ -24,7 +24,7 @@ export function OrderSuccessToast({ theme }: { theme?: MenuTheme }) {
 
 export function FloatingCartBar({ theme }: { theme?: MenuTheme }) {
   const { cartCount, cartTotal, setShowCart } = useCart();
-  const isRestaurant = theme?.id === 'RESTAURANT';
+  const isRestaurant = theme?.id === 'LIST';
   if (cartCount === 0) return null;
 
   return (
@@ -132,7 +132,7 @@ export function CartDrawer({ tenant, theme, primaryColor = DEFAULT_ACCENT }: { t
 }
 
 export function AuthModal({ theme, primaryColor = DEFAULT_ACCENT }: { theme?: MenuTheme; primaryColor?: string }) {
-  const isRestaurant = theme?.id === 'RESTAURANT';
+  const isRestaurant = theme?.id === 'LIST';
   const {
     showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth,
     guestForm, setGuestForm, handleGuestCheckout, submitting,
