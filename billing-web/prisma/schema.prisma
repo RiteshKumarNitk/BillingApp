@@ -507,7 +507,7 @@ model SubscriptionPlan {
   // maxTransactions which are being phased toward always-unlimited — see maxTables comment
   // on plan philosophy in lib/subscription.ts.
   maxTables       Int                  @default(-1)
-  // Website theme ids this plan may select (lib/website/registry.ts). Empty array means "all
+  // Website theme ids this plan may select (lib/website/themeDefinitions.ts). Empty array means "all
   // themes allowed" — this is a whitelist, not a count, so it can't reuse the -1-means-unlimited
   // convention the numeric limits use.
   allowedThemes   String[]             @default([])

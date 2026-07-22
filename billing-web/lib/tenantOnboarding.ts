@@ -1,5 +1,5 @@
 import type { Prisma } from "../generated/prisma";
-import { DEFAULT_THEME_ID, getThemeDefaultConfig } from "@/lib/website/themeDefaults";
+import { DEFAULT_THEME_ID, getThemeDefaultConfig } from "@/lib/website/themeDefinitions";
 
 // Shared by both tenant-creation paths (public self-serve signup and the superadmin console),
 // which had drifted into two independent copies of this same role list before CafeOS Phase 2.

@@ -192,6 +192,10 @@ export interface WebsiteConfig {
     };
     buttonStyle?: 'rounded' | 'pill' | 'square';
     cardStyle?: 'shadow' | 'outline' | 'minimal';
+    // Navbar isn't a WebsiteSection (it's chrome, not a section in config.sections), so unlike
+    // every other section's variant — chosen via ThemeDefinition.sectionVariants, see
+    // components/website/engine/ — its variant lives here instead.
+    navStyle?: 'minimal' | 'pill' | 'cta';
   };
   seo?: {
     metaTitle?: string;
@@ -231,4 +235,30 @@ export interface WebsiteConfig {
     shop?: boolean;
     contact?: boolean;
   };
+}
+
+// A theme is pure configuration for the shared Theme Engine (components/website/engine/) — no
+// theme owns its own Layout/Navbar/Footer components anymore. Adding a theme means adding one
+// ThemeDefinition and registering it in lib/website/themeDefinitions.ts; nothing else.
+export interface ThemeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  // Richer than the old binary CAFE/GENERAL tag — a theme can belong to several browsing
+  // categories at once (e.g. ['Modern', 'Coffee']) once the Website Builder picker groups by
+  // category. businessTypes below still drives which tenants see the theme at all.
+  category: string[];
+  businessTypes: string[];
+  previewImageUrl?: string;
+  thumbnailUrl?: string;
+  premium?: boolean;
+  featured?: boolean;
+  comingSoon?: boolean;
+  version: string;
+  defaultAppearance: NonNullable<WebsiteConfig['appearance']>;
+  defaultSections: WebsiteSection[];
+  // Which variant each section type renders in this theme. A section type absent here uses that
+  // section component's own default variant.
+  sectionVariants: Partial<Record<WebsiteSection['type'], string>>;
+  supportedSections: WebsiteSection['type'][];
 }

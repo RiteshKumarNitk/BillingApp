@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import { WebsiteConfig } from '@/lib/website/types';
-import { getThemeDefaultConfig, DEFAULT_THEME_ID } from '@/lib/website/themeDefaults';
+import { getThemeDefaultConfig, DEFAULT_THEME_ID } from '@/lib/website/themeDefinitions';
 import { getThemesForBusinessType } from '@/lib/website/registry';
 import { getActiveSubscription, DEFAULT_STARTER_THEMES } from '@/lib/subscription';
 import WebsiteBuilderClient from './WebsiteBuilderClient';

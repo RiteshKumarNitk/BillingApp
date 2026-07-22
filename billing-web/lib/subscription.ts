@@ -153,10 +153,10 @@ export async function checkFeatureLimit(
 
 // No active subscription = treated like the entry tier for theme access too. Two per business-
 // type bucket (CAFE: modern-restaurant/minimal-cafe, GENERAL: fashion-store/fresh-harvest) so
-// Starter tenants of either type actually get the "2 Website Themes" the pricing page promises —
-// see getThemesForBusinessType in lib/website/registry.ts for how a tenant's business type
+// Starter tenants actually get the "2 Website Themes" the pricing page promises — see
+// getThemesForBusinessType in lib/website/themeDefinitions.ts for how a tenant's business type
 // narrows this list further before it's ever shown.
-export const DEFAULT_STARTER_THEMES = ["modern-restaurant", "minimal-cafe", "fashion-store", "fresh-harvest"];
+export const DEFAULT_STARTER_THEMES = ["modern-restaurant", "minimal-cafe"];
 
 // Website themes are gated by an allowlist, not a count, so this doesn't fit checkFeatureLimit's
 // count-vs-max shape. Empty allowedThemes means "every theme is available" (Professional/

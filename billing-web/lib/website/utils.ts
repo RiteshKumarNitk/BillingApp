@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
 import prisma from '@/lib/prisma';
-import { getThemeDefaultConfig, DEFAULT_THEME_ID } from '@/lib/website/themeDefaults';
+import { getThemeDefaultConfig, DEFAULT_THEME_ID } from '@/lib/website/themeDefinitions';
 
 export function getWebsiteConfig(tenant: any): WebsiteConfig {
   const settings = tenant.websiteSettings as WebsiteConfig | null;

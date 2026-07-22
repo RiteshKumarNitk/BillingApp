@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { THEME_DEFINITIONS } from './themeDefinitions';
 
-// Matches the `id` values in lib/website/registry.ts's `themes` array. Kept as a plain literal list
-// here (rather than importing registry.ts) because that module pulls in next/dynamic component
-// wrappers meant for client rendering, not for a server-only validator.
-const THEME_IDS = ['modern-restaurant', 'fashion-store', 'premium-food', 'fresh-harvest', 'organic-grove', 'fruit-fresh', 'minimal-cafe', 'modern-coffee'] as const;
+// lib/website/themeDefinitions.ts is pure data (no next/dynamic component imports), so it's safe
+// to import here even though this schema also runs in server-only contexts — unlike the old
+// registry.ts, which mixed theme metadata with client-only dynamic() lookups.
+const THEME_IDS = THEME_DEFINITIONS.map((t) => t.id) as [string, ...string[]];
 
 const url = z.string().trim().max(2000).optional();
 const shortText = z.string().trim().max(200).optional();
@@ -25,6 +26,7 @@ const appearanceSchema = z.object({
   }).partial().optional(),
   buttonStyle: z.enum(['rounded', 'pill', 'square']).optional(),
   cardStyle: z.enum(['shadow', 'outline', 'minimal']).optional(),
+  navStyle: z.enum(['minimal', 'pill', 'cta']).optional(),
 }).partial();
 
 const seoSchema = z.object({

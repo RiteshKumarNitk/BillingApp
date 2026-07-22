@@ -1,21 +1,23 @@
 "use client";
 
-import React, { Suspense } from 'react';
+import React from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
-import { getThemeLayout } from '@/lib/website/registry';
+import ThemeLayoutShell from './engine/ThemeLayoutShell';
 import VisitTracker from './VisitTracker';
 
+// Home/Shop entry point. Both now render through the same ThemeLayoutShell — a theme is just a
+// ThemeDefinition (lib/website/themeDefinitions.ts) plus shared engine components, not its own
+// Layout.tsx. Footer visibility here follows config.sections' footer entry's isVisible flag, same
+// as every other section (see ThemeLayoutShell) — distinct from SitePageShell's About/Contact
+// chrome, which always shows a footer regardless of isVisible (existing, intentionally preserved
+// behavior — see SitePageShell.tsx).
 export default function WebsiteRenderer({ config, tenant, children, trackVisit = true }: { config: WebsiteConfig, tenant: any, children?: React.ReactNode, trackVisit?: boolean }) {
-  const ThemeLayout = getThemeLayout(config.theme);
-
   return (
     <>
       {trackVisit && <VisitTracker tenantId={tenant.id} pageTitle={config.seo?.metaTitle || tenant.name} />}
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading website...</div>}>
-        <ThemeLayout config={config} tenant={tenant}>
-          {children}
-        </ThemeLayout>
-      </Suspense>
+      <ThemeLayoutShell config={config} tenant={tenant}>
+        {children}
+      </ThemeLayoutShell>
     </>
   );
 }
