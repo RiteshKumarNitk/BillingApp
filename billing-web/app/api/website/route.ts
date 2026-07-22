@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 import { websiteConfigSchema } from '@/lib/website/schema';
 import { checkThemeAllowed } from '@/lib/subscription';
 import { z } from 'zod';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/generated/prisma';
 
 const MAX_PAYLOAD_BYTES = 500_000;
 
