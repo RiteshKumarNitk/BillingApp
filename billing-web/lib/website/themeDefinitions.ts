@@ -134,6 +134,58 @@ export const THEME_DEFINITIONS: ThemeDefinition[] = [
     sectionVariants: { hero: 'fullscreen', 'menu-grid': 'cards', 'todays-special': 'pill', 'google-map': 'rounded', testimonials: 'grid', gallery: 'featured', footer: 'dark' },
     supportedSections: ['hero', 'menu-grid', 'todays-special', 'google-map', 'testimonials', 'gallery', 'footer'],
   },
+  // Sweet Bakery and Tea Lounge below add zero new component code — every section type/variant
+  // they reference already exists. This is the common case a new theme should hit: only
+  // Luxury Coffee (a genuinely new visual language) needed a new variant.
+  {
+    id: 'sweet-bakery',
+    name: 'Sweet Bakery',
+    description: 'Soft, playful bakery theme for patisseries and dessert cafes.',
+    category: ['Bakery', 'Playful'],
+    businessTypes: ['CAFE'],
+    featured: true,
+    version: '1.0.0',
+    defaultAppearance: {
+      colors: { primary: '#D4708A', secondary: '#F0B8A6', accent: '#D4708A', background: '#FFF8F5', text: '#4A3428' },
+      typography: { headingFont: "'Quicksand', sans-serif" },
+      buttonStyle: 'pill',
+      cardStyle: 'shadow',
+      navStyle: 'pill',
+    },
+    defaultSections: [
+      { id: 'sb1', type: 'hero', isVisible: true, order: 1, data: { title: 'Baked Fresh, With Love', subtitle: 'Cakes, pastries, and sweet things made every morning.' } },
+      { id: 'sb2', type: 'menu-grid', isVisible: true, order: 2, data: { title: 'Our Bakes', subtitle: 'A little something for every occasion' } },
+      { id: 'sb3', type: 'gallery', isVisible: true, order: 3, data: { title: 'From Our Kitchen', images: [] } },
+      { id: 'sb4', type: 'testimonials', isVisible: true, order: 4, data: { title: 'What People Say', reviews: [] } },
+      { id: 'sb5', type: 'footer', isVisible: true, order: 5, data: { copyrightText: '© {year} {tenant}. All rights reserved.', showSocialLinks: true } },
+    ],
+    sectionVariants: { hero: 'pill', 'menu-grid': 'cards', gallery: 'featured', testimonials: 'grid', footer: 'primary' },
+    supportedSections: ['hero', 'menu-grid', 'gallery', 'testimonials', 'footer'],
+  },
+  {
+    id: 'tea-lounge',
+    name: 'Tea Lounge',
+    description: 'Calm, quiet tea house theme with a menu-first layout.',
+    category: ['Tea', 'Minimal'],
+    businessTypes: ['CAFE'],
+    version: '1.0.0',
+    defaultAppearance: {
+      colors: { primary: '#5B7553', secondary: '#A8C090', accent: '#5B7553', background: '#F7F5EF', text: '#2F3B2A' },
+      typography: { headingFont: "'Cormorant Garamond', Georgia, serif" },
+      buttonStyle: 'square',
+      cardStyle: 'minimal',
+      navStyle: 'minimal',
+    },
+    defaultSections: [
+      { id: 'tl1', type: 'hero', isVisible: true, order: 1, data: { title: 'A Moment, Steeped Well', subtitle: 'Single-origin teas, served slow.' } },
+      { id: 'tl2', type: 'menu-grid', isVisible: true, order: 2, data: { title: 'The Tea List' } },
+      { id: 'tl3', type: 'todays-special', isVisible: true, order: 3, data: { title: "Today's Pour" } },
+      { id: 'tl4', type: 'gallery', isVisible: true, order: 4, data: { title: 'The Lounge', images: [] } },
+      { id: 'tl5', type: 'footer', isVisible: true, order: 5, data: { copyrightText: '© {year} {tenant}. All rights reserved.', showSocialLinks: true } },
+    ],
+    sectionVariants: { hero: 'minimal', 'menu-grid': 'list', 'todays-special': 'minimal', 'google-map': 'square', gallery: 'simple', footer: 'minimal' },
+    supportedSections: ['hero', 'menu-grid', 'todays-special', 'google-map', 'gallery', 'footer'],
+  },
 ];
 
 export const DEFAULT_THEME_ID = 'premium-food';
