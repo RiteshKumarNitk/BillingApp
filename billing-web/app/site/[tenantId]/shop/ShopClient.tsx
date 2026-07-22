@@ -142,6 +142,13 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
             {item.description && (
               <p className="text-xs text-[var(--muted)] italic mt-1 leading-relaxed line-clamp-2">{item.description}</p>
             )}
+            {item.productType === 'COMBO' && item.comboComponents && item.comboComponents.length > 0 && (
+              <p className="text-[11px] text-[var(--muted)] mt-1">
+                Includes: {item.comboComponents.map((c: any, idx: number) => (
+                  <span key={idx}>{idx > 0 ? ', ' : ''}{c.quantity}× {c.component?.name}{c.componentVariant ? ` (${c.componentVariant.name})` : ''}</span>
+                ))}
+              </p>
+            )}
             {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && (
               <span className="inline-block mt-1.5 text-[9px] font-bold text-red-400 bg-red-950/40 px-1.5 py-0.5 rounded">SOLD OUT</span>
             )}
@@ -182,6 +189,13 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
           <h3 className="text-sm font-black truncate" style={{ fontFamily: 'var(--font-display)' }}>{item.name}</h3>
           {item.description && (
             <p className="text-[10px] text-[var(--muted)] mt-0.5 line-clamp-1">{item.description}</p>
+          )}
+          {item.productType === 'COMBO' && item.comboComponents && item.comboComponents.length > 0 && (
+            <p className="text-[10px] text-[var(--muted)] mt-0.5 line-clamp-1">
+              Includes: {item.comboComponents.map((c: any, idx: number) => (
+                <span key={idx}>{idx > 0 ? ', ' : ''}{c.quantity}× {c.component?.name}{c.componentVariant ? ` (${c.componentVariant.name})` : ''}</span>
+              ))}
+            </p>
           )}
           <div className="flex items-center gap-2 mt-1">
             <span className="text-sm font-black">₹{item.salePrice.toFixed(0)}</span>

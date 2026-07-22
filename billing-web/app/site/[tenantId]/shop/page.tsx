@@ -27,7 +27,15 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
 
   const products = await prisma.product.findMany({
     where: { tenantId: tenant.id },
-    include: { variants: true },
+    include: {
+      variants: true,
+      comboComponents: {
+        include: {
+          component: { select: { name: true } },
+          componentVariant: { select: { name: true } },
+        },
+      },
+    },
     orderBy: { name: 'asc' }
   });
 
