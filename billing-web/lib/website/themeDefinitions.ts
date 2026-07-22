@@ -100,6 +100,40 @@ export const THEME_DEFINITIONS: ThemeDefinition[] = [
     sectionVariants: { hero: 'pill', 'menu-grid': 'cards', 'todays-special': 'pill', 'google-map': 'rounded', testimonials: 'grid', gallery: 'featured', footer: 'primary' },
     supportedSections: ['hero', 'menu-grid', 'todays-special', 'google-map', 'testimonials', 'gallery', 'footer'],
   },
+  // First theme built purely on top of the engine — no new Layout/Navbar/Footer file, just this
+  // definition plus one genuinely new section variant (Hero 'fullscreen', see
+  // components/website/engine/sections/Hero.tsx). Everything else (NavbarShell 'pill',
+  // FooterShell 'dark', MenuGrid 'cards', Gallery 'featured', Testimonials 'grid') is reused
+  // completely unchanged from the 4 themes above — proof the shared library actually holds up
+  // against a genuinely different visual language (dark palette, gold accents), not just a
+  // recolor of an existing theme.
+  {
+    id: 'luxury-coffee',
+    name: 'Luxury Coffee',
+    description: 'Dark, elegant coffee-house theme with gold accents for premium cafes.',
+    category: ['Luxury', 'Coffee', 'Dark'],
+    businessTypes: ['CAFE'],
+    premium: true,
+    featured: true,
+    version: '1.0.0',
+    defaultAppearance: {
+      colors: { primary: '#D4AF37', secondary: '#8B6F47', accent: '#D4AF37', background: '#15110D', text: '#F0E6D2' },
+      typography: { headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Inter', sans-serif" },
+      buttonStyle: 'pill',
+      cardStyle: 'shadow',
+      navStyle: 'pill',
+    },
+    defaultSections: [
+      { id: 'lc1', type: 'hero', isVisible: true, order: 1, data: { title: 'Coffee, Crafted With Intent', subtitle: 'A quiet, elevated space for exceptional coffee.' } },
+      { id: 'lc2', type: 'menu-grid', isVisible: true, order: 2, data: { title: 'Our Menu', subtitle: 'Small batch, precisely made' } },
+      { id: 'lc3', type: 'todays-special', isVisible: true, order: 3, data: { title: "Today's Special" } },
+      { id: 'lc4', type: 'testimonials', isVisible: true, order: 4, data: { title: 'What People Say', reviews: [] } },
+      { id: 'lc5', type: 'gallery', isVisible: true, order: 5, data: { title: 'Inside The Cafe', images: [] } },
+      { id: 'lc6', type: 'footer', isVisible: true, order: 6, data: { copyrightText: '© {year} {tenant}. All rights reserved.', showSocialLinks: true } },
+    ],
+    sectionVariants: { hero: 'fullscreen', 'menu-grid': 'cards', 'todays-special': 'pill', 'google-map': 'rounded', testimonials: 'grid', gallery: 'featured', footer: 'dark' },
+    supportedSections: ['hero', 'menu-grid', 'todays-special', 'google-map', 'testimonials', 'gallery', 'footer'],
+  },
 ];
 
 export const DEFAULT_THEME_ID = 'premium-food';

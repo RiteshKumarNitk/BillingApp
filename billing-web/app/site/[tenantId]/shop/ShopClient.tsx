@@ -134,7 +134,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-[15.5px] font-semibold truncate" style={{ fontFamily: 'var(--font-display)' }}>{item.name}</h3>
+              <h3 className="text-[15.5px] font-semibold truncate text-[var(--ink)]" style={{ fontFamily: 'var(--font-display)' }}>{item.name}</h3>
               {!hasVariants && (
                 <span className="text-sm font-semibold text-[var(--primary)] flex-shrink-0">₹{item.salePrice.toFixed(0)}</span>
               )}
@@ -186,7 +186,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-black truncate" style={{ fontFamily: 'var(--font-display)' }}>{item.name}</h3>
+          <h3 className="text-sm font-black truncate text-[var(--ink)]" style={{ fontFamily: 'var(--font-display)' }}>{item.name}</h3>
           {item.description && (
             <p className="text-[10px] text-[var(--muted)] mt-0.5 line-clamp-1">{item.description}</p>
           )}
@@ -198,7 +198,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
             </p>
           )}
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm font-black">₹{item.salePrice.toFixed(0)}</span>
+            <span className="text-sm font-black text-[var(--ink)]">₹{item.salePrice.toFixed(0)}</span>
             {item.mrp > item.salePrice && (
               <span className="text-[10px] text-[var(--muted)] line-through">₹{item.mrp.toFixed(0)}</span>
             )}
@@ -212,7 +212,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
                 <div key={v.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-[var(--muted)]">{v.name}</span>
-                    <span className="text-[10px] font-bold">₹{v.salePrice.toFixed(0)}</span>
+                    <span className="text-[10px] font-bold text-[var(--ink)]">₹{v.salePrice.toFixed(0)}</span>
                     {v.stock <= 0 && <span className="text-[9px] text-red-500">Out</span>}
                   </div>
                   <AddToCartButton product={item} variant={v} />

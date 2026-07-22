@@ -3,7 +3,7 @@ import { HeroSection, WebsiteConfig } from '@/lib/website/types';
 import Link from 'next/link';
 import { Search, Utensils, Coffee, Pizza, Cookie } from 'lucide-react';
 
-export type HeroStyle = 'pill' | 'minimal' | 'overlay' | 'luxury';
+export type HeroStyle = 'pill' | 'minimal' | 'overlay' | 'luxury' | 'fullscreen';
 
 interface HeroProps {
   data: HeroSection['data'];
@@ -116,6 +116,38 @@ export default function Hero({ data, tenant, variant = 'pill' }: HeroProps) {
               <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center"><Coffee className="w-4 h-4" /></div>
               <span className="font-bold text-sm text-gray-800">Drinks</span>
             </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (variant === 'fullscreen') {
+    return (
+      <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--theme-background)' }}>
+        {data.backgroundImageUrl ? (
+          <div className="absolute inset-0 z-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url(${data.backgroundImageUrl})` }} />
+        ) : (
+          <div className="absolute inset-0 z-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle, var(--theme-primary) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        )}
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-[var(--theme-background)] via-transparent to-[var(--theme-background)]/60" />
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+          <div className="w-16 h-px mx-auto mb-8" style={{ backgroundColor: 'var(--theme-primary)' }} />
+          <h1 className="text-5xl md:text-7xl font-semibold mb-6 leading-[1.1]" style={{ color: 'var(--theme-text)', fontFamily: 'var(--theme-font-heading)' }}>
+            {data.title}
+          </h1>
+          {data.subtitle && <p className="text-lg mb-10 max-w-xl mx-auto leading-relaxed opacity-70" style={{ color: 'var(--theme-text)' }}>{data.subtitle}</p>}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {data.ctaPrimary && (
+              <Link href={data.ctaPrimary.url} className="px-8 py-4 rounded-full font-semibold text-center transition-opacity hover:opacity-90" style={{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-background)' }}>
+                {data.ctaPrimary.label}
+              </Link>
+            )}
+            {data.ctaSecondary && (
+              <Link href={data.ctaSecondary.url} className="px-8 py-4 rounded-full font-semibold text-center border transition-colors hover:bg-[var(--theme-primary)]/10" style={{ borderColor: 'var(--theme-primary)', color: 'var(--theme-primary)' }}>
+                {data.ctaSecondary.label}
+              </Link>
+            )}
           </div>
         </div>
       </section>

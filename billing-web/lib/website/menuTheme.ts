@@ -49,7 +49,13 @@ export function getMenuTheme(layoutStyleValue: string | null | undefined, config
     label: style.label,
     bg: colors?.background || (isDark ? '#1B1512' : '#F6F7F2'),
     surface: isDark ? '#241C17' : '#FFFFFF',
-    ink: colors?.text || (isDark ? '#F4EBDF' : '#16241D'),
+    // `ink` is the text color for `surface` above, which is a fixed color per layout — not the
+    // tenant's own page background. A theme's `colors.text` is calibrated against that theme's
+    // own background (e.g. a dark theme's text is a light color, for readability on its dark
+    // page), so reusing it here goes near-invisible against the opposite-toned fixed surface
+    // (e.g. light theme text on Restaurant's dark surface, or dark-theme text on Market's white
+    // surface) — always use the safe default for the surface actually being drawn.
+    ink: isDark ? '#F4EBDF' : '#16241D',
     muted: isDark ? '#B7A594' : '#66756C',
     line: isDark ? '#3A2E26' : '#E7E9E0',
     primary: colors?.primary || (isDark ? '#C97B3D' : '#1F5E4C'),
