@@ -183,7 +183,7 @@ class _CafeDetailsPageState extends State<CafeDetailsPage> {
                       const SizedBox(height: 12),
                       const SectionHeader(title: 'Related Cafes'),
                       SizedBox(
-                        height: 190,
+                        height: 206,
                         child: _relatedLoading
                             ? AppShimmer(
                                 child: ListView.separated(
@@ -191,7 +191,7 @@ class _CafeDetailsPageState extends State<CafeDetailsPage> {
                                   padding: const EdgeInsets.symmetric(horizontal: 20),
                                   itemCount: 3,
                                   separatorBuilder: (_, __) => const SizedBox(width: 12),
-                                  itemBuilder: (_, __) => const SizedBox(width: 240, child: ShimmerBox(height: 190, borderRadius: BorderRadius.all(Radius.circular(20)))),
+                                  itemBuilder: (_, __) => const SizedBox(width: 240, child: ShimmerBox(height: 206, borderRadius: BorderRadius.all(Radius.circular(20)))),
                                 ),
                               )
                             : ListView.separated(

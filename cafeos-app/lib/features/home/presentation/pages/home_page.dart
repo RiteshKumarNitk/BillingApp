@@ -266,7 +266,7 @@ class _HorizontalSection extends StatelessWidget {
           const SizedBox(height: 12),
           SectionHeader(title: title, onSeeAll: onSeeAll),
           SizedBox(
-            height: 190,
+            height: 206,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -294,14 +294,14 @@ class _HorizontalSkeleton extends StatelessWidget {
           const SizedBox(height: 12),
           SectionHeader(title: title),
           SizedBox(
-            height: 190,
+            height: 206,
             child: AppShimmer(
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: 3,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (_, __) => const SizedBox(width: 240, child: ShimmerBox(height: 190, borderRadius: BorderRadius.all(Radius.circular(20)))),
+                itemBuilder: (_, __) => const SizedBox(width: 240, child: ShimmerBox(height: 206, borderRadius: BorderRadius.all(Radius.circular(20)))),
               ),
             ),
           ),
