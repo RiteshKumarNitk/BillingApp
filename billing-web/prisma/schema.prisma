@@ -60,6 +60,7 @@ model Tenant {
   websiteSettings    Website?
   websiteVisits      WebsiteVisit[]
   contactLeads       ContactLead[]
+  favoritedBy        CustomerFavorite[]
 }
 
 model Role {
@@ -236,6 +237,21 @@ model CustomerAccount {
   customers     Customer[]
   orderRequests OrderRequest[]
   notifications Notification[]
+  favorites     CustomerFavorite[]
+}
+
+// Favourited cafes for the mobile app's "Favourite Cafes" list (a per-cafe favourite, not
+// per-product — matches what the mobile Profile screen already has a placeholder tile for).
+model CustomerFavorite {
+  id                String          @id @default(uuid())
+  customerAccountId String
+  tenantId          String
+  createdAt         DateTime        @default(now())
+  customerAccount   CustomerAccount @relation(fields: [customerAccountId], references: [id], onDelete: Cascade)
+  tenant            Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([customerAccountId, tenantId])
+  @@index([tenantId])
 }
 
 model Customer {
@@ -289,6 +305,10 @@ model OrderRequest {
   totalAmount       Float              @default(0)
   taxAmount         Float              @default(0)
   netAmount         Float              @default(0)
+  // Auto-applied Discount (no code — a customer-entered coupon-code flow doesn't exist yet), snapshotted
+  // at order time same as comboComponents below, so a later Discount edit never rewrites past orders.
+  discountAmount    Float              @default(0)
+  discountLabel     String?
   tenantId          String
   // Nullable to support guest checkout (no CustomerAccount). Guest orders instead populate
   // guestName/guestPhone directly; logged-in orders keep using customerAccount as before.

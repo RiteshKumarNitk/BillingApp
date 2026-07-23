@@ -1,6 +1,25 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/theme/cafe_appearance.dart';
 
+class CafeDiscountSummary extends Equatable {
+  final String id;
+  final String name;
+  final double discountPercentage;
+  final String? applicableCategory;
+  final int minimumQuantity;
+
+  const CafeDiscountSummary({
+    required this.id,
+    required this.name,
+    required this.discountPercentage,
+    this.applicableCategory,
+    required this.minimumQuantity,
+  });
+
+  @override
+  List<Object?> get props => [id, name, discountPercentage, applicableCategory, minimumQuantity];
+}
+
 class Cafe extends Equatable {
   final String id;
   final String name;
@@ -15,6 +34,7 @@ class Cafe extends Equatable {
   final double? distanceKm;
   final String? themeId;
   final CafeAppearance appearance;
+  final List<CafeDiscountSummary> activeDiscounts;
 
   const Cafe({
     required this.id,
@@ -30,6 +50,7 @@ class Cafe extends Equatable {
     this.distanceKm,
     this.themeId,
     this.appearance = const CafeAppearance(),
+    this.activeDiscounts = const [],
   });
 
   String get distanceLabel {
@@ -39,5 +60,5 @@ class Cafe extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, websiteSlug, tagline, logoUrl, coverImageUrl, address, latitude, longitude, businessHours, distanceKm, themeId, appearance];
+  List<Object?> get props => [id, name, websiteSlug, tagline, logoUrl, coverImageUrl, address, latitude, longitude, businessHours, distanceKm, themeId, appearance, activeDiscounts];
 }

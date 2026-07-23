@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>CafeOS needs camera access to scan a table's QR code for dine-in ordering.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CafeOS uses your location to show cafes near you.</string>
 </dict>
 </plist>

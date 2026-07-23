@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../domain/entities/cafe.dart';
 
 class CafeCard extends StatelessWidget {
@@ -38,6 +39,7 @@ class CafeCard extends StatelessWidget {
                           errorWidget: (_, __, ___) => _fallbackCover(theme),
                         )
                       : _fallbackCover(theme),
+                  Positioned(top: 10, left: 10, child: FavoriteButton(cafe: cafe, size: 17)),
                   if (cafe.distanceLabel.isNotEmpty)
                     Positioned(
                       top: 10,

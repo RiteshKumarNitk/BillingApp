@@ -9,10 +9,11 @@ class GetCafesParams extends Equatable {
   final double? lat;
   final double? lng;
   final String? search;
-  const GetCafesParams({this.lat, this.lng, this.search});
+  final String? sort;
+  const GetCafesParams({this.lat, this.lng, this.search, this.sort});
 
   @override
-  List<Object?> get props => [lat, lng, search];
+  List<Object?> get props => [lat, lng, search, sort];
 }
 
 class GetCafesUseCase implements UseCase<List<Cafe>, GetCafesParams> {
@@ -21,6 +22,6 @@ class GetCafesUseCase implements UseCase<List<Cafe>, GetCafesParams> {
 
   @override
   Future<Either<Failure, List<Cafe>>> call(GetCafesParams params) {
-    return repository.getCafes(lat: params.lat, lng: params.lng, search: params.search);
+    return repository.getCafes(lat: params.lat, lng: params.lng, search: params.search, sort: params.sort);
   }
 }

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getCustomerIdFromAuthHeader } from "@/lib/auth/customer-mobile";
+import { resolveTenant } from "@/lib/website/utils";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
+// Public, no auth — a cafe's menu is the same thing a guest can already see on its public website
+// (app/site/[tenantId]/shop has no auth either), and the app's own "browse freely, only checkout
+// needs login" principle means a not-logged-in customer must be able to open a cafe and see its
+// menu, not just its profile. Rate-limited the same way /cafes is, now that it's reachable without
+// an account.
 export async function GET(request: NextRequest) {
   try {
-    const customerAccountId = await getCustomerIdFromAuthHeader(request);
-    if (!customerAccountId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`mobile-store-menu:${ip}`, 60, 60 * 1000)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -17,11 +23,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "tenantId is required" }, { status: 400 });
     }
 
-    // Verify tenant exists and is active
-    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
-    if (!tenant || tenant.status !== "ACTIVE") {
+    // Accepts either the raw tenant id or its websiteSlug, same as every other public cafe route.
+    const tenantRecord = await resolveTenant(tenantId);
+    if (!tenantRecord || tenantRecord.status !== "ACTIVE") {
       return NextResponse.json({ error: "Store not found or inactive" }, { status: 404 });
     }
+    const tenant = tenantRecord;
 
     // Fetch products for this store. Pre-existing bug fixed here: this used to filter on
     // `isActive`, a field Product doesn't have (it's `isAvailable`) — every call to this route
@@ -42,6 +49,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         variants: true,
+        addOns: true,
         comboComponents: {
           include: {
             component: { select: { name: true } },
@@ -53,6 +61,27 @@ export async function GET(request: NextRequest) {
       take: 200,
     });
 
+    // Active (non-coupon, auto-applied) discounts, matched to each product by category — same
+    // eligibility rule createCustomerOrder() uses when actually applying one at checkout, so what a
+    // customer sees on the menu is exactly what checkout will honor.
+    const now = new Date();
+    const discounts = await prisma.discount.findMany({
+      where: {
+        tenantId,
+        isActive: true,
+        code: null,
+        AND: [
+          { OR: [{ startDate: null }, { startDate: { lte: now } }] },
+          { OR: [{ endDate: null }, { endDate: { gte: now } }] },
+        ],
+      },
+    });
+    const discountByCategory = new Map<string, (typeof discounts)[number]>();
+    const storeWideDiscount = discounts.find((d) => !d.applicableCategory);
+    for (const d of discounts) {
+      if (d.applicableCategory) discountByCategory.set(d.applicableCategory, d);
+    }
+
     // Group by category
     const categoryMap = new Map<string, any[]>();
     for (const product of products) {
@@ -60,6 +89,7 @@ export async function GET(request: NextRequest) {
       if (!categoryMap.has(category)) {
         categoryMap.set(category, []);
       }
+      const discount = discountByCategory.get(category) || storeWideDiscount || null;
       categoryMap.get(category)!.push({
         id: product.id,
         name: product.name,
@@ -78,11 +108,15 @@ export async function GET(request: NextRequest) {
           stock: v.stock,
           barcode: v.barcode,
         })),
+        addOns: product.addOns.map((a: any) => ({ id: a.id, name: a.name, price: a.price })),
         comboComponents: product.comboComponents.map((c: any) => ({
           name: c.component.name,
           variantName: c.componentVariant?.name ?? null,
           quantity: c.quantity,
         })),
+        activeDiscount: discount
+          ? { id: discount.id, name: discount.name, discountPercentage: discount.discountPercentage, minimumQuantity: discount.minimumQuantity }
+          : null,
       });
     }
 

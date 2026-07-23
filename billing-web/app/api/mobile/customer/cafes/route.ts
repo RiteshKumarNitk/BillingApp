@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { cafePublicSelect, toPublicCafe, haversineKm } from '@/lib/cafes/cafePublicFields';
 
 // Cafe discovery/browse for the CafeOS customer mobile app — public, no auth (matches every other
 // "discover before you commit to an account" flow in the app; browsing is guest-friendly, only
-// checkout requires login). This is the one capability with no prior art anywhere in the codebase —
-// every existing customer-facing route assumes the caller already knows which tenant they want
-// (via slug/QR/link). Query params: `lat`/`lng` (optional — sorts by distance and includes
-// `distanceKm` when given), `search` (optional, matches name/tagline/address), `limit` (default 30,
-// max 100).
+// checkout requires login). Query params: `lat`/`lng` (optional — sorts by distance and includes
+// `distanceKm` when given), `search` (optional, matches name/tagline/address), `sort` (optional,
+// `popular` ranks by real historical order volume instead of newest-first/distance), `limit`
+// (default 30, max 100).
 export async function GET(request: NextRequest) {
   try {
     const ip = getClientIp(request);
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     const lng = parseFloat(searchParams.get('lng') || '');
     const hasLocation = Number.isFinite(lat) && Number.isFinite(lng);
     const search = (searchParams.get('search') || '').trim();
+    const sort = searchParams.get('sort') || '';
     const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '30', 10) || 30, 1), 100);
 
     const where: any = {
@@ -36,35 +37,32 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    if (sort === 'popular') {
+      // Real signal, not a fabricated rating: rank by completed-order volume. Rejected orders don't
+      // count as "popularity"; everything else (pending/preparing/completed) does.
+      const tenants = await prisma.tenant.findMany({
+        where,
+        select: {
+          ...cafePublicSelect,
+          _count: { select: { orderRequests: { where: { status: { not: 'REJECTED' } } } } },
+        },
+        take: limit * 3, // over-fetch pre-sort, same shape as the distance path below
+      });
+      const cafes = tenants
+        .sort((a, b) => b._count.orderRequests - a._count.orderRequests)
+        .slice(0, limit)
+        .map((t) => ({ ...toPublicCafe(t), _count: undefined, distanceKm: null as number | null }));
+      return NextResponse.json({ cafes });
+    }
+
     const tenants = await prisma.tenant.findMany({
       where,
-      select: {
-        id: true,
-        name: true,
-        websiteSlug: true,
-        tagline: true,
-        logoUrl: true,
-        coverImageUrl: true,
-        address: true,
-        latitude: true,
-        longitude: true,
-        businessHours: true,
-        // Tenant.primaryColor/fontFamily are dead legacy fields never touched by the Website
-        // Builder save route — the real per-cafe branding lives in Website.appearance (the Theme
-        // Engine), so that's what a client needs to actually re-theme a screen to match this cafe.
-        websiteSettings: { select: { theme: true, appearance: true } },
-      },
+      select: cafePublicSelect,
       take: hasLocation ? 500 : limit, // over-fetch when sorting by distance in app code, then slice
       orderBy: hasLocation ? undefined : { createdAt: 'desc' },
     });
 
-    let cafes = tenants.map((t) => ({
-      ...t,
-      theme: t.websiteSettings?.theme ?? null,
-      appearance: t.websiteSettings?.appearance ?? null,
-      websiteSettings: undefined,
-      distanceKm: null as number | null,
-    }));
+    let cafes = tenants.map((t) => ({ ...toPublicCafe(t), distanceKm: null as number | null }));
     if (hasLocation) {
       cafes = cafes
         .map((t) => ({
@@ -80,16 +78,4 @@ export async function GET(request: NextRequest) {
     console.error('Error listing cafes:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
-function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-function toRad(deg: number): number {
-  return (deg * Math.PI) / 180;
 }

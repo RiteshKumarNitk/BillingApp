@@ -75,6 +75,10 @@ dependencies:
   # mobile-app/'s staff features (lib/core/usecase/usecase.dart there)
   fpdart: ^1.1.1
 
+  # QR scanning for table/dine-in ordering — camera-based, proven package (also used by
+  # mobile-app/'s staff features).
+  mobile_scanner: ^6.0.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

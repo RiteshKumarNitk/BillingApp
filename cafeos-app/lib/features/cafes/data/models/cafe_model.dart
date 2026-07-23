@@ -16,6 +16,7 @@ class CafeModel extends Cafe {
     super.distanceKm,
     super.themeId,
     super.appearance,
+    super.activeDiscounts,
   });
 
   factory CafeModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +34,15 @@ class CafeModel extends Cafe {
       distanceKm: (json['distanceKm'] as num?)?.toDouble(),
       themeId: json['theme'] as String?,
       appearance: CafeAppearance.fromJson(json['appearance'] as Map<String, dynamic>?),
+      activeDiscounts: ((json['activeDiscounts'] as List<dynamic>?) ?? [])
+          .map((d) => CafeDiscountSummary(
+                id: d['id'] as String,
+                name: d['name'] as String,
+                discountPercentage: (d['discountPercentage'] as num?)?.toDouble() ?? 0,
+                applicableCategory: d['applicableCategory'] as String?,
+                minimumQuantity: (d['minimumQuantity'] as num?)?.toInt() ?? 1,
+              ))
+          .toList(),
     );
   }
 }

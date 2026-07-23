@@ -11,10 +11,20 @@ class CafesRepositoryImpl implements CafesRepository {
   CafesRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, List<Cafe>>> getCafes({double? lat, double? lng, String? search}) async {
+  Future<Either<Failure, List<Cafe>>> getCafes({double? lat, double? lng, String? search, String? sort}) async {
     try {
-      final cafes = await remoteDataSource.getCafes(lat: lat, lng: lng, search: search);
+      final cafes = await remoteDataSource.getCafes(lat: lat, lng: lng, search: search, sort: sort);
       return right(cafes);
+    } on DioException catch (e) {
+      return left(mapDioExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Cafe>> getCafeById(String id) async {
+    try {
+      final cafe = await remoteDataSource.getCafeById(id);
+      return right(cafe);
     } on DioException catch (e) {
       return left(mapDioExceptionToFailure(e));
     }
