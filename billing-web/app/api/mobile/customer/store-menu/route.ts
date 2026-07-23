@@ -1,25 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
-
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "billing-app-secret-key";
-
-function verifyToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) return null;
-  try {
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-    if (decoded.role !== "CUSTOMER") return null;
-    return decoded.id;
-  } catch {
-    return null;
-  }
-}
+import { getCustomerIdFromAuthHeader } from "@/lib/auth/customer-mobile";
 
 export async function GET(request: NextRequest) {
   try {
-    const customerAccountId = verifyToken(request);
+    const customerAccountId = await getCustomerIdFromAuthHeader(request);
     if (!customerAccountId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -38,10 +23,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Store not found or inactive" }, { status: 404 });
     }
 
-    // Fetch products for this store
+    // Fetch products for this store. Pre-existing bug fixed here: this used to filter on
+    // `isActive`, a field Product doesn't have (it's `isAvailable`) — every call to this route
+    // has been throwing a 500 until now.
     const where: any = {
       tenantId,
-      isActive: true,
+      isAvailable: true,
     };
 
     if (search) {
@@ -55,6 +42,12 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         variants: true,
+        comboComponents: {
+          include: {
+            component: { select: { name: true } },
+            componentVariant: { select: { name: true } },
+          },
+        },
       },
       orderBy: { name: "asc" },
       take: 200,
@@ -84,6 +77,11 @@ export async function GET(request: NextRequest) {
           salePrice: v.salePrice,
           stock: v.stock,
           barcode: v.barcode,
+        })),
+        comboComponents: product.comboComponents.map((c: any) => ({
+          name: c.component.name,
+          variantName: c.componentVariant?.name ?? null,
+          quantity: c.quantity,
         })),
       });
     }
