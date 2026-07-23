@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { resolveTenant } from '@/lib/website/utils';
-import { toPublicCafe } from '@/lib/cafes/cafePublicFields';
+import { toPublicCafe, getGalleryImages } from '@/lib/cafes/cafePublicFields';
 
 // Single-cafe detail — the list route (GET /cafes) never had a by-id lookup, needed by the QR
 // scanner (scan -> resolve table -> need the full cafe object, not just a search hit) and by
@@ -36,6 +36,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       tagline: tenant.tagline,
       logoUrl: tenant.logoUrl,
       coverImageUrl: tenant.coverImageUrl,
+      shopFrontImageUrl: tenant.shopFrontImageUrl,
+      ownerImageUrl: tenant.ownerImageUrl,
       address: tenant.address,
       latitude: tenant.latitude,
       longitude: tenant.longitude,
@@ -44,11 +46,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       email: tenant.email,
       phone: tenant.phone,
       websiteSettings: tenant.websiteSettings
-        ? { theme: tenant.websiteSettings.theme, appearance: tenant.websiteSettings.appearance }
+        ? { theme: tenant.websiteSettings.theme, appearance: tenant.websiteSettings.appearance, sections: tenant.websiteSettings.sections }
         : null,
     });
 
-    return NextResponse.json({ cafe: { ...cafe, activeDiscounts: discounts } });
+    const galleryImages = getGalleryImages(tenant.websiteSettings?.sections).slice(0, 12);
+
+    return NextResponse.json({ cafe: { ...cafe, activeDiscounts: discounts, galleryImages } });
   } catch (error) {
     console.error('Error fetching cafe:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

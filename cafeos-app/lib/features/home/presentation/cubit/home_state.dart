@@ -22,9 +22,10 @@ class HomeState extends Equatable {
     this.recentCafes = const [],
   });
 
-  /// Real cover images only, drawn from nearby results — never a stock/fabricated banner. Empty
-  /// when no nearby cafe has one, so the hero carousel simply doesn't render rather than faking it.
-  List<Cafe> get heroCandidates => nearbyCafes.where((c) => c.coverImageUrl != null).take(5).toList();
+  /// Real images only (server-computed cover -> shop-front -> gallery-first priority chain),
+  /// drawn from nearby results — never a stock/fabricated banner. Empty when no nearby cafe has
+  /// one, so the hero carousel simply doesn't render rather than faking it.
+  List<Cafe> get heroCandidates => nearbyCafes.where((c) => c.heroImageUrl != null).take(5).toList();
 
   HomeState copyWith({
     HomeSectionStatus? nearbyStatus,

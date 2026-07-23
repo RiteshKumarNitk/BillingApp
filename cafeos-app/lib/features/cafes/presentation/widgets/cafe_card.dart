@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/cloudinary.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../domain/entities/cafe.dart';
 
@@ -61,9 +62,11 @@ class _CafeCardState extends State<CafeCard> {
                   fit: StackFit.expand,
                   children: [
                     Builder(builder: (context) {
-                      final cover = cafe.coverImageUrl != null
+                      // heroImageUrl is the server-computed cover -> shop-front -> gallery-first
+                      // priority chain — "never leave empty image containers" starts here.
+                      final cover = cafe.heroImageUrl != null
                           ? CachedNetworkImage(
-                              imageUrl: cafe.coverImageUrl!,
+                              imageUrl: cloudinaryThumbnail(cafe.heroImageUrl!),
                               fit: BoxFit.cover,
                               placeholder: (_, __) => Container(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
                               errorWidget: (_, __, ___) => _fallbackCover(theme),

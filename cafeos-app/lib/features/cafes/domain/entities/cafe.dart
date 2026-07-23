@@ -20,6 +20,16 @@ class CafeDiscountSummary extends Equatable {
   List<Object?> get props => [id, name, discountPercentage, applicableCategory, minimumQuantity];
 }
 
+class GalleryImage extends Equatable {
+  final String url;
+  final String? caption;
+
+  const GalleryImage({required this.url, this.caption});
+
+  @override
+  List<Object?> get props => [url, caption];
+}
+
 class Cafe extends Equatable {
   final String id;
   final String name;
@@ -27,6 +37,12 @@ class Cafe extends Equatable {
   final String? tagline;
   final String? logoUrl;
   final String? coverImageUrl;
+  final String? shopFrontImageUrl;
+  final String? ownerImageUrl;
+  // Server-computed priority chain (cover -> shop front -> first gallery photo -> null) — the one
+  // field UI should actually render as "the" hero/card image; see billing-web's
+  // lib/cafes/heroImage.ts for the shared logic this mirrors.
+  final String? heroImageUrl;
   final String? address;
   final double? latitude;
   final double? longitude;
@@ -38,6 +54,7 @@ class Cafe extends Equatable {
   final String? themeId;
   final CafeAppearance appearance;
   final List<CafeDiscountSummary> activeDiscounts;
+  final List<GalleryImage> galleryImages;
 
   const Cafe({
     required this.id,
@@ -46,6 +63,9 @@ class Cafe extends Equatable {
     this.tagline,
     this.logoUrl,
     this.coverImageUrl,
+    this.shopFrontImageUrl,
+    this.ownerImageUrl,
+    this.heroImageUrl,
     this.address,
     this.latitude,
     this.longitude,
@@ -57,6 +77,7 @@ class Cafe extends Equatable {
     this.themeId,
     this.appearance = const CafeAppearance(),
     this.activeDiscounts = const [],
+    this.galleryImages = const [],
   });
 
   String get distanceLabel {
@@ -69,7 +90,8 @@ class Cafe extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, name, websiteSlug, tagline, logoUrl, coverImageUrl, address, latitude, longitude,
-        businessHours, aboutText, email, phone, distanceKm, themeId, appearance, activeDiscounts,
+        id, name, websiteSlug, tagline, logoUrl, coverImageUrl, shopFrontImageUrl, ownerImageUrl,
+        heroImageUrl, address, latitude, longitude, businessHours, aboutText, email, phone,
+        distanceKm, themeId, appearance, activeDiscounts, galleryImages,
       ];
 }

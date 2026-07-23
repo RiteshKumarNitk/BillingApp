@@ -12,7 +12,7 @@ interface HeroProps {
   variant?: HeroStyle;
 }
 
-export default function Hero({ data, tenant, variant = 'pill' }: HeroProps) {
+export default function Hero({ data, config, tenant, variant = 'pill' }: HeroProps) {
   if (variant === 'minimal') {
     return (
       <section className="relative w-full py-28 md:py-40 px-6 overflow-hidden">
@@ -73,7 +73,13 @@ export default function Hero({ data, tenant, variant = 'pill' }: HeroProps) {
   }
 
   if (variant === 'luxury') {
-    const coverImage = tenant?.coverImageUrl || data.backgroundImageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+    // Same branding priority everywhere (mobile app / cafe cards use the same chain via
+    // lib/cafes/heroImage.ts): a dedicated Cover Image wins, then Shop Front, then whatever this
+    // section's own background was manually set to, then the first Gallery photo, and only then
+    // the hardcoded placeholder.
+    const galleryFirst = (config.sections?.find((s: any) => s.type === 'gallery') as any)?.data?.images?.[0]?.url ?? null;
+    const coverImage = tenant?.coverImageUrl || tenant?.shopFrontImageUrl || data.backgroundImageUrl || galleryFirst
+      || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
     return (
       <section className="relative w-full min-h-[85vh] flex items-center pt-20 pb-16 overflow-hidden">
         <div className="absolute top-20 left-10 w-32 h-32 bg-[var(--theme-primary)] opacity-5 rounded-full blur-3xl" />
@@ -144,7 +150,7 @@ export default function Hero({ data, tenant, variant = 'pill' }: HeroProps) {
               </Link>
             )}
             {data.ctaSecondary && (
-              <Link href={data.ctaSecondary.url} className="px-8 py-4 rounded-full font-semibold text-center border transition-colors hover:bg-[var(--theme-primary)]/10" style={{ borderColor: 'var(--theme-primary)', color: 'var(--theme-primary)' }}>
+              <Link href={data.ctaSecondary.url} className="px-8 py-4 rounded-full font-semibold text-center border transition-opacity hover:opacity-80" style={{ borderColor: 'var(--theme-secondary)', color: 'var(--theme-secondary)' }}>
                 {data.ctaSecondary.label}
               </Link>
             )}
@@ -171,7 +177,11 @@ export default function Hero({ data, tenant, variant = 'pill' }: HeroProps) {
               </Link>
             )}
             {data.ctaSecondary && (
-              <Link href={data.ctaSecondary.url} className="px-8 py-4 rounded-full font-bold text-center border-2 border-white/40 text-white hover:bg-white/10 transition-colors">
+              <Link
+                href={data.ctaSecondary.url}
+                className="px-8 py-4 rounded-full font-bold text-center border-2 text-white hover:opacity-90 transition-opacity"
+                style={{ borderColor: 'var(--theme-secondary)', backgroundColor: 'var(--theme-secondary)' }}
+              >
                 {data.ctaSecondary.label}
               </Link>
             )}

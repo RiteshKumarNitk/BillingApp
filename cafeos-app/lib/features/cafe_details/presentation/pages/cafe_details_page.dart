@@ -8,6 +8,7 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/storage/local_storage_service.dart';
 import '../../../../core/theme/cafe_theme.dart';
 import '../../../../core/utils/app_constants.dart';
+import '../../../../core/utils/cloudinary.dart';
 import '../../../../shared/widgets/app_chip.dart';
 import '../../../../shared/widgets/app_shimmer.dart';
 import '../../../../shared/widgets/app_toast.dart';
@@ -143,6 +144,7 @@ class _CafeDetailsPageState extends State<CafeDetailsPage> {
               SliverToBoxAdapter(child: _InfoSection(cafe: _cafe)),
               if (_cafe.aboutText != null && _cafe.aboutText!.isNotEmpty) SliverToBoxAdapter(child: _AboutSection(text: _cafe.aboutText!)),
               if (_cafe.activeDiscounts.isNotEmpty) SliverToBoxAdapter(child: _OffersSection(discounts: _cafe.activeDiscounts)),
+              if (_cafe.galleryImages.isNotEmpty) SliverToBoxAdapter(child: _GallerySection(images: _cafe.galleryImages)),
               SliverToBoxAdapter(
                 key: _menuSectionKey,
                 child: _MenuSection(cafe: _cafe),
@@ -257,8 +259,8 @@ class _HeaderSliver extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         background: Hero(
           tag: cafeCoverHeroTag(cafe.id),
-          child: cafe.coverImageUrl != null
-              ? CachedNetworkImage(imageUrl: cafe.coverImageUrl!, fit: BoxFit.cover)
+          child: cafe.heroImageUrl != null
+              ? CachedNetworkImage(imageUrl: cafe.heroImageUrl!, fit: BoxFit.cover)
               : Container(color: cafeTheme.colorScheme.primary.withValues(alpha: 0.15)),
         ),
       ),
@@ -380,6 +382,109 @@ class _OffersSection extends StatelessWidget {
                 ),
               )),
         ],
+      ),
+    );
+  }
+}
+
+class _GallerySection extends StatelessWidget {
+  final List<GalleryImage> images;
+  const _GallerySection({required this.images});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+          child: Text('Gallery', style: theme.textTheme.headlineMedium),
+        ),
+        SizedBox(
+          height: 110,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: images.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, i) => GestureDetector(
+              onTap: () => Navigator.of(context).push(PageRouteBuilder<void>(
+                opaque: false,
+                barrierColor: Colors.black,
+                pageBuilder: (context, _, __) => _GalleryViewer(images: images, initialIndex: i),
+              )),
+              child: Hero(
+                tag: 'gallery-$i-${images[i].url}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: CachedNetworkImage(
+                    imageUrl: cloudinaryThumbnail(images[i].url, width: 220),
+                    width: 110,
+                    height: 110,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GalleryViewer extends StatefulWidget {
+  final List<GalleryImage> images;
+  final int initialIndex;
+  const _GalleryViewer({required this.images, required this.initialIndex});
+
+  @override
+  State<_GalleryViewer> createState() => _GalleryViewerState();
+}
+
+class _GalleryViewerState extends State<_GalleryViewer> {
+  late final PageController _controller = PageController(initialPage: widget.initialIndex);
+  late int _index = widget.initialIndex;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        title: Text('${_index + 1} / ${widget.images.length}'),
+      ),
+      body: PageView.builder(
+        controller: _controller,
+        itemCount: widget.images.length,
+        onPageChanged: (i) => setState(() => _index = i),
+        itemBuilder: (context, i) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Hero(
+                tag: 'gallery-$i-${widget.images[i].url}',
+                child: InteractiveViewer(
+                  child: CachedNetworkImage(imageUrl: widget.images[i].url, fit: BoxFit.contain),
+                ),
+              ),
+            ),
+            if (widget.images[i].caption != null && widget.images[i].caption!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(widget.images[i].caption!, style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
+              ),
+          ],
+        ),
       ),
     );
   }

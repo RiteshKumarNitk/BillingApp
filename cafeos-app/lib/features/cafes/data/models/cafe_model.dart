@@ -9,6 +9,9 @@ class CafeModel extends Cafe {
     super.tagline,
     super.logoUrl,
     super.coverImageUrl,
+    super.shopFrontImageUrl,
+    super.ownerImageUrl,
+    super.heroImageUrl,
     super.address,
     super.latitude,
     super.longitude,
@@ -20,6 +23,7 @@ class CafeModel extends Cafe {
     super.themeId,
     super.appearance,
     super.activeDiscounts,
+    super.galleryImages,
   });
 
   factory CafeModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +34,9 @@ class CafeModel extends Cafe {
       tagline: json['tagline'] as String?,
       logoUrl: json['logoUrl'] as String?,
       coverImageUrl: json['coverImageUrl'] as String?,
+      shopFrontImageUrl: json['shopFrontImageUrl'] as String?,
+      ownerImageUrl: json['ownerImageUrl'] as String?,
+      heroImageUrl: json['heroImageUrl'] as String?,
       address: json['address'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
@@ -48,6 +55,9 @@ class CafeModel extends Cafe {
                 applicableCategory: d['applicableCategory'] as String?,
                 minimumQuantity: (d['minimumQuantity'] as num?)?.toInt() ?? 1,
               ))
+          .toList(),
+      galleryImages: ((json['galleryImages'] as List<dynamic>?) ?? [])
+          .map((g) => GalleryImage(url: g['url'] as String, caption: g['caption'] as String?))
           .toList(),
     );
   }

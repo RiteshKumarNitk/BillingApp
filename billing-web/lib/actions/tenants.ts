@@ -324,6 +324,8 @@ export interface MenuContentInput {
   coverImageUrl?: string;
   businessHours?: string;
   logoUrl?: string;
+  shopFrontImageUrl?: string;
+  ownerImageUrl?: string;
 }
 
 export async function updateMenuContent(data: MenuContentInput) {
@@ -343,6 +345,8 @@ export async function updateMenuContent(data: MenuContentInput) {
       coverImageUrl: data.coverImageUrl?.trim() || null,
       businessHours: data.businessHours?.trim() || null,
       logoUrl: data.logoUrl?.trim() || null,
+      shopFrontImageUrl: data.shopFrontImageUrl?.trim() || null,
+      ownerImageUrl: data.ownerImageUrl?.trim() || null,
     }
   });
 

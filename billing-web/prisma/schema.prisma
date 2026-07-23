@@ -36,6 +36,8 @@ model Tenant {
   tagline            String?
   aboutText          String?
   coverImageUrl      String?
+  shopFrontImageUrl  String?
+  ownerImageUrl      String?
   businessHours      String?
   // Service-business pivot (Cafe/Laundry/Salon). Nullable and unset by default so existing
   // general/medical-store-style tenants keep today's generic Product/POS UI unchanged — this only

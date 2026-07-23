@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { WebsiteConfig } from '@/lib/website/types';
 import { getThemesForBusinessType } from '@/lib/website/registry';
-import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink, BookOpen, MessageCircle, Search, Lock } from 'lucide-react';
+import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink, BookOpen, MessageCircle, Search, Lock, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/components/ui/Toast";
 import { updateMenuContent, type MenuContentInput } from '@/lib/actions/tenants';
 import SectionEditor from './SectionEditor';
@@ -11,7 +11,7 @@ import ImageUpload from '@/components/ImageUpload';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import { CartProvider } from '@/components/website/CartContext';
 
-type TabId = 'theme' | 'appearance' | 'sections' | 'about' | 'contact' | 'seo' | 'pages' | 'settings';
+type TabId = 'theme' | 'branding' | 'appearance' | 'sections' | 'about' | 'contact' | 'seo' | 'pages' | 'settings';
 
 // Section types a tenant can add on top of whatever their theme's defaults already include.
 // Not every theme renders every type (matches the existing per-theme section-support pattern);
@@ -162,6 +162,7 @@ export default function WebsiteBuilderClient({
         <div className="flex border-b border-gray-200 overflow-x-auto">
           {([
             { id: 'theme', label: 'Theme', icon: Layout },
+            { id: 'branding', label: 'Branding', icon: ImageIcon },
             { id: 'appearance', label: 'Style', icon: Palette },
             { id: 'sections', label: 'Sections', icon: Layers },
             { id: 'about', label: 'About', icon: BookOpen },
@@ -210,6 +211,64 @@ export default function WebsiteBuilderClient({
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'branding' && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-1">Branding &amp; Media</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Upload these once — the same images are reused automatically on your Website, the CafeOS mobile app, cafe listing cards, and QR ordering. No need to upload anything twice.
+                </p>
+              </div>
+
+              <ImageUpload
+                label="Logo"
+                defaultImage={aboutInfo.logoUrl}
+                onUploadSuccess={(url) => setAboutInfo({ ...aboutInfo, logoUrl: url })}
+              />
+              <ImageUpload
+                label="Cover Image / Hero Banner"
+                defaultImage={aboutInfo.coverImageUrl}
+                onUploadSuccess={(url) => setAboutInfo({ ...aboutInfo, coverImageUrl: url })}
+              />
+              <div>
+                <ImageUpload
+                  label="Shop Front Image"
+                  defaultImage={aboutInfo.shopFrontImageUrl}
+                  onUploadSuccess={(url) => setAboutInfo({ ...aboutInfo, shopFrontImageUrl: url })}
+                />
+                <p className="text-[11px] text-gray-500 mt-1">
+                  Used as the hero image everywhere a Cover Image hasn&apos;t been set — cafe cards, nearby/search results, and your website hero.
+                </p>
+              </div>
+              <ImageUpload
+                label="Owner Image (optional)"
+                defaultImage={aboutInfo.ownerImageUrl}
+                onUploadSuccess={(url) => setAboutInfo({ ...aboutInfo, ownerImageUrl: url })}
+              />
+
+              <div className="border-t border-gray-200 pt-4 space-y-2">
+                <p className="text-xs text-gray-500">
+                  Interior, exterior, and additional photos are managed as a Gallery, alongside your other page content.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('sections')}
+                  className="text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  Manage Gallery Images →
+                </button>
+                <p className="text-xs text-gray-500 pt-2">Brand colors (including your Secondary Color) live in Style.</p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('appearance')}
+                  className="text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  Manage Brand Colors →
+                </button>
               </div>
             </div>
           )}
@@ -328,13 +387,7 @@ export default function WebsiteBuilderClient({
           {activeTab === 'about' && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-1">About Page</h3>
-              <p className="text-sm text-gray-500 mb-4">Your story, shown on the About page and used as the homepage hero subtitle when a section doesn&apos;t set its own.</p>
-
-              <ImageUpload
-                label="Logo"
-                defaultImage={aboutInfo.logoUrl}
-                onUploadSuccess={(url) => setAboutInfo({ ...aboutInfo, logoUrl: url })}
-              />
+              <p className="text-sm text-gray-500 mb-4">Your story, shown on the About page and used as the homepage hero subtitle when a section doesn&apos;t set its own. Logo and photos are in the Branding tab.</p>
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Tagline</label>
@@ -357,12 +410,6 @@ export default function WebsiteBuilderClient({
                   className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none"
                 />
               </div>
-
-              <ImageUpload
-                label="Cover Image"
-                defaultImage={aboutInfo.coverImageUrl}
-                onUploadSuccess={(url) => setAboutInfo({ ...aboutInfo, coverImageUrl: url })}
-              />
             </div>
           )}
 

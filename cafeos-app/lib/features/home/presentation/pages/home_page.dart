@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                               .map<Widget Function(BuildContext)>((cafe) => (context) => InkWell(
                                     onTap: () => _openCafe(context, cafe),
                                     child: CarouselCoverImage(
-                                      imageUrl: cafe.coverImageUrl,
+                                      imageUrl: cafe.heroImageUrl,
                                       overlay: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         mainAxisSize: MainAxisSize.min,

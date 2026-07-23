@@ -78,7 +78,10 @@ export default async function WebsiteBuilderPage() {
         initialAboutInfo={{
           tagline: tenant.tagline || '',
           aboutText: tenant.aboutText || '',
+          logoUrl: tenant.logoUrl || '',
           coverImageUrl: tenant.coverImageUrl || '',
+          shopFrontImageUrl: tenant.shopFrontImageUrl || '',
+          ownerImageUrl: tenant.ownerImageUrl || '',
           businessHours: tenant.businessHours || '',
         }}
       />
