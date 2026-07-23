@@ -164,13 +164,13 @@ class _CafeDetailsPageState extends State<CafeDetailsPage> {
                   children: [
                     const SizedBox(height: 12),
                     SectionHeader(title: 'Reviews'),
-                    const SizedBox(
-                      height: 160,
-                      child: ComingSoonView(
-                        icon: Icons.reviews_outlined,
-                        title: 'Reviews are coming soon',
-                        message: 'Customer ratings and photos will show up here in a future update.',
-                      ),
+                    // No fixed height — ComingSoonView's Center shrink-wraps to its own content
+                    // (icon/title/message) once maxHeight is unbounded, same as every other sliver
+                    // section on this page; a fixed box here overflows once the message wraps.
+                    const ComingSoonView(
+                      icon: Icons.reviews_outlined,
+                      title: 'Reviews are coming soon',
+                      message: 'Customer ratings and photos will show up here in a future update.',
                     ),
                   ],
                 ),
