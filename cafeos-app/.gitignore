@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase config (not wired up yet — see AppConstants/push-notification plan;
+# these carry real project keys once added, never commit them)
+**/google-services.json
+**/GoogleService-Info.plist
+lib/firebase_options.dart
+
+# Local env overrides (API_BASE_URL etc. via --dart-define-from-file)
+.env
+.env.*
+*.env.json
