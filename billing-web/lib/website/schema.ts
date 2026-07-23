@@ -88,13 +88,17 @@ const pagesSchema = z.object({
   contact: z.boolean().optional(),
 }).partial();
 
+// .nullish() (not .optional()) on every field below: getWebsiteConfig() passes a tenant's raw
+// Website row straight through as WebsiteConfig, and Json columns that were never explicitly set
+// come back as `null`, not `undefined` — a round-trip save (fetch config -> submit unchanged)
+// must accept that literal null or every such tenant's Save button 400s on the very first click.
 export const websiteConfigSchema = z.object({
   theme: z.enum(THEME_IDS),
-  appearance: appearanceSchema.optional(),
-  seo: seoSchema.optional(),
-  businessInfo: businessInfoSchema.optional(),
-  sections: z.array(sectionSchema).max(50).optional(),
-  pages: pagesSchema.optional(),
+  appearance: appearanceSchema.nullish(),
+  seo: seoSchema.nullish(),
+  businessInfo: businessInfoSchema.nullish(),
+  sections: z.array(sectionSchema).max(50).nullish(),
+  pages: pagesSchema.nullish(),
 });
 
 // Public, unauthenticated endpoints (contact form + visit beacon) — anyone can POST these, so
