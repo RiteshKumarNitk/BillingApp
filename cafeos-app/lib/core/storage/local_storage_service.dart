@@ -28,7 +28,7 @@ class LocalStorageService {
   Future<void> setRecentlyViewedCafeIds(List<String> ids) => _prefs.setStringList(AppConstants.prefsRecentlyViewedKey, ids);
 
   /// 'light' | 'dark' | 'system'
-  String get themeMode => _prefs.getString(AppConstants.prefsThemeModeKey) ?? 'system';
+  String get themeMode => _prefs.getString(AppConstants.prefsThemeModeKey) ?? 'light';
   Future<void> setThemeMode(String mode) => _prefs.setString(AppConstants.prefsThemeModeKey, mode);
 
   bool get pushEnabled => _prefs.getBool(AppConstants.prefsPushEnabledKey) ?? true;

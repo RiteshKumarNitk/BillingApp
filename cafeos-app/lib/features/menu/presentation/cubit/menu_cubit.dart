@@ -20,4 +20,6 @@ class MenuCubit extends Cubit<MenuState> {
   }
 
   void selectCategory(String? category) => emit(state.copyWith(selectedCategory: category, clearSelectedCategory: category == null));
+
+  void toggleFeaturedOnly() => emit(state.copyWith(featuredOnly: !state.featuredOnly));
 }

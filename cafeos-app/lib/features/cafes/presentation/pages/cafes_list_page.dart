@@ -74,7 +74,7 @@ class _CafesListPageState extends State<CafesListPage> {
                         separatorBuilder: (_, __) => const SizedBox(height: 14),
                         itemBuilder: (context, index) {
                           final cafe = state.cafes[index];
-                          return CafeCard(cafe: cafe, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
+                          return CafeCard(cafe: cafe, enableHero: true, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
                         },
                       ),
                     );

@@ -10,12 +10,15 @@ class AppColors {
   static const Color primaryDark = Color(0xFFE85A3A);
   static const Color secondary = Color(0xFF1A1D29); // deep charcoal-navy
 
-  // Light mode
-  static const Color lightBackground = Color(0xFFFFFBF8);
+  // Light mode — the default theme (see ThemeModeController). Soft warm-neutral background with
+  // pure-white cards floating just above it on shadow, not a border, for the Material 3 /
+  // Zomato-Swiggy-Airbnb "bright and appetizing" feel.
+  static const Color lightBackground = Color(0xFFFAF8F6);
   static const Color lightSurface = Color(0xFFFFFFFF);
   static const Color lightText = Color(0xFF1A1D29);
-  static const Color lightMuted = Color(0xFF6B7280);
-  static const Color lightBorder = Color(0xFFEDE7E2);
+  static const Color lightMuted = Color(0xFF6E7180);
+  static const Color lightBorder = Color(0xFFF0EBE6);
+  static const Color lightCardShadow = Color(0x14000000);
 
   // Dark mode
   static const Color darkBackground = Color(0xFF121218);

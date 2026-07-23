@@ -40,6 +40,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       latitude: tenant.latitude,
       longitude: tenant.longitude,
       businessHours: tenant.businessHours,
+      aboutText: tenant.aboutText,
+      email: tenant.email,
+      phone: tenant.phone,
       websiteSettings: tenant.websiteSettings
         ? { theme: tenant.websiteSettings.theme, appearance: tenant.websiteSettings.appearance }
         : null,

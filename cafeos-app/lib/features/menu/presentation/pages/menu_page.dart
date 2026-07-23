@@ -58,7 +58,7 @@ class _MenuView extends StatelessWidget {
 
             return Column(
               children: [
-                if (state.categories.length > 1)
+                if (state.categories.length > 1 || state.hasFeaturedItems)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: SizedBox(
@@ -67,10 +67,21 @@ class _MenuView extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: AppChip(label: 'All', selected: state.selectedCategory == null, onTap: () => context.read<MenuCubit>().selectCategory(null)),
-                          ),
+                          if (state.categories.length > 1)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: AppChip(label: 'All', selected: state.selectedCategory == null, onTap: () => context.read<MenuCubit>().selectCategory(null)),
+                            ),
+                          if (state.hasFeaturedItems)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: AppChip(
+                                label: 'Popular',
+                                icon: Icons.star_rounded,
+                                selected: state.featuredOnly,
+                                onTap: () => context.read<MenuCubit>().toggleFeaturedOnly(),
+                              ),
+                            ),
                           ...state.categories.map((c) => Padding(
                                 padding: const EdgeInsets.only(right: 8),
                                 child: AppChip(label: c.category, selected: state.selectedCategory == c.category, onTap: () => context.read<MenuCubit>().selectCategory(c.category)),
@@ -80,7 +91,9 @@ class _MenuView extends StatelessWidget {
                     ),
                   ),
                 Expanded(
-                  child: ListView(
+                  child: state.visibleCategories.isEmpty
+                      ? const EmptyStateView(icon: Icons.star_border_rounded, title: 'No popular items yet', message: 'Nothing has been marked popular in this category.')
+                      : ListView(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                     children: state.visibleCategories.expand((category) => [
                           if (state.categories.length > 1)

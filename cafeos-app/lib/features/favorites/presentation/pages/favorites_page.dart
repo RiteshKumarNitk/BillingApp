@@ -58,7 +58,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 separatorBuilder: (_, __) => const SizedBox(height: 14),
                 itemBuilder: (context, i) {
                   final cafe = state.cafes[i];
-                  return CafeCard(cafe: cafe, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
+                  return CafeCard(cafe: cafe, enableHero: true, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
                 },
               ),
             );

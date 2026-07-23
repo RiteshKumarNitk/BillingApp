@@ -31,6 +31,9 @@ class Cafe extends Equatable {
   final double? latitude;
   final double? longitude;
   final String? businessHours;
+  final String? aboutText;
+  final String? email;
+  final String? phone;
   final double? distanceKm;
   final String? themeId;
   final CafeAppearance appearance;
@@ -47,6 +50,9 @@ class Cafe extends Equatable {
     this.latitude,
     this.longitude,
     this.businessHours,
+    this.aboutText,
+    this.email,
+    this.phone,
     this.distanceKm,
     this.themeId,
     this.appearance = const CafeAppearance(),
@@ -59,6 +65,11 @@ class Cafe extends Equatable {
     return '${distanceKm!.toStringAsFixed(1)} km away';
   }
 
+  bool get hasCoordinates => latitude != null && longitude != null;
+
   @override
-  List<Object?> get props => [id, name, websiteSlug, tagline, logoUrl, coverImageUrl, address, latitude, longitude, businessHours, distanceKm, themeId, appearance, activeDiscounts];
+  List<Object?> get props => [
+        id, name, websiteSlug, tagline, logoUrl, coverImageUrl, address, latitude, longitude,
+        businessHours, aboutText, email, phone, distanceKm, themeId, appearance, activeDiscounts,
+      ];
 }

@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 /// CafeOS's own light/dark themes for app chrome. Cafe-specific screens (menu/cart/checkout)
-/// switch to CafeTheme.build(...) instead — see cafe_theme.dart.
+/// switch to CafeTheme.build(...) instead — see cafe_theme.dart. Light is the default (see
+/// ThemeModeController) and gets the fuller Material 3 polish pass — soft elevation shadows
+/// instead of flat borders, tighter line-height — dark keeps its existing look.
 class AppTheme {
   AppTheme._();
 
@@ -39,15 +41,16 @@ class AppTheme {
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
+      splashFactory: InkSparkle.splashFactory,
       textTheme: baseTextTheme.copyWith(
-        displayLarge: headingFont.copyWith(fontSize: 32, fontWeight: FontWeight.w700, color: text),
-        displayMedium: headingFont.copyWith(fontSize: 26, fontWeight: FontWeight.w700, color: text),
-        headlineLarge: headingFont.copyWith(fontSize: 22, fontWeight: FontWeight.w700, color: text),
-        headlineMedium: headingFont.copyWith(fontSize: 18, fontWeight: FontWeight.w700, color: text),
-        titleMedium: headingFont.copyWith(fontSize: 16, fontWeight: FontWeight.w600, color: text),
-        bodyLarge: baseTextTheme.bodyLarge?.copyWith(color: text),
-        bodyMedium: baseTextTheme.bodyMedium?.copyWith(color: text),
-        bodySmall: baseTextTheme.bodySmall?.copyWith(color: muted),
+        displayLarge: headingFont.copyWith(fontSize: 32, fontWeight: FontWeight.w700, color: text, height: 1.2),
+        displayMedium: headingFont.copyWith(fontSize: 26, fontWeight: FontWeight.w700, color: text, height: 1.25),
+        headlineLarge: headingFont.copyWith(fontSize: 22, fontWeight: FontWeight.w700, color: text, height: 1.25),
+        headlineMedium: headingFont.copyWith(fontSize: 18, fontWeight: FontWeight.w700, color: text, height: 1.3),
+        titleMedium: headingFont.copyWith(fontSize: 16, fontWeight: FontWeight.w600, color: text, height: 1.3),
+        bodyLarge: baseTextTheme.bodyLarge?.copyWith(color: text, height: 1.45),
+        bodyMedium: baseTextTheme.bodyMedium?.copyWith(color: text, height: 1.4, letterSpacing: 0.1),
+        bodySmall: baseTextTheme.bodySmall?.copyWith(color: muted, height: 1.35, letterSpacing: 0.1),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
@@ -56,12 +59,21 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: headingFont.copyWith(fontSize: 18, fontWeight: FontWeight.w700, color: text),
       ),
-      cardTheme: CardThemeData(
-        color: surface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: border)),
-        margin: EdgeInsets.zero,
-      ),
+      cardTheme: isDark
+          ? CardThemeData(
+              color: surface,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: border)),
+              margin: EdgeInsets.zero,
+            )
+          : CardThemeData(
+              color: surface,
+              elevation: 3,
+              shadowColor: AppColors.lightCardShadow,
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              margin: EdgeInsets.zero,
+            ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -69,7 +81,8 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-          elevation: 0,
+          elevation: isDark ? 0 : 1,
+          shadowColor: AppColors.primary.withValues(alpha: 0.35),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -83,7 +96,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surface,
+        fillColor: isDark ? surface : AppColors.lightBackground,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: border)),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: border)),
@@ -96,7 +109,22 @@ class AppTheme {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: muted,
         type: BottomNavigationBarType.fixed,
-        elevation: 0,
+        elevation: isDark ? 0 : 8,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        elevation: isDark ? 0 : 3,
+        shadowColor: isDark ? null : AppColors.lightCardShadow,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: AppColors.primary.withValues(alpha: 0.14),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
+              fontSize: 11,
+              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+              color: states.contains(WidgetState.selected) ? AppColors.primary : muted,
+            )),
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
+              color: states.contains(WidgetState.selected) ? AppColors.primary : muted,
+            )),
       ),
     );
   }

@@ -79,6 +79,13 @@ dependencies:
   # mobile-app/'s staff features).
   mobile_scanner: ^6.0.7
 
+  # Cafe Details "Contact"/"Location" actions (call, email, website, get directions) — hands off
+  # to the device's own dialer/mail/browser/maps app, no API key needed (unlike an embedded map).
+  url_launcher: ^6.3.1
+
+  # "Share Cafe" action
+  share_plus: ^10.1.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -12,6 +12,8 @@ class MenuItemModel extends MenuItem {
     required super.category,
     required super.productType,
     super.barcode,
+    super.foodType,
+    super.isFeatured,
     super.variants,
     super.addOns,
     super.comboComponents,
@@ -30,6 +32,8 @@ class MenuItemModel extends MenuItem {
       category: json['category'] as String? ?? 'Other',
       productType: json['productType'] as String? ?? 'SIMPLE',
       barcode: json['barcode'] as String?,
+      foodType: json['foodType'] as String?,
+      isFeatured: json['isFeatured'] as bool? ?? false,
       variants: ((json['variants'] as List<dynamic>?) ?? [])
           .map((v) => MenuVariant(
                 id: v['id'] as String,

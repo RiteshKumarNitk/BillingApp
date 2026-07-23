@@ -168,14 +168,17 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(context.select<HomeCubit, bool>((c) => c.state.locationEnabled) ? 'Nearby Cafes' : 'All Cafes', style: theme.textTheme.headlineMedium),
-                        TextButton(onPressed: () => context.push('/cafes'), child: const Text('See all')),
-                      ],
+                  child: BlocBuilder<HomeCubit, HomeState>(
+                    buildWhen: (a, b) => a.locationEnabled != b.locationEnabled,
+                    builder: (context, state) => Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(state.locationEnabled ? 'Nearby Cafes' : 'All Cafes', style: theme.textTheme.headlineMedium),
+                          TextButton(onPressed: () => context.push('/cafes'), child: const Text('See all')),
+                        ],
+                      ),
                     ),
                   ),
                 ),

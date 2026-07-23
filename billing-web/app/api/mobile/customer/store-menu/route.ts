@@ -30,11 +30,11 @@ export async function GET(request: NextRequest) {
     }
     const tenant = tenantRecord;
 
-    // Fetch products for this store. Pre-existing bug fixed here: this used to filter on
-    // `isActive`, a field Product doesn't have (it's `isAvailable`) — every call to this route
-    // has been throwing a 500 until now.
+    // Fetch products for this store. `tenantId` here is whatever the caller passed (id or slug) —
+    // must filter by the resolved tenant.id, not the raw param, or a slug-based lookup silently
+    // matches zero products.
     const where: any = {
-      tenantId,
+      tenantId: tenant.id,
       isAvailable: true,
     };
 
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const discounts = await prisma.discount.findMany({
       where: {
-        tenantId,
+        tenantId: tenant.id,
         isActive: true,
         code: null,
         AND: [
@@ -101,6 +101,8 @@ export async function GET(request: NextRequest) {
         category: product.category,
         productType: product.productType,
         barcode: product.barcode,
+        foodType: product.foodType,
+        isFeatured: product.isFeatured,
         variants: product.variants.map((v: any) => ({
           id: v.id,
           name: v.name,

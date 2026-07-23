@@ -12,6 +12,9 @@ export const cafePublicSelect = {
   latitude: true,
   longitude: true,
   businessHours: true,
+  aboutText: true,
+  email: true,
+  phone: true,
   // Tenant.primaryColor/fontFamily are dead legacy fields never touched by the Website Builder save
   // route — the real per-cafe branding lives in Website.appearance (the Theme Engine).
   websiteSettings: { select: { theme: true, appearance: true } },

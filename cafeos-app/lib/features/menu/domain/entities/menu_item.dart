@@ -58,6 +58,8 @@ class MenuItem extends Equatable {
   final String category;
   final String productType; // SIMPLE | VARIANT | COMBO
   final String? barcode;
+  final String? foodType; // VEG | NON_VEG | VEGAN | JAIN
+  final bool isFeatured;
   final List<MenuVariant> variants;
   final List<MenuAddOn> addOns;
   final List<MenuComboComponent> comboComponents;
@@ -74,6 +76,8 @@ class MenuItem extends Equatable {
     required this.category,
     required this.productType,
     this.barcode,
+    this.foodType,
+    this.isFeatured = false,
     this.variants = const [],
     this.addOns = const [],
     this.comboComponents = const [],
@@ -84,9 +88,14 @@ class MenuItem extends Equatable {
   bool get hasVariants => variants.isNotEmpty;
   bool get hasCustomization => hasVariants || addOns.isNotEmpty;
   bool get isOutOfStock => productType != 'COMBO' && !hasVariants && stock <= 0;
+  bool get isVeg => foodType == 'VEG' || foodType == 'VEGAN' || foodType == 'JAIN';
+  bool get isNonVeg => foodType == 'NON_VEG';
 
   @override
-  List<Object?> get props => [id, name, description, salePrice, mrp, stock, imageUrl, category, productType, barcode, variants, addOns, comboComponents, activeDiscount];
+  List<Object?> get props => [
+        id, name, description, salePrice, mrp, stock, imageUrl, category, productType, barcode,
+        foodType, isFeatured, variants, addOns, comboComponents, activeDiscount,
+      ];
 }
 
 class MenuCategory extends Equatable {

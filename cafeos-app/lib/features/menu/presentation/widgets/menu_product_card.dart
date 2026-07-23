@@ -35,11 +35,19 @@ class MenuProductCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
+                        if (item.foodType != null) ...[
+                          _FoodTypeIndicator(isVeg: item.isVeg),
+                          const SizedBox(width: 6),
+                        ],
                         if (item.isCombo) ...[
                           Icon(Icons.ramen_dining_rounded, size: 14, color: theme.colorScheme.primary),
                           const SizedBox(width: 4),
                         ],
                         Flexible(child: Text(item.name, style: theme.textTheme.titleMedium?.copyWith(fontSize: 15), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        if (item.isFeatured) ...[
+                          const SizedBox(width: 6),
+                          const Icon(Icons.star_rounded, size: 14, color: Color(0xFFE8A93B)),
+                        ],
                       ],
                     ),
                     if (item.description != null && item.description!.isNotEmpty) ...[
@@ -87,6 +95,26 @@ class MenuProductCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The familiar green-square/brown-square-with-a-dot veg/non-veg mark used by every Indian food
+/// delivery app (Zomato/Swiggy) — instantly recognizable, so it's used here rather than inventing
+/// a new symbol.
+class _FoodTypeIndicator extends StatelessWidget {
+  final bool isVeg;
+  const _FoodTypeIndicator({required this.isVeg});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isVeg ? const Color(0xFF2E9E5B) : const Color(0xFF8B4513);
+    return Container(
+      width: 14,
+      height: 14,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(border: Border.all(color: color, width: 1.3), borderRadius: BorderRadius.circular(3)),
+      child: Center(child: Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle))),
     );
   }
 }
