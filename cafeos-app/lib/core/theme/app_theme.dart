@@ -117,13 +117,16 @@ class AppTheme {
         shadowColor: isDark ? null : AppColors.lightCardShadow,
         surfaceTintColor: Colors.transparent,
         indicatorColor: AppColors.primary.withValues(alpha: 0.14),
+        // Deliberately darker/heavier than the shared `muted` body-text color (~4.4:1 on white) —
+        // that passes accessibility minimums but reads as washed-out on a 5-item bar. Scoped to
+        // just the nav bar so other muted-text usage (captions, hints) is unaffected.
         labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
               fontSize: 11,
-              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
-              color: states.contains(WidgetState.selected) ? AppColors.primary : muted,
+              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w600,
+              color: states.contains(WidgetState.selected) ? AppColors.primary : text.withValues(alpha: 0.72),
             )),
         iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
-              color: states.contains(WidgetState.selected) ? AppColors.primary : muted,
+              color: states.contains(WidgetState.selected) ? AppColors.primary : text.withValues(alpha: 0.72),
             )),
       ),
     );

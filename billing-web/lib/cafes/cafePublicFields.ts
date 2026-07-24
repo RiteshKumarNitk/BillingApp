@@ -27,11 +27,15 @@ export const cafePublicSelect = {
   // route — the real per-cafe branding lives in Website.appearance (the Theme Engine).
   // `sections` is selected only to compute heroImageUrl's gallery-first-image fallback below — it
   // is deliberately stripped back out in toPublicCafe(), not re-exposed as raw section JSON.
-  websiteSettings: { select: { theme: true, appearance: true, sections: true } },
+  // `businessInfo` carries the structured per-day `hours` the Website Builder's Business Info tab
+  // writes (see lib/website/types.ts's WebsiteConfig.businessInfo.hours) — surfaced below as a
+  // dedicated `hours` field so the mobile app can compute a real open/closed status instead of
+  // parsing the free-text Tenant.businessHours fallback.
+  websiteSettings: { select: { theme: true, appearance: true, sections: true, businessInfo: true } },
 } as const;
 
 export interface PublicCafeSource {
-  websiteSettings: { theme: string | null; appearance: unknown; sections?: unknown } | null;
+  websiteSettings: { theme: string | null; appearance: unknown; sections?: unknown; businessInfo?: unknown } | null;
   coverImageUrl?: string | null;
   shopFrontImageUrl?: string | null;
   [key: string]: unknown;
@@ -55,10 +59,15 @@ export function getGalleryImages(sections: unknown): GalleryImage[] {
 export function toPublicCafe<T extends PublicCafeSource>(t: T) {
   const { websiteSettings, ...rest } = t;
   const galleryImages = getGalleryImages(websiteSettings?.sections);
+  const businessInfo = websiteSettings?.businessInfo as { hours?: unknown } | null | undefined;
   return {
     ...rest,
     theme: websiteSettings?.theme ?? null,
     appearance: websiteSettings?.appearance ?? null,
+    // Structured per-day hours ({monday: {open, close, closed}, ...}) when the cafe has actually
+    // set them via the Website Builder's Business Info tab — null otherwise. Never fabricated: the
+    // mobile app must treat null as "unknown," not "closed."
+    hours: businessInfo?.hours ?? null,
     heroImageUrl: pickHeroImage({
       coverImageUrl: t.coverImageUrl,
       shopFrontImageUrl: t.shopFrontImageUrl,

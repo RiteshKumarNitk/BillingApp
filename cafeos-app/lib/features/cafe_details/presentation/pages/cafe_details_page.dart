@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart' show Share;
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/storage/local_storage_service.dart';
 import '../../../../core/theme/cafe_theme.dart';
@@ -11,12 +10,13 @@ import '../../../../core/utils/app_constants.dart';
 import '../../../../core/utils/cloudinary.dart';
 import '../../../../shared/widgets/app_chip.dart';
 import '../../../../shared/widgets/app_shimmer.dart';
-import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/cart_fab_badge.dart';
 import '../../../../shared/widgets/coming_soon_view.dart';
 import '../../../../shared/widgets/price_tag.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/section_header.dart';
+import '../../../../shared/utils/directions.dart';
+import '../../../../shared/utils/launch_external_url.dart';
 import '../../../cafes/domain/entities/cafe.dart';
 import '../../../cafes/domain/usecases/get_cafe_by_id_usecase.dart';
 import '../../../cafes/domain/usecases/get_cafes_usecase.dart';
@@ -106,17 +106,11 @@ class _CafeDetailsPageState extends State<CafeDetailsPage> {
     if (context != null) Scrollable.ensureVisible(context, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
   }
 
-  Future<void> _launch(Uri uri) async {
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) AppToast.error(context, 'Could not open that link');
-    }
-  }
+  Future<void> _launch(Uri uri) => launchExternalUrl(context, uri);
 
   Uri get _websiteUri => Uri.parse(AppConstants.apiBaseUrl).replace(path: '/site/${_cafe.websiteSlug ?? _cafe.id}');
 
-  Uri get _directionsUri => _cafe.hasCoordinates
-      ? Uri.parse('https://www.google.com/maps/search/?api=1&query=${_cafe.latitude},${_cafe.longitude}')
-      : Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(_cafe.address ?? _cafe.name)}');
+  Uri get _directionsUri => directionsUriFor(_cafe);
 
   void _shareCafe() {
     Share.share('${_cafe.name}${_cafe.tagline != null ? ' — ${_cafe.tagline}' : ''}\n$_websiteUri');

@@ -18,6 +18,7 @@ import '../../features/checkout/presentation/pages/checkout_page.dart';
 import '../../features/checkout/presentation/pages/order_success_page.dart';
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/map/presentation/pages/map_page.dart';
 import '../../features/menu/presentation/pages/menu_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
@@ -112,6 +113,7 @@ GoRouter buildAppRouter(AuthCubit authCubit) {
               builder: (context, state) => BlocProvider(create: (_) => sl<CafesCubit>(), child: const CafesListPage()),
             ),
           ]),
+          StatefulShellBranch(routes: [GoRoute(path: '/map', builder: (context, state) => const MapPage())]),
           StatefulShellBranch(routes: [GoRoute(path: '/orders', builder: (context, state) => const OrdersPage())]),
           StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (context, state) => const ProfilePage())]),
         ],

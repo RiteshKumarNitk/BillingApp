@@ -73,6 +73,8 @@ import '../../features/addresses/domain/usecases/update_address_usecase.dart';
 import '../../features/addresses/domain/usecases/delete_address_usecase.dart';
 import '../../features/addresses/presentation/cubit/addresses_cubit.dart';
 
+import '../../features/map/presentation/cubit/map_cubit.dart';
+
 final sl = GetIt.instance;
 
 /// Registration order matters: core singletons first, then each feature's
@@ -159,4 +161,8 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => UpdateAddressUseCase(sl()));
   sl.registerLazySingleton(() => DeleteAddressUseCase(sl()));
   sl.registerFactory(() => AddressesCubit(getAddressesUseCase: sl(), createAddressUseCase: sl(), updateAddressUseCase: sl(), deleteAddressUseCase: sl()));
+
+  // Map — reuses the same GetCafesUseCase/LocationService as Cafes/Home, just a different cubit
+  // shaped around map+list view state and client-side Open Now/radius filters.
+  sl.registerFactory(() => MapCubit(getCafesUseCase: sl(), locationService: sl()));
 }

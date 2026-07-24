@@ -86,6 +86,11 @@ dependencies:
   # "Share Cafe" action
   share_plus: ^10.1.4
 
+  # Map tab — OpenStreetMap tiles, no API key/paid service (explicit constraint: no Google Maps
+  # API). flutter_map renders tiles/markers; latlong2 is its LatLng type.
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

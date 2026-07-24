@@ -10,10 +10,13 @@ class GetCafesParams extends Equatable {
   final double? lng;
   final String? search;
   final String? sort;
-  const GetCafesParams({this.lat, this.lng, this.search, this.sort});
+  // Backend defaults to 30, max 100 — the Map tab passes 100 so it can plot every active cafe
+  // instead of just the first page.
+  final int? limit;
+  const GetCafesParams({this.lat, this.lng, this.search, this.sort, this.limit});
 
   @override
-  List<Object?> get props => [lat, lng, search, sort];
+  List<Object?> get props => [lat, lng, search, sort, limit];
 }
 
 class GetCafesUseCase implements UseCase<List<Cafe>, GetCafesParams> {
@@ -22,6 +25,6 @@ class GetCafesUseCase implements UseCase<List<Cafe>, GetCafesParams> {
 
   @override
   Future<Either<Failure, List<Cafe>>> call(GetCafesParams params) {
-    return repository.getCafes(lat: params.lat, lng: params.lng, search: params.search, sort: params.sort);
+    return repository.getCafes(lat: params.lat, lng: params.lng, search: params.search, sort: params.sort, limit: params.limit);
   }
 }

@@ -5,12 +5,13 @@ class CafesRemoteDataSource {
   final Dio dio;
   CafesRemoteDataSource(this.dio);
 
-  Future<List<CafeModel>> getCafes({double? lat, double? lng, String? search, String? sort}) async {
+  Future<List<CafeModel>> getCafes({double? lat, double? lng, String? search, String? sort, int? limit}) async {
     final response = await dio.get('/customer/cafes', queryParameters: {
       if (lat != null) 'lat': lat,
       if (lng != null) 'lng': lng,
       if (search != null && search.isNotEmpty) 'search': search,
       if (sort != null) 'sort': sort,
+      if (limit != null) 'limit': limit,
     });
     final data = response.data as Map<String, dynamic>;
     final list = data['cafes'] as List<dynamic>;

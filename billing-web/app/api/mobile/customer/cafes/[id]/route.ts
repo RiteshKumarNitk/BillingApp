@@ -51,7 +51,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       email: tenant.email,
       phone: tenant.phone,
       websiteSettings: tenant.websiteSettings
-        ? { theme: tenant.websiteSettings.theme, appearance: tenant.websiteSettings.appearance, sections: tenant.websiteSettings.sections }
+        ? {
+            theme: tenant.websiteSettings.theme,
+            appearance: tenant.websiteSettings.appearance,
+            sections: tenant.websiteSettings.sections,
+            businessInfo: tenant.websiteSettings.businessInfo,
+          }
         : null,
     });
 

@@ -6,7 +6,7 @@ import { cafePublicSelect, toPublicCafe, haversineKm } from '@/lib/cafes/cafePub
 // Cafe discovery/browse for the CafeOS customer mobile app — public, no auth (matches every other
 // "discover before you commit to an account" flow in the app; browsing is guest-friendly, only
 // checkout requires login). Query params: `lat`/`lng` (optional — sorts by distance and includes
-// `distanceKm` when given), `search` (optional, matches name/tagline/address), `sort` (optional,
+// `distanceKm` when given), `search` (optional, matches name/tagline/address/city/state), `sort` (optional,
 // `popular` ranks by real historical order volume instead of newest-first/distance), `limit`
 // (default 30, max 100).
 export async function GET(request: NextRequest) {
@@ -34,6 +34,8 @@ export async function GET(request: NextRequest) {
         { name: { contains: search, mode: 'insensitive' } },
         { tagline: { contains: search, mode: 'insensitive' } },
         { address: { contains: search, mode: 'insensitive' } },
+        { city: { contains: search, mode: 'insensitive' } },
+        { state: { contains: search, mode: 'insensitive' } },
       ];
     }
 
