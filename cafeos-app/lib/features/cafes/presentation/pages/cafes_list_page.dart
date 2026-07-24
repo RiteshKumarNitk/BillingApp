@@ -6,7 +6,7 @@ import '../../../../shared/widgets/app_shimmer.dart';
 import '../../../../shared/widgets/app_state_views.dart';
 import '../cubit/cafes_cubit.dart';
 import '../cubit/cafes_state.dart';
-import '../widgets/cafe_card.dart';
+import '../widgets/cafe_grid_card.dart';
 
 const _radiusOptions = <double?>[null, 1, 3, 5, 10];
 
@@ -117,13 +117,13 @@ class _CafesListPageState extends State<CafesListPage> {
                     }
                     return RefreshIndicator(
                       onRefresh: () => context.read<CafesCubit>().loadCafes(search: _searchController.text, sort: state.sort),
-                      child: ListView.separated(
+                      child: GridView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                        gridDelegate: cafeGridDelegate,
                         itemCount: cafes.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 14),
                         itemBuilder: (context, index) {
                           final cafe = cafes[index];
-                          return CafeCard(cafe: cafe, enableHero: true, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
+                          return CafeGridCard(cafe: cafe, enableHero: true, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
                         },
                       ),
                     );
@@ -138,11 +138,11 @@ class _CafesListPageState extends State<CafesListPage> {
 
   Widget _buildLoading() {
     return AppShimmer(
-      child: ListView.separated(
+      child: GridView.builder(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        itemCount: 5,
-        separatorBuilder: (_, __) => const SizedBox(height: 14),
-        itemBuilder: (_, __) => const ShimmerBox(height: 190, borderRadius: BorderRadius.all(Radius.circular(20))),
+        gridDelegate: cafeGridDelegate,
+        itemCount: 6,
+        itemBuilder: (_, __) => const ShimmerBox(height: double.infinity, borderRadius: BorderRadius.all(Radius.circular(18))),
       ),
     );
   }

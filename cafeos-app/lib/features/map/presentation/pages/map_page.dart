@@ -9,7 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_chip.dart';
 import '../../../../shared/widgets/app_shimmer.dart';
 import '../../../../shared/widgets/app_state_views.dart';
-import '../../../cafes/presentation/widgets/cafe_card.dart';
+import '../../../cafes/presentation/widgets/cafe_grid_card.dart';
 import '../cubit/map_cubit.dart';
 import '../cubit/map_state.dart';
 import '../widgets/cafe_marker_sheet.dart';
@@ -239,11 +239,11 @@ class _ListView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (state.status == MapStatus.loading || state.status == MapStatus.initial) {
       return AppShimmer(
-        child: ListView.separated(
+        child: GridView.builder(
           padding: const EdgeInsets.fromLTRB(16, 110, 16, 24),
-          itemCount: 5,
-          separatorBuilder: (_, __) => const SizedBox(height: 14),
-          itemBuilder: (_, __) => const ShimmerBox(height: 190, borderRadius: BorderRadius.all(Radius.circular(20))),
+          gridDelegate: cafeGridDelegate,
+          itemCount: 6,
+          itemBuilder: (_, __) => const ShimmerBox(height: double.infinity, borderRadius: BorderRadius.all(Radius.circular(18))),
         ),
       );
     }
@@ -259,13 +259,13 @@ class _ListView extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
+    return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 110, 16, 24),
+      gridDelegate: cafeGridDelegate,
       itemCount: cafes.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 14),
       itemBuilder: (context, i) {
         final cafe = cafes[i];
-        return CafeCard(cafe: cafe, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
+        return CafeGridCard(cafe: cafe, enableHero: true, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
       },
     );
   }

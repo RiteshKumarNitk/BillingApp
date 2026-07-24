@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/cloudinary.dart';
+import '../../../../shared/widgets/image_badge.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../domain/entities/cafe.dart';
 
@@ -43,14 +44,24 @@ class _CafeCardState extends State<CafeCard> {
         scale: _pressed ? 0.97 : 1,
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: isDark ? Border.all(color: theme.colorScheme.outline) : null,
+            // Pressed state settles the shadow closer/tighter, like the card is dipping down —
+            // reinforces the scale-down as one cohesive "press" rather than two unrelated tweens.
             boxShadow: isDark
                 ? null
-                : [BoxShadow(color: AppColors.lightCardShadow, blurRadius: 16, offset: const Offset(0, 6))],
+                : [
+                    BoxShadow(
+                      color: AppColors.lightCardShadow,
+                      blurRadius: _pressed ? 8 : 18,
+                      offset: Offset(0, _pressed ? 2 : 7),
+                    ),
+                  ],
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -79,13 +90,13 @@ class _CafeCardState extends State<CafeCard> {
                       Positioned(
                         top: 10,
                         right: 10,
-                        child: _ImageBadge(icon: Icons.location_on_rounded, label: cafe.distanceLabel),
+                        child: ImageBadge(icon: Icons.location_on_rounded, label: cafe.distanceLabel),
                       ),
                     if (cafe.businessHours != null && cafe.businessHours!.isNotEmpty)
                       Positioned(
                         bottom: 10,
                         left: 10,
-                        child: _ImageBadge(icon: Icons.schedule_rounded, label: cafe.businessHours!),
+                        child: ImageBadge(icon: Icons.schedule_rounded, label: cafe.businessHours!),
                       ),
                   ],
                 ),
@@ -140,29 +151,6 @@ class _CafeCardState extends State<CafeCard> {
     return Container(
       color: AppColors.primary.withValues(alpha: 0.1),
       child: const Center(child: Icon(Icons.local_cafe_rounded, size: 36, color: AppColors.primary)),
-    );
-  }
-}
-
-class _ImageBadge extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _ImageBadge({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      constraints: const BoxConstraints(maxWidth: 150),
-      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: Colors.white),
-          const SizedBox(width: 4),
-          Flexible(child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)),
-        ],
-      ),
     );
   }
 }
