@@ -1,12 +1,15 @@
-/// API base URL — set at build/run time via `--dart-define=API_BASE_URL=...`, replacing the
-/// hardcoded-URL-with-a-commented-out-alternate-line pattern mobile-app/ used. Defaults to the
-/// local billing-web dev server so `flutter run` works out of the box during development.
+/// API base URL — the one place it's defined; every Dio-based datasource and the derived
+/// `websiteApiBaseUrl`/website deep-link below all flow from this. Defaults to the production
+/// backend (https://billing-app-jade-beta.vercel.app) so a plain `flutter run`/release build talks
+/// to real data; point it at a local dev server instead with
+/// `--dart-define=API_BASE_URL=http://localhost:3000/api/mobile` when actually developing against
+/// billing-web locally.
 class AppConstants {
   AppConstants._();
 
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:3000/api/mobile',
+    defaultValue: 'https://billing-app-jade-beta.vercel.app/api/mobile',
   );
 
   /// The QR-table validator (`GET /api/website/table`) lives outside `/api/mobile/customer/*` —
