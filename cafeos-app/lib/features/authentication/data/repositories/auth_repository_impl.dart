@@ -32,10 +32,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? phone,
   }) async {
     try {
-      await remoteDataSource.register(name: name, email: email, password: password, phone: phone);
-      // The register endpoint only creates the account (no token) — chain straight into login so
-      // a new customer lands signed in, matching how Zomato/Swiggy-style signup flows behave.
-      final (token, customer) = await remoteDataSource.login(email: email, password: password);
+      final (token, customer) = await remoteDataSource.register(name: name, email: email, password: password, phone: phone);
       await secureStorage.saveToken(token);
       return right(customer);
     } on DioException catch (e) {
@@ -44,7 +41,45 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> logout() => secureStorage.clearToken();
+  Future<void> logout() async {
+    try {
+      await remoteDataSource.logout();
+    } catch (_) {
+      // Offline or already-invalid token — still clear the local session below.
+    }
+    await secureStorage.clearToken();
+  }
+
+  @override
+  Future<Either<Failure, Unit>> forgotPassword(String email) async {
+    try {
+      await remoteDataSource.forgotPassword(email);
+      return right(unit);
+    } on DioException catch (e) {
+      return left(mapDioExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> resetPassword({required String email, required String code, required String newPassword}) async {
+    try {
+      await remoteDataSource.resetPassword(email: email, code: code, newPassword: newPassword);
+      return right(unit);
+    } on DioException catch (e) {
+      return left(mapDioExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> refreshSession() async {
+    try {
+      final (token, _) = await remoteDataSource.refresh();
+      await secureStorage.saveToken(token);
+      return right(unit);
+    } on DioException catch (e) {
+      return left(mapDioExceptionToFailure(e));
+    }
+  }
 
   @override
   Future<bool> hasStoredSession() async => (await secureStorage.getToken()) != null;

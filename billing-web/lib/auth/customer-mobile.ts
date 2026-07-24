@@ -16,6 +16,7 @@ export interface CustomerTokenPayload {
   id: string;
   email: string;
   role: 'CUSTOMER';
+  tokenVersion: number;
 }
 
 export function signCustomerToken(payload: CustomerTokenPayload) {

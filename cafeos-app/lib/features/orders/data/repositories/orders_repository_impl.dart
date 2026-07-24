@@ -11,9 +11,9 @@ class OrdersRepositoryImpl implements OrdersRepository {
   OrdersRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, List<Order>>> getOrders() async {
+  Future<Either<Failure, List<Order>>> getOrders({String? status}) async {
     try {
-      return right(await remoteDataSource.getOrders());
+      return right(await remoteDataSource.getOrders(status: status));
     } on DioException catch (e) {
       return left(mapDioExceptionToFailure(e));
     }

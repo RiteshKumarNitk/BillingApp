@@ -13,7 +13,9 @@ class AuthRemoteDataSource {
     return (data['token'] as String, CustomerModel.fromJson(data['user'] as Map<String, dynamic>));
   }
 
-  Future<CustomerModel> register({
+  /// Registration logs the customer in immediately (no email-verification step exists), so the
+  /// backend returns a token in the same response — no separate login call needed.
+  Future<(String token, CustomerModel customer)> register({
     required String name,
     required String email,
     required String password,
@@ -26,6 +28,20 @@ class AuthRemoteDataSource {
       if (phone != null && phone.isNotEmpty) 'phone': phone,
     });
     final data = response.data as Map<String, dynamic>;
-    return CustomerModel.fromJson(data['user'] as Map<String, dynamic>);
+    return (data['token'] as String, CustomerModel.fromJson(data['user'] as Map<String, dynamic>));
+  }
+
+  Future<void> logout() => dio.post('/customer/auth/logout');
+
+  Future<(String token, CustomerModel customer)> refresh() async {
+    final response = await dio.post('/customer/auth/refresh');
+    final data = response.data as Map<String, dynamic>;
+    return (data['token'] as String, CustomerModel.fromJson(data['user'] as Map<String, dynamic>));
+  }
+
+  Future<void> forgotPassword(String email) => dio.post('/customer/auth/forgot-password', data: {'email': email});
+
+  Future<void> resetPassword({required String email, required String code, required String newPassword}) {
+    return dio.post('/customer/auth/reset-password', data: {'email': email, 'code': code, 'newPassword': newPassword});
   }
 }

@@ -8,7 +8,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
   CheckoutCubit({required PlaceOrderUseCase placeOrderUseCase})
       : _placeOrderUseCase = placeOrderUseCase,
-        super(const CheckoutState());
+        super(CheckoutState());
 
   Future<void> placeOrder({
     required String tenantId,
@@ -17,12 +17,18 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     String? tableToken,
   }) async {
     emit(state.copyWith(status: CheckoutStatus.submitting));
-    final result = await _placeOrderUseCase(PlaceOrderParams(tenantId: tenantId, items: items, notes: notes, tableToken: tableToken));
+    final result = await _placeOrderUseCase(PlaceOrderParams(
+      tenantId: tenantId,
+      items: items,
+      notes: notes,
+      tableToken: tableToken,
+      idempotencyKey: state.idempotencyKey,
+    ));
     result.match(
       (failure) => emit(state.copyWith(status: CheckoutStatus.error, errorMessage: failure.message)),
       (order) => emit(state.copyWith(status: CheckoutStatus.success, placedOrder: order)),
     );
   }
 
-  void reset() => emit(const CheckoutState());
+  void reset() => emit(CheckoutState());
 }

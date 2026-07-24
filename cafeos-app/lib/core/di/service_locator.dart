@@ -10,6 +10,8 @@ import '../../features/authentication/data/repositories/auth_repository_impl.dar
 import '../../features/authentication/domain/repositories/auth_repository.dart';
 import '../../features/authentication/domain/usecases/login_usecase.dart';
 import '../../features/authentication/domain/usecases/register_usecase.dart';
+import '../../features/authentication/domain/usecases/forgot_password_usecase.dart';
+import '../../features/authentication/domain/usecases/reset_password_usecase.dart';
 import '../../features/authentication/presentation/cubit/auth_cubit.dart';
 
 import '../../features/cafes/data/datasources/cafes_remote_datasource.dart';
@@ -62,6 +64,15 @@ import '../../features/scanner/presentation/cubit/scanner_cubit.dart';
 
 import '../../features/home/presentation/cubit/home_cubit.dart';
 
+import '../../features/addresses/data/datasources/addresses_remote_datasource.dart';
+import '../../features/addresses/data/repositories/addresses_repository_impl.dart';
+import '../../features/addresses/domain/repositories/addresses_repository.dart';
+import '../../features/addresses/domain/usecases/get_addresses_usecase.dart';
+import '../../features/addresses/domain/usecases/create_address_usecase.dart';
+import '../../features/addresses/domain/usecases/update_address_usecase.dart';
+import '../../features/addresses/domain/usecases/delete_address_usecase.dart';
+import '../../features/addresses/presentation/cubit/addresses_cubit.dart';
+
 final sl = GetIt.instance;
 
 /// Registration order matters: core singletons first, then each feature's
@@ -82,6 +93,8 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl(), secureStorage: sl()));
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
   sl.registerFactory(() => AuthCubit(authRepository: sl(), loginUseCase: sl(), registerUseCase: sl()));
 
   // Cafes
@@ -137,4 +150,13 @@ Future<void> initServiceLocator() async {
 
   // Home — composes Nearby/Popular/Recently-Visited into one cubit (see home_cubit.dart).
   sl.registerFactory(() => HomeCubit(getCafesUseCase: sl(), getCafeByIdUseCase: sl(), locationService: sl(), localStorage: sl()));
+
+  // Addresses — future-ready profile feature, not yet wired into checkout (see plan notes).
+  sl.registerLazySingleton<AddressesRemoteDataSource>(() => AddressesRemoteDataSource(sl<DioClient>().dio));
+  sl.registerLazySingleton<AddressesRepository>(() => AddressesRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetAddressesUseCase(sl()));
+  sl.registerLazySingleton(() => CreateAddressUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateAddressUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAddressUseCase(sl()));
+  sl.registerFactory(() => AddressesCubit(getAddressesUseCase: sl(), createAddressUseCase: sl(), updateAddressUseCase: sl(), deleteAddressUseCase: sl()));
 }

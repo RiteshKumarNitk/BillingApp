@@ -17,9 +17,16 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     required List<CartItem> items,
     String? notes,
     String? tableToken,
+    String? idempotencyKey,
   }) async {
     try {
-      final order = await remoteDataSource.placeOrder(tenantId: tenantId, items: items, notes: notes, tableToken: tableToken);
+      final order = await remoteDataSource.placeOrder(
+        tenantId: tenantId,
+        items: items,
+        notes: notes,
+        tableToken: tableToken,
+        idempotencyKey: idempotencyKey,
+      );
       return right(order);
     } on DioException catch (e) {
       return left(mapDioExceptionToFailure(e));

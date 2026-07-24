@@ -9,5 +9,6 @@ abstract class CheckoutRepository {
     required List<CartItem> items,
     String? notes,
     String? tableToken,
+    String? idempotencyKey,
   });
 }

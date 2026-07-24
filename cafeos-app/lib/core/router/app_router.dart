@@ -1,15 +1,21 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/addresses/domain/entities/customer_address.dart';
+import '../../features/addresses/presentation/pages/address_form_page.dart';
+import '../../features/addresses/presentation/pages/addresses_page.dart';
 import '../../features/authentication/presentation/cubit/auth_cubit.dart';
 import '../../features/authentication/presentation/cubit/auth_state.dart';
+import '../../features/authentication/presentation/pages/forgot_password_page.dart';
 import '../../features/authentication/presentation/pages/login_page.dart';
 import '../../features/authentication/presentation/pages/register_page.dart';
+import '../../features/authentication/presentation/pages/reset_password_page.dart';
 import '../../features/cafe_details/presentation/pages/cafe_details_page.dart';
 import '../../features/cafes/domain/entities/cafe.dart';
 import '../../features/cafes/presentation/cubit/cafes_cubit.dart';
 import '../../features/cafes/presentation/pages/cafes_list_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/checkout/presentation/pages/checkout_page.dart';
+import '../../features/checkout/presentation/pages/order_success_page.dart';
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/menu/presentation/pages/menu_page.dart';
@@ -72,6 +78,11 @@ GoRouter buildAppRouter(AuthCubit authCubit) {
       GoRoute(path: '/welcome', builder: (context, state) => const WelcomePage()),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(path: '/register', builder: (context, state) => const RegisterPage()),
+      GoRoute(path: '/forgot-password', builder: (context, state) => const ForgotPasswordPage()),
+      GoRoute(path: '/reset-password', builder: (context, state) => ResetPasswordPage(email: state.extra as String?)),
+      GoRoute(path: '/addresses', builder: (context, state) => const AddressesPage()),
+      GoRoute(path: '/addresses/new', builder: (context, state) => const AddressFormPage()),
+      GoRoute(path: '/addresses/:id/edit', builder: (context, state) => AddressFormPage(existing: state.extra as CustomerAddress?)),
       GoRoute(path: '/scan', builder: (context, state) => const ScannerPage()),
       GoRoute(
         path: '/cafes/:id',
@@ -83,6 +94,7 @@ GoRouter buildAppRouter(AuthCubit authCubit) {
       ),
       GoRoute(path: '/cart', builder: (context, state) => const CartPage()),
       GoRoute(path: '/checkout', builder: (context, state) => const CheckoutPage()),
+      GoRoute(path: '/order-success', builder: (context, state) => OrderSuccessPage(args: state.extra as OrderSuccessArgs)),
       GoRoute(path: '/orders/:id', builder: (context, state) => OrderDetailPage(orderId: state.pathParameters['id']!)),
       GoRoute(path: '/favorites', builder: (context, state) => const FavoritesPage()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsPage()),

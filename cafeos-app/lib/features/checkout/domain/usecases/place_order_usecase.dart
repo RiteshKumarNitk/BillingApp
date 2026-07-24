@@ -11,11 +11,12 @@ class PlaceOrderParams extends Equatable {
   final List<CartItem> items;
   final String? notes;
   final String? tableToken;
+  final String? idempotencyKey;
 
-  const PlaceOrderParams({required this.tenantId, required this.items, this.notes, this.tableToken});
+  const PlaceOrderParams({required this.tenantId, required this.items, this.notes, this.tableToken, this.idempotencyKey});
 
   @override
-  List<Object?> get props => [tenantId, items, notes, tableToken];
+  List<Object?> get props => [tenantId, items, notes, tableToken, idempotencyKey];
 }
 
 class PlaceOrderUseCase implements UseCase<PlacedOrder, PlaceOrderParams> {
@@ -24,6 +25,12 @@ class PlaceOrderUseCase implements UseCase<PlacedOrder, PlaceOrderParams> {
 
   @override
   Future<Either<Failure, PlacedOrder>> call(PlaceOrderParams params) {
-    return repository.placeOrder(tenantId: params.tenantId, items: params.items, notes: params.notes, tableToken: params.tableToken);
+    return repository.placeOrder(
+      tenantId: params.tenantId,
+      items: params.items,
+      notes: params.notes,
+      tableToken: params.tableToken,
+      idempotencyKey: params.idempotencyKey,
+    );
   }
 }

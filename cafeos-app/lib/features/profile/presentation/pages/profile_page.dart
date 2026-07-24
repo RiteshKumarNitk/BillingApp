@@ -83,6 +83,13 @@ class ProfilePage extends StatelessWidget {
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.location_on_outlined),
+                title: const Text('Manage Addresses'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/addresses'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.notifications_outlined),
                 title: const Text('Notifications'),
                 trailing: const Icon(Icons.chevron_right_rounded),

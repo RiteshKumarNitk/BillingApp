@@ -67,4 +67,15 @@ export const EmailTemplates = {
       <p style="color: #6B7280; font-size: 12px;">BillingApp Support</p>
     </div>
   `,
+  CustomerPasswordReset: (name: string, code: string) => `
+    <div style="font-family: sans-serif; max-w: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
+      <h2 style="color: #4F46E5;">Reset Your Password</h2>
+      <p>Hi ${name},</p>
+      <p>Use this code in the CafeOS app to reset your password. It expires in 1 hour.</p>
+      <p style="font-size: 28px; font-weight: bold; letter-spacing: 4px; text-align: center; margin: 24px 0;">${code}</p>
+      <p>If you didn't request this, you can safely ignore this email.</p>
+      <br />
+      <p style="color: #6B7280; font-size: 12px;">CafeOS Support</p>
+    </div>
+  `,
 };

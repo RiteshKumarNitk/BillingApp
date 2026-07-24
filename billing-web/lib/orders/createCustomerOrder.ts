@@ -23,6 +23,12 @@ export interface CreateCustomerOrderInput {
   // Exactly one of these identifies who the order is for.
   customerAccountId?: string;
   guest?: { name: string; phone: string };
+  // Client-generated per-checkout-attempt key (e.g. a UUID minted once when the checkout screen
+  // loads, reused across retries of the same attempt). A repeat with the same key for the same
+  // customer returns the original order instead of creating a duplicate — covers double-taps and
+  // network-retry races that the client's own submit-button guard doesn't. Only meaningful for
+  // logged-in orders (guest checkout has no stable identity to key off).
+  idempotencyKey?: string;
 }
 
 type OrderRequestWithItems = Awaited<ReturnType<typeof createOrderRequest>>;
@@ -36,13 +42,21 @@ export type CreateCustomerOrderResult =
 // combo-content snapshotting, and discount application only exist in one place instead of two
 // independently-drifting copies.
 export async function createCustomerOrder(input: CreateCustomerOrderInput): Promise<CreateCustomerOrderResult> {
-  const { tenantIdOrSlug, items, notes, tableToken, customerAccountId, guest } = input;
+  const { tenantIdOrSlug, items, notes, tableToken, customerAccountId, guest, idempotencyKey } = input;
 
   if (!tenantIdOrSlug || !items || items.length === 0) {
     return { ok: false, status: 400, error: 'Tenant and items are required' };
   }
   if (!customerAccountId && (!guest?.name?.trim() || !guest?.phone?.trim())) {
     return { ok: false, status: 401, error: 'Sign in or provide your name and phone to order' };
+  }
+
+  if (customerAccountId && idempotencyKey) {
+    const existingOrder = await prisma.orderRequest.findUnique({
+      where: { customerAccountId_idempotencyKey: { customerAccountId, idempotencyKey } },
+      include: { items: true },
+    });
+    if (existingOrder) return { ok: true, order: existingOrder };
   }
 
   const tenant = await resolveTenant(tenantIdOrSlug);
@@ -160,22 +174,39 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
 
   const customer = await findOrCreateCustomer(tenantId, customerAccountId, guest);
 
-  const order = await createOrderRequest({
-    tenantId,
-    customerAccountId: customerAccountId || null,
-    customerId: customer.id,
-    guestName: customerAccountId ? null : guest!.name.trim(),
-    guestPhone: customerAccountId ? null : guest!.phone.trim(),
-    tableId,
-    orderType,
-    notes: notes || null,
-    totalAmount,
-    taxAmount,
-    netAmount,
-    discountAmount,
-    discountLabel,
-    orderItems,
-  });
+  let order: OrderRequestWithItems;
+  try {
+    order = await createOrderRequest({
+      tenantId,
+      customerAccountId: customerAccountId || null,
+      customerId: customer.id,
+      guestName: customerAccountId ? null : guest!.name.trim(),
+      guestPhone: customerAccountId ? null : guest!.phone.trim(),
+      tableId,
+      orderType,
+      notes: notes || null,
+      totalAmount,
+      taxAmount,
+      netAmount,
+      discountAmount,
+      discountLabel,
+      idempotencyKey: customerAccountId ? idempotencyKey || null : null,
+      orderItems,
+    });
+  } catch (err: any) {
+    // Two concurrent requests both passed the pre-check above and raced on the DB's unique
+    // constraint — the loser here just means the winner already created the real order.
+    if (err?.code === 'P2011' || err?.code === 'P2002') {
+      if (customerAccountId && idempotencyKey) {
+        const existingOrder = await prisma.orderRequest.findUnique({
+          where: { customerAccountId_idempotencyKey: { customerAccountId, idempotencyKey } },
+          include: { items: true },
+        });
+        if (existingOrder) return { ok: true, order: existingOrder };
+      }
+    }
+    throw err;
+  }
 
   return { ok: true, order };
 }
@@ -250,6 +281,7 @@ function createOrderRequest(data: {
   netAmount: number;
   discountAmount: number;
   discountLabel: string | null;
+  idempotencyKey: string | null;
   orderItems: {
     productId: string;
     name: string;
@@ -276,6 +308,7 @@ function createOrderRequest(data: {
       guestPhone: data.guestPhone,
       tableId: data.tableId,
       orderType: data.orderType,
+      idempotencyKey: data.idempotencyKey,
       items: { create: data.orderItems },
     },
     include: { items: true },

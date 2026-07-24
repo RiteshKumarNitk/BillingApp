@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
-
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "billing-app-secret-key";
+import { signCustomerToken } from "@/lib/auth/customer-mobile";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,11 +24,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    const token = jwt.sign(
-      { id: account.id, email: account.email, role: "CUSTOMER" },
-      JWT_SECRET,
-      { expiresIn: "30d" }
-    );
+    const token = signCustomerToken({
+      id: account.id,
+      email: account.email,
+      role: "CUSTOMER",
+      tokenVersion: account.tokenVersion,
+    });
 
     return NextResponse.json({
       token,

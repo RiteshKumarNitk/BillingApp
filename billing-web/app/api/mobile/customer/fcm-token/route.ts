@@ -1,26 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
-
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "billing-app-secret-key";
-
-function verifyToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) return null;
-  try {
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-    if (decoded.role !== "CUSTOMER") return null;
-    return decoded.id;
-  } catch {
-    return null;
-  }
-}
+import { getCustomerIdFromAuthHeader } from "@/lib/auth/customer-mobile";
 
 // POST: Register or update FCM token
 export async function POST(request: NextRequest) {
   try {
-    const customerAccountId = verifyToken(request);
+    const customerAccountId = await getCustomerIdFromAuthHeader(request);
     if (!customerAccountId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -45,7 +30,7 @@ export async function POST(request: NextRequest) {
 // DELETE: Remove FCM token (on logout)
 export async function DELETE(request: NextRequest) {
   try {
-    const customerAccountId = verifyToken(request);
+    const customerAccountId = await getCustomerIdFromAuthHeader(request);
     if (!customerAccountId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

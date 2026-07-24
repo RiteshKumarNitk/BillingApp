@@ -4,7 +4,16 @@ import { sendPushNotification } from "@/lib/push-notifications";
 import { getCustomerIdFromAuthHeader } from "@/lib/auth/customer-mobile";
 import { createCustomerOrder } from "@/lib/orders/createCustomerOrder";
 
-// GET: List customer's orders
+// Bucketed for the "My Orders" tabs — status is a free-form string (see schema comment on
+// OrderRequest.status), so bucketing happens here rather than via a Prisma enum.
+const STATUS_BUCKETS: Record<string, string[]> = {
+  upcoming: ["PENDING"],
+  active: ["ACCEPTED", "PREPARING", "READY"],
+  completed: ["COMPLETED"],
+  cancelled: ["REJECTED", "CANCELLED"],
+};
+
+// GET: List customer's orders, optionally filtered to one status bucket
 export async function GET(request: NextRequest) {
   try {
     const customerAccountId = await getCustomerIdFromAuthHeader(request);
@@ -12,8 +21,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const bucket = searchParams.get("status");
+    const statuses = bucket ? STATUS_BUCKETS[bucket] : undefined;
+    if (bucket && !statuses) {
+      return NextResponse.json({ error: "Invalid status filter" }, { status: 400 });
+    }
+
     const orders = await prisma.orderRequest.findMany({
-      where: { customerAccountId },
+      where: { customerAccountId, ...(statuses ? { status: { in: statuses } } : {}) },
       include: {
         items: true,
         tenant: { select: { name: true, logoUrl: true } },
@@ -38,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { tenantId, items, notes, tableToken } = await request.json();
+    const { tenantId, items, notes, tableToken, idempotencyKey } = await request.json();
 
     const result = await createCustomerOrder({
       tenantIdOrSlug: tenantId,
@@ -46,6 +62,7 @@ export async function POST(request: NextRequest) {
       notes,
       tableToken,
       customerAccountId,
+      idempotencyKey,
     });
 
     if (!result.ok) {

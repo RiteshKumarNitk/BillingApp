@@ -11,6 +11,7 @@ import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../cubit/checkout_cubit.dart';
 import '../cubit/checkout_state.dart';
+import 'order_success_page.dart';
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
@@ -47,10 +48,11 @@ class _CheckoutViewState extends State<_CheckoutView> {
     return BlocListener<CheckoutCubit, CheckoutState>(
       listener: (context, state) {
         if (state.status == CheckoutStatus.success && state.placedOrder != null) {
-          final orderId = state.placedOrder!.id;
+          final order = state.placedOrder!;
+          final cart = context.read<CartCubit>().state;
+          final args = OrderSuccessArgs(orderId: order.id, tenantName: cart.tenantName ?? '', items: cart.items, netAmount: order.netAmount);
           context.read<CartCubit>().clear();
-          AppToast.success(context, 'Order placed!');
-          context.pushReplacement('/orders/$orderId');
+          context.pushReplacement('/order-success', extra: args);
         } else if (state.status == CheckoutStatus.error) {
           AppToast.error(context, state.errorMessage ?? 'Could not place your order');
         }

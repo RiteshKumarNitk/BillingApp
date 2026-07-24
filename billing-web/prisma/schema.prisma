@@ -232,19 +232,46 @@ model ProductSerial {
 }
 
 model CustomerAccount {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password      String
-  name          String
-  phone         String?
-  tokenVersion  Int            @default(0)
-  fcmToken      String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  customers     Customer[]
-  orderRequests OrderRequest[]
-  notifications Notification[]
-  favorites     CustomerFavorite[]
+  id               String         @id @default(uuid())
+  email            String         @unique
+  password         String
+  name             String
+  phone            String?
+  tokenVersion     Int            @default(0)
+  fcmToken         String?
+  // Forgot/reset password: a random token + expiry, cleared on successful reset. Not JWT-based —
+  // this is a separate single-use secret emailed to the customer, distinct from the login session token.
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  customers        Customer[]
+  orderRequests    OrderRequest[]
+  notifications    Notification[]
+  favorites        CustomerFavorite[]
+  addresses        CustomerAddress[]
+}
+
+// Saved delivery addresses for a customer's profile — future-ready for when DELIVERY orderType
+// ships (see OrderRequest.orderType), not yet selectable during checkout since order routing/
+// fulfillment for delivery doesn't exist yet.
+model CustomerAddress {
+  id                String          @id @default(uuid())
+  customerAccountId String
+  label             String?
+  fullAddress       String
+  landmark          String?
+  city              String?
+  state             String?
+  postalCode        String?
+  latitude          Float?
+  longitude         Float?
+  isDefault         Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  customerAccount   CustomerAccount @relation(fields: [customerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([customerAccountId])
 }
 
 // Favourited cafes for the mobile app's "Favourite Cafes" list (a per-cafe favourite, not
@@ -326,6 +353,9 @@ model OrderRequest {
   orderType         String?            // DINE_IN | TAKE_AWAY | DELIVERY, mirrors Transaction.orderType
   guestName         String?
   guestPhone        String?
+  // Client-generated key for this checkout attempt (retries of the same attempt reuse it) — lets
+  // createCustomerOrder() detect and return the original order instead of creating a duplicate.
+  idempotencyKey    String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   customerAccount   CustomerAccount?   @relation(fields: [customerAccountId], references: [id])
@@ -337,6 +367,7 @@ model OrderRequest {
   @@index([tenantId, status])
   @@index([customerAccountId])
   @@index([tableId])
+  @@unique([customerAccountId, idempotencyKey])
 }
 
 model OrderRequestItem {

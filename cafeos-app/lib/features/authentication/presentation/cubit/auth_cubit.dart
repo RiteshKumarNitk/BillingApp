@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -23,6 +24,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> checkAuthStatus() async {
     final hasSession = await _authRepository.hasStoredSession();
     emit(state.copyWith(status: hasSession ? AuthStatus.authenticated : AuthStatus.unauthenticated));
+    // Opportunistic sliding-session refresh — extends a long-idle session's token before it ever
+    // hits a 401. Fire-and-forget: a failure here just means DioClient's own 401 handling takes
+    // over on the next real request, same as if this call never happened.
+    if (hasSession) unawaited(_authRepository.refreshSession());
   }
 
   void continueAsGuest() {

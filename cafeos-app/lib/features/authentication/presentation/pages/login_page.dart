@@ -75,6 +75,14 @@ class _LoginPageState extends State<LoginPage> {
                     validator: (v) => (v == null || v.length < 6) ? 'Password must be at least 6 characters' : null,
                   ),
                   const SizedBox(height: 24),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => context.push('/forgot-password'),
+                      child: const Text('Forgot password?'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   PrimaryButton(label: 'Log In', onPressed: _submit, isLoading: state.isSubmitting),
                   const SizedBox(height: 16),
                   Center(
