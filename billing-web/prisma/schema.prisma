@@ -16,6 +16,11 @@ model Tenant {
   updatedAt          DateTime             @updatedAt
   status             String               @default("ACTIVE")
   address            String?
+  landmark           String?
+  city               String?
+  state              String?
+  country            String?
+  postalCode         String?
   contactPerson      String?
   email              String?              @unique
   gstin              String?

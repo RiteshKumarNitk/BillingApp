@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/widgets/app_chip.dart';
 import '../../../../shared/widgets/app_shimmer.dart';
 import '../../../../shared/widgets/app_state_views.dart';
 import '../cubit/cafes_cubit.dart';
 import '../cubit/cafes_state.dart';
 import '../widgets/cafe_card.dart';
+
+const _radiusOptions = <double?>[null, 1, 3, 5, 10];
 
 class CafesListPage extends StatefulWidget {
   const CafesListPage({super.key});
@@ -46,6 +49,49 @@ class _CafesListPageState extends State<CafesListPage> {
               onSubmitted: (value) => context.read<CafesCubit>().loadCafes(search: value),
             ),
           ),
+          BlocBuilder<CafesCubit, CafesState>(
+            buildWhen: (a, b) => a.sort != b.sort || a.radiusKm != b.radiusKm || a.locationEnabled != b.locationEnabled,
+            builder: (context, state) => SizedBox(
+              height: 36,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                children: [
+                  AppChip(
+                    label: 'Nearest',
+                    icon: Icons.near_me_rounded,
+                    selected: state.sort != 'popular',
+                    onTap: () {
+                      if (state.sort == 'popular') context.read<CafesCubit>().toggleSort();
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  AppChip(
+                    label: 'Popular',
+                    icon: Icons.local_fire_department_rounded,
+                    selected: state.sort == 'popular',
+                    onTap: () {
+                      if (state.sort != 'popular') context.read<CafesCubit>().toggleSort();
+                    },
+                  ),
+                  if (state.locationEnabled && state.sort != 'popular') ...[
+                    const SizedBox(width: 14),
+                    Container(width: 1, color: Theme.of(context).colorScheme.outline),
+                    const SizedBox(width: 14),
+                    ..._radiusOptions.map((km) => Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: AppChip(
+                            label: km == null ? 'Any distance' : '${km.toInt()} km',
+                            selected: state.radiusKm == km,
+                            onTap: () => context.read<CafesCubit>().setRadius(km),
+                          ),
+                        )),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
           Expanded(
             child: BlocBuilder<CafesCubit, CafesState>(
               builder: (context, state) {
@@ -59,21 +105,24 @@ class _CafesListPageState extends State<CafesListPage> {
                       onRetry: () => context.read<CafesCubit>().loadCafes(search: _searchController.text),
                     );
                   case CafesStatus.loaded:
-                    if (state.cafes.isEmpty) {
-                      return const EmptyStateView(
+                    final cafes = state.visibleCafes;
+                    if (cafes.isEmpty) {
+                      return EmptyStateView(
                         icon: Icons.local_cafe_outlined,
                         title: 'No cafes found',
-                        message: 'Try a different search, or check back soon as more cafes join CafeOS.',
+                        message: state.radiusKm != null
+                            ? 'No cafes within ${state.radiusKm!.toInt()} km — try a wider distance.'
+                            : 'Try a different search, or check back soon as more cafes join CafeOS.',
                       );
                     }
                     return RefreshIndicator(
-                      onRefresh: () => context.read<CafesCubit>().loadCafes(search: _searchController.text),
+                      onRefresh: () => context.read<CafesCubit>().loadCafes(search: _searchController.text, sort: state.sort),
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                        itemCount: state.cafes.length,
+                        itemCount: cafes.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 14),
                         itemBuilder: (context, index) {
-                          final cafe = state.cafes[index];
+                          final cafe = cafes[index];
                           return CafeCard(cafe: cafe, enableHero: true, onTap: () => context.push('/cafes/${cafe.id}', extra: cafe));
                         },
                       ),

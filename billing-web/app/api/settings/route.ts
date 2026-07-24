@@ -20,9 +20,20 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
     }
 
-    const { name, contactPerson, email, phone, address, gstin, website, currency, timezone, businessType } = await request.json();
+    const {
+      name, contactPerson, email, phone, address, gstin, website, currency, timezone, businessType,
+      landmark, city, state, country, postalCode, latitude, longitude,
+    } = await request.json();
 
     const VALID_BUSINESS_TYPES = ['CAFE', 'LAUNDRY', 'SALON'];
+
+    // Coerce to a finite number or null — reject garbage rather than 500ing the whole save, and
+    // never silently drop a real 0 (equator/prime-meridian) coordinate via `|| null`.
+    const toFiniteOrNull = (value: unknown): number | null => {
+      if (value === '' || value === null || value === undefined) return null;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    };
 
     const updateData: any = {
       name,
@@ -30,6 +41,13 @@ export async function PUT(request: NextRequest) {
       email,
       phone,
       address,
+      landmark: landmark || null,
+      city: city || null,
+      state: state || null,
+      country: country || null,
+      postalCode: postalCode || null,
+      latitude: toFiniteOrNull(latitude),
+      longitude: toFiniteOrNull(longitude),
       gstin,
       website: website || null,
       currency: currency || 'INR',

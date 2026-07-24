@@ -44,6 +44,11 @@ class Cafe extends Equatable {
   // lib/cafes/heroImage.ts for the shared logic this mirrors.
   final String? heroImageUrl;
   final String? address;
+  final String? landmark;
+  final String? city;
+  final String? state;
+  final String? country;
+  final String? postalCode;
   final double? latitude;
   final double? longitude;
   final String? businessHours;
@@ -67,6 +72,11 @@ class Cafe extends Equatable {
     this.ownerImageUrl,
     this.heroImageUrl,
     this.address,
+    this.landmark,
+    this.city,
+    this.state,
+    this.country,
+    this.postalCode,
     this.latitude,
     this.longitude,
     this.businessHours,
@@ -88,10 +98,18 @@ class Cafe extends Equatable {
 
   bool get hasCoordinates => latitude != null && longitude != null;
 
+  /// "Jaipur, Rajasthan 302001" — city/state/postal combined for a compact second address line;
+  /// empty when none of the three are set (never a stray ", " with nothing around it).
+  String get cityStateLine {
+    final cityState = [city, state].where((s) => s != null && s.isNotEmpty).join(', ');
+    return [cityState, postalCode].where((s) => s != null && s.isNotEmpty).join(' ');
+  }
+
   @override
   List<Object?> get props => [
         id, name, websiteSlug, tagline, logoUrl, coverImageUrl, shopFrontImageUrl, ownerImageUrl,
-        heroImageUrl, address, latitude, longitude, businessHours, aboutText, email, phone,
-        distanceKm, themeId, appearance, activeDiscounts, galleryImages,
+        heroImageUrl, address, landmark, city, state, country, postalCode, latitude, longitude,
+        businessHours, aboutText, email, phone, distanceKm, themeId, appearance, activeDiscounts,
+        galleryImages,
       ];
 }

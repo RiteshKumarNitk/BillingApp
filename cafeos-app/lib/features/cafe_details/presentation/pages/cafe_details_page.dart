@@ -609,6 +609,9 @@ class _LocationSection extends StatelessWidget {
           Text('Location', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 10),
           if (cafe.address != null) _InfoRow(icon: Icons.location_on_outlined, text: cafe.address!),
+          if (cafe.landmark != null && cafe.landmark!.isNotEmpty) _InfoRow(icon: Icons.near_me_outlined, text: cafe.landmark!),
+          if (cafe.cityStateLine.isNotEmpty) _InfoRow(icon: Icons.location_city_outlined, text: cafe.cityStateLine),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(child: OutlinedButton.icon(onPressed: onDirections, icon: const Icon(Icons.directions_rounded, size: 18), label: const Text('Get Directions'))),
