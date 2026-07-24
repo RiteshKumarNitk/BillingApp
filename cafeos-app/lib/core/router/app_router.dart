@@ -35,7 +35,14 @@ import '../storage/local_storage_service.dart';
 import 'go_router_refresh_stream.dart';
 import 'home_shell.dart';
 
-const _preHomeLocations = {'/splash', '/onboarding', '/welcome', '/login', '/register'};
+// A guest has already chosen to continue without an account, so there's no reason to show these
+// again — redirected to /home for both authenticated and guest alike.
+const _preHomeLocations = {'/splash', '/onboarding', '/welcome'};
+// Login/register are how a guest actually becomes authenticated — only bounce a user AWAY from
+// these once they're genuinely authenticated, never while merely a guest (that used to be lumped
+// in with _preHomeLocations above, which meant tapping "Sign In" from Profile as a guest bounced
+// straight back to /home before the login form ever rendered).
+const _authOnlyLocations = {'/login', '/register'};
 // Guest checkout only exists on the cookie-based website path (see the backend audit this app was
 // built against) — the mobile app always requires a logged-in customer to place an order.
 const _requiresLoginLocations = {'/checkout'};
@@ -54,10 +61,10 @@ GoRouter buildAppRouter(AuthCubit authCubit) {
 
       final isLoggedInOrGuest = authState.status == AuthStatus.authenticated || authState.status == AuthStatus.guest;
       if (isLoggedInOrGuest) {
-        // Already past the door — don't let a stale deep link or back-navigation show onboarding/
-        // welcome/login/register again. (A logged-in customer choosing to view /login is an edge
-        // case not worth special-casing.)
+        // Already past the door — don't let a stale deep link or back-navigation show
+        // onboarding/welcome again.
         if (_preHomeLocations.contains(location)) return '/home';
+        if (authState.status == AuthStatus.authenticated && _authOnlyLocations.contains(location)) return '/home';
         if (authState.status == AuthStatus.guest && _requiresLoginLocations.contains(location)) return '/login';
         return null;
       }

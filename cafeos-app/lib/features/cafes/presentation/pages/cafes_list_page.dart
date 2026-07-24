@@ -52,7 +52,7 @@ class _CafesListPageState extends State<CafesListPage> {
           BlocBuilder<CafesCubit, CafesState>(
             buildWhen: (a, b) => a.sort != b.sort || a.radiusKm != b.radiusKm || a.locationEnabled != b.locationEnabled,
             builder: (context, state) => SizedBox(
-              height: 36,
+              height: 42,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),

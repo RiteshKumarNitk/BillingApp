@@ -59,7 +59,7 @@ class _OrdersView extends StatelessWidget {
           BlocBuilder<OrdersCubit, OrdersState>(
             buildWhen: (a, b) => a.filter != b.filter,
             builder: (context, state) => SizedBox(
-              height: 40,
+              height: 46,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
