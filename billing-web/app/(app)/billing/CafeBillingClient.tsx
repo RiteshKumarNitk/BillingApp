@@ -19,8 +19,8 @@ const PAYMENT_METHODS = [
 ];
 
 const ORDER_TYPES = [
-  { value: 'DINE_IN', label: 'Dine In', icon: UtensilsCrossed },
   { value: 'TAKE_AWAY', label: 'Take Away', icon: ShoppingBag },
+  { value: 'DINE_IN', label: 'Dine In', icon: UtensilsCrossed },
   { value: 'DELIVERY', label: 'Delivery', icon: Bike },
 ];
 
