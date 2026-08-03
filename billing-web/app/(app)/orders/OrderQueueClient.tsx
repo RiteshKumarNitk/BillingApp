@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, PauseCircle, ChefHat, RefreshCw } from "lucide-react";
+
+const VALID_STATUS_TABS = ["PENDING", "ON_HOLD", "ACCEPTED", "COMPLETED", "REJECTED"];
 
 interface OrderItem {
   id: string;
@@ -43,9 +46,15 @@ const STATUS_STYLE: Record<string, string> = {
 const POLL_INTERVAL_MS = 15000;
 
 export default function OrderQueueClient() {
+  const searchParams = useSearchParams();
+  const initialStatus = searchParams.get("status");
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
-  const [activeTab, setActiveTab] = useState("PENDING");
+  // Lets a dashboard card ("Pending Orders" / "Completed Orders") land directly on that tab
+  // instead of always opening to Pending.
+  const [activeTab, setActiveTab] = useState(
+    initialStatus && VALID_STATUS_TABS.includes(initialStatus) ? initialStatus : "PENDING"
+  );
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const activeTabRef = useRef(activeTab);

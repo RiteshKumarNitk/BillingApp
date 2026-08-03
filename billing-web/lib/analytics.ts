@@ -166,12 +166,15 @@ export async function getCustomerGrowth(tenantId: string) {
   return { newCustomers, returningCustomers };
 }
 
-export async function getSalesChartData(tenantId: string, days: number) {
-  const startDate = subDays(new Date(), days);
+// `endDate` is optional (defaults to now) so existing callers that only pass `days` are unaffected —
+// lets the Reports page's dashboard-linked date-range filter reuse this instead of a parallel query.
+export async function getSalesChartData(tenantId: string, days: number, endDate?: Date) {
+  const end = endDate ?? new Date();
+  const startDate = subDays(end, days);
   const rawSalesData = await prisma.$queryRaw<any[]>`
     SELECT DATE("createdAt") as date, SUM("netAmount") as total
     FROM "Transaction"
-    WHERE "createdAt" >= ${startDate} AND "tenantId" = ${tenantId} AND "status" != 'HELD'
+    WHERE "createdAt" >= ${startDate} AND "createdAt" <= ${end} AND "tenantId" = ${tenantId} AND "status" != 'HELD'
     GROUP BY DATE("createdAt")
     ORDER BY DATE("createdAt")
   `;
@@ -201,8 +204,9 @@ export async function getCategoryChartData(tenantId: string, limit = 5) {
 // Daily profit for the last N days, shaped for the reused RevenueChart line-chart component.
 // Cost is pre-aggregated per-transaction in a subquery before joining, so a transaction with
 // multiple line items doesn't cause its netAmount to be summed once per item.
-export async function getProfitTrendData(tenantId: string, days: number) {
-  const startDate = subDays(new Date(), days);
+export async function getProfitTrendData(tenantId: string, days: number, endDate?: Date) {
+  const end = endDate ?? new Date();
+  const startDate = subDays(end, days);
   const rawProfitData = await prisma.$queryRaw<any[]>`
     SELECT DATE(t."createdAt") as date,
       SUM(t."netAmount") as revenueSum,
@@ -213,7 +217,7 @@ export async function getProfitTrendData(tenantId: string, days: number) {
       FROM "TransactionItem"
       GROUP BY "transactionId"
     ) cost_per_tx ON cost_per_tx."transactionId" = t."id"
-    WHERE t."createdAt" >= ${startDate} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
+    WHERE t."createdAt" >= ${startDate} AND t."createdAt" <= ${end} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
     GROUP BY DATE(t."createdAt")
     ORDER BY DATE(t."createdAt")
   `;
@@ -223,12 +227,13 @@ export async function getProfitTrendData(tenantId: string, days: number) {
   }));
 }
 
-export async function getCustomerGrowthChartData(tenantId: string, days: number) {
-  const startDate = subDays(new Date(), days);
+export async function getCustomerGrowthChartData(tenantId: string, days: number, endDate?: Date) {
+  const end = endDate ?? new Date();
+  const startDate = subDays(end, days);
   const rawData = await prisma.$queryRaw<any[]>`
     SELECT DATE("createdDate") as date, COUNT(*) as count
     FROM "Customer"
-    WHERE "createdDate" >= ${startDate} AND "tenantId" = ${tenantId}
+    WHERE "createdDate" >= ${startDate} AND "createdDate" <= ${end} AND "tenantId" = ${tenantId}
     GROUP BY DATE("createdDate")
     ORDER BY DATE("createdDate")
   `;

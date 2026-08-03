@@ -46,11 +46,14 @@ export interface ListCustomersParams {
   search?: string;
   page?: number;
   pageSize?: number;
+  // "New this month" from the dashboard's Customers card — filters by when the customer record
+  // itself was created, not their most recent purchase.
+  createdFrom?: string;
 }
 
 // Reuses the same `contains` search-by-name-or-phone pattern already established in the mobile
 // customers API (app/api/mobile/customers/route.ts) rather than inventing a new search shape.
-export async function listCustomers({ tenantId, search, page = 1, pageSize = 25 }: ListCustomersParams) {
+export async function listCustomers({ tenantId, search, page = 1, pageSize = 25, createdFrom }: ListCustomersParams) {
   const where = {
     tenantId,
     ...(search?.trim()
@@ -61,6 +64,7 @@ export async function listCustomers({ tenantId, search, page = 1, pageSize = 25 
           ],
         }
       : {}),
+    ...(createdFrom ? { createdDate: { gte: new Date(createdFrom) } } : {}),
   };
 
   const [customers, total] = await Promise.all([

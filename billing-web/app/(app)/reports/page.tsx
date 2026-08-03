@@ -19,7 +19,11 @@ import { PeakHoursChart, PaymentMethodChart, FullCategoryChart } from "@/compone
 
 export const dynamic = "force-dynamic";
 
-export default async function ReportsPage() {
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/auth/login");
@@ -42,6 +46,16 @@ export default async function ReportsPage() {
 
   const tenantId = session.user.tenantId as string;
 
+  // A dashboard card (e.g. "Average Bill Value" / "Profit") can deep-link here with an explicit
+  // range; falls back to the existing fixed 30-day window when absent so nothing else on this
+  // page changes behavior.
+  const fromParam = (searchParams?.from as string) || "";
+  const toParam = (searchParams?.to as string) || "";
+  const rangeEnd = toParam ? new Date(toParam) : new Date();
+  const rangeDays = fromParam
+    ? Math.max(1, Math.ceil((rangeEnd.getTime() - new Date(fromParam).getTime()) / (1000 * 60 * 60 * 24)))
+    : 30;
+
   const [
     gstSummary,
     gstTrendData,
@@ -58,7 +72,7 @@ export default async function ReportsPage() {
     getPaymentSummary(tenantId),
     getCategoryChartData(tenantId, 10),
     getCustomerGrowth(tenantId),
-    getCustomerGrowthChartData(tenantId, 30),
+    getCustomerGrowthChartData(tenantId, rangeDays, fromParam ? rangeEnd : undefined),
     getTopCustomers(tenantId, 10),
   ]);
 

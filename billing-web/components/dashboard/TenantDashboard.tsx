@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import prisma from '@/lib/prisma';
@@ -21,6 +21,8 @@ import {
   TrendingDown as TrendingDownIcon,
   Globe,
   MessageSquare,
+  Clock,
+  CheckCircle2,
 } from 'lucide-react';
 import DashboardCharts from './DashboardCharts';
 import RevenueChart from './RevenueChart';
@@ -95,6 +97,14 @@ export default async function TenantDashboard({
   const salesComparison = monthlyComparison.find(m => m.metric === 'Sales')!;
   const txComparison = monthlyComparison.find(m => m.metric === 'Transactions')!;
 
+  // Pending/Completed Order Requests (online/QR ordering queue, distinct from POS Transactions) —
+  // inline here rather than lib/analytics.ts, matching this file's existing pattern for the
+  // websiteVisit/contactLead counts right below.
+  const [pendingOrderCount, completedOrderCount] = await Promise.all([
+    prisma.orderRequest.count({ where: { tenantId, status: "PENDING" } }),
+    prisma.orderRequest.count({ where: { tenantId, status: "COMPLETED" } }),
+  ]);
+
   const websiteVisitCount = await prisma.websiteVisit.count({ where: { tenantId } });
   const todayVisitCount = await prisma.websiteVisit.count({
     where: { tenantId, createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) } }
@@ -140,6 +150,7 @@ export default async function TenantDashboard({
             trendUp={revenueTrend !== null ? revenueTrend >= 0 : undefined}
             trendLabel="vs prior 30 days"
             gradient="from-indigo-500/20 to-indigo-500/5"
+            href="/reports"
           />
           <StatCard
             title="Today's Sales"
@@ -150,6 +161,7 @@ export default async function TenantDashboard({
             trendUp={todayTrend !== null ? todayTrend >= 0 : undefined}
             trendLabel="vs yesterday"
             gradient="from-emerald-500/20 to-emerald-500/5"
+            href={`/transactions?from=${format(new Date(), 'yyyy-MM-dd')}&to=${format(new Date(), 'yyyy-MM-dd')}`}
           />
           <StatCard
             title="Transactions"
@@ -159,12 +171,14 @@ export default async function TenantDashboard({
             trendUp={txTrend !== null ? txTrend >= 0 : undefined}
             trendLabel="vs prior 30 days"
             gradient="from-blue-500/20 to-blue-500/5"
+            href="/transactions"
           />
           <StatCard
             title="Total Products"
             value={totalProducts.toLocaleString()}
             icon={<Package className="h-5 w-5 text-violet-600" />}
             gradient="from-violet-500/20 to-violet-500/5"
+            href="/products"
           />
           <StatCard
             title="Low Stock Alerts"
@@ -172,6 +186,27 @@ export default async function TenantDashboard({
             icon={<AlertTriangle className={`h-5 w-5 ${lowStockProducts > 0 ? 'text-rose-600' : 'text-gray-400'}`} />}
             gradient={lowStockProducts > 0 ? "from-rose-500/20 to-rose-500/5" : "from-gray-500/20 to-gray-500/5"}
             alert={lowStockProducts > 0}
+            href="/products?lowStock=true"
+          />
+        </div>
+
+        {/* Order Requests queue — pending vs completed */}
+        <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <StatCard
+            title="Pending Orders"
+            value={pendingOrderCount.toLocaleString()}
+            subtitle="Awaiting acceptance"
+            icon={<Clock className="h-5 w-5 text-amber-600" />}
+            gradient={pendingOrderCount > 0 ? "from-amber-500/20 to-amber-500/5" : "from-gray-500/20 to-gray-500/5"}
+            alert={pendingOrderCount > 0}
+            href="/orders?status=PENDING"
+          />
+          <StatCard
+            title="Completed Orders"
+            value={completedOrderCount.toLocaleString()}
+            icon={<CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+            gradient="from-emerald-500/20 to-emerald-500/5"
+            href="/orders?status=COMPLETED"
           />
         </div>
 
@@ -183,6 +218,7 @@ export default async function TenantDashboard({
             subtitle={`₹${monthSales.toLocaleString(undefined, { maximumFractionDigits: 0 })} this month · ₹${yearSales.toLocaleString(undefined, { maximumFractionDigits: 0 })} this year`}
             icon={<Receipt className="h-5 w-5 text-cyan-600" />}
             gradient="from-cyan-500/20 to-cyan-500/5"
+            href="/reports"
           />
           {profitOverview && (
             <StatCard
@@ -191,6 +227,7 @@ export default async function TenantDashboard({
               subtitle={`${profitOverview.grossMarginPercent.toFixed(1)}% gross margin`}
               icon={<Wallet className="h-5 w-5 text-emerald-600" />}
               gradient="from-emerald-500/20 to-emerald-500/5"
+              href="/reports"
             />
           )}
           <StatCard
@@ -198,6 +235,7 @@ export default async function TenantDashboard({
             value={`₹${avgBillValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
             icon={<Percent className="h-5 w-5 text-amber-600" />}
             gradient="from-amber-500/20 to-amber-500/5"
+            href="/reports"
           />
           <StatCard
             title="Customers This Month"
@@ -205,6 +243,7 @@ export default async function TenantDashboard({
             subtitle={`${customerGrowth.returningCustomers} returning`}
             icon={<UserPlus className="h-5 w-5 text-pink-600" />}
             gradient="from-pink-500/20 to-pink-500/5"
+            href={`/customers?from=${format(startOfMonth(new Date()), 'yyyy-MM-dd')}`}
           />
         </div>
 
@@ -474,7 +513,8 @@ function StatCard({
   trendUp,
   trendLabel,
   gradient,
-  alert
+  alert,
+  href,
 }: {
   title: string;
   value: string;
@@ -485,9 +525,18 @@ function StatCard({
   trendLabel?: string;
   gradient: string;
   alert?: boolean;
+  // Makes the whole card a navigation entry point into the corresponding module, with any
+  // relevant filter already applied via the href's query string — the dashboard is meant to be a
+  // hub, not just a read-only summary.
+  href?: string;
 }) {
+  const Wrapper = href ? Link : 'div';
+  const wrapperProps = href ? { href } : {};
   return (
-    <div className={`relative overflow-hidden rounded-2xl border ${alert ? 'border-rose-200' : 'border-gray-100'} bg-white p-6 shadow-xl shadow-gray-200/40 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-200/50`}>
+    <Wrapper
+      {...(wrapperProps as any)}
+      className={`relative overflow-hidden rounded-2xl border ${alert ? 'border-rose-200' : 'border-gray-100'} bg-white p-6 shadow-xl shadow-gray-200/40 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-200/50 ${href ? 'block cursor-pointer' : ''}`}
+    >
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-50`} />
       <div className="relative">
         <div className="flex items-center justify-between">
@@ -511,6 +560,6 @@ function StatCard({
           </p>
         )}
       </div>
-    </div>
+    </Wrapper>
   );
 }

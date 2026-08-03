@@ -20,8 +20,9 @@ export default async function CustomersPage({
   const tenantId = session.user.tenantId;
   const page = Math.max(1, parseInt((searchParams?.page as string) || '1', 10));
   const query = (searchParams?.q as string) || '';
+  const createdFrom = (searchParams?.from as string) || '';
 
-  const { customers, total } = await listCustomers({ tenantId, search: query, page, pageSize: ITEMS_PER_PAGE });
+  const { customers, total } = await listCustomers({ tenantId, search: query, page, pageSize: ITEMS_PER_PAGE, createdFrom: createdFrom || undefined });
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   return (
@@ -29,11 +30,14 @@ export default async function CustomersPage({
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-          <p className="mt-1 text-sm text-gray-500">{total} customer{total === 1 ? '' : 's'} on file</p>
+          <p className="mt-1 text-sm text-gray-500">
+            {total} customer{total === 1 ? '' : 's'} {createdFrom ? 'joined since ' + createdFrom : 'on file'}
+          </p>
         </div>
       </div>
 
       <form className="mb-6 flex flex-col sm:flex-row gap-3" method="GET">
+        {createdFrom && <input type="hidden" name="from" value={createdFrom} />}
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -50,7 +54,7 @@ export default async function CustomersPage({
         >
           Search
         </button>
-        {query && (
+        {(query || createdFrom) && (
           <Link
             href="/customers"
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center"
@@ -108,7 +112,7 @@ export default async function CustomersPage({
           <div className="flex gap-2">
             {page > 1 && (
               <Link
-                href={`/customers?page=${page - 1}${query ? `&q=${query}` : ''}`}
+                href={`/customers?page=${page - 1}${query ? `&q=${query}` : ''}${createdFrom ? `&from=${createdFrom}` : ''}`}
                 className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Previous
@@ -116,7 +120,7 @@ export default async function CustomersPage({
             )}
             {page < totalPages && (
               <Link
-                href={`/customers?page=${page + 1}${query ? `&q=${query}` : ''}`}
+                href={`/customers?page=${page + 1}${query ? `&q=${query}` : ''}${createdFrom ? `&from=${createdFrom}` : ''}`}
                 className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Next
