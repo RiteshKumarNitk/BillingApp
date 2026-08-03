@@ -157,6 +157,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       salePrice: true,
       purchasePrice: true,
       mrp: true,
+      inventoryMode: true,
       variants: { select: { id: true, salePrice: true, purchasePrice: true, mrp: true } },
       addOns: { select: { id: true, name: true, price: true } },
       comboComponents: {
@@ -250,6 +251,9 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
       productType: item.productType,
       selectedAddOns: resolvedAddOns,
       comboComponents: resolvedComboComponents,
+      // Variants inherit the parent product's mode — there's no separate per-variant mode (see
+      // schema comment on Product.inventoryMode).
+      inventoryMode: product.inventoryMode,
     };
   });
 
@@ -453,6 +457,12 @@ async function executeTransactionPlan(
   });
 
   for (const item of normalizedItems) {
+    // Always Available / Auto Refill items never block a sale or lose stock on one — Auto Refill's
+    // depletion tracking still happens (its stock number is real and meaningful for the daily
+    // reset), so it's excluded from this skip; only Always Available skips the decrement entirely.
+    if (item.inventoryMode === "ALWAYS_AVAILABLE") {
+      continue;
+    }
     if (item.productType === "VARIANT") {
       if (!item.variantId) {
         throw new TransactionError(`Missing variant selection for ${item.name}`, 400);

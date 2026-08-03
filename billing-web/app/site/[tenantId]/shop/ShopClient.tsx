@@ -5,6 +5,7 @@ import { Search, Plus, Minus, Trash2, ChevronRight, UtensilsCrossed } from 'luci
 import { getMenuTheme, menuThemeCssVars } from '@/lib/website/menuTheme';
 import { WebsiteConfig } from '@/lib/website/types';
 import { useCart } from '@/components/website/CartContext';
+import { isOutOfStock as checkOutOfStock } from '@/lib/products/availability';
 
 interface ShopClientProps {
   categorizedProducts: {
@@ -59,12 +60,14 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
   const AddToCartButton = ({ product, variant }: { product: any; variant?: any }) => {
     const vid = variant?.id;
     const qty = getCartQty(product.id, vid);
-    // SERVICE/COMBO never carry a meaningful stock number — see the matching comment in
-    // CartContext.addToCart.
-    const stock = (product.productType === 'SERVICE' || product.productType === 'COMBO')
+    // SERVICE/COMBO never carry a meaningful stock number (see the matching comment in
+    // CartContext.addToCart), and neither does an Always Available item — both get an
+    // unbounded quantity cap instead of the raw (irrelevant) stock figure.
+    const stock = (product.productType === 'SERVICE' || product.productType === 'COMBO' || product.inventoryMode === 'ALWAYS_AVAILABLE')
       ? Infinity
       : (variant ? variant.stock : product.stock);
-    const isOutOfStock = stock <= 0 && product.productType !== 'VARIANT' && product.productType !== 'SERVICE' && product.productType !== 'COMBO';
+    const isOutOfStock = product.productType !== 'VARIANT' && product.productType !== 'SERVICE' && product.productType !== 'COMBO'
+      && checkOutOfStock(stock, product.inventoryMode);
 
     if (isOutOfStock) {
       return (
@@ -133,7 +136,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
                 ))}
               </p>
             )}
-            {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && (
+            {item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && checkOutOfStock(item.stock, item.inventoryMode) && (
               <span className="inline-block mt-1.5 text-[9px] font-bold text-[var(--muted)] border border-[var(--line)] px-1.5 py-0.5 rounded-full">Sold out</span>
             )}
             {hasVariants && (
@@ -143,7 +146,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-[var(--muted)]">{v.name}</span>
                       <span className="text-xs font-semibold text-[var(--primary)]">₹{v.salePrice.toFixed(0)}</span>
-                      {v.stock <= 0 && <span className="text-[9px] text-[var(--muted)]">Out</span>}
+                      {checkOutOfStock(v.stock, item.inventoryMode) && <span className="text-[9px] text-[var(--muted)]">Out</span>}
                     </div>
                     <AddToCartButton product={item} variant={v} />
                   </div>
@@ -186,7 +189,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
             {item.mrp > item.salePrice && (
               <span className="text-[10px] text-[var(--muted)] line-through">₹{item.mrp.toFixed(0)}</span>
             )}
-            {item.stock <= 0 && item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && (
+            {item.productType !== 'VARIANT' && item.productType !== 'SERVICE' && item.productType !== 'COMBO' && checkOutOfStock(item.stock, item.inventoryMode) && (
               <span className="text-[9px] font-bold text-[var(--muted)] border border-[var(--line)] px-1.5 py-0.5 rounded-full">Sold out</span>
             )}
           </div>
@@ -197,7 +200,7 @@ export default function ShopClient({ categorizedProducts, layoutStyle, config }:
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-[var(--muted)]">{v.name}</span>
                     <span className="text-[10px] font-bold text-[var(--ink)]">₹{v.salePrice.toFixed(0)}</span>
-                    {v.stock <= 0 && <span className="text-[9px] text-[var(--muted)]">Out</span>}
+                    {checkOutOfStock(v.stock, item.inventoryMode) && <span className="text-[9px] text-[var(--muted)]">Out</span>}
                   </div>
                   <AddToCartButton product={item} variant={v} />
                 </div>

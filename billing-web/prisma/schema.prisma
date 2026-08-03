@@ -149,6 +149,13 @@ model Product {
   foodType          String?           // VEG | NON_VEG | VEGAN | JAIN
   isAvailable       Boolean           @default(true)
   isFeatured        Boolean           @default(false)
+  // Cafe/made-to-order items shouldn't be forced through retail-style stock tracking.
+  // INVENTORY_MANAGED (default) = existing behavior, stock decrements on sale and blocks at 0.
+  // ALWAYS_AVAILABLE = never decrements, never shows out-of-stock.
+  // AUTO_REFILL = decrements normally through the day, then a daily cron resets `stock` to
+  // `autoRefillQuantity` at the start of each business day (see app/api/cron/auto-refill-stock).
+  inventoryMode     String            @default("INVENTORY_MANAGED")
+  autoRefillQuantity Float?
   addOns            ProductAddOn[]
   comboComponents   ComboItem[]       @relation("ComboItems")
   usedInCombos      ComboItem[]       @relation("ComboComponents")

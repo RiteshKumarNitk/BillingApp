@@ -46,6 +46,8 @@ export default function AddProductClient({ businessType }: { businessType: strin
     foodType: '',
     isAvailable: true,
     isFeatured: false,
+    inventoryMode: 'INVENTORY_MANAGED',
+    autoRefillQuantity: '',
   });
 
   const [variants, setVariants] = useState<any[]>([]);
@@ -368,14 +370,38 @@ export default function AddProductClient({ businessType }: { businessType: strin
             )}
 
             {showStock && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Stock</label>
-                  <input type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" step="any" className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Inventory Mode</label>
+                  <select name="inventoryMode" value={formData.inventoryMode} onChange={handleChange} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 bg-white">
+                    <option value="INVENTORY_MANAGED">Inventory Managed — track stock, block sale at 0</option>
+                    <option value="ALWAYS_AVAILABLE">Always Available — never shows out of stock</option>
+                    <option value="AUTO_REFILL">Auto Refill — resets to a daily quantity every day</option>
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Made-to-order items (coffee, sandwiches, momos...) usually don&apos;t need retail-style stock tracking.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Min Stock Alert</label>
-                  <input type="number" name="minStockThreshold" value={formData.minStockThreshold} onChange={handleChange} min="0" className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
+
+                {formData.inventoryMode === 'AUTO_REFILL' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Daily Quantity</label>
+                    <input type="number" name="autoRefillQuantity" value={formData.autoRefillQuantity} onChange={handleChange} min="0" step="any" placeholder="e.g. 50" className="w-full rounded-xl border border-gray-300 px-4 py-2.5" />
+                    <p className="mt-1 text-xs text-gray-500">Stock resets to this amount at the start of every day.</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      {formData.inventoryMode === 'AUTO_REFILL' ? "Today's Starting Stock" : 'Current Stock'}
+                    </label>
+                    <input type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" step="any" disabled={formData.inventoryMode === 'ALWAYS_AVAILABLE'} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 disabled:bg-gray-50 disabled:text-gray-400" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Min Stock Alert</label>
+                    <input type="number" name="minStockThreshold" value={formData.minStockThreshold} onChange={handleChange} min="0" disabled={formData.inventoryMode !== 'INVENTORY_MANAGED'} className="w-full rounded-xl border border-gray-300 px-4 py-2.5 disabled:bg-gray-50 disabled:text-gray-400" />
+                  </div>
                 </div>
               </div>
             )}

@@ -113,9 +113,9 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
     const name = variant ? `${product.name} - ${variant.name}` : product.name;
     const price = variant ? variant.salePrice : product.salePrice;
     // SERVICE/COMBO products never carry a meaningful stock number (COMBO's own Product.stock is
-    // always 0 — there's no admin UI to set it), so their quantity stepper must never be capped
-    // by it the way a stocked item's is.
-    const stock = (product.productType === 'SERVICE' || product.productType === 'COMBO')
+    // always 0 — there's no admin UI to set it), and neither does an Always Available item, so
+    // none of their quantity steppers must be capped by it the way a stocked item's is.
+    const stock = (product.productType === 'SERVICE' || product.productType === 'COMBO' || product.inventoryMode === 'ALWAYS_AVAILABLE')
       ? Infinity
       : (variant ? variant.stock : product.stock);
     setCart(prev => {

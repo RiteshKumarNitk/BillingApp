@@ -199,6 +199,8 @@ export async function createProduct(data: any) {
     foodType: data.foodType || null,
     isAvailable: data.isAvailable !== false,
     isFeatured: data.isFeatured === true,
+    inventoryMode: ['INVENTORY_MANAGED', 'ALWAYS_AVAILABLE', 'AUTO_REFILL'].includes(data.inventoryMode) ? data.inventoryMode : 'INVENTORY_MANAGED',
+    autoRefillQuantity: data.inventoryMode === 'AUTO_REFILL' && data.autoRefillQuantity !== '' ? parseFloat(data.autoRefillQuantity) || 0 : null,
     tenant: { connect: { id: tenantId } },
   };
 
@@ -293,6 +295,8 @@ export async function updateProduct(productId: string, data: any) {
     foodType: data.foodType || null,
     isAvailable: data.isAvailable !== false,
     isFeatured: data.isFeatured === true,
+    inventoryMode: ['INVENTORY_MANAGED', 'ALWAYS_AVAILABLE', 'AUTO_REFILL'].includes(data.inventoryMode) ? data.inventoryMode : 'INVENTORY_MANAGED',
+    autoRefillQuantity: data.inventoryMode === 'AUTO_REFILL' && data.autoRefillQuantity !== '' ? parseFloat(data.autoRefillQuantity) || 0 : null,
   };
 
   // Handling updates for complex types is more intricate (needs delete/re-create or upsert)

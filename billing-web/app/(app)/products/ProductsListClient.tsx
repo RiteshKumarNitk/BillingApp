@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getFilteredProducts, getProductCategories, deleteProduct } from '@/lib/actions/products';
 import { Package, Search, ChevronLeft, ChevronRight, X, Barcode, Trash2, AlertCircle } from 'lucide-react';
 import { getProductsAreaLabel, getProductNoun, showAvailabilityToggle } from '@/lib/productForm/businessTypeConfig';
+import { inventoryModeLabel } from '@/lib/products/availability';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -208,7 +209,16 @@ export default function ProductsListClient({ businessType }: { businessType: str
                         )}
                       </div>
 
-                      {product.productType !== 'SERVICE' && (
+                      {product.productType !== 'SERVICE' && product.inventoryMode && product.inventoryMode !== 'INVENTORY_MANAGED' ? (
+                        <p className="mt-2 text-sm flex items-center gap-1.5">
+                          <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+                            {inventoryModeLabel(product.inventoryMode, product.autoRefillQuantity)}
+                          </span>
+                          {product.inventoryMode === 'AUTO_REFILL' && (
+                            <span className="text-gray-500">{product.stock} {product.unit || 'pcs'} left today</span>
+                          )}
+                        </p>
+                      ) : product.productType !== 'SERVICE' && (
                         <p className="mt-2 text-sm flex items-center gap-1.5">
                           <span className="text-gray-500">Stock:</span>
                           <span className={`font-bold ${

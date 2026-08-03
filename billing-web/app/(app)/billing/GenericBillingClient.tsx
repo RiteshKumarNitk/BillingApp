@@ -6,6 +6,7 @@ import { searchProducts } from '@/lib/actions/products';
 import { findCustomerByPhone } from '@/lib/actions/customers';
 import { getMyPermissions } from '@/lib/actions/users';
 import { isValidPhone } from '@/lib/utils/phone';
+import { isOutOfStock as checkOutOfStock } from '@/lib/products/availability';
 import { useToast } from '@/components/ui/Toast';
 import { Search, Camera, Plus, Minus, Trash2, Barcode, X, ShoppingCart, AlertCircle, Printer, User, CreditCard, Landmark, Smartphone, ChevronDown, Check, Package, Tag, Star, PauseCircle, PlayCircle } from 'lucide-react';
 import ProductSelectionModal from './ProductSelectionModal';
@@ -142,7 +143,7 @@ export default function GenericBillingClient() {
       addToast('error', 'Items are locked while resuming a held bill. Cancel the resume to edit the cart.');
       return;
     }
-    if (product.stock <= 0 && product.productType !== 'SERVICE') {
+    if (product.productType !== 'SERVICE' && checkOutOfStock(product.stock, product.inventoryMode)) {
       addToast('error', `${product.name} is out of stock!`);
       return;
     }
@@ -769,10 +770,10 @@ export default function GenericBillingClient() {
               {products.length > 0 && products.map(product => (
                 <button
                   key={product.id}
-                  onClick={() => product.stock > 0 && addToCart(product)}
-                  disabled={product.stock <= 0 && product.productType !== 'SERVICE'}
+                  onClick={() => !(product.productType !== 'SERVICE' && checkOutOfStock(product.stock, product.inventoryMode)) && addToCart(product)}
+                  disabled={product.productType !== 'SERVICE' && checkOutOfStock(product.stock, product.inventoryMode)}
                   className={`w-full text-left p-3 rounded-xl border transition-all ${
-                    product.stock <= 0 && product.productType !== 'SERVICE'
+                    product.productType !== 'SERVICE' && checkOutOfStock(product.stock, product.inventoryMode)
                       ? 'bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed'
                       : 'bg-white border-gray-100 hover:border-indigo-200 hover:shadow-sm hover:bg-indigo-50/30 active:scale-[0.99] cursor-pointer'
                   }`}
