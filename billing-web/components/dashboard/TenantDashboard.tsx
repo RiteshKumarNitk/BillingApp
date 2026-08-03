@@ -42,6 +42,7 @@ import {
   getRecentTransactions,
   getLowStockItems,
   getOverviewCounts,
+  getCustomerOfTheMonth,
 } from '@/lib/analytics';
 
 export default async function TenantDashboard({
@@ -74,6 +75,7 @@ export default async function TenantDashboard({
     overviewCounts,
     profitOverview,
     profitTrendData,
+    customerOfTheMonth,
   ] = await Promise.all([
     getSalesOverview(tenantId),
     getPeriodTotals(tenantId),
@@ -89,6 +91,7 @@ export default async function TenantDashboard({
     getOverviewCounts(tenantId),
     canViewProfit ? getProfitOverview(tenantId) : Promise.resolve(null),
     canViewProfit ? getProfitTrendData(tenantId, days) : Promise.resolve([]),
+    getCustomerOfTheMonth(tenantId),
   ]);
 
   const { totalSales, totalTransactions, todaySales, todayTransactions, todayTrend, revenueTrend, txTrend } = overview;
@@ -209,6 +212,42 @@ export default async function TenantDashboard({
             href="/orders?status=COMPLETED"
           />
         </div>
+
+        {/* Customer of the Month — scored on spend/orders/visits/AOV this calendar month, see
+            lib/analytics.ts's getCustomerOfTheMonth. Null when no customer has ordered yet this
+            month, not shown at all rather than a fabricated placeholder. */}
+        {customerOfTheMonth && (
+          <Link
+            href={`/customers/${customerOfTheMonth.id}`}
+            className="mb-6 block rounded-2xl border border-amber-200 bg-white p-6 shadow-xl shadow-gray-200/40 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-200/50"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="h-5 w-5 text-amber-500" />
+              <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wide">Customer of the Month</h2>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+              {customerOfTheMonth.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={customerOfTheMonth.photoUrl} alt={customerOfTheMonth.name} className="w-16 h-16 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-xl font-bold text-amber-600 shrink-0">
+                  {customerOfTheMonth.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-lg font-bold text-gray-900">{customerOfTheMonth.name}</p>
+                <div className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-500">
+                  <span>{customerOfTheMonth.totalOrders} orders</span>
+                  <span>₹{customerOfTheMonth.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })} spent</span>
+                  {customerOfTheMonth.favoriteItem && <span>Favorite: {customerOfTheMonth.favoriteItem}</span>}
+                  {customerOfTheMonth.lastVisit && (
+                    <span>Last visit: {new Date(customerOfTheMonth.lastVisit).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Link>
+        )}
 
         {/* Period totals + profit + avg bill + customers */}
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

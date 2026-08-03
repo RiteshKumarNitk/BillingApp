@@ -80,6 +80,20 @@ export async function listCustomers({ tenantId, search, page = 1, pageSize = 25,
   return { customers, total, page, pageSize };
 }
 
+// Reuses the existing Cloudinary-backed /api/upload pipeline (via the shared ImageUpload
+// component) rather than a new upload mechanism — this action only persists the resulting URL.
+export async function updateCustomerPhoto(customerId: string, photoUrl: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    throw new Error("Unauthorized");
+  }
+  const existing = await prisma.customer.findFirst({ where: { id: customerId, tenantId: session.user.tenantId } });
+  if (!existing) {
+    throw new Error("Customer not found");
+  }
+  await prisma.customer.update({ where: { id: customerId }, data: { photoUrl: photoUrl || null } });
+}
+
 export async function getCustomerDetail(tenantId: string, customerId: string) {
   const customer = await prisma.customer.findFirst({ where: { id: customerId, tenantId } });
   if (!customer) return null;

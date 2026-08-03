@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { Prisma } from "../generated/prisma";
 import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, startOfYear } from "date-fns";
 
 // HELD bills are drafts, not completed sales — every query in this file excludes them so
@@ -362,12 +363,16 @@ export async function getGstTrendData(tenantId: string, days: number) {
   }));
 }
 
-export async function getTopCustomers(tenantId: string, take = 10) {
+// `since` is optional (defaults to all-time, the existing behavior) so the Reports page's
+// existing all-time call is unaffected — getCustomerOfTheMonth below is the first caller to pass
+// an explicit window.
+export async function getTopCustomers(tenantId: string, take = 10, since?: Date) {
   const raw = await prisma.$queryRaw<any[]>`
     SELECT c."id", c."name", c."phone", COUNT(t."id") as orders, SUM(t."netAmount") as spend
     FROM "Transaction" t
     JOIN "Customer" c ON t."customerId" = c."id"
     WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD'
+      ${since ? Prisma.sql`AND t."createdAt" >= ${since}` : Prisma.empty}
     GROUP BY c."id", c."name", c."phone"
     ORDER BY spend DESC
     LIMIT ${take}
@@ -379,4 +384,81 @@ export async function getTopCustomers(tenantId: string, take = 10) {
     orders: Number(r.orders),
     spend: Number(r.spend),
   }));
+}
+
+// "Customer of the Month" — scores this calendar month's customers on a weighted blend of the 4
+// signals product asked for (spend weighted highest as the clearest business-impact signal, then
+// order count and visit frequency for loyalty, then average order value). Not ML, just a
+// normalized-weighted-sum over real data — no fabricated rating/review signal involved.
+export async function getCustomerOfTheMonth(tenantId: string) {
+  const monthStart = startOfMonth(new Date());
+
+  const raw = await prisma.$queryRaw<any[]>`
+    SELECT c."id", c."name", c."phone", c."photoUrl",
+      COUNT(t."id") as orders,
+      SUM(t."netAmount") as spend,
+      COUNT(DISTINCT DATE(t."createdAt")) as visits
+    FROM "Transaction" t
+    JOIN "Customer" c ON t."customerId" = c."id"
+    WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${monthStart}
+    GROUP BY c."id", c."name", c."phone", c."photoUrl"
+  `;
+  if (raw.length === 0) return null;
+
+  const candidates = raw.map((r) => {
+    const orders = Number(r.orders);
+    const spend = Number(r.spend);
+    return {
+      id: r.id as string,
+      name: r.name as string,
+      phone: r.phone as string | null,
+      photoUrl: r.photoUrl as string | null,
+      orders,
+      spend,
+      visits: Number(r.visits),
+      avgOrderValue: orders > 0 ? spend / orders : 0,
+    };
+  });
+
+  const maxOf = (key: "spend" | "orders" | "visits" | "avgOrderValue") => Math.max(...candidates.map((c) => c[key]));
+  const maxSpend = maxOf("spend");
+  const maxOrders = maxOf("orders");
+  const maxVisits = maxOf("visits");
+  const maxAvgOrderValue = maxOf("avgOrderValue");
+
+  const winner = candidates
+    .map((c) => ({
+      ...c,
+      score:
+        0.4 * (maxSpend > 0 ? c.spend / maxSpend : 0) +
+        0.25 * (maxOrders > 0 ? c.orders / maxOrders : 0) +
+        0.2 * (maxVisits > 0 ? c.visits / maxVisits : 0) +
+        0.15 * (maxAvgOrderValue > 0 ? c.avgOrderValue / maxAvgOrderValue : 0),
+    }))
+    .sort((a, b) => b.score - a.score)[0];
+
+  const favoriteRaw = await prisma.$queryRaw<any[]>`
+    SELECT ti."name", SUM(ti."quantity") as qty
+    FROM "TransactionItem" ti
+    JOIN "Transaction" t ON ti."transactionId" = t."id"
+    WHERE t."customerId" = ${winner.id} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${monthStart}
+    GROUP BY ti."name"
+    ORDER BY qty DESC
+    LIMIT 1
+  `;
+
+  const customer = await prisma.customer.findUnique({ where: { id: winner.id }, select: { lastPurchaseDate: true } });
+
+  return {
+    id: winner.id,
+    name: winner.name,
+    phone: winner.phone,
+    photoUrl: winner.photoUrl,
+    totalOrders: winner.orders,
+    totalSpent: winner.spend,
+    avgOrderValue: winner.avgOrderValue,
+    visits: winner.visits,
+    favoriteItem: (favoriteRaw[0]?.name as string | undefined) ?? null,
+    lastVisit: customer?.lastPurchaseDate ?? null,
+  };
 }

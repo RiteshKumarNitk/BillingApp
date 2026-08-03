@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Phone, Mail, MapPin, Star, Receipt } from 'lucide-react';
 import { getCustomerDetail } from '@/lib/actions/customers';
+import CustomerPhotoUpload from './CustomerPhotoUpload';
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -63,6 +64,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             </p>
           </div>
         </div>
+
+        <CustomerPhotoUpload customerId={customer.id} currentPhotoUrl={customer.photoUrl} />
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
