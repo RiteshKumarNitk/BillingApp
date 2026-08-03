@@ -32,50 +32,77 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
   const hasManageUsers = user?.permissions?.includes('MANAGE_USERS');
   const hasViewReports = user?.permissions?.includes('VIEW_REPORTS');
 
-  let navLinks: { name: string, href: string, icon: any }[] = [];
+  type NavLink = { name: string, href: string, icon: any };
+  // A section with no `title` renders with no header (used for Dashboard, which sits above every
+  // group rather than inside one). Grouping here is what actually separates POS Billing/
+  // Transactions from Website Builder — previously both sat in one flat, unheaded list, easy to
+  // mistake as related just because they were adjacent.
+  let navSections: { title?: string, links: NavLink[] }[] = [];
 
   if (isSuperAdmin) {
-    navLinks = [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Manage Tenants', href: '/tenants', icon: Building },
-      { name: 'Subscription Plans', href: '/admin/plans', icon: ClipboardList },
-      { name: 'Discount Coupons', href: '/admin/coupons', icon: Tag },
-      { name: 'System Audit Logs', href: '/admin/audit-logs', icon: History },
-      { name: 'Global Users', href: '/users', icon: Users },
-      { name: 'Platform Settings', href: '/settings', icon: Settings }
+    navSections = [
+      { links: [{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard }] },
+      {
+        title: 'Platform',
+        links: [
+          { name: 'Manage Tenants', href: '/tenants', icon: Building },
+          { name: 'Subscription Plans', href: '/admin/plans', icon: ClipboardList },
+          { name: 'Discount Coupons', href: '/admin/coupons', icon: Tag },
+          { name: 'System Audit Logs', href: '/admin/audit-logs', icon: History },
+          { name: 'Global Users', href: '/users', icon: Users },
+          { name: 'Platform Settings', href: '/settings', icon: Settings },
+        ],
+      },
     ];
   } else {
-    navLinks = [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    const salesLinks: NavLink[] = [
       { name: 'Billing', href: '/billing', icon: Receipt },
       { name: 'Transactions', href: '/transactions', icon: History },
       { name: 'Customers', href: '/customers', icon: Users },
       { name: 'Order Requests', href: '/orders', icon: ClipboardList },
       ...(tenant?.businessType === 'CAFE' ? [{ name: 'Kitchen Queue', href: '/kitchen', icon: ChefHat }] : []),
+    ];
+
+    const catalogLinks: NavLink[] = [
       { name: productsAreaLabel, href: '/products', icon: Package },
       { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
     ];
 
+    const storefrontLinks: NavLink[] = [];
     if (user?.role === 'ADMIN') {
-      navLinks.push({ name: 'Website Builder', href: '/website-builder', icon: Globe });
+      storefrontLinks.push({ name: 'Website Builder', href: '/website-builder', icon: Globe });
       if (tenant?.businessType === 'CAFE') {
-        navLinks.push({ name: 'Tables & QR', href: '/tables', icon: QrCode });
+        storefrontLinks.push({ name: 'Tables & QR', href: '/tables', icon: QrCode });
       }
     }
 
+    const insightsLinks: NavLink[] = [];
     if (hasViewReports) {
-      navLinks.push({ name: 'Reports', href: '/reports', icon: BarChart3 });
+      insightsLinks.push({ name: 'Reports', href: '/reports', icon: BarChart3 });
     }
 
+    const teamLinks: NavLink[] = [];
     if (hasManageUsers) {
-      navLinks.push({ name: 'Team Members', href: '/users', icon: Users });
-      navLinks.push({ name: 'Roles', href: '/roles', icon: Shield });
+      teamLinks.push({ name: 'Team Members', href: '/users', icon: Users });
+      teamLinks.push({ name: 'Roles', href: '/roles', icon: Shield });
     }
-    
-    navLinks.push({ name: 'Billing & Subscriptions', href: '/settings/billing', icon: Receipt });
-    navLinks.push({ name: 'Settings', href: '/settings', icon: Settings });
+
+    const accountLinks: NavLink[] = [
+      { name: 'Billing & Subscriptions', href: '/settings/billing', icon: Receipt },
+      { name: 'Settings', href: '/settings', icon: Settings },
+    ];
+
+    navSections = [
+      { links: [{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard }] },
+      { title: 'Sales', links: salesLinks },
+      { title: 'Catalog', links: catalogLinks },
+      ...(storefrontLinks.length > 0 ? [{ title: 'Storefront', links: storefrontLinks }] : []),
+      ...(insightsLinks.length > 0 ? [{ title: 'Insights', links: insightsLinks }] : []),
+      ...(teamLinks.length > 0 ? [{ title: 'Team', links: teamLinks }] : []),
+      { title: 'Account', links: accountLinks },
+    ];
   }
 
   const sidebarContent = (
@@ -98,28 +125,39 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto py-4 px-3">
-        <nav className="space-y-1">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-            const Icon = link.icon;
-            
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={closeMobile}
-                aria-current={isActive ? 'page' : undefined}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive 
-                    ? 'bg-blue-50 text-blue-700' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-blue-700' : 'text-gray-400'}`} />
-                {link.name}
-              </Link>
-            );
-          })}
+        <nav className="space-y-4">
+          {navSections.map((section, sectionIdx) => (
+            <div key={section.title || `section-${sectionIdx}`}>
+              {section.title && (
+                <p className="px-3 mb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  {section.title}
+                </p>
+              )}
+              <div className="space-y-1">
+                {section.links.map((link) => {
+                  const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+                  const Icon = link.icon;
+
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      onClick={closeMobile}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 ${isActive ? 'text-blue-700' : 'text-gray-400'}`} />
+                      {link.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
       </div>
     </>
