@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
+import { History } from 'lucide-react';
 import PrintInvoiceButton from './PrintInvoiceButton';
 
 export default async function BillPreviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,6 +38,11 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
           gstin: true,
           logoUrl: true
         }
+      },
+      editedByUser: { select: { name: true } },
+      editHistory: {
+        orderBy: { editedAt: 'desc' },
+        include: { editedByUser: { select: { name: true } } }
       }
     }
   });
@@ -44,6 +50,13 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
   if (!transaction) {
     notFound();
   }
+
+  const userPermissions = session.user.permissions || [];
+  const isSuperAdmin = session.user.role === 'SUPERADMIN';
+  const hasEditPermission = isSuperAdmin || userPermissions.includes('EDIT_TRANSACTION');
+  const isSameDay = new Date(transaction.createdAt).toDateString() === new Date().toDateString();
+  const hasReopenPermission = isSuperAdmin || userPermissions.includes('REOPEN_OLD_TRANSACTION');
+  const canEditInvoice = transaction.status === 'COMPLETED' && hasEditPermission && (isSameDay || hasReopenPermission);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString(undefined, {
@@ -265,7 +278,37 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
         </div>
 
         {/* Print Button */}
-        <PrintInvoiceButton />
+        <PrintInvoiceButton transactionId={transaction.id} canEdit={canEditInvoice} />
+
+        {/* Edit History — only rendered once an invoice has actually been edited; the current
+            Transaction row is always "the edited invoice," each row below is a frozen snapshot of
+            what it looked like before that edit. */}
+        {transaction.editHistory.length > 0 && (
+          <div className="print:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
+              <History className="w-4 h-4 text-gray-400" />
+              Edit History
+            </h2>
+            <div className="space-y-3">
+              {transaction.editedAt && transaction.editedByUser && (
+                <p className="text-xs text-gray-500">
+                  Last edited by <span className="font-medium text-gray-700">{transaction.editedByUser.name}</span> on{' '}
+                  {new Date(transaction.editedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                  {' '}({transaction.editCount} edit{transaction.editCount === 1 ? '' : 's'} total)
+                </p>
+              )}
+              {transaction.editHistory.map((h) => (
+                <div key={h.id} className="border border-gray-100 rounded-xl p-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-gray-900">{h.editedByUser.name}</span>
+                    <span className="text-gray-400">{new Date(h.editedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                  </div>
+                  <p className="text-gray-500 mt-1">Reason: {h.reason}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

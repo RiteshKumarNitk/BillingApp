@@ -111,7 +111,9 @@ model User {
   jobTitle          String?
   profilePictureUrl String?
   tokenVersion      Int           @default(0)
-  transactions      Transaction[]
+  transactions      Transaction[]            @relation("TransactionCreatedBy")
+  editedTransactions Transaction[]           @relation("TransactionEditedBy")
+  transactionEdits  TransactionEditHistory[]
   tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantRole        Role?         @relation(fields: [tenantRoleId], references: [id])
   auditLogs         AuditLog[]
@@ -521,13 +523,36 @@ model Transaction {
   // the moment it's created, but the kitchen still needs to prepare it. Null means "never sent to
   // kitchen" (a non-food sale, or a business type with no kitchen concept). PREPARING | READY | SERVED.
   kitchenStatus         String?
+  // Invoice Edit: the CURRENT row is always "the edited invoice" — every prior state is preserved
+  // as a TransactionEditHistory snapshot instead, so nothing here is ever lost, only appended to.
+  editedAt              DateTime?
+  editedByUserId        String?
+  editCount             Int                  @default(0)
   tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user                  User                 @relation(fields: [userId], references: [id])
+  user                  User                 @relation("TransactionCreatedBy", fields: [userId], references: [id])
   customer              Customer?            @relation(fields: [customerId], references: [id])
+  editedByUser          User?                @relation("TransactionEditedBy", fields: [editedByUserId], references: [id])
   items                 TransactionItem[]
   payments              TransactionPayment[]
+  editHistory           TransactionEditHistory[]
 
   @@index([customerId])
+}
+
+// One row per edit to a completed Transaction — a frozen snapshot of the FULL pre-edit state
+// (transaction fields + items), oldest-first = complete history. The live Transaction row always
+// reflects the latest edit; nothing here is ever mutated or deleted once written.
+model TransactionEditHistory {
+  id             String      @id @default(uuid())
+  transactionId  String
+  snapshotJson   Json
+  editedByUserId String
+  editedAt       DateTime    @default(now())
+  reason         String
+  transaction    Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  editedByUser   User        @relation(fields: [editedByUserId], references: [id])
+
+  @@index([transactionId])
 }
 
 model TransactionPayment {

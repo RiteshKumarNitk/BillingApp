@@ -855,3 +855,293 @@ export async function resumeBill(params: ResumeBillParams) {
     return created;
   });
 }
+
+interface EditTransactionItemInput {
+  productId: string;
+  quantity: number | string;
+  salePrice: number | string;
+  discountAmount?: number | string;
+  variantId?: string | null;
+  titleOverride?: string;
+  name?: string;
+  productType?: string;
+  barcode?: string;
+  selectedAddOns?: SelectedAddOnInput[];
+}
+
+interface EditTransactionParams {
+  transactionId: string;
+  tenantId: string;
+  userId: string; // the editor, not necessarily who created the sale
+  role: string;
+  permissions: string[];
+  items: EditTransactionItemInput[];
+  notes?: string | null;
+  reason: string;
+}
+
+// Invoice Edit v1: item-level corrections only (quantity, remove, add, variant, notes) — the bill-
+// level discount % and coupon/loyalty redemption are carried forward UNCHANGED from the original
+// sale, not re-offered as edit inputs. That keeps a real correctness problem (reconciling a
+// changed coupon/loyalty redemption against points already earned/spent) out of v1 scope; tax and
+// the bill-level discount amount still recompute correctly because they're percentages/rates
+// applied to the new item total, not frozen figures.
+export async function editTransaction(params: EditTransactionParams) {
+  const { transactionId, tenantId, userId, role, permissions, items, notes, reason } = params;
+
+  if (role !== "SUPERADMIN" && !permissions.includes("EDIT_TRANSACTION")) {
+    throw new TransactionError("Forbidden: Requires EDIT_TRANSACTION permission", 403);
+  }
+  if (!reason || !reason.trim()) {
+    throw new TransactionError("A reason for the edit is required", 400);
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new TransactionError("Items are required and must be a non-empty array", 400);
+  }
+
+  const existing = await prisma.transaction.findFirst({
+    where: { id: transactionId, tenantId, status: "COMPLETED" },
+    include: { items: true },
+  });
+  if (!existing) {
+    throw new TransactionError("Invoice not found", 404);
+  }
+
+  const isSameDay = new Date(existing.createdAt).toDateString() === new Date().toDateString();
+  if (!isSameDay && role !== "SUPERADMIN" && !permissions.includes("REOPEN_OLD_TRANSACTION")) {
+    throw new TransactionError("Editing an invoice from a previous day requires the Reopen Old Invoice permission", 403);
+  }
+
+  const canOverridePrice = role === "SUPERADMIN" || permissions.includes("OVERRIDE_PRICE");
+
+  const parsedItems = items.map((item) => {
+    const quantity = parseFloat(String(item.quantity));
+    const requestedSalePrice = parseFloat(String(item.salePrice));
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new TransactionError(`Invalid quantity for item ${item.productId}`, 400);
+    }
+    if (!Number.isFinite(requestedSalePrice) || requestedSalePrice < 0) {
+      throw new TransactionError(`Invalid sale price for item ${item.productId}`, 400);
+    }
+    return {
+      productId: item.productId,
+      name: item.titleOverride || item.name || "Product",
+      barcode: item.barcode || "",
+      quantity,
+      requestedSalePrice,
+      discountAmountInput: parseFloat(String(item.discountAmount ?? 0)) || 0,
+      variantId: item.variantId || null,
+      productType: item.productType,
+      selectedAddOns: item.selectedAddOns || [],
+    };
+  });
+
+  const uniqueProductIds = Array.from(new Set(parsedItems.map((i) => i.productId)));
+  const ownedProducts = await prisma.product.findMany({
+    where: { id: { in: uniqueProductIds }, tenantId },
+    select: {
+      id: true,
+      salePrice: true,
+      purchasePrice: true,
+      mrp: true,
+      inventoryMode: true,
+      gstRate: true,
+      gstInclusive: true,
+      variants: { select: { id: true, salePrice: true, purchasePrice: true, mrp: true } },
+      addOns: { select: { id: true, name: true, price: true } },
+    },
+  });
+  if (ownedProducts.length !== uniqueProductIds.length) {
+    throw new TransactionError("Unauthorized: One or more products do not belong to your tenant", 403);
+  }
+  const productById = new Map(ownedProducts.map((p) => [p.id, p]));
+
+  const normalizedItems = parsedItems.map((item) => {
+    const product = productById.get(item.productId)!;
+    let catalogSalePrice = product.salePrice;
+    let purchasePrice = product.purchasePrice;
+    let mrp = product.mrp;
+
+    if (item.productType === "VARIANT" && item.variantId) {
+      const variant = product.variants.find((v) => v.id === item.variantId);
+      if (!variant) {
+        throw new TransactionError(`Variant not found for item ${item.name}`, 400);
+      }
+      catalogSalePrice = variant.salePrice;
+      purchasePrice = variant.purchasePrice;
+      mrp = variant.mrp;
+    }
+
+    const resolvedAddOns = item.selectedAddOns.map((selected) => {
+      const catalogAddOn = product.addOns.find((a) => a.id === selected.id || a.name === selected.name);
+      if (!catalogAddOn) {
+        throw new TransactionError(`Add-on "${selected.name}" not found for item ${item.name}`, 400);
+      }
+      return { name: catalogAddOn.name, price: catalogAddOn.price };
+    });
+    const addOnsTotal = resolvedAddOns.reduce((sum, a) => sum + a.price, 0);
+    catalogSalePrice += addOnsTotal;
+
+    const priceOverridden = Math.abs(item.requestedSalePrice - catalogSalePrice) > 0.01;
+    if (priceOverridden && !canOverridePrice) {
+      throw new TransactionError(
+        `Requires OVERRIDE_PRICE permission to sell "${item.name}" at a price different from the catalog`,
+        403
+      );
+    }
+
+    const salePrice = priceOverridden ? item.requestedSalePrice : catalogSalePrice;
+    const itemTotal = item.quantity * salePrice;
+
+    if (item.discountAmountInput < 0 || item.discountAmountInput > itemTotal) {
+      throw new TransactionError(`Invalid discount for item ${item.name}`, 400);
+    }
+
+    return {
+      productId: item.productId,
+      name: item.name,
+      barcode: item.barcode,
+      purchasePrice,
+      mrp,
+      salePrice,
+      quantity: item.quantity,
+      itemTotal,
+      discountAmount: item.discountAmountInput,
+      productType: item.productType || null,
+      variantId: item.variantId,
+      selectedAddOns: resolvedAddOns,
+      inventoryMode: product.inventoryMode,
+      // Exclusive-rate GST only — matches the POS UI's own client-side tax math (CafeBillingClient's
+      // exclusiveTaxAmount), recomputed here server-side since an edit has no client cart to do it.
+      gstAmount: product.gstRate && !product.gstInclusive ? (itemTotal * product.gstRate) / 100 : 0,
+    };
+  });
+
+  const grossTotal = normalizedItems.reduce((sum, i) => sum + i.itemTotal, 0);
+  const itemDiscountTotal = normalizedItems.reduce((sum, i) => sum + i.discountAmount, 0);
+  const subtotalAfterItemDiscounts = grossTotal - itemDiscountTotal;
+  const taxValue = normalizedItems.reduce((sum, i) => sum + i.gstAmount, 0);
+
+  // Bill-level discount % and coupon/loyalty amounts are carried forward from the original sale
+  // (see the function's doc comment) — only their base changes, which is exactly "recalculate
+  // discounts" for the parts this v1 supports.
+  const discountValue = existing.discount;
+  const billDiscountAmount = ((subtotalAfterItemDiscounts - existing.couponDiscountAmount) * discountValue) / 100;
+  const netAmount = Math.max(
+    0,
+    subtotalAfterItemDiscounts - existing.couponDiscountAmount - billDiscountAmount - existing.loyaltyDiscountAmount + taxValue
+  );
+
+  const newLoyaltyPointsEarned = existing.customerId ? Math.floor(netAmount / LOYALTY_EARN_RATE) : 0;
+  const loyaltyPointsEarnedDelta = newLoyaltyPointsEarned - existing.loyaltyPointsEarned;
+
+  return prisma.$transaction(async (tx) => {
+    // 1. Snapshot the full pre-edit state (transaction fields + items) — permanent, never mutated.
+    await tx.transactionEditHistory.create({
+      data: {
+        transactionId,
+        editedByUserId: userId,
+        reason: reason.trim(),
+        snapshotJson: JSON.parse(JSON.stringify({ transaction: existing, items: existing.items })),
+      },
+    });
+
+    // 2. Reconcile stock deltas — match old vs new lines by productId+variantId. Increasing
+    // quantity (or adding a new line) decrements the extra amount with the same insufficient-
+    // stock guard as a fresh sale; decreasing (or removing a line) credits stock back. Skipped
+    // entirely for ALWAYS_AVAILABLE, exactly like a normal sale.
+    const lineKey = (productId: string, variantId: string | null) => `${productId}::${variantId ?? ""}`;
+    const oldQtyByLine = new Map<string, number>();
+    for (const item of existing.items) {
+      const key = lineKey(item.productId, item.variantId);
+      oldQtyByLine.set(key, (oldQtyByLine.get(key) || 0) + item.quantity);
+    }
+    const newQtyByLine = new Map<string, number>();
+    for (const item of normalizedItems) {
+      const key = lineKey(item.productId, item.variantId);
+      newQtyByLine.set(key, (newQtyByLine.get(key) || 0) + item.quantity);
+    }
+    const allLineKeys = new Set([...oldQtyByLine.keys(), ...newQtyByLine.keys()]);
+    const inventoryModeByProductId = new Map(ownedProducts.map((p) => [p.id, p.inventoryMode]));
+
+    for (const key of allLineKeys) {
+      const [productId, variantIdRaw] = key.split("::");
+      const variantId = variantIdRaw || null;
+      const oldQty = oldQtyByLine.get(key) || 0;
+      const newQty = newQtyByLine.get(key) || 0;
+      const delta = newQty - oldQty;
+      if (delta === 0) continue;
+
+      const inventoryMode = inventoryModeByProductId.get(productId) ?? "INVENTORY_MANAGED";
+      if (inventoryMode === "ALWAYS_AVAILABLE") continue;
+
+      if (variantId) {
+        if (delta > 0) {
+          const result = await tx.productVariant.updateMany({
+            where: { id: variantId, productId, stock: { gte: delta } },
+            data: { stock: { decrement: delta } },
+          });
+          if (result.count === 0) throw new TransactionError(`Insufficient stock to increase quantity for this item`, 409);
+        } else {
+          await tx.productVariant.updateMany({ where: { id: variantId, productId }, data: { stock: { increment: -delta } } });
+        }
+      } else {
+        if (delta > 0) {
+          const result = await tx.product.updateMany({
+            where: { id: productId, tenantId, stock: { gte: delta } },
+            data: { stock: { decrement: delta } },
+          });
+          if (result.count === 0) throw new TransactionError(`Insufficient stock to increase quantity for this item`, 409);
+        } else {
+          await tx.product.updateMany({ where: { id: productId, tenantId }, data: { stock: { increment: -delta } } });
+        }
+      }
+    }
+
+    // 3. Reconcile loyalty points earned (redemption is frozen — see doc comment) and totalSpent.
+    if (existing.customerId) {
+      await tx.customer.updateMany({
+        where: { id: existing.customerId, tenantId },
+        data: {
+          loyaltyPoints: { increment: loyaltyPointsEarnedDelta },
+          totalSpent: { increment: netAmount - existing.netAmount },
+        },
+      });
+    }
+
+    // 4. Replace the item lines and update the transaction's own totals + edit metadata.
+    await tx.transactionItem.deleteMany({ where: { transactionId } });
+    const updated = await tx.transaction.update({
+      where: { id: transactionId },
+      data: {
+        totalAmount: grossTotal,
+        taxAmount: taxValue,
+        netAmount,
+        loyaltyPointsEarned: newLoyaltyPointsEarned,
+        notes: notes ?? existing.notes,
+        editedAt: new Date(),
+        editedByUserId: userId,
+        editCount: { increment: 1 },
+        items: {
+          create: normalizedItems.map((item) => ({
+            product: { connect: { id: item.productId } },
+            name: item.name,
+            barcode: item.barcode,
+            purchasePrice: item.purchasePrice,
+            mrp: item.mrp,
+            salePrice: item.salePrice,
+            quantity: item.quantity,
+            itemTotal: item.itemTotal,
+            discountAmount: item.discountAmount,
+            productType: item.productType,
+            variantId: item.variantId,
+            selectedAddOns: item.selectedAddOns.length > 0 ? item.selectedAddOns : undefined,
+          })),
+        },
+      },
+      include: { items: true, editHistory: { orderBy: { editedAt: "desc" } } },
+    });
+
+    return updated;
+  });
+}

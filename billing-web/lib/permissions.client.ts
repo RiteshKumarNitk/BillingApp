@@ -7,6 +7,10 @@ export const PERMISSIONS = {
   MANAGE_USERS: "MANAGE_USERS",
   VIEW_PROFIT: "VIEW_PROFIT",
   OVERRIDE_PRICE: "OVERRIDE_PRICE",
+  // Invoice Edit: routine same-day corrections need only this; an invoice from a prior day also
+  // needs REOPEN_OLD_TRANSACTION (see app/api/transactions/[id]/route.ts's PUT handler).
+  EDIT_TRANSACTION: "EDIT_TRANSACTION",
+  REOPEN_OLD_TRANSACTION: "REOPEN_OLD_TRANSACTION",
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;
