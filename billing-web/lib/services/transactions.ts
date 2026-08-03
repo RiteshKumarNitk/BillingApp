@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import type { Prisma } from "../../generated/prisma";
 import { checkFeatureLimit } from "@/lib/subscription";
+import { findOrCreateCustomerByPhone } from "@/lib/actions/customers";
 
 export class TransactionError extends Error {
   status: number;
@@ -98,6 +99,20 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
 
   if (!Array.isArray(items) || items.length === 0) {
     throw new TransactionError("Items are required and must be a non-empty array", 400);
+  }
+
+  // Every completed sale must be linked to a real customer (find-or-create by phone) — no more
+  // walk-in/anonymous invoices. Resolves customerId from the phone regardless of what the caller
+  // passed in, so a stale/mismatched customerId from the client can never diverge from the phone
+  // actually entered at checkout.
+  if (!customerPhone || !customerPhone.trim()) {
+    throw new TransactionError("Customer mobile number is required", 400);
+  }
+  let resolvedCustomer;
+  try {
+    resolvedCustomer = await findOrCreateCustomerByPhone(tenantId, customerPhone, customerName);
+  } catch (err: any) {
+    throw new TransactionError(err.message || "Invalid customer mobile number", 400);
   }
 
   const limitCheck = await checkFeatureLimit(tenantId, "transactions");
@@ -289,17 +304,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
   let loyaltyDiscountAmount = 0;
 
   if (requestedLoyaltyRedemption > 0) {
-    if (!customerId) {
-      throw new TransactionError("Loyalty points redemption requires a linked customer", 400);
-    }
-    const customer = await prisma.customer.findFirst({
-      where: { id: customerId, tenantId },
-      select: { id: true, loyaltyPoints: true },
-    });
-    if (!customer) {
-      throw new TransactionError("Customer not found", 404);
-    }
-    if (customer.loyaltyPoints < requestedLoyaltyRedemption) {
+    if (resolvedCustomer.loyaltyPoints < requestedLoyaltyRedemption) {
       throw new TransactionError("Insufficient loyalty points", 400);
     }
     loyaltyDiscountAmount = requestedLoyaltyRedemption * LOYALTY_POINT_VALUE;
@@ -310,7 +315,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
     subtotalAfterItemDiscounts - couponDiscountAmount - billDiscountAmount - loyaltyDiscountAmount + taxValue
   );
 
-  const loyaltyPointsEarned = customerId ? Math.floor(netAmount / LOYALTY_EARN_RATE) : 0;
+  const loyaltyPointsEarned = Math.floor(netAmount / LOYALTY_EARN_RATE);
 
   // --- Payment(s) ---
   // Split-payment path: caller sends `payments: [{method, amount}, ...]`. Falls back to the
@@ -353,9 +358,9 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
     resolvedPaymentMethod,
     resolvedAmountReceived,
     resolvedChangeAmount,
-    customerId: customerId || null,
-    customerName: customerName || null,
-    customerPhone: customerPhone || null,
+    customerId: resolvedCustomer.id,
+    customerName: resolvedCustomer.name,
+    customerPhone: resolvedCustomer.phone,
     notes: notes || null,
     tableNumber: tableNumber || null,
     orderType: orderType || null,
@@ -768,13 +773,21 @@ interface ResumeBillParams {
   amountReceived?: number | string | null;
   changeAmount?: number | string | null;
   payments?: PaymentInput[] | null;
+  // A held bill doesn't require a customer (see holdBill) — completing one now does, so the POS
+  // can supply/correct the phone at resume time if the held record never had one.
+  customerPhone?: string | null;
+  customerName?: string | null;
 }
 
 // Completes a previously-held bill by re-running the full checkout validation (same
 // buildTransactionPlan used by createTransaction) — stock, coupon validity, and loyalty balance
 // are all re-checked at this point, not at hold time.
 export async function resumeBill(params: ResumeBillParams) {
-  const { transactionId, tenantId, userId, role, permissions, paymentMethod, amountReceived, changeAmount, payments } = params;
+  const {
+    transactionId, tenantId, userId, role, permissions,
+    paymentMethod, amountReceived, changeAmount, payments,
+    customerPhone, customerName,
+  } = params;
 
   const held = await prisma.transaction.findFirst({
     where: { id: transactionId, tenantId, status: "HELD" },
@@ -812,9 +825,8 @@ export async function resumeBill(params: ResumeBillParams) {
     amountReceived,
     changeAmount,
     payments,
-    customerId: held.customerId,
-    customerName: held.customerName,
-    customerPhone: held.customerPhone,
+    customerName: customerName || held.customerName,
+    customerPhone: customerPhone || held.customerPhone,
     notes: held.notes,
     couponCode: held.couponCode,
     loyaltyPointsRedeemed: held.loyaltyPointsRedeemed,

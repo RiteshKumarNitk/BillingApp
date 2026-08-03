@@ -49,6 +49,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Billing', href: '/billing', icon: Receipt },
       { name: 'Transactions', href: '/transactions', icon: History },
+      { name: 'Customers', href: '/customers', icon: Users },
       { name: 'Order Requests', href: '/orders', icon: ClipboardList },
       ...(tenant?.businessType === 'CAFE' ? [{ name: 'Kitchen Queue', href: '/kitchen', icon: ChefHat }] : []),
       { name: productsAreaLabel, href: '/products', icon: Package },

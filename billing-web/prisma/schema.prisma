@@ -291,9 +291,16 @@ model CustomerFavorite {
 model Customer {
   id                String           @id @default(uuid())
   name              String
+  // Nullable at the column level for legacy/imported rows, but every new write path (POS
+  // checkout) enforces it as required in application code — see lib/utils/phone.ts/
+  // findOrCreateCustomerByPhone. @@unique below relies on Postgres treating each NULL as
+  // distinct, so pre-existing rows without a phone never collide.
   phone             String?
   email             String?
   address           String?
+  // "Customer of the Month" (see lib/analytics.ts getCustomerOfTheMonth) — optional, only ever
+  // set via the admin customer-detail photo upload; never fabricated/defaulted.
+  photoUrl          String?
   loyaltyPoints     Int              @default(0)
   totalSpent        Float            @default(0)
   lastPurchaseDate  DateTime?
@@ -304,7 +311,9 @@ model Customer {
   tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   orderRequests     OrderRequest[]
   notifications     Notification[]
+  transactions      Transaction[]
 
+  @@unique([tenantId, phone])
   @@index([tenantId])
   @@index([customerAccountId])
 }
@@ -507,8 +516,11 @@ model Transaction {
   kitchenStatus         String?
   tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user                  User                 @relation(fields: [userId], references: [id])
+  customer              Customer?            @relation(fields: [customerId], references: [id])
   items                 TransactionItem[]
   payments              TransactionPayment[]
+
+  @@index([customerId])
 }
 
 model TransactionPayment {

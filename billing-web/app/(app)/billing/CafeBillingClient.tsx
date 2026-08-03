@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCafeMenu } from '@/lib/actions/products';
 import { findCustomerByPhone } from '@/lib/actions/customers';
+import { isValidPhone } from '@/lib/utils/phone';
 import { useToast } from '@/components/ui/Toast';
 import {
   ShoppingCart, Trash2, Plus, Minus, X, User, CreditCard, Landmark, Smartphone,
@@ -204,11 +205,15 @@ export default function CafeBillingClient() {
       addToast('error', 'Enter a table number for Dine In orders');
       return;
     }
+    if (!isValidPhone(customerPhone)) {
+      addToast('error', 'Enter a valid 10-digit customer mobile number');
+      return;
+    }
     setSubmitting(true);
     try {
       const endpoint = resumingBillId ? `/api/transactions/${resumingBillId}/resume` : '/api/transactions';
       const body: any = resumingBillId
-        ? { paymentMethod, amountReceived: parseFloat(amountReceived) || netAmount, changeAmount }
+        ? { paymentMethod, amountReceived: parseFloat(amountReceived) || netAmount, changeAmount, customerPhone, customerName: customer?.name }
         : {
             items: buildItemsPayload(),
             discount: discountValue,
@@ -297,6 +302,7 @@ export default function CafeBillingClient() {
     setTableNumber(bill.tableNumber || '');
     setOrderType(bill.orderType || 'DINE_IN');
     if (bill.customerName) setCustomer({ id: bill.customerId, name: bill.customerName, phone: bill.customerPhone });
+    setCustomerPhone(bill.customerPhone || '');
     setResumingBillId(bill.id);
     setShowHeld(false);
     setShowCart(true);
@@ -482,11 +488,17 @@ export default function CafeBillingClient() {
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   onBlur={handleLookupCustomer}
-                  placeholder="Customer phone (optional)"
-                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300"
+                  placeholder="Customer mobile number *"
+                  required
+                  className={`flex-1 px-3 py-2 text-sm rounded-lg border ${
+                    customerPhone && !isValidPhone(customerPhone) ? 'border-red-400' : 'border-gray-300'
+                  }`}
                 />
                 {customer && <span className="text-xs font-bold text-emerald-600 self-center flex items-center gap-1"><User className="w-3.5 h-3.5" /> {customer.name}</span>}
               </div>
+              {customerPhone && !isValidPhone(customerPhone) && (
+                <p className="text-xs text-red-500 -mt-2">Enter a valid 10-digit mobile number</p>
+              )}
 
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Subtotal</span>
@@ -546,7 +558,7 @@ export default function CafeBillingClient() {
                 )}
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={submitting || cart.length === 0}
+                  disabled={submitting || cart.length === 0 || !isValidPhone(customerPhone)}
                   className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 disabled:opacity-50"
                 >
                   {submitting ? 'Placing…' : resumingBillId ? 'Complete Order' : 'Place Order'}

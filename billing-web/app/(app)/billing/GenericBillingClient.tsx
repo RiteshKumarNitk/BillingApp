@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { searchProducts } from '@/lib/actions/products';
 import { findCustomerByPhone } from '@/lib/actions/customers';
 import { getMyPermissions } from '@/lib/actions/users';
+import { isValidPhone } from '@/lib/utils/phone';
 import { useToast } from '@/components/ui/Toast';
 import { Search, Camera, Plus, Minus, Trash2, Barcode, X, ShoppingCart, AlertCircle, Printer, User, CreditCard, Landmark, Smartphone, ChevronDown, Check, Package, Tag, Star, PauseCircle, PlayCircle } from 'lucide-react';
 import ProductSelectionModal from './ProductSelectionModal';
@@ -314,6 +315,10 @@ export default function GenericBillingClient() {
       setSubmitError('Please add items to the cart before submitting');
       return;
     }
+    if (!isValidPhone(customerPhone)) {
+      setSubmitError('Enter a valid 10-digit customer mobile number');
+      return;
+    }
 
     let paymentsToSend: { method: string; amount: number }[] | undefined;
     if (splitPayment) {
@@ -339,11 +344,17 @@ export default function GenericBillingClient() {
         amountReceived: splitPayment ? undefined : (parsedAmountReceived || undefined),
         changeAmount: splitPayment ? undefined : (changeAmount > 0 ? changeAmount : undefined),
         payments: paymentsToSend,
+        // A held bill doesn't require a customer (see holdCurrentBill), but completing one now
+        // does — sends whatever's currently in the phone field so a held bill that never had one
+        // can still be finalized instead of throwing "Customer mobile number is required" with no
+        // way to fix it.
+        customerPhone,
+        customerName,
       };
 
       // A resumed held bill is finalized through /resume, which re-validates stock/coupon/loyalty
-      // against the held record itself and only accepts payment info — item/discount/customer
-      // edits aren't possible here (see resumingBillId guards above), so only payment goes over.
+      // against the held record itself and only accepts payment + customer info — item/discount
+      // edits aren't possible here (see resumingBillId guards above).
       const response = resumingBillId
         ? await fetch(`/api/transactions/${resumingBillId}/resume`, {
             method: 'POST',
@@ -369,8 +380,6 @@ export default function GenericBillingClient() {
               })),
               discount,
               customerId: matchedCustomer?.id || undefined,
-              customerName: customerName || undefined,
-              customerPhone: customerPhone || undefined,
               couponCode: couponCode.trim() || undefined,
               loyaltyPointsRedeemed: redeemPoints > 0 ? redeemPoints : undefined,
               ...paymentPayload,
@@ -953,9 +962,15 @@ export default function GenericBillingClient() {
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   onBlur={handlePhoneBlur}
-                  placeholder="Phone number (optional)"
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 bg-white text-gray-900"
+                  placeholder="Customer mobile number *"
+                  required
+                  className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 bg-white text-gray-900 ${
+                    customerPhone && !isValidPhone(customerPhone) ? 'border-red-400' : 'border-gray-200'
+                  }`}
                 />
+                {customerPhone && !isValidPhone(customerPhone) && (
+                  <p className="text-xs text-red-500 mt-1">Enter a valid 10-digit mobile number</p>
+                )}
                 {customerLookupLoading && (
                   <p className="text-xs text-gray-400 mt-1.5">Looking up customer...</p>
                 )}
@@ -1177,7 +1192,7 @@ export default function GenericBillingClient() {
             <div className="mt-4 shrink-0">
               <button
                 onClick={handleSubmit}
-                disabled={cart.length === 0 || submitLoading || (splitPayment && splitRemaining > 0.01)}
+                disabled={cart.length === 0 || submitLoading || !isValidPhone(customerPhone) || (splitPayment && splitRemaining > 0.01)}
                 className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-[0.99]"
               >
                 {submitLoading ? (

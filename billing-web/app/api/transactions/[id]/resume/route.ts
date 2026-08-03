@@ -26,6 +26,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       amountReceived: body.amountReceived,
       changeAmount: body.changeAmount,
       payments: body.payments,
+      customerPhone: body.customerPhone,
+      customerName: body.customerName,
     });
 
     return NextResponse.json({ message: 'Bill resumed', transaction }, { status: 201 });
