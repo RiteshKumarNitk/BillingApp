@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendPushNotification } from "@/lib/push-notifications";
 import { getMobileUserFromAuthHeader } from "@/lib/auth/mobile";
+import { productTracksStock } from "@/lib/products/availability";
 
-function verifyToken(request: NextRequest): { id: string; tenantId: string } | null {
-  const decoded = getMobileUserFromAuthHeader(request) as { id?: string; tenantId?: string; role?: string } | null;
+// Thrown when an order can't be approved because a managed-stock item doesn't have enough stock
+// left. Thrown inside the $transaction so the whole approval rolls back (order stays PENDING)
+// instead of silently selling negative stock.
+class OrderApprovalError extends Error {}
+
+async function verifyToken(request: NextRequest): Promise<{ id: string; tenantId: string } | null> {
+  const decoded = await getMobileUserFromAuthHeader(request);
   if (!decoded || !decoded.id || !decoded.tenantId || decoded.role === "CUSTOMER") return null;
   return { id: decoded.id, tenantId: decoded.tenantId };
 }
@@ -15,7 +21,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = verifyToken(request);
+    const auth = await verifyToken(request);
     if (!auth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -108,11 +114,21 @@ export async function PATCH(
 
       for (const item of order.items) {
         const product = await tx.product.findUnique({ where: { id: item.productId } });
-        if (product && product.stock >= item.quantity) {
-          await tx.product.update({
+        if (!product || !productTracksStock(product)) continue;
+        // Atomic decrement with an in-condition stock guard (same pattern as the POS path in
+        // lib/services/transactions.ts) so two concurrent approvals can't oversell.
+        const result = await tx.product.updateMany({
+          where: { id: item.productId, tenantId: auth.tenantId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } },
+        });
+        if (result.count === 0) {
+          const current = await tx.product.findUnique({
             where: { id: item.productId },
-            data: { stock: { decrement: item.quantity } },
+            select: { stock: true },
           });
+          throw new OrderApprovalError(
+            `Insufficient stock for "${item.name}" to approve this order (${current?.stock ?? 0} left)`
+          );
         }
       }
 
@@ -159,6 +175,9 @@ export async function PATCH(
 
     return NextResponse.json({ message: "Order approved and invoice generated", transaction });
   } catch (error) {
+    if (error instanceof OrderApprovalError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
     console.error("Error processing order:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

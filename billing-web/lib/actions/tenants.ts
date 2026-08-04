@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { toUrlSlug } from "@/lib/website/slug";
 import { createDefaultRoles, seedTenantWorkspaceDefaults } from "@/lib/tenantOnboarding";
+import { sendEmail, EmailTemplates } from "@/lib/mail";
+import { SITE_URL } from "@/lib/marketing/seo";
 
 const VALID_BUSINESS_TYPES = ['CAFE', 'LAUNDRY', 'SALON'];
 
@@ -110,20 +112,21 @@ export async function createTenant(data: any) {
     businessType: VALID_BUSINESS_TYPES.includes(data.businessType) ? data.businessType : null,
   };
 
-  const tenant = await prisma.tenant.create({ data: tenantCreateData });
-  await seedTenantWorkspaceDefaults(prisma, tenant);
-
-  // Create initial subscription for the new tenant
+  // Process Discount Code if provided (validated up front — a bad coupon must fail BEFORE any
+  // rows are written, not half-way through the creation transaction)
+  let coupon = null;
+  let discountAmount = 0;
+  let netAmount = selectedPlan.amount;
+  let status = "ACTIVE";
   const startDate = new Date();
   let endDate = new Date();
-  let status = "ACTIVE";
-  
+
   if (selectedPlan.interval === 'YEARLY') {
     endDate.setFullYear(endDate.getFullYear() + 1);
   } else {
     endDate.setMonth(endDate.getMonth() + 1);
   }
-  
+
   if (selectedPlan.amount > 0) {
     if (selectedPlan.trialDays > 0) {
       status = "TRIAL";
@@ -134,16 +137,11 @@ export async function createTenant(data: any) {
     }
   }
 
-  // Process Discount Code if provided
-  let coupon = null;
-  let discountAmount = 0;
-  let netAmount = selectedPlan.amount;
-
   if (data.discountCode && data.discountCode.trim() !== '') {
     coupon = await prisma.coupon.findUnique({
       where: { code: data.discountCode.trim().toUpperCase() }
     });
-    
+
     if (!coupon || !coupon.isActive) {
       throw new Error("Invalid or inactive discount code.");
     }
@@ -160,67 +158,98 @@ export async function createTenant(data: any) {
       discountAmount = coupon.discountValue;
     }
     netAmount = Math.max(0, selectedPlan.amount - discountAmount);
-    
+
     if (netAmount === 0 && selectedPlan.amount > 0) {
       status = "ACTIVE"; // Fully discounted to 0
     }
   }
 
-  const subscription = await prisma.tenantSubscription.create({
-    data: {
-      tenantId: tenant.id,
-      planId: selectedPlan.id,
-      status: status,
-      startDate: startDate,
-      endDate: endDate,
-      ...(status === 'TRIAL' ? { trialStartDate: startDate, trialEndDate: endDate } : {})
-    }
-  });
+  // Everything below happens in ONE transaction — tenant, shop/website workspace defaults,
+  // subscription, invoice, coupon redemption, default roles, and the owner user. A failure at
+  // any step rolls the whole creation back instead of orphaning a tenant with no login (the
+  // previous behavior). bcrypt hashing is CPU-bound, so it's done up front outside the
+  // transaction to keep the write window as short as possible.
+  const hashedPassword = await bcrypt.hash(data.password, 10);
 
-  // Create an initial invoice if there is a plan amount or discount applied
-  if (selectedPlan.amount > 0 || coupon) {
-    await prisma.invoice.create({
+  const tenant = await prisma.$transaction(async (tx) => {
+    const createdTenant = await tx.tenant.create({ data: tenantCreateData });
+    await seedTenantWorkspaceDefaults(tx, createdTenant);
+
+    // Create initial subscription for the new tenant
+    const subscription = await tx.tenantSubscription.create({
       data: {
-        tenantId: tenant.id,
-        subscriptionId: subscription.id,
-        invoiceNumber: `INV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`,
-        amount: selectedPlan.amount,
-        discountAmount: discountAmount,
-        netAmount: netAmount,
-        currency: selectedPlan.currency || 'INR',
-        status: netAmount === 0 ? "PAID" : "PENDING",
-        couponId: coupon?.id,
-        ...(netAmount === 0 ? { paidAt: new Date() } : {})
+        tenantId: createdTenant.id,
+        planId: selectedPlan.id,
+        status: status,
+        startDate: startDate,
+        endDate: endDate,
+        ...(status === 'TRIAL' ? { trialStartDate: startDate, trialEndDate: endDate } : {})
       }
     });
 
-    if (coupon) {
-      await prisma.coupon.update({
-        where: { id: coupon.id },
-        data: { redemptions: { increment: 1 } }
+    // Create an initial invoice if there is a plan amount or discount applied
+    if (selectedPlan.amount > 0 || coupon) {
+      await tx.invoice.create({
+        data: {
+          tenantId: createdTenant.id,
+          subscriptionId: subscription.id,
+          invoiceNumber: `INV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`,
+          amount: selectedPlan.amount,
+          discountAmount: discountAmount,
+          netAmount: netAmount,
+          currency: selectedPlan.currency || 'INR',
+          status: netAmount === 0 ? "PAID" : "PENDING",
+          couponId: coupon?.id,
+          ...(netAmount === 0 ? { paidAt: new Date() } : {})
+        }
       });
+
+      if (coupon) {
+        await tx.coupon.update({
+          where: { id: coupon.id },
+          data: { redemptions: { increment: 1 } }
+        });
+      }
     }
+
+    // Create default roles
+    const ownerRoleId = await createDefaultRoles(tx, createdTenant.id);
+
+    // Create tenant owner user
+    await tx.user.create({
+      data: {
+        name: data.contactPerson || 'Admin User',
+        email: data.email,
+        phone: data.phone || null,
+        password: hashedPassword,
+        tenantId: createdTenant.id,
+        tenantRoleId: ownerRoleId,
+        role: 'ADMIN', // Global role for tenant admin
+        profilePictureUrl: data.profilePictureUrl || null,
+        jobTitle: data.jobTitle || null
+      }
+    });
+
+    return createdTenant;
+  });
+
+  // Send the owner their login credentials. Best-effort: the tenant is already fully created and
+  // functional, so a mailer outage logs and continues rather than failing the whole signup.
+  const loginUrl = `${SITE_URL}/auth/login`;
+  const emailResult = await sendEmail({
+    to: data.email,
+    subject: `Your ${tenant.name} CafeOS account is ready`,
+    html: EmailTemplates.OwnerWelcome(
+      data.contactPerson || 'Admin User',
+      tenant.name,
+      data.email,
+      data.password,
+      loginUrl
+    ),
+  });
+  if (!emailResult.success) {
+    console.error(`[createTenant] Welcome email to ${data.email} failed:`, emailResult.error);
   }
-
-  // Create default roles
-  const ownerRoleId = await createDefaultRoles(prisma, tenant.id);
-
-  // Create tenant owner user
-  const hashedPassword = await bcrypt.hash(data.password, 10);
-  
-  const createUserData: any = {
-    name: data.contactPerson || 'Admin User',
-    email: data.email,
-    phone: data.phone || null,
-    password: hashedPassword,
-    tenantId: tenant.id,
-    tenantRoleId: ownerRoleId,
-    role: 'ADMIN', // Global role for tenant admin
-    profilePictureUrl: data.profilePictureUrl || null,
-    jobTitle: data.jobTitle || null
-  };
-
-  await prisma.user.create({ data: createUserData });
 
   revalidatePath('/tenants');
   return tenant;

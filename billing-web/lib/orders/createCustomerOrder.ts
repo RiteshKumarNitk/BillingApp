@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { productTracksStock } from '@/lib/products/availability';
 import { resolveTenant } from '@/lib/website/utils';
 
 export interface CreateCustomerOrderItemInput {
@@ -89,6 +90,14 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
   const categoryQuantities = new Map<string, number>();
 
   for (const item of items) {
+    // Reject non-positive/non-numeric quantities outright — the website cart caps quantity
+    // client-side only, so a crafted request could otherwise carry a negative quantity and walk
+    // away with a negative (or free) order.
+    const quantity = Number(item.quantity);
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 10000) {
+      return { ok: false, status: 400, error: 'Each item must have a valid quantity between 1 and 10000' };
+    }
+
     const product = await prisma.product.findFirst({
       where: { id: item.productId, tenantId },
       include: {
@@ -110,11 +119,15 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
 
     if (item.variantId) {
       const variant = product.variants.find((v) => v.id === item.variantId);
-      if (variant) {
-        salePrice = variant.salePrice;
-        itemName = `${product.name} - ${variant.name}`;
-        barcode = variant.barcode || barcode;
+      if (!variant) {
+        // Same rule as the POS service (buildTransactionPlan throws "Variant not found") — an
+        // unresolvable variant id must not silently fall back to the base product's price, or
+        // the stock guard below could be bypassed with a crafted variant id.
+        return { ok: false, status: 400, error: `Variant not found for "${product.name}"` };
       }
+      salePrice = variant.salePrice;
+      itemName = `${product.name} - ${variant.name}`;
+      barcode = variant.barcode || barcode;
     }
 
     if (item.addOnIds && item.addOnIds.length > 0) {
@@ -127,7 +140,26 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
       }
     }
 
-    const itemTotal = salePrice * item.quantity;
+    // Server-side availability + stock enforcement. The store menu only shows isAvailable items
+    // and the website cart caps quantity client-side, but this endpoint is public, so the real
+    // guard against ordering unavailable or over-stocked items lives here.
+    if (!product.isAvailable) {
+      return { ok: false, status: 400, error: `"${itemName}" is not available right now` };
+    }
+    if (productTracksStock(product)) {
+      const availableStock = item.variantId
+        ? product.variants.find((v) => v.id === item.variantId)?.stock
+        : product.stock;
+      if (typeof availableStock === 'number' && quantity > availableStock) {
+        return {
+          ok: false,
+          status: 409,
+          error: `Only ${availableStock} of "${itemName}" left in stock — adjust your cart and try again`,
+        };
+      }
+    }
+
+    const itemTotal = salePrice * quantity;
     totalAmount += itemTotal;
 
     const category = product.category || 'Other';
@@ -147,7 +179,7 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
       name: itemName,
       barcode,
       salePrice,
-      quantity: item.quantity,
+      quantity,
       itemTotal,
       ...(comboComponents && comboComponents.length > 0 ? { comboComponents } : {}),
     });
@@ -157,7 +189,7 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
     return { ok: false, status: 400, error: 'No valid items in order' };
   }
 
-  const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
+  const totalQuantity = items.reduce((sum, i) => sum + Number(i.quantity), 0);
   const { amount: discountAmount, label: discountLabel } = await pickBestDiscount(
     tenantId,
     totalAmount,

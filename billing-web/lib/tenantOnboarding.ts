@@ -4,7 +4,7 @@ import { DEFAULT_THEME_ID, getThemeDefaultConfig } from "@/lib/website/themeDefi
 // Shared by both tenant-creation paths (public self-serve signup and the superadmin console),
 // which had drifted into two independent copies of this same role list before CafeOS Phase 2.
 export const DEFAULT_ROLE_DEFINITIONS = [
-  { name: "Owner", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "DELETE_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "MANAGE_USERS", "VIEW_PROFIT", "OVERRIDE_PRICE"] },
+  { name: "Owner", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "DELETE_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "MANAGE_USERS", "VIEW_PROFIT", "OVERRIDE_PRICE", "EDIT_TRANSACTION", "REOPEN_OLD_TRANSACTION"] },
   { name: "Manager", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "VIEW_PROFIT", "OVERRIDE_PRICE"] },
   { name: "Cashier", permissions: ["CREATE_BILL", "VIEW_PRODUCT"] },
 ] as const;

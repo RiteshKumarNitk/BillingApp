@@ -10,7 +10,7 @@ async function getRequesterPermissions(tenantRoleId: string | null | undefined):
 
 export async function GET(request: Request) {
   try {
-    const user = getMobileUserFromAuthHeader(request);
+    const user = await getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = getMobileUserFromAuthHeader(request);
+    const user = await getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }

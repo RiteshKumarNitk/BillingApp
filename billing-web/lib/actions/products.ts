@@ -67,8 +67,8 @@ export async function getFilteredProducts(searchTerm: string, categoryFilter: st
     where.category = categoryFilter;
   }
   if (lowStockOnly) {
-    // Basic low stock check. For complex types, this might need refinement in the future.
-    where.stock = { lte: 10 };
+    // Low stock = at or below the per-product reorder threshold (minStockThreshold, default 10).
+    where.stock = { lte: prisma.product.fields.minStockThreshold };
   }
 
   const skip = page && limit ? (page - 1) * limit : undefined;

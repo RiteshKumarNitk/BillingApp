@@ -5,7 +5,7 @@ import { corsResponse } from '@/lib/cors';
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const user = getMobileUserFromAuthHeader(request);
+    const user = await getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -56,7 +56,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const user = getMobileUserFromAuthHeader(request);
+    const user = await getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -5,7 +5,7 @@ import { corsResponse } from '@/lib/cors';
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const authUser = getMobileUserFromAuthHeader(request);
+    const authUser = await getMobileUserFromAuthHeader(request);
     if (!authUser || !authUser.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }

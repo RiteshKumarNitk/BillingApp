@@ -3,6 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
 import { sendPushNotification } from "@/lib/push-notifications";
+import { productTracksStock } from "@/lib/products/availability";
+
+// Thrown when an order can't be completed because a managed-stock item doesn't have enough
+// stock left. Rolled back (thrown inside the $transaction) so the order stays READY and the
+// kitchen can deal with it instead of silently over-selling negative stock.
+class OrderCompletionError extends Error {}
 
 // Order lifecycle: PENDING -> (ACCEPT | HOLD | REJECT). ACCEPTED orders then move through the
 // Kitchen Queue (Phase 9): ACCEPTED -> PREPARING -> READY -> COMPLETE (this last step is where the
@@ -126,11 +132,22 @@ export async function PATCH(
 
         for (const item of order.items) {
           const product = await tx.product.findUnique({ where: { id: item.productId } });
-          if (product && product.stock >= item.quantity) {
-            await tx.product.update({
+          if (!product || !productTracksStock(product)) continue;
+          // Atomic decrement with an in-condition stock guard (same pattern as the POS path in
+          // lib/services/transactions.ts) so two concurrent completions can't both pass a
+          // read-then-write check and oversell.
+          const result = await tx.product.updateMany({
+            where: { id: item.productId, tenantId: session.user.tenantId, stock: { gte: item.quantity } },
+            data: { stock: { decrement: item.quantity } },
+          });
+          if (result.count === 0) {
+            const current = await tx.product.findUnique({
               where: { id: item.productId },
-              data: { stock: { decrement: item.quantity } },
+              select: { stock: true },
             });
+            throw new OrderCompletionError(
+              `Insufficient stock for "${item.name}" to complete this order (${current?.stock ?? 0} left)`
+            );
           }
         }
 
@@ -222,6 +239,9 @@ export async function PATCH(
 
     return NextResponse.json({ message: `Order ${transition.to.toLowerCase()}` });
   } catch (error) {
+    if (error instanceof OrderCompletionError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
     console.error("Error processing order:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

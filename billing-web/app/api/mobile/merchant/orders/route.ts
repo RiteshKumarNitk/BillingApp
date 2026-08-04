@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getMobileUserFromAuthHeader } from "@/lib/auth/mobile";
 
-function verifyToken(request: NextRequest): { id: string; tenantId: string } | null {
-  const decoded = getMobileUserFromAuthHeader(request) as { id?: string; tenantId?: string; role?: string } | null;
+async function verifyToken(request: NextRequest): Promise<{ id: string; tenantId: string } | null> {
+  const decoded = await getMobileUserFromAuthHeader(request);
   if (!decoded || !decoded.id || !decoded.tenantId || decoded.role === "CUSTOMER") return null;
   return { id: decoded.id, tenantId: decoded.tenantId };
 }
@@ -11,7 +11,7 @@ function verifyToken(request: NextRequest): { id: string; tenantId: string } | n
 // GET: List order requests for the merchant's tenant
 export async function GET(request: NextRequest) {
   try {
-    const auth = verifyToken(request);
+    const auth = await verifyToken(request);
     if (!auth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

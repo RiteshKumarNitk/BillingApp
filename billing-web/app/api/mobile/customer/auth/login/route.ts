@@ -2,9 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { signCustomerToken } from "@/lib/auth/customer-mobile";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+
+// S1: unauthenticated + previously unthrottled — brute-force guard. 10 attempts / 15 min per IP.
+const LOGIN_LIMIT = 10;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   try {
+    if (!checkRateLimit(`customer-login:${getClientIp(request)}`, LOGIN_LIMIT, LOGIN_WINDOW_MS)) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Please try again in a few minutes." },
+        { status: 429 }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {

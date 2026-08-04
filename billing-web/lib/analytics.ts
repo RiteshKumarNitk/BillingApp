@@ -275,7 +275,8 @@ export async function getRecentTransactions(tenantId: string, take = 5) {
 
 export async function getLowStockItems(tenantId: string, take = 5) {
   return prisma.product.findMany({
-    where: { stock: { lte: 10 }, tenantId },
+    // At or below each product's own reorder threshold (minStockThreshold, default 10).
+    where: { stock: { lte: prisma.product.fields.minStockThreshold }, tenantId },
     orderBy: { stock: "asc" },
     take,
     select: { id: true, name: true, stock: true, minStockThreshold: true, unit: true },
@@ -285,7 +286,7 @@ export async function getLowStockItems(tenantId: string, take = 5) {
 export async function getOverviewCounts(tenantId: string) {
   const [totalProducts, lowStockProducts] = await Promise.all([
     prisma.product.count({ where: { tenantId } }),
-    prisma.product.count({ where: { stock: { lte: 10 }, tenantId } }),
+    prisma.product.count({ where: { stock: { lte: prisma.product.fields.minStockThreshold }, tenantId } }),
   ]);
   return { totalProducts, lowStockProducts };
 }

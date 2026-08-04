@@ -98,6 +98,19 @@ const razorpayClient = isSimulationMode
 
 export default razorpayClient;
 
+// S3: in production, a missing/dummy Razorpay configuration must NEVER silently mock the payment
+// flow — the mock client would "succeed" (subscriptions created, invoices minted) without ever
+// charging anyone, and unsigned webhooks would be accepted. Call this at the top of any billing
+// action that touches the Razorpay API so a misconfigured production deploy fails loudly instead
+// of faking payments. Development simulation (no keys, NODE_ENV !== 'production') is unaffected.
+export function assertRazorpayConfigured() {
+  if (isSimulationMode && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Payment provider is not configured. Set real Razorpay keys (RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET) before enabling billing in production."
+    );
+  }
+}
+
 // Verification helper
 export function verifyRazorpayWebhook(
   body: string,

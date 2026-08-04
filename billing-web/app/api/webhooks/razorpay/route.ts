@@ -1,12 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyRazorpayWebhook } from "@/lib/razorpay";
+import { isSimulationMode, verifyRazorpayWebhook } from "@/lib/razorpay";
+
+// Builds the invoice-dedupe filter. Returns null when neither a payment id nor an order id exists
+// (nothing to dedupe against) so callers never hit Prisma's "OR needs at least one argument"
+// validation error with an empty array.
+function buildInvoiceDedupeFilter(
+  subscriptionId: string,
+  paymentId: string | null,
+  orderId: string | null
+): { subscriptionId: string; OR: { razorpayPaymentId?: string; razorpayOrderId?: string }[] } | null {
+  const conditions = [
+    ...(paymentId ? [{ razorpayPaymentId: paymentId }] : []),
+    ...(orderId ? [{ razorpayOrderId: orderId }] : []),
+  ];
+  return conditions.length > 0 ? { subscriptionId, OR: conditions } : null;
+}
 
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
     const signature = request.headers.get("x-razorpay-signature") || "";
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+
+    // S3 guard: this endpoint is intentionally reachable without a session (the signature is the
+    // auth), but simulation mode silently accepts ANY payload as valid. In a production deploy
+    // with missing/dummy Razorpay keys that would let anyone forge payment events — refuse to
+    // run the webhook at all instead.
+    if (isSimulationMode && process.env.NODE_ENV === "production") {
+      console.error(
+        "[RAZORPAY WEBHOOK] Rejecting webhook: Razorpay keys are missing but NODE_ENV=production (simulation mode is not allowed in production)"
+      );
+      return NextResponse.json({ error: "Payment provider not configured" }, { status: 503 });
+    }
 
     const isValid = verifyRazorpayWebhook(rawBody, signature, webhookSecret);
     if (!isValid) {
@@ -64,31 +90,98 @@ export async function POST(request: NextRequest) {
           newStatus = "ACTIVE";
           // Create Invoice record
           const paymentId = payloadData.payment?.entity?.id || null;
-          const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-          
-          await prisma.invoice.create({
-            data: {
-              tenantId,
-              subscriptionId: dbSub.id,
-              invoiceNumber,
-              amount: subscriptionObj.plan_id ? subscriptionObj.amount / 100 : 0,
-              discountAmount: 0,
-              netAmount: subscriptionObj.plan_id ? subscriptionObj.amount / 100 : 0,
-              currency: subscriptionObj.currency || "INR",
-              status: "PAID",
-              paidAt: new Date(),
-              razorpayPaymentId: paymentId,
-              razorpayOrderId: subscriptionObj.order_id || null
-            }
-          });
+          const orderId = subscriptionObj.order_id || null;
+          const baseAmount = subscriptionObj.plan_id ? subscriptionObj.amount / 100 : 0;
+          // M2: the coupon code rides along in the subscription's Razorpay notes (set at checkout
+          // creation in lib/actions/subscription.ts) so we can attribute the redemption here.
+          const couponCodeFromNotes = notes.couponCode || null;
 
-          await prisma.auditLog.create({
-            data: {
-              tenantId,
-              action: "SUBSCRIPTION_RENEWAL_PAID",
-              details: `Payment of ₹${subscriptionObj.amount / 100} received for subscription ${rzpSubId}.`
-            }
-          });
+          // Idempotency: Razorpay retries webhook delivery until it gets a 2xx, so the same
+          // subscription.charged event can arrive multiple times. Dedupe on the payment id (and
+          // fall back to order id) so retries can't mint duplicate PAID invoices. Note: there is
+          // no unique DB constraint on razorpayPaymentId/razorpayOrderId (a migration is out of
+          // scope while prisma migrate dev is broken — see REPORTS.md D2), so this guard is the
+          // application-level backstop. The write happens in a $transaction with the check to
+          // keep the window between check and insert as small as possible.
+          const dedupeFilter = buildInvoiceDedupeFilter(dbSub.id, paymentId, orderId);
+          const existingInvoice = dedupeFilter
+            ? await prisma.invoice.findFirst({ where: dedupeFilter })
+            : null;
+
+          if (!existingInvoice) {
+            const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+            await prisma.$transaction(async (tx) => {
+              const stillAbsent = dedupeFilter
+                ? await tx.invoice.findFirst({ where: dedupeFilter })
+                : null;
+              if (stillAbsent) return; // lost the race to a concurrent retry
+
+              // M2: the redemption is counted HERE — at payment-confirmed time, not at checkout
+              // creation (abandoned/retried checkouts no longer burn the cap). Guards:
+              // (1) the invoice create above is deduped on payment/order id, so a webhook retry
+              // can't double-count; (2) we redeem only once per subscription — if an earlier
+              // charge for this subscription already used this coupon, renewals skip it;
+              // (3) the coupon is re-validated now (active, unexpired, cap not reached) rather
+              // than trusting the snapshot taken at checkout creation.
+              let discountAmount = 0;
+              let couponId: string | null = null;
+              if (couponCodeFromNotes) {
+                const coupon = await tx.coupon.findUnique({
+                  where: { code: couponCodeFromNotes.toUpperCase() }
+                });
+                if (coupon && coupon.isActive && (!coupon.expiryDate || coupon.expiryDate > new Date())) {
+                  const alreadyRedeemed = await tx.invoice.findFirst({
+                    where: { subscriptionId: dbSub.id, couponId: coupon.id }
+                  });
+                  if (!alreadyRedeemed) {
+                    // Atomic cap guard: the increment lands only when the cap still has room
+                    // (count === 1), so concurrent redemptions can't overshoot maxRedemptions.
+                    const redeemed = await tx.coupon.updateMany({
+                      where: {
+                        id: coupon.id,
+                        ...(coupon.maxRedemptions ? { redemptions: { lt: coupon.maxRedemptions } } : {}),
+                      },
+                      data: { redemptions: { increment: 1 } },
+                    });
+                    if (redeemed.count === 1) {
+                      discountAmount = coupon.discountType === "PERCENTAGE"
+                        ? (baseAmount * coupon.discountValue) / 100
+                        : coupon.discountValue;
+                      couponId = coupon.id;
+                    }
+                  }
+                }
+              }
+
+              await tx.invoice.create({
+                data: {
+                  tenantId,
+                  subscriptionId: dbSub.id,
+                  invoiceNumber,
+                  amount: baseAmount,
+                  discountAmount,
+                  netAmount: Math.max(0, baseAmount - discountAmount),
+                  currency: subscriptionObj.currency || "INR",
+                  status: "PAID",
+                  paidAt: new Date(),
+                  razorpayPaymentId: paymentId,
+                  razorpayOrderId: orderId,
+                  couponId
+                }
+              });
+
+              await tx.auditLog.create({
+                data: {
+                  tenantId,
+                  action: "SUBSCRIPTION_RENEWAL_PAID",
+                  details: `Payment of ₹${subscriptionObj.amount / 100} received for subscription ${rzpSubId}.`
+                }
+              });
+            });
+          } else {
+            console.log(`[RAZORPAY WEBHOOK] Duplicate subscription.charged (payment ${paymentId || orderId}) — invoice already recorded, skipping`);
+          }
           break;
 
         case "subscription.pending":

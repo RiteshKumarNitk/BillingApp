@@ -4,7 +4,7 @@ import { corsResponse } from '@/lib/cors';
 
 export async function GET(request: Request) {
   try {
-    const user = getMobileUserFromAuthHeader(request);
+    const user = await getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       where.category = category;
     }
     if (lowStock === 'true') {
-      where.stock = { lte: 10 };
+      where.stock = { lte: prisma.product.fields.minStockThreshold };
     }
 
     const skip = (page - 1) * limit;
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = getMobileUserFromAuthHeader(request);
+    const user = await getMobileUserFromAuthHeader(request);
     if (!user || !user.tenantId) {
       return corsResponse({ error: 'Unauthorized' }, { status: 401 });
     }

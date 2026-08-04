@@ -3,15 +3,20 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
-import razorpayClient, { isSimulationMode } from "@/lib/razorpay";
+import razorpayClient, { isSimulationMode, assertRazorpayConfigured } from "@/lib/razorpay";
 import { revalidatePath } from "next/cache";
 import { sendEmail, EmailTemplates } from "@/lib/mail";
 
-// Ensure the caller is authenticated
+// Ensure the caller is authenticated AND the tenant's owner/administrator (or a superadmin).
+// Billing/subscription actions mutate the tenant's plan and payment state — ordinary staff with
+// a valid session must not be able to cancel the subscription or start checkout sessions.
 async function requireAuth() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) {
     throw new Error("Unauthorized: Authentication required");
+  }
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+    throw new Error("Forbidden: Only the store owner can manage billing");
   }
   return session;
 }
@@ -27,6 +32,8 @@ async function requireSuperAdmin() {
 
 // Create a subscription checkout session (Razorpay)
 export async function createCheckoutSession(planId: string, couponCode?: string) {
+  // S3: refuse to run the billing flow in simulation mode when deployed to production.
+  assertRazorpayConfigured();
   const session = await requireAuth();
   const tenantId = session.user.tenantId;
 
@@ -36,24 +43,29 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
   });
   if (!plan) throw new Error("Plan not found");
 
-  // 2. Validate Coupon if provided
+  // 2. Validate Coupon if provided — a supplied-but-invalid code is a hard error, never a silent
+  // "no discount" (M2). Redemptions are deliberately NOT incremented here: an abandoned or retried
+  // checkout must not burn the cap. The redemption is counted on the payment-confirmed webhook
+  // instead (see app/api/webhooks/razorpay/route.ts), which re-validates the coupon at that point.
   let discountAmount = 0;
   let coupon = null;
-  if (couponCode) {
+  if (couponCode && couponCode.trim() !== "") {
     coupon = await prisma.coupon.findUnique({
       where: { code: couponCode.trim().toUpperCase() }
     });
-    if (
-      coupon &&
-      coupon.isActive &&
-      (!coupon.expiryDate || coupon.expiryDate > new Date()) &&
-      (!coupon.maxRedemptions || coupon.redemptions < coupon.maxRedemptions)
-    ) {
-      if (coupon.discountType === "PERCENTAGE") {
-        discountAmount = (plan.amount * coupon.discountValue) / 100;
-      } else {
-        discountAmount = coupon.discountValue;
-      }
+    if (!coupon || !coupon.isActive) {
+      throw new Error("Invalid or inactive coupon code");
+    }
+    if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+      throw new Error("Coupon has expired");
+    }
+    if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
+      throw new Error("Coupon redemption limit reached");
+    }
+    if (coupon.discountType === "PERCENTAGE") {
+      discountAmount = (plan.amount * coupon.discountValue) / 100;
+    } else {
+      discountAmount = coupon.discountValue;
     }
   }
 
@@ -102,7 +114,10 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
         customer_notify: 1,
         start_at: trialEndTimestamp,
         notes: {
-          tenantId
+          tenantId,
+          // M2: carried in the subscription notes so the payment-confirmed webhook can attribute the
+          // redemption (and the invoice discount) to the right coupon — no schema change needed.
+          ...(coupon ? { couponCode: coupon.code } : {})
         }
       });
 
@@ -131,13 +146,11 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
     }
   });
 
-  // If Coupon was valid, record redemption
-  if (coupon && finalAmount > 0) {
-    await prisma.coupon.update({
-      where: { id: coupon.id },
-      data: { redemptions: { increment: 1 } }
-    });
-  }
+  // Coupon redemptions are intentionally NOT recorded here (M2) — incrementing at checkout-session
+  // creation lets abandoned/retried sessions burn the cap. The webhook's subscription.charged
+  // handler counts the redemption only once the payment actually succeeds (and only once per
+  // subscription, so renewals don't re-consume the coupon).
+
 
   // If Free Trial is active, update the Tenant model directly
   if (isTrial) {
@@ -170,6 +183,8 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
 
 // Cancel a subscription (immediate vs end-of-cycle)
 export async function cancelSubscription(subscriptionId: string, cancelAtPeriodEnd: boolean) {
+  // S3: refuse to run the billing flow in simulation mode when deployed to production.
+  assertRazorpayConfigured();
   const session = await requireAuth();
   const tenantId = session.user.tenantId;
 

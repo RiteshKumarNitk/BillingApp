@@ -350,6 +350,18 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
     resolvedPaymentMethod = normalizedPayments.length > 1 ? "MIXED" : normalizedPayments[0].method;
     resolvedAmountReceived = paidTotal;
     resolvedChangeAmount = Math.max(0, paidTotal - netAmount);
+  } else if (resolvedAmountReceived !== null) {
+    // Single-payment path (paymentMethod + amountReceived): the received amount must actually
+    // cover the net amount, and change is always recomputed server-side instead of trusting the
+    // client's changeAmount figure — a caller could previously underpay and the sale still
+    // completed with whatever changeAmount it sent.
+    if (resolvedAmountReceived < netAmount - 0.01) {
+      throw new TransactionError(
+        `Amount received (₹${resolvedAmountReceived.toFixed(2)}) is less than the net amount (₹${netAmount.toFixed(2)})`,
+        400
+      );
+    }
+    resolvedChangeAmount = Math.max(0, resolvedAmountReceived - netAmount);
   }
 
   return {
@@ -862,6 +874,11 @@ interface EditTransactionItemInput {
   salePrice: number | string;
   discountAmount?: number | string;
   variantId?: string | null;
+  // M4: batch/serial-tracked lines must carry their batch/serial reference through an edit so
+  // stock reconciliation credits/debits the right row (ProductBatch / ProductSerial) instead of
+  // the base Product.
+  batchId?: string | null;
+  serialId?: string | null;
   titleOverride?: string;
   name?: string;
   productType?: string;
@@ -931,6 +948,8 @@ export async function editTransaction(params: EditTransactionParams) {
       requestedSalePrice,
       discountAmountInput: parseFloat(String(item.discountAmount ?? 0)) || 0,
       variantId: item.variantId || null,
+      batchId: item.batchId || null,
+      serialId: item.serialId || null,
       productType: item.productType,
       selectedAddOns: item.selectedAddOns || [],
     };
@@ -1009,6 +1028,8 @@ export async function editTransaction(params: EditTransactionParams) {
       discountAmount: item.discountAmountInput,
       productType: item.productType || null,
       variantId: item.variantId,
+      batchId: item.batchId,
+      serialId: item.serialId,
       selectedAddOns: resolvedAddOns,
       inventoryMode: product.inventoryMode,
       // Exclusive-rate GST only — matches the POS UI's own client-side tax math (CafeBillingClient's
@@ -1046,36 +1067,64 @@ export async function editTransaction(params: EditTransactionParams) {
       },
     });
 
-    // 2. Reconcile stock deltas — match old vs new lines by productId+variantId. Increasing
-    // quantity (or adding a new line) decrements the extra amount with the same insufficient-
-    // stock guard as a fresh sale; decreasing (or removing a line) credits stock back. Skipped
-    // entirely for ALWAYS_AVAILABLE, exactly like a normal sale.
-    const lineKey = (productId: string, variantId: string | null) => `${productId}::${variantId ?? ""}`;
-    const oldQtyByLine = new Map<string, number>();
+    // 2. Reconcile stock deltas — match old vs new lines by productId+variantId+batchId+serialId
+    // (M4: batch/serial refs are part of the key so a removed/reduced BATCH or SERIAL line
+    // credits/debits the right row instead of the base product). Increasing quantity (or adding
+    // a new line) decrements the extra amount with the same insufficient-stock guard as a fresh
+    // sale; decreasing (or removing a line) credits stock back. Skipped entirely for
+    // ALWAYS_AVAILABLE, exactly like a normal sale.
+    const lineKey = (productId: string, variantId: string | null, batchId: string | null, serialId: string | null) =>
+      `${productId}::${variantId ?? ""}::${batchId ?? ""}::${serialId ?? ""}`;
+    const oldByLine = new Map<string, { qty: number; productType: string | null }>();
     for (const item of existing.items) {
-      const key = lineKey(item.productId, item.variantId);
-      oldQtyByLine.set(key, (oldQtyByLine.get(key) || 0) + item.quantity);
+      const key = lineKey(item.productId, item.variantId, item.batchId, item.serialId);
+      const agg = oldByLine.get(key) || { qty: 0, productType: item.productType };
+      agg.qty += item.quantity;
+      oldByLine.set(key, agg);
     }
-    const newQtyByLine = new Map<string, number>();
+    const newByLine = new Map<string, { qty: number; productType: string | null }>();
     for (const item of normalizedItems) {
-      const key = lineKey(item.productId, item.variantId);
-      newQtyByLine.set(key, (newQtyByLine.get(key) || 0) + item.quantity);
+      const key = lineKey(item.productId, item.variantId, item.batchId, item.serialId);
+      const agg = newByLine.get(key) || { qty: 0, productType: item.productType };
+      agg.qty += item.quantity;
+      newByLine.set(key, agg);
     }
-    const allLineKeys = new Set([...oldQtyByLine.keys(), ...newQtyByLine.keys()]);
+    const allLineKeys = new Set([...oldByLine.keys(), ...newByLine.keys()]);
     const inventoryModeByProductId = new Map(ownedProducts.map((p) => [p.id, p.inventoryMode]));
 
     for (const key of allLineKeys) {
-      const [productId, variantIdRaw] = key.split("::");
+      const [productId, variantIdRaw, batchIdRaw, serialIdRaw] = key.split("::");
       const variantId = variantIdRaw || null;
-      const oldQty = oldQtyByLine.get(key) || 0;
-      const newQty = newQtyByLine.get(key) || 0;
+      const batchId = batchIdRaw || null;
+      const serialId = serialIdRaw || null;
+      const oldAgg = oldByLine.get(key);
+      const newAgg = newByLine.get(key);
+      const oldQty = oldAgg?.qty ?? 0;
+      const newQty = newAgg?.qty ?? 0;
+      // Product type of the line (prefer the OLD record — the delta reconciles stock that a past
+      // sale actually moved, so it must be routed the same way the sale routed it).
+      const productType = oldAgg?.productType ?? newAgg?.productType ?? null;
       const delta = newQty - oldQty;
       if (delta === 0) continue;
 
       const inventoryMode = inventoryModeByProductId.get(productId) ?? "INVENTORY_MANAGED";
       if (inventoryMode === "ALWAYS_AVAILABLE") continue;
 
-      if (variantId) {
+      // M4: ADDING (delta > 0) a BATCH/SERIAL line requires a real batch/serial reference — without
+      // it the new stock would be silently attributed to the base product. Removals/reductions of
+      // LEGACY lines whose ref is already null (created before batch/serial tracking, or corrupted
+      // by the old bug this fixes) stay editable: they fall through to the base-product branch
+      // below, matching the way the original sale wrote them.
+      if (delta > 0) {
+        if (productType === "BATCH" && !batchId) {
+          throw new TransactionError(`Missing batch selection for this item`, 400);
+        }
+        if (productType === "SERIAL" && !serialId) {
+          throw new TransactionError(`Missing serial selection for this item`, 400);
+        }
+      }
+
+      if (productType === "VARIANT" && variantId) {
         if (delta > 0) {
           const result = await tx.productVariant.updateMany({
             where: { id: variantId, productId, stock: { gte: delta } },
@@ -1084,6 +1133,32 @@ export async function editTransaction(params: EditTransactionParams) {
           if (result.count === 0) throw new TransactionError(`Insufficient stock to increase quantity for this item`, 409);
         } else {
           await tx.productVariant.updateMany({ where: { id: variantId, productId }, data: { stock: { increment: -delta } } });
+        }
+      } else if (productType === "BATCH" && batchId) {
+        // M4: batch stock lives on ProductBatch — never touch the base product for these.
+        if (delta > 0) {
+          const result = await tx.productBatch.updateMany({
+            where: { id: batchId, productId, stock: { gte: delta } },
+            data: { stock: { decrement: delta } },
+          });
+          if (result.count === 0) throw new TransactionError(`Insufficient stock to increase quantity for this item`, 409);
+        } else {
+          await tx.productBatch.updateMany({ where: { id: batchId, productId }, data: { stock: { increment: -delta } } });
+        }
+      } else if (productType === "SERIAL" && serialId) {
+        // M4: a serial's stock is its status — adding marks it SOLD (with the same availability
+        // guard as a fresh sale), removing frees it back to AVAILABLE. Idempotent on remove.
+        if (delta > 0) {
+          const result = await tx.productSerial.updateMany({
+            where: { id: serialId, productId, status: "AVAILABLE" },
+            data: { status: "SOLD" },
+          });
+          if (result.count === 0) throw new TransactionError(`Serial item unavailable to add on this invoice`, 409);
+        } else {
+          await tx.productSerial.updateMany({
+            where: { id: serialId, productId, status: "SOLD" },
+            data: { status: "AVAILABLE" },
+          });
         }
       } else {
         if (delta > 0) {
@@ -1135,6 +1210,8 @@ export async function editTransaction(params: EditTransactionParams) {
             discountAmount: item.discountAmount,
             productType: item.productType,
             variantId: item.variantId,
+            batchId: item.batchId,
+            serialId: item.serialId,
             selectedAddOns: item.selectedAddOns.length > 0 ? item.selectedAddOns : undefined,
           })),
         },

@@ -34,6 +34,18 @@ export async function sendEmail({
   }
 }
 
+// Escapes user-controlled values before they're interpolated into HTML email bodies — tenant
+// names, emails, and passwords can legally contain `&`, `<`, `>`, quotes, etc., which would
+// otherwise render wrong (or worse) in an HTML client.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // Templates
 export const EmailTemplates = {
   InvoicePaid: (name: string, invoiceNumber: string, amount: number) => `
@@ -78,4 +90,29 @@ export const EmailTemplates = {
       <p style="color: #6B7280; font-size: 12px;">CafeOS Support</p>
     </div>
   `,
+  // Sent to a newly created tenant's owner right after the superadmin provisions the account.
+  // Contains the login URL plus the credentials the superadmin set — this is the "Owner Receives
+  // Login" step of the provisioning workflow. Deliberately includes the plaintext password because
+  // the owner never had one before this email (there is no out-of-band sharing in the product).
+  // All interpolated values are HTML-escaped (see escapeHtml above).
+  OwnerWelcome: (name: string, tenantName: string, email: string, password: string, loginUrl: string) => {
+    const e = escapeHtml;
+    return `
+      <div style="font-family: sans-serif; max-w: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
+        <h2 style="color: #4F46E5;">Welcome to CafeOS! 🎉</h2>
+        <p>Hi ${e(name)},</p>
+        <p>Your cafe <strong>${e(tenantName)}</strong> has been set up and is ready to go. Here are your
+        login credentials:</p>
+        <p style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; font-size: 14px;">
+          <strong>Login URL:</strong> <a href="${e(loginUrl)}">${e(loginUrl)}</a><br />
+          <strong>Email:</strong> ${e(email)}<br />
+          <strong>Password:</strong> ${e(password)}
+        </p>
+        <p>For security, please change your password after your first login.</p>
+        <p>Thank you for choosing CafeOS!</p>
+        <br />
+        <p style="color: #6B7280; font-size: 12px;">CafeOS Support</p>
+      </div>
+    `;
+  },
 };

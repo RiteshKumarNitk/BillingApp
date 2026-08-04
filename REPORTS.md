@@ -7,6 +7,439 @@ Newest entries first. When adding a new report, keep the same structure: date, s
 
 ---
 
+## 2026-08-04 — RC-1 Release-Candidate end-to-end audit (no code written)
+
+**Scope:** Feature-freeze pass over the entire CafeOS platform (billing-web Next.js app + cafeos-app
+Flutter app), as requested. Verified complete workflows, every module, API integration, database,
+mobile app, website, performance, security, and business logic. No implementation was done — this
+is a report only, awaiting approval.
+
+**What was verified as working (baseline):**
+- `next build` (production) succeeds cleanly. `flutter analyze` — zero issues.
+- Super Admin flow verified live in a browser (login → dashboard → Tenants list renders with
+  statuses; zero console errors).
+- Public customer registration (`/api/customer/auth/register`), guest order submission
+  (reaches validation), tenant-site pages, `/api/mobile/customer/*` public routes, lead/visit
+  rate-limiting, and webhook signature verification all work.
+- The transactions engine (`lib/services/transactions.ts`) has solid server-side guards: catalog
+  price checks (OVERRIDE_PRICE), tenant-scoped product ownership, atomic stock checks, loyalty
+  redemption races, and quota re-check inside the transaction.
+- Order idempotency via `idempotencyKey`; held-bill resume is atomic.
+
+### Fixed this session — approved RC-1 implementation (2026-08-04)
+
+All Critical + High findings (C1, C2, H1–H5) were implemented and verified, followed by the
+approved Medium batches (M1, M3, M5, M6, M7 and M2, M4). Each finding below carries a **Fixed**
+marker with notes.
+
+**Medium batch (M1, M3, M5, M6, M7):**
+
+| # | Fix | Verification |
+|---|---|---|
+| M1 | `subscription.charged` webhook dedupes on `razorpayPaymentId`/`razorpayOrderId` (findFirst guard + re-check inside a `$transaction`) so Razorpay retries can't mint duplicate PAID invoices. **Also fixed a blocker that made the whole webhook dead**: `/api/webhooks/razorpay` was never in the middleware allowlist, so Razorpay's signature-authenticated server-to-server calls got `401 Unauthorized` from the middleware before reaching the route. Allowlisted. Code-review follow-ups applied: dedupe filter is skipped (never `OR: []`) when neither payment nor order id exists, and an S3 guard now refuses to process webhooks in simulation mode under `NODE_ENV=production` (the allowlist would otherwise have made the simulation-mode hole exploitable). | Live: unauthenticated POST now reaches the route (200 "no tenantId, ignored", was 401); bogus payload is non-mutating; no 500 on the id-less edge payload |
+| M3 | `buildTransactionPlan` single-payment path now rejects `amountReceived < netAmount - 0.01` with a 400 and recomputes `changeAmount` server-side instead of trusting the client (mirrors the split-payments guard) | Build + code review; POS always sends `amountReceived` (defaults to netAmount), so no caller regression |
+| M5 | All low-stock queries now compare against each product's `minStockThreshold` (Prisma field reference) instead of hardcoded `<= 10`: `getLowStockItems`, `getOverviewCounts` (analytics.ts), `getFilteredProducts` lowStock filter (products.ts), mobile `/api/mobile/products?lowStock=true` | Verified directly against the DB: field-reference query executes and matches the manual `stock <= minStockThreshold` filter exactly |
+| M6 | `createTenant` now runs tenant + workspace defaults + subscription + invoice + coupon + roles + owner user inside ONE `prisma.$transaction` (bcrypt hashed up front outside the tx) — a mid-way failure rolls everything back instead of orphaning a tenant with no login. After commit, sends the owner a welcome email with login URL + credentials via `lib/mail.ts` (`EmailTemplates.OwnerWelcome`); mailer failure logs and continues. All interpolated values in the template are HTML-escaped. | Build + code review; both onboarding helpers already accepted a `Prisma.TransactionClient`, so they slot into the tx unchanged |
+| M7 | `/robots.txt` + `/sitemap.xml` allowlisted in `middleware.ts` | Live: both now return 200 with real content (was 307 → login for robots.txt); `/dashboard` still redirects |
+
+**Medium batch 2 (M2, M4):**
+
+| # | Fix | Verification |
+|---|---|---|
+| M2 | Coupon redemptions are now counted at payment-confirmed time, not checkout-session creation: `createCheckoutSession` no longer increments `Coupon.redemptions` (abandoned/retried checkouts can't burn the cap), and a supplied-but-invalid coupon now throws instead of silently applying no discount. The applied coupon code rides in the Razorpay subscription notes (`notes.couponCode`); the `subscription.charged` webhook re-validates the coupon and increments `redemptions` inside the same dedupe-protected `$transaction` that mints the PAID invoice — once per subscription (renewal charges don't re-consume it) — and records `couponId` + recomputed `discountAmount`/`netAmount` on the invoice | Live (simulation webhook, throwaway tenant/coupon, cleaned up): first charge → invoice ₹100→₹90 with couponId, redemptions 0→1; duplicate webhook retry → no second invoice, still 1; renewal charge → second full-price invoice, redemptions still 1 |
+| M4 | `editTransaction` now keys old/new lines by `productId::variantId::batchId::serialId` and routes stock reconciliation by product type: BATCH lines credit/debit `ProductBatch.stock` (same `gte` guard as a fresh sale), SERIAL lines flip `ProductSerial.status` SOLD↔AVAILABLE, VARIANT/SIMPLE paths unchanged. `EditTransactionItemInput` gained `batchId`/`serialId` (persisted on rewritten lines); a BATCH/SERIAL line without its ref is rejected 400 instead of silently adjusting base `Product.stock`. Edit UI carries the refs through and blocks adding BATCH/SERIAL products (that editor has no batch/serial picker) | Live (minted NextAuth session, disposable data, cleaned up): removing a BATCH line → batch stock 8→10 while base product stock stayed 0 (was the bug: base stock was being credited); adding one → 10→9 with batchId persisted; missing batchId → 400 |
+
+**Critical + High batch (C1, C2, H1–H5):**
+
+| # | Fix | Verification |
+|---|---|---|
+| C1 | Allowlisted `/api/register` in `middleware.ts` | Live: `POST /api/register` now reaches the route (400 validation, not 401) in dev AND a production `next start` build |
+| C2 | `createCustomerOrder()` now rejects unavailable items (400), out-of-range quantities (400, cap 10,000), unresolvable variant ids (400), and over-stock quantities (409); kitchen `COMPLETE` (web) and merchant `APPROVE` (mobile) now respect `inventoryMode` (skip `ALWAYS_AVAILABLE`/`SERVICE`/`COMBO`) and throw a 409 inside the transaction on insufficient stock (whole sale rolls back). Stock decrement at COMPLETE/APPROVE uses the same atomic `updateMany({ stock: { gte } })` guard as the POS path, so concurrent completions can't oversell. Stock-track rule lives in one shared helper `lib/products/availability.ts` → `productTracksStock()` | Live: 100× order of a stock-3 item → 409; qty 0 → 400; qty 20,000 → 400; bogus variantId → 400 |
+| H1 | `cancelSubscription`/`createCheckoutSession`/`applyCoupon` (subscription.ts) and `calculateProration`/`changeSubscriptionPlan` (proration.ts) now require role `ADMIN` or `SUPERADMIN`; proration actions also refuse a `tenantId` other than the caller's own tenant | Build + code review; tenant-scope check added for arbitrary-tenantId abuse |
+| H2 | Staff mobile JWT now carries `tokenVersion`; `getMobileUserFromAuthHeader` is async and re-validates the user row + tokenVersion on every request (mirrors customer-mobile.ts). All 17 `/api/mobile/*` + merchant routes updated to `await` it | Live: fresh token → 200; after `tokenVersion` bump → 401; login again → works (state restored after test) |
+| H3 | `/api/mobile/auth/login` now blocks non-ACTIVE tenants (403) and tenants without an active subscription (403), matching web login | Code review (no inactive-tenant account available to test live) |
+| H4 | Added `EDIT_TRANSACTION` + `REOPEN_OLD_TRANSACTION` to `DEFAULT_ROLE_DEFINITIONS` Owner; new idempotent backfill script `scripts/backfill-owner-permissions.js` | Backfill ran: 3/3 existing Owner roles updated (additive) |
+| H5 | Moved the missing-tenant check into `app/site/[tenantId]/layout.tsx` (`notFound()` in both `generateMetadata` and the body) so every `/site/[tenantId]/*` route 404s for a nonexistent tenant | Live: `/site/<nope>` and `/site/<nope>/about` → 404 in dev AND prod build; real tenant routes still 200 |
+
+`next build` passes with all changes. ESLint on the changed files shows only the project's
+pre-existing `no-explicit-any` debt (no new findings introduced).
+
+Code-review follow-ups applied (2026-08-04): atomic stock decrement at COMPLETE/APPROVE,
+quantity upper-bound, unresolvable-variant rejection, and a shared `productTracksStock()` helper.
+Documented decisions (no change): staff mobile tokens issued *before* this deploy lack the
+`tokenVersion` claim and remain valid until expiry (all new logins carry it, so revocation works
+from this deploy forward); the subscription/billing role gate uses the app's established
+`role === 'ADMIN'` owner convention (same as the website-builder gate), consistent with how every
+tenant owner is created.
+
+---
+
+### CRITICAL BUGS
+
+**C1. Public tenant registration is completely broken — `POST /api/register` returns 401.** — **FIXED 2026-08-04**
+- **Description:** `middleware.ts`'s allowlist covers `/api/auth`, `/api/mobile`, `/api/customer`,
+  `/api/marketing`, `/api/website/{lead,visit,table}` — but NOT `/api/register`. The middleware
+  matcher intercepts `/api/register`, sees no token, and returns `401 {"error":"Unauthorized"}`
+  before the route handler ever runs.
+- **Steps to Reproduce:** Open `/auth/register`, fill the form, submit. (Confirmed live: curl
+  `POST /api/register` with any body returns `401 {"error":"Unauthorized"}`. The page itself
+  loads 200.)
+- **Expected:** 201 with a new PENDING tenant + owner user (or 400/409 for invalid input).
+- **Actual:** 401 for every submission — the whole self-serve signup funnel (and the "Super Admin
+  → Create Subscription → Create Tenant → Owner Receives Login" path for self-registered
+  tenants) is dead.
+- **Recommended Fix:** Add `pathname.startsWith('/api/register')` to the middleware allowlist.
+- **Priority:** Critical (blocks the primary acquisition workflow).
+
+**C2. Online ordering has no server-side stock/availability validation.** — **FIXED 2026-08-04**
+- **Description:** `createCustomerOrder()` (shared by website + mobile checkout) never checks
+  `product.isAvailable`, `product.stock`, or `inventoryMode`. The website cart caps quantity
+  client-side only; the kitchen `COMPLETE` action then silently skips the decrement when stock is
+  short (`if (product && product.stock >= item.quantity)`) and — worse — decrements
+  `ALWAYS_AVAILABLE` items that must never be decremented.
+- **Steps to Reproduce:** As a customer, POST `/api/customer/orders` with quantity 9999 for any
+  stocked item; the order is accepted (status 201). Complete it in the kitchen queue.
+- **Expected:** Order rejected with 409 when quantity > stock, and `ALWAYS_AVAILABLE` items never
+  lose stock.
+- **Actual:** Out-of-stock / unavailable items can be ordered and over-sold.
+- **Recommended Fix:** Validate availability + stock in `createCustomerOrder` (respect
+  `inventoryMode`), and honor `inventoryMode` in the `COMPLETE` handler (skip decrement only for
+  `ALWAYS_AVAILABLE`; block or warn on insufficient stock for managed items).
+- **Priority:** Critical (revenue + inventory integrity).
+
+---
+
+### HIGH PRIORITY BUGS
+
+**H1. Any logged-in staff member can cancel or change the tenant's subscription.** — **FIXED 2026-08-04**
+- **Description:** `cancelSubscription`, `changeSubscriptionPlan`, and `calculateProration` in
+  `lib/actions/subscription.ts` / `lib/actions/proration.ts` only call `requireAuth()`, which
+  checks `session.user.tenantId` exists — no Owner/Admin role or permission check. A Cashier with
+  a valid session can cancel the plan or switch tiers and generate invoices.
+- **Steps to Reproduce:** Log in as a staff user with only `CREATE_BILL`, open Settings → Billing,
+  click Cancel (or call the server action directly).
+- **Expected:** 403 unless the caller is the Owner/Admin (role `ADMIN` or `MANAGE_USERS`).
+- **Actual:** The action succeeds.
+- **Recommended Fix:** Gate these actions on `session.user.role === 'ADMIN'` (mirroring the
+  website-builder gate) or a `MANAGE_USERS` permission.
+- **Priority:** High.
+
+**H2. Staff mobile JWT has no revocation — fired/deleted staff keep access up to 30 days.** — **FIXED 2026-08-04**
+- **Description:** `lib/auth/mobile.ts` signs 30-day tokens with no `tokenVersion` and no user or
+  tenant re-validation on subsequent requests; `deleteTenantUser`'s comment claims the JWT dies
+  with the user, but that only applies to NextAuth cookie sessions. `/api/mobile/*` routes trust
+  the token's `tenantId`/`role` blindly.
+- **Steps to Reproduce:** Log in via `/api/mobile/auth/login`, delete the user, then call
+  `/api/mobile/transactions` with the old token.
+- **Expected:** 401 (user no longer exists / tokenVersion bumped).
+- **Actual:** Token stays valid for its full 30-day life.
+- **Recommended Fix:** Embed `tokenVersion` in staff tokens and check it (as `customer-mobile.ts`
+  already does), or re-validate the user row on sensitive routes.
+- **Priority:** High (security).
+
+**H3. Mobile staff login ignores tenant status and subscription state.** — **FIXED 2026-08-04**
+- **Description:** `/api/mobile/auth/login` checks only email + password. Web login (NextAuth)
+  blocks INACTIVE tenants and lapsed subscriptions; the mobile login doesn't.
+- **Steps to Reproduce:** Deactivate a tenant (or let its trial lapse), then log in on the staff
+  mobile app.
+- **Expected:** Login refused.
+- **Actual:** Login succeeds and the app keeps working.
+- **Recommended Fix:** Mirror the NextAuth checks (tenant ACTIVE + active subscription) at login.
+- **Priority:** High (revenue/business-logic bypass).
+
+**H4. Default Owner role can't edit invoices — `EDIT_TRANSACTION` / `REOPEN_OLD_TRANSACTION` are
+not in the seeded Owner permissions.** — **FIXED 2026-08-04** (defaults + backfill script run on existing tenants)
+- **Description:** `DEFAULT_ROLE_DEFINITIONS` in `lib/tenantOnboarding.ts` gives Owner
+  CREATE_PRODUCT/EDIT_PRODUCT/DELETE_PRODUCT/VIEW_REPORTS/CREATE_BILL/MANAGE_USERS/VIEW_PROFIT/
+  OVERRIDE_PRICE — but not the invoice-edit permissions the shipped Invoice Edit feature requires.
+  A fresh tenant's Owner gets 403 on every invoice edit. (Cashier's `VIEW_PRODUCT` is also a
+  phantom permission nothing checks.)
+- **Steps to Reproduce:** Register/create a new tenant, log in as its Owner, open a completed
+  invoice and edit it.
+- **Expected:** Owner can edit (subject to same-day rule).
+- **Actual:** 403 "Requires EDIT_TRANSACTION permission".
+- **Recommended Fix:** Add `EDIT_TRANSACTION` (+ `REOPEN_OLD_TRANSACTION`) to the Owner role
+  defaults, and reconcile the role definitions with the real `PERMISSIONS` set.
+- **Priority:** High (business logic).
+
+**H5. Soft-404: nonexistent tenant site URLs return HTTP 200.** — **FIXED 2026-08-04**
+- **Description:** Carried forward from the 2026-07-20 audit (still open). `notFound()` executes
+  but returns 200 on `/site/[tenantId]/*` page routes in this Next.js 16.2.6 install.
+- **Steps to Reproduce:** `curl -o /dev/null -w '%{http_code}' /site/definitely-not-a-real-tenant`
+  → 200. (Verified live.)
+- **Expected:** 404.
+- **Actual:** 200 — search engines and uptime monitors index invalid tenant URLs.
+- **Recommended Fix:** Replace `notFound()` with an explicit `Response`-based 404 (as the
+  sitemap/robots Route Handlers already do).
+- **Priority:** High (SEO/infra monitoring integrity).
+
+---
+
+### MEDIUM PRIORITY BUGS
+
+**M1. Duplicate invoices on Razorpay webhook retries.** — **FIXED 2026-08-04**
+- **Description:** `app/api/webhooks/razorpay/route.ts` creates a fresh `Invoice` on every
+  `subscription.charged` event with no idempotency/dedupe (Razorpay retries webhooks).
+  (While fixing: discovered the webhook was entirely unreachable — the middleware never
+  allowlisted `/api/webhooks/razorpay`, so every server-to-server call 401'd before the route.
+  Allowlisted as part of this fix.)
+- **Steps to Reproduce:** Replay a `subscription.charged` webhook.
+- **Expected:** One invoice per charge.
+- **Actual:** A duplicate PAID invoice is created each replay.
+- **Recommended Fix:** Upsert keyed on `razorpayPaymentId`/subscription+period before insert.
+- **Priority:** Medium.
+
+**M2. Coupon redemptions are consumed at checkout-session creation, not at payment.** — **FIXED 2026-08-04**
+- **Description:** `createCheckoutSession` increments `Coupon.redemptions` immediately; abandoned
+  or retried checkouts burn the cap. Invalid coupons also silently apply no discount instead of
+  erroring.
+- **Steps to Reproduce:** Create a checkout with a limited coupon, abandon payment, repeat.
+- **Expected:** Redemption counted only on successful payment.
+- **Actual:** Cap consumed by abandoned sessions.
+- **Recommended Fix:** Move the increment to the webhook/payment-confirmed path; surface invalid
+  coupon errors in `createCheckoutSession`.
+- **Priority:** Medium.
+- **Resolution (2026-08-04):** Increment moved to the `subscription.charged` webhook (inside the M1 dedupe transaction, once per subscription so renewals don't re-consume it); coupon code carried via Razorpay subscription notes; `createCheckoutSession` now throws on invalid/inactive/expired/cap-reached codes. Cap enforcement is atomic (`coupon.updateMany` with `redemptions: { lt: maxRedemptions }` + count check), so concurrent redemptions can't overshoot. Documented edge: a coupon that fully discounts the plan to ₹0 never produces a Razorpay charge, so it isn't counted (same as the old code, which also skipped `finalAmount === 0`).
+
+**M3. Single-payment path accepts underpayment.** — **FIXED 2026-08-04**
+- **Description:** In `buildTransactionPlan`, only the split-payments path validates that paid
+  ≥ net. The single `paymentMethod/amountReceived` path trusts the client's `changeAmount`.
+- **Steps to Reproduce:** POST `/api/transactions` with `amountReceived` < `netAmount`.
+- **Expected:** 400 underpayment error.
+- **Actual:** Sale completes with `changeAmount` as sent.
+- **Recommended Fix:** Validate `amountReceived >= netAmount` (or require an explicit
+  credit/partial flag) for the single-payment path too.
+- **Priority:** Medium.
+
+**M4. Invoice edit reconciles BATCH/SERIAL stock on the base product.** — **FIXED 2026-08-04**
+- **Description:** `editTransaction` keys old/new lines by `productId::variantId` only; a removed
+  or reduced BATCH/SERIAL line credits/debits `Product.stock` instead of the batch/serial row.
+- **Steps to Reproduce:** Edit a completed invoice that contained a BATCH item, removing it.
+- **Expected:** Batch stock credited back.
+- **Actual:** Base product stock is adjusted.
+- **Recommended Fix:** Extend the line key with `batchId`/`serialId` and route reconciliation to
+  the right table (and add those fields to the edit item input).
+- **Priority:** Medium.
+- **Resolution (2026-08-04):** Line key extended to `productId::variantId::batchId::serialId`; reconciliation routes by product type (BATCH → `ProductBatch.stock` with the fresh-sale `gte` guard, SERIAL → `ProductSerial.status` SOLD↔AVAILABLE, VARIANT/SIMPLE unchanged); `batchId`/`serialId` accepted in the edit item input and persisted on rewritten lines. The missing-ref guard applies to ADDITIONS only — legacy lines whose ref is already null (created before the fix, or corrupted by this bug) stay removable via the base-product fallback instead of 400-blocking the whole edit. Edit UI preserves the refs and refuses to add BATCH/SERIAL products (no picker in that editor). Verified live end-to-end (removal credits the batch, not the base product; add decrements + persists ref; missing ref on add → 400; legacy null-ref line still removable).
+
+**M5. Low-stock alerts ignore per-product `minStockThreshold`.** — **FIXED 2026-08-04**
+- **Description:** `getLowStockItems`/`getOverviewCounts` hardcode `stock <= 10`; a product with
+  `minStockThreshold = 50` won't flag until stock is 10.
+- **Steps to Reproduce:** Set a product's threshold to 50 with stock 20; open Dashboard.
+- **Expected:** Shown as low stock.
+- **Actual:** Not flagged.
+- **Recommended Fix:** Compare against `minStockThreshold` in the queries.
+- **Priority:** Medium.
+
+**M6. Superadmin `createTenant` is non-atomic and sends no owner credentials email.** — **FIXED 2026-08-04** (atomicity + email done; PENDING filter is U2, deferred)
+- **Description:** `createTenant` calls `seedTenantWorkspaceDefaults` then creates the
+  subscription/invoice/roles/user sequentially outside one `$transaction` — a mid-way failure
+  orphans a tenant with no login. No email is ever sent to the owner (the "Owner Receives Login"
+  workflow step relies on out-of-band sharing). Self-registered tenants (when C1 is fixed) are
+  created PENDING with no email notification to the superadmin, and the Tenants filter dropdown
+  has no PENDING option.
+- **Steps to Reproduce:** N/A (code review).
+- **Expected:** Atomic creation + welcome email with login instructions.
+- **Actual:** Partial-creation risk; no email; no PENDING filter.
+- **Recommended Fix:** Wrap in `$transaction`; send a welcome/credentials email via `lib/mail.ts`;
+  add PENDING to the status filter.
+- **Priority:** Medium (workflow completeness).
+
+**M7. `/robots.txt` is behind the auth middleware (marketing-site SEO).** — **FIXED 2026-08-04**
+- **Description:** The middleware redirects anonymous `/robots.txt` to `/auth/login` (verified
+  live: 307 → login; body `"/auth/login"`). `/sitemap.xml` currently serves 200, but `robots.ts`
+  content never reaches crawlers.
+- **Steps to Reproduce:** `curl -L http://localhost:3000/robots.txt`.
+- **Expected:** robots.txt content.
+- **Actual:** Redirect to login.
+- **Recommended Fix:** Allowlist `/robots.txt` (+ `/sitemap.xml`) in the middleware, or serve
+  robots via a Route Handler.
+- **Priority:** Medium (SEO).
+
+**M8. Analytics day boundaries use the server clock, not `Tenant.timezone`.**
+- **Description:** Carried forward (2026-07-12 backlog #12). `startOfDay(new Date())` in
+  `lib/analytics.ts` — today/yesterday/this-month numbers are wrong for non-server-local timezones.
+- **Recommended Fix:** Derive boundaries from `Tenant.timezone`.
+- **Priority:** Medium.
+
+**M9. Mass-assignment on `PATCH /api/tenants/[id]`.**
+- **Description:** Carried forward (backlog #9). Raw request body is passed to
+  `prisma.tenant.update({ data: body })`. SUPERADMIN-gated, so lower risk, but allows updating
+  fields like `dbConnectionString`/`version` unintentionally.
+- **Recommended Fix:** Whitelist fields (as PUT already does).
+- **Priority:** Medium.
+
+**M10. Money stored as `Float` with JS float math.**
+- **Description:** Carried forward (backlog #5). Rounding drift compounds across item → coupon →
+  bill % → loyalty → tax. No test suite covers the money math.
+- **Recommended Fix:** Move to integer paise/`Decimal`, or at minimum round at each boundary and
+  add unit tests for `lib/services/transactions.ts`.
+- **Priority:** Medium (correctness at scale).
+
+---
+
+### MINOR UI ISSUES
+
+**U1. `test.js`/scripts lint debt — `npx eslint` reports 1184 errors / 850 warnings** (most in
+`scripts/*.js` `require` imports, some real: `types/next-auth.d.ts` unused import, a binary
+`scripts/test.js`). Not runtime-blocking but `npm run lint` cannot pass. Recommend scoping ESLint
+away from `scripts/` and cleaning the app-code findings.
+
+**U2. Tenants list filter has no PENDING status option** while PENDING tenants exist (register
+flow creates them). Badges render PENDING in yellow but you can't filter for them.
+
+**U3. Guest checkout success is a transient toast only** — no order-tracking page/link is shown
+on the tenant website after placing an order.
+
+**U4. `getTenantUsers` server action isn't permission-gated** — any staff session can list all
+tenant users' names/emails/phones (minor info exposure; the page itself may not be linked).
+
+**U5. QR codes (Tables + Website Builder) render via third-party `api.qrserver.com`** — carried
+forward (backlog/2026-07-20 #12). Works offline only for tenants; external dependency + privacy.
+Recommend switching to the bundled `qrcode.react` (self-hosted, already a dependency).
+
+**U6. `premium-food/Team.tsx` carousel buttons with no onClick** — carried forward (2026-07-20
+#13), still dead UI.
+
+**U7. Manager cannot save Settings** (settings route requires `MANAGE_USERS`, which Manager lacks)
+— likely intended, but there's no UI hint that the Save button will 403.
+
+---
+
+### PERFORMANCE ISSUES
+
+**P1. The NextAuth `jwt` callback does 2–3 DB queries on every authenticated request**
+(`user.findUnique` + `tenant.findUnique` + `getActiveSubscription`, which itself loads the tenant
+with subscriptions) via every `getServerSession`. This is the single biggest per-request cost on
+all admin/mobile-web API routes.
+
+**P2. `getProfitTrendData` cost subquery scans `TransactionItem` across all tenants** before the
+outer join filters (carried forward, backlog #13).
+
+**P3. Rate limiter is in-memory + single-process** (carried forward). State resets on restart and
+isn't shared across instances; also trusts `x-forwarded-for` directly, which is client-spoofable
+when not behind a trusted proxy.
+
+**P4. No pagination on several list endpoints** — `/api/tenant/orders` (take 100), store menu
+(take 200), customer stores — fine today, but unindexed `contains` searches (`/api/tenants`,
+mobile products/customers) will degrade as data grows.
+
+---
+
+### SECURITY ISSUES
+
+**S1. No rate limiting on authentication endpoints** — `/api/mobile/customer/auth/login`,
+`/api/mobile/customer/auth/register`, `/api/customer/auth/register`, `/api/mobile/auth/login` are
+all unauthenticated + unthrottled (bcrypt slows brute force but doesn't stop abuse/account spam).
+`/api/customer/auth/register` also doesn't validate email format.
+
+**S2. Staff mobile token gap** (see H2/H3) — no `tokenVersion`, no tenant-status/subscription
+re-check.
+
+**S3. Silent Razorpay simulation mode** — **PARTIALLY FIXED 2026-08-04** (webhook path closed)
+`lib/razorpay.ts` treats missing/dummy keys as simulation and `verifyRazorpayWebhook` returns
+`true` in simulation. If env vars are missing in a "production" deploy, the whole billing flow
+mocks itself and unsigned webhooks are accepted. The webhook route now refuses to process any
+webhook in simulation mode under `NODE_ENV=production` (503) — added because M1 had to allowlist
+`/api/webhooks/razorpay`, which would otherwise have made the simulation hole exploitable by
+anonymous callers. Still open: the rest of the billing flow (checkout/plans) silently mocks
+itself; a broader "refuse to start in simulation when production" guard is recommended.
+
+**S4. `AGENTS.md` still instructs AI agents to read `node_modules/next/dist/docs/`** — the
+prompt-injection vector documented in earlier entries (fake "AI agent hint" in
+`node_modules/next/dist/docs/index.md`). Recommend deleting that instruction from `AGENTS.md` and
+CLAUDE.md.
+
+**S5. `Tenant.dbConnectionString` (plaintext, unused)** — carried forward (backlog #17); remove
+or encrypt.
+
+**S6. `/api/mobile/*` CORS is `Access-Control-Allow-Origin: *`** — acceptable for bearer-token
+APIs, but worth narrowing to the mobile app origins when the app ships.
+
+**S7. `SessionSync.tsx` mirrors the session into `localStorage`** — not the JWT itself (cookie
+remains httpOnly), but user profile data sits in localStorage; consider clearing on sign-out (it
+is, in TopNav) and gating the sync component to authenticated pages.
+
+**S8. Coupon/`Discount` usage has no atomicity guard** (carried forward, backlog #6) — no
+redemption cap on `Discount`; the TOCTOU between check and apply exists for store coupons.
+
+---
+
+### DATABASE ISSUES
+
+**D1. Missing `@@index([tenantId])` on `Product`, `Transaction`, `Role`, `Shop`** (carried
+forward, backlog #7). `Transaction`/`Product` have composite indexes that cover most paths; the
+single-column ones are still worth adding for count/filter queries.
+
+**D2. `prisma migrate dev` is broken** (carried forward, backlog #19) — shadow-DB replay fails on
+`20260708190000_add_stock_check_constraints` (schema drifted from history via an earlier `db
+push`). Only `migrate deploy` works. Needs a proper baselining before release.
+
+**D3. `TenantSubscription.status` drift** — the dunning cron writes `'SUSPENDED'`, which isn't in
+the documented set (ACTIVE/TRIAL/CANCELLED/PAST_DUE/EXPIRED/UNPAID); `getActiveSubscription`
+ignores it (good outcome, inconsistent vocabulary). Align to one set.
+
+**D4. `Product.gstInclusive`/`gstRate` per-product vs `Shop.defaultTaxRate` tenant-level fallback**
+— two tax systems coexist; the POS path uses product GST, the online-order path uses
+`Shop.defaultTaxRate`. Risk of inconsistent tax between POS and online orders for the same item.
+
+**D5. `OrderRequest` statuses in code (`ON_HOLD`) vs schema comment** (PENDING/ACCEPTED/PREPARING/
+READY/COMPLETED/REJECTED/CANCELLED) — `ON_HOLD` isn't documented but is used. Harmless, but
+finish the documentation or rename.
+
+**D6. `Customer.email` not unique; `Discount.code` globally unique (not per-tenant)** — review
+against intended semantics before scale.
+
+**D7. No cascade rules on `TransactionItem.product`, `OrderRequest.customer/table`, `ComboItem
+.component`** (default Restrict) — deleting a product used in a sale/combo will fail with FK
+errors; confirm the app's delete flows handle this (product deletion appears to soft-skip
+in-use products).
+
+---
+
+### BUSINESS LOGIC ISSUES
+
+**B1. Kitchen COMPLETE creates transactions with `paymentMethod: 'PENDING'`** and doesn't create
+`TransactionPayment` rows — reports that aggregate on `TransactionPayment` (Payment Summary,
+Payment Method chart) undercount online orders. Either create a payment row at COMPLETE (e.g.
+`UPI`/`CASH` collected at counter) or exclude PENDING from those aggregates.
+
+**B2. Online-order tax uses `Shop.defaultTaxRate`, ignoring per-product `gstRate`/`gstInclusive`**
+— customers see different totals on the website vs the POS for the same items.
+
+**B3. `checkFeatureLimit('transactions')` counts this calendar month; `getPeriodTotals` mixes a
+rolling 7-day window with calendar month/year** (carried forward, backlog #11) — dashboard cards
+mislead early in a period.
+
+**B4. Cashier's `VIEW_PRODUCT` permission doesn't exist in `PERMISSIONS`** — role definitions and
+the actual permission set have drifted; a cashier's reported permissions don't map to any real
+check (products page appears ungated for cashiers).
+
+**B5. `editTransaction`'s same-day window uses `toDateString()` on server time** — a sale at 23:30
+server time edited at 00:10 (tenant's later timezone) incorrectly requires
+REOPEN_OLD_TRANSACTION. Use tenant timezone for the day boundary.
+
+**B6. No notification to the superadmin when a tenant registers (PENDING)** — approval workflow
+has no alert/queue; new signups can sit PENDING indefinitely with no one looking.
+
+---
+
+### RECOMMENDED RC-1 GATE DECISIONS (for approval before any implementation)
+
+1. **Blocking for launch:** C1 (register 401), C2 (order stock validation), H1 (subscription
+   actions authorization), H2/H3 (mobile staff JWT), H4 (Owner invoice-edit permission), M7
+   (robots.txt). — **ALL DONE 2026-08-04** (C1/C2/H1–H5 batch + M1/M3/M5/M6/M7 batch).
+2. **Strongly recommended before GA:** M1 (webhook idempotency), M3 (underpayment), M5
+   (low-stock threshold), M6 (atomic tenant creation + owner email), S1 (auth rate limiting),
+   S3 (simulation-mode guard), D2 (migration baselining). — **M1/M3/M5/M6 DONE 2026-08-04**;
+   S1, S3, D2 still open. M2 (coupon redemption at payment) + M4 (BATCH/SERIAL edit
+   reconciliation) also DONE 2026-08-04.
+3. **Deferred to hardening sprints:** M8–M10, P1–P4, S4–S8, D1/D3–D7, U1–U7, B1–B6.
+4. Also recommended: remove the `AGENTS.md` → `node_modules` docs instruction (S4) and add
+   `PENDING` to the tenants status filter (U2) as zero-risk hygiene fixes.
+
+---
+
 ## 2026-07-20 — Feature work: Website Builder production-readiness implementation (Phases 1-4)
 
 **Scope:** Follow-up to the audit below. Implementing the 14-phase remediation plan one phase at a

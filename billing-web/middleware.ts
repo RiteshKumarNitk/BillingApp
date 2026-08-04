@@ -23,12 +23,17 @@ export async function middleware(request: NextRequest) {
   // Allow access to auth routes, API routes, customer routes, public tenant websites, and public
   // assets without admin auth. /site is the public tenant website (anonymous shoppers/visitors —
   // must never require a staff login); /s is its QR-code short link; /menu is kept for old
-  // bookmarked/indexed links, which now just redirect into /site.
+  // bookmarked/indexed links, which now just redirect into /site. /api/register is the public
+  // self-serve signup (creates a PENDING tenant + owner) — unauthenticated by design.
   if (
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/register') ||
     pathname.startsWith('/api/mobile') ||
     pathname.startsWith('/api/customer') ||
     pathname.startsWith('/api/marketing') ||
+    // Razorpay calls this server-to-server with a signed payload (no NextAuth session cookie),
+    // so it must be reachable anonymously — the signature itself is the authentication.
+    pathname.startsWith('/api/webhooks/razorpay') ||
     pathname.startsWith('/api/website/lead') ||
     pathname.startsWith('/api/website/visit') ||
     pathname.startsWith('/api/website/table') ||
@@ -39,6 +44,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/s/') ||
     pathname.startsWith('/customer') ||
     MARKETING_PAGES.includes(pathname) ||
+    // SEO metadata files must reach crawlers without a session (previously /robots.txt 307'd to
+    // /auth/login so robots.txt content never got served). /sitemap.xml is the app-level sitemap;
+    // per-tenant sitemaps live under /site/[tenantId] and are already covered by the /site prefix.
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
     pathname.startsWith('/favicon.ico')
   ) {
     return NextResponse.next();

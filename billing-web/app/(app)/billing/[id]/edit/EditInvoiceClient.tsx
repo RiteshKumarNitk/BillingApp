@@ -11,6 +11,10 @@ interface EditableLine {
   productId: string;
   name: string;
   variantId: string | null;
+  // M4: carried through the edit so a removed/reduced BATCH/SERIAL line is reconciled against the
+  // right inventory row (batch stock / serial status), not the base product.
+  batchId: string | null;
+  serialId: string | null;
   productType: string | null;
   salePrice: number;
   quantity: number;
@@ -29,6 +33,8 @@ export default function EditInvoiceClient({ transaction }: { transaction: any })
       productId: item.productId,
       name: item.name,
       variantId: item.variantId,
+      batchId: item.batchId ?? null,
+      serialId: item.serialId ?? null,
       productType: item.productType,
       salePrice: item.salePrice,
       quantity: item.quantity,
@@ -83,6 +89,16 @@ export default function EditInvoiceClient({ transaction }: { transaction: any })
   };
 
   const addProduct = (product: any) => {
+    // M4: batch/serial-tracked items need a batch/serial picker this editor doesn't have. Fail
+    // loudly here rather than let the server reject mid-submit — and never let a BATCH/SERIAL
+    // line silently lose its reference and touch the base product's stock.
+    if (product.productType === 'BATCH' || product.productType === 'SERIAL') {
+      setError('Batch/serial-tracked products can\'t be added while editing an invoice — create a new sale for these instead.');
+      setShowSearch(false);
+      setSearchTerm('');
+      setSearchResults([]);
+      return;
+    }
     if (product.productType === 'VARIANT' && product.variants?.length > 0) {
       const v = product.variants[0];
       setLines((prev) => [
@@ -92,6 +108,8 @@ export default function EditInvoiceClient({ transaction }: { transaction: any })
           productId: product.id,
           name: `${product.name} (${v.name})`,
           variantId: v.id,
+          batchId: null,
+          serialId: null,
           productType: 'VARIANT',
           salePrice: v.salePrice,
           quantity: 1,
@@ -106,6 +124,8 @@ export default function EditInvoiceClient({ transaction }: { transaction: any })
           productId: product.id,
           name: product.name,
           variantId: null,
+          batchId: null,
+          serialId: null,
           productType: product.productType || 'SIMPLE',
           salePrice: product.salePrice,
           quantity: 1,
@@ -137,6 +157,8 @@ export default function EditInvoiceClient({ transaction }: { transaction: any })
           items: lines.map((l) => ({
             productId: l.productId,
             variantId: l.variantId,
+            batchId: l.batchId,
+            serialId: l.serialId,
             productType: l.productType,
             quantity: l.quantity,
             salePrice: l.salePrice,

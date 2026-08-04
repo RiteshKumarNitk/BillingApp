@@ -10,9 +10,23 @@ function calculateDaysDifference(startDate: Date, endDate: Date) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
-export async function calculateProration(tenantId: string, newPlanId: string) {
+// Billing/proration actions are owner-level: any staff session could otherwise switch the
+// tenant's plan, generate invoices, or (via an arbitrary tenantId) touch another tenant's
+// subscription. Superadmins may act on any tenant; tenant users only on their own.
+async function requireOwnerOrSuperAdmin(tenantId?: string) {
   const session = await getServerSession(authOptions);
   if (!session) throw new Error("Unauthorized");
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+    throw new Error("Forbidden: Only the store owner can change the subscription plan");
+  }
+  if (tenantId !== undefined && session.user.role !== "SUPERADMIN" && tenantId !== session.user.tenantId) {
+    throw new Error("Forbidden: You can only manage your own tenant's subscription");
+  }
+  return session;
+}
+
+export async function calculateProration(tenantId: string, newPlanId: string) {
+  await requireOwnerOrSuperAdmin(tenantId);
 
   const currentSubscription = await prisma.tenantSubscription.findFirst({
     where: { tenantId, status: 'ACTIVE' },
@@ -77,8 +91,7 @@ export async function calculateProration(tenantId: string, newPlanId: string) {
 }
 
 export async function changeSubscriptionPlan(tenantId: string, newPlanId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session) throw new Error("Unauthorized");
+  await requireOwnerOrSuperAdmin(tenantId);
 
   const proration = await calculateProration(tenantId, newPlanId);
   
