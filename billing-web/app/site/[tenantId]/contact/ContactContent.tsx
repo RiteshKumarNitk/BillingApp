@@ -27,18 +27,30 @@ export default function ContactContent({ config, tenant }: { config: WebsiteConf
   const structuredHours = config.businessInfo?.hours;
   const hasStructuredHours = structuredHours && Object.values(structuredHours).some(d => d && (d.closed || d.open || d.close));
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(null);
     try {
-      await fetch('/api/website/lead', {
+      const res = await fetch('/api/website/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, tenantId: tenant.id, source: 'website' })
       });
-    } catch {}
-    setSubmitted(true);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to send your message. Please try again.');
+      }
+      setSubmitted(true);
+    } catch (err: any) {
+      setSubmitError(err.message || 'Failed to send your message. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -63,6 +75,11 @@ export default function ContactContent({ config, tenant }: { config: WebsiteConf
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {submitError && (
+                <div className="p-3 rounded-lg text-sm bg-red-50 text-red-700 border border-red-200">
+                  {submitError}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium mb-1">Name</label>
                 <input type="text" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="w-full px-4 py-3 rounded-lg border" style={{ borderColor: primary + '40', backgroundColor: bg }} placeholder="Your name" />
@@ -83,8 +100,8 @@ export default function ContactContent({ config, tenant }: { config: WebsiteConf
                 <label className="block text-sm font-medium mb-1">Message</label>
                 <textarea required rows={5} value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} className="w-full px-4 py-3 rounded-lg border" style={{ borderColor: primary + '40', backgroundColor: bg }} placeholder="Your message..." />
               </div>
-              <button type="submit" className="w-full py-3 px-6 rounded-lg text-white font-semibold" style={{ backgroundColor: primary }}>
-                Send Message
+              <button type="submit" disabled={submitting} className="w-full py-3 px-6 rounded-lg text-white font-semibold disabled:opacity-60" style={{ backgroundColor: primary }}>
+                {submitting ? 'Sending…' : 'Send Message'}
               </button>
             </form>
           )}

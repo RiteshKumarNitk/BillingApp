@@ -89,7 +89,10 @@ export default function WebsiteBuilderClient({
             setConfig(defaults as WebsiteConfig);
             return;
           }
-        } catch {}
+          addToast('error', "Couldn't load default sections for this theme — switched the theme but kept your current sections.");
+        } catch {
+          addToast('error', "Couldn't load default sections for this theme — switched the theme but kept your current sections.");
+        }
       }
     }
     setConfig({ ...config, theme: themeId });
