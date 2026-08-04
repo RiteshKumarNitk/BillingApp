@@ -132,7 +132,7 @@ export default function LoginPage() {
               ))}
             </div>
 
-            n            {/* Trust badges */}
+            {/* Trust badges */}
             <div className="mt-12 flex items-center gap-6">
               {['500+ Businesses', '99.9% Uptime', 'SOC 2 Compliant'].map((badge, i) => (
                 <div key={i} className="flex items-center gap-2">
