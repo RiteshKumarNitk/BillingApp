@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { toggleTenantStatus } from '@/lib/actions/tenants';
+import { useToast } from '@/components/ui/Toast';
 
 export default function TenantStatusToggle({ tenantId, currentStatus }: { tenantId: string, currentStatus: string }) {
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const isActive = currentStatus === 'ACTIVE';
 
@@ -14,7 +16,7 @@ export default function TenantStatusToggle({ tenantId, currentStatus }: { tenant
     try {
       await toggleTenantStatus(tenantId);
     } catch (err: any) {
-      alert(err.message || 'Failed to update tenant status');
+      addToast('error', err.message || 'Failed to update tenant status');
     } finally {
       setLoading(false);
     }

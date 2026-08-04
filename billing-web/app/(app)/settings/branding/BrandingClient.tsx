@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { updateBranding } from "@/lib/actions/tenants";
+import { useToast } from "@/components/ui/Toast";
 import { Palette, Type, CheckCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 export default function BrandingSettingsPage({ tenant }: { tenant: any }) {
+  const { addToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -27,7 +29,7 @@ export default function BrandingSettingsPage({ tenant }: { tenant: any }) {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (e: any) {
-      alert(e.message || "Failed to update branding");
+      addToast('error', e.message || "Failed to update branding");
     } finally {
       setIsSubmitting(false);
     }

@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { createUnit, updateUnit, deleteUnit } from '@/lib/actions/units';
+import { useToast } from '@/components/ui/Toast';
 import { Plus, Edit2, Trash2, Ruler, X, Check } from 'lucide-react';
 
 export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
+  const { addToast } = useToast();
   const [units, setUnits] = useState(initialUnits);
   const [newName, setNewName] = useState('');
   const [addLoading, setAddLoading] = useState(false);
@@ -62,10 +64,10 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
       const { productsUsingIt } = await deleteUnit(unit.id);
       setUnits(units.filter(u => u.id !== unit.id));
       if (productsUsingIt > 0) {
-        alert(`${productsUsingIt} existing product(s) still use "${unit.name}" — they're unaffected, it just won't be offered for new products anymore.`);
+        addToast('info', `${productsUsingIt} existing product(s) still use "${unit.name}" — they're unaffected, it just won't be offered for new products anymore.`);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to delete unit');
+      addToast('error', err.message || 'Failed to delete unit');
     }
   };
 

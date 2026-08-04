@@ -10,19 +10,20 @@ import {
   calculateProration, 
   changeSubscriptionPlan 
 } from "@/lib/actions/proration";
-import { 
-  CreditCard, 
-  Check, 
-  Users, 
-  Package, 
-  Receipt, 
-  AlertTriangle, 
-  Clock, 
+import {
+  CreditCard,
+  Check,
+  Users,
+  Package,
+  Receipt,
+  AlertTriangle,
+  Clock,
   XCircle,
   Percent,
   Download,
   Info
 } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
 type BillingClientProps = {
   tenant: any;
@@ -45,6 +46,7 @@ export default function BillingClient({
   plans,
   usage
 }: BillingClientProps) {
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<"overview" | "plans" | "history">("overview");
   const [couponCode, setCouponCode] = useState("");
   const [couponStatus, setCouponStatus] = useState<{
@@ -118,7 +120,7 @@ export default function BillingClient({
         window.location.href = res.checkoutUrl;
       }
     } catch (e: any) {
-      alert(e.message || "Checkout failed");
+      addToast('error', e.message || "Checkout failed");
     } finally {
       setCheckoutLoading(null);
     }
@@ -136,7 +138,7 @@ export default function BillingClient({
       setProrationDetails({ ...details, planId });
       setShowProrationModal(true);
     } catch (e: any) {
-      alert(e.message || "Failed to calculate upgrade costs");
+      addToast('error', e.message || "Failed to calculate upgrade costs");
     } finally {
       setCheckoutLoading(null);
     }
@@ -150,7 +152,7 @@ export default function BillingClient({
       setShowProrationModal(false);
       window.location.reload();
     } catch (e: any) {
-      alert(e.message || "Failed to complete upgrade");
+      addToast('error', e.message || "Failed to complete upgrade");
     } finally {
       setProrationLoading(false);
     }
@@ -164,7 +166,7 @@ export default function BillingClient({
       setShowCancelModal(false);
       window.location.reload();
     } catch (e: any) {
-      alert(e.message || "Cancellation failed");
+      addToast('error', e.message || "Cancellation failed");
     } finally {
       setCancelLoading(false);
     }
@@ -390,7 +392,7 @@ export default function BillingClient({
                   if (targetPlan) {
                     handleApplyCoupon(targetPlan.id);
                   } else {
-                    alert("No premium plans configured to apply coupon on.");
+                    addToast('error', "No premium plans configured to apply coupon on.");
                   }
                 }}
                 disabled={couponLoading || !couponCode.trim()}

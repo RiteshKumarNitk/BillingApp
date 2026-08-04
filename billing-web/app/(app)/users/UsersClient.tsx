@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { createTenantUser, deleteTenantUser } from '@/lib/actions/users';
+import { useToast } from '@/components/ui/Toast';
 import { Plus, Trash2, User, Mail, Shield, X } from 'lucide-react';
 
 export default function UsersClient({ initialUsers, roles, currentUserId, isSuperAdmin = false }: { initialUsers: any[], roles: any[], currentUserId: string, isSuperAdmin?: boolean }) {
+  const { addToast } = useToast();
   const [users, setUsers] = useState(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,12 +53,13 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
 
   const handleDelete = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
-    
+
     try {
       await deleteTenantUser(userId);
       setUsers(users.filter(u => u.id !== userId));
+      addToast('success', 'User deleted');
     } catch (err: any) {
-      alert(err.message || 'Failed to delete user');
+      addToast('error', err.message || 'Failed to delete user');
     }
   };
 

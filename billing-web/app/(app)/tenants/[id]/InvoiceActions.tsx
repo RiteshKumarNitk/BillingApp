@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { markInvoiceAsPaid } from "@/lib/actions/subscription";
+import { useToast } from "@/components/ui/Toast";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function InvoiceActions({ invoiceId, status }: { invoiceId: string, status: string }) {
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -16,7 +18,7 @@ export default function InvoiceActions({ invoiceId, status }: { invoiceId: strin
       await markInvoiceAsPaid(invoiceId);
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Failed to mark as paid");
+      addToast('error', err.message || "Failed to mark as paid");
     } finally {
       setLoading(false);
     }

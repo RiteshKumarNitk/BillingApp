@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { Trash2, AlertTriangle, X } from 'lucide-react';
 import { deleteTenant } from '@/lib/actions/tenants';
+import { useToast } from '@/components/ui/Toast';
 
 export default function DeleteTenantButton({ tenantId, tenantName }: { tenantId: string, tenantName: string }) {
+  const { addToast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -15,7 +17,7 @@ export default function DeleteTenantButton({ tenantId, tenantName }: { tenantId:
       await deleteTenant(tenantId);
     } catch (error) {
       console.error("Failed to delete tenant:", error);
-      alert("Failed to delete tenant. Please try again.");
+      addToast('error', "Failed to delete tenant. Please try again.");
       setIsDeleting(false);
     }
   };

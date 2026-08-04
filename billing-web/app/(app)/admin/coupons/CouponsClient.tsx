@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createCoupon, toggleCouponStatus } from "@/lib/actions/subscription";
+import { useToast } from "@/components/ui/Toast";
 import { Plus, Percent, Clock, Tag, X, Check, EyeOff } from "lucide-react";
 
 type CouponsClientProps = {
@@ -9,6 +10,7 @@ type CouponsClientProps = {
 };
 
 export default function CouponsClient({ coupons }: CouponsClientProps) {
+  const { addToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toggleLoading, setToggleLoading] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function CouponsClient({ coupons }: CouponsClientProps) {
       await toggleCouponStatus(id);
       window.location.reload();
     } catch (e: any) {
-      alert(e.message || "Failed to update status");
+      addToast('error', e.message || "Failed to update status");
     } finally {
       setToggleLoading(null);
     }
@@ -46,7 +48,7 @@ export default function CouponsClient({ coupons }: CouponsClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !discountType || discountValue === "") {
-      alert("Please fill in required fields");
+      addToast('error', "Please fill in required fields");
       return;
     }
     setLoading(true);
@@ -65,7 +67,7 @@ export default function CouponsClient({ coupons }: CouponsClientProps) {
       setShowModal(false);
       window.location.reload();
     } catch (err: any) {
-      alert(err.message || "Failed to create coupon");
+      addToast('error', err.message || "Failed to create coupon");
     } finally {
       setLoading(false);
     }

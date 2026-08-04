@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createSubscriptionPlan, updateSubscriptionPlan, deleteSubscriptionPlan } from "@/lib/actions/subscription";
 import { themes } from "@/lib/website/registry";
+import { useToast } from "@/components/ui/Toast";
 import { Plus, Edit2, ShieldAlert, Check, X } from "lucide-react";
 
 type PlansClientProps = {
@@ -10,6 +11,7 @@ type PlansClientProps = {
 };
 
 export default function PlansClient({ plans }: PlansClientProps) {
+  const { addToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
@@ -66,7 +68,7 @@ export default function PlansClient({ plans }: PlansClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || amount === "" || !interval) {
-      alert("Please fill in required fields");
+      addToast('error', "Please fill in required fields");
       return;
     }
     setLoading(true);
@@ -94,7 +96,7 @@ export default function PlansClient({ plans }: PlansClientProps) {
       setShowModal(false);
       window.location.reload();
     } catch (err: any) {
-      alert(err.message || "Failed to save plan");
+      addToast('error', err.message || "Failed to save plan");
     } finally {
       setLoading(false);
     }
@@ -107,7 +109,7 @@ export default function PlansClient({ plans }: PlansClientProps) {
       await deleteSubscriptionPlan(id);
       window.location.reload();
     } catch (err: any) {
-      alert(err.message || "Failed to delete plan");
+      addToast('error', err.message || "Failed to delete plan");
     }
   };
 

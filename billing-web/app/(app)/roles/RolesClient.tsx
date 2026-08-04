@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { PERMISSIONS, hasClientPermission, Permission } from "@/lib/permissions.client";
 import { createRole, updateRole, deleteRole } from '@/lib/actions/roles';
+import { useToast } from '@/components/ui/Toast';
 import { Plus, Edit2, Trash2, Shield, X, Check } from 'lucide-react';
 
 export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
+  const { addToast } = useToast();
   const [roles, setRoles] = useState(initialRoles);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
@@ -61,12 +63,13 @@ export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
 
   const handleDelete = async (roleId: string) => {
     if (!confirm('Are you sure you want to delete this role?')) return;
-    
+
     try {
       await deleteRole(roleId);
       setRoles(roles.filter(r => r.id !== roleId));
+      addToast('success', 'Role deleted');
     } catch (err: any) {
-      alert(err.message || 'Failed to delete role');
+      addToast('error', err.message || 'Failed to delete role');
     }
   };
 
