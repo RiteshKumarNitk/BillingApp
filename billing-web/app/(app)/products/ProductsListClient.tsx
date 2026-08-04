@@ -20,6 +20,7 @@ export default function ProductsListClient({ businessType }: { businessType: str
   const [total, setTotal] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const areaLabel = getProductsAreaLabel(businessType);
   const productNoun = getProductNoun(businessType);
@@ -27,16 +28,18 @@ export default function ProductsListClient({ businessType }: { businessType: str
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const results = await getFilteredProducts(searchTerm, categoryFilter, lowStockOnly, page, ITEMS_PER_PAGE);
       setProducts(results.products);
       setTotal(results.total);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setFetchError(`Failed to load ${productNoun.toLowerCase()}s.`);
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, categoryFilter, lowStockOnly, page]);
+  }, [searchTerm, categoryFilter, lowStockOnly, page, productNoun]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -154,6 +157,14 @@ export default function ProductsListClient({ businessType }: { businessType: str
               </div>
             </div>
           ))}
+        </div>
+      ) : fetchError ? (
+        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
+          <p className="text-rose-600 font-medium">{fetchError}</p>
+          <button onClick={fetchProducts} className="mt-4 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">
+            Retry
+          </button>
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
