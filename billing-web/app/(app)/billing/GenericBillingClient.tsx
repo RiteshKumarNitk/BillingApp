@@ -537,6 +537,7 @@ export default function GenericBillingClient() {
   };
 
   const deleteHeldBillHandler = async (billId: string) => {
+    if (!window.confirm('Delete this held bill? This cannot be undone.')) return;
     try {
       const response = await fetch(`/api/transactions/${billId}`, { method: 'DELETE' });
       if (!response.ok) {

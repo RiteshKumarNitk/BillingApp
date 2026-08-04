@@ -48,6 +48,7 @@ export default function CafeBillingClient() {
 
   const [menu, setMenu] = useState<any[]>([]);
   const [loadingMenu, setLoadingMenu] = useState(true);
+  const [menuError, setMenuError] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [modalProduct, setModalProduct] = useState<any | null>(null);
 
@@ -70,9 +71,14 @@ export default function CafeBillingClient() {
 
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    getCafeMenu().then((data) => { setMenu(data); setLoadingMenu(false); }).catch(() => setLoadingMenu(false));
-  }, []);
+  const loadMenu = () => {
+    setLoadingMenu(true);
+    setMenuError(false);
+    getCafeMenu()
+      .then((data) => { setMenu(data); setLoadingMenu(false); })
+      .catch(() => { setMenuError(true); setLoadingMenu(false); });
+  };
+  useEffect(() => { loadMenu(); }, []);
 
   const refreshHeldBills = () => {
     fetch('/api/transactions/held').then(r => r.json()).then(d => setHeldBills(d.transactions || d.heldBills || [])).catch(() => {});
@@ -309,6 +315,7 @@ export default function CafeBillingClient() {
   };
 
   const handleDeleteHeldBill = async (billId: string) => {
+    if (!window.confirm('Delete this held order? This cannot be undone.')) return;
     try {
       await fetch(`/api/transactions/${billId}`, { method: 'DELETE' });
       refreshHeldBills();
@@ -381,6 +388,13 @@ export default function CafeBillingClient() {
           <div className="flex-1 overflow-y-auto p-4">
             {loadingMenu ? (
               <p className="text-center text-gray-400 py-16">Loading menu…</p>
+            ) : menuError ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                <p className="text-sm font-medium text-rose-500">Failed to load the menu.</p>
+                <button onClick={loadMenu} className="mt-3 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700">
+                  Retry
+                </button>
+              </div>
             ) : visibleProducts.length === 0 ? (
               <p className="text-center text-gray-400 py-16">No items in this category yet.</p>
             ) : (
