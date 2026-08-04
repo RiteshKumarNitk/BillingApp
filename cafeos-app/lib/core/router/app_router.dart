@@ -24,6 +24,8 @@ import '../../features/notifications/presentation/pages/notifications_page.dart'
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
+import '../../features/authentication/domain/entities/customer.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/scanner/presentation/pages/scanner_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
@@ -107,6 +109,7 @@ GoRouter buildAppRouter(AuthCubit authCubit) {
       GoRoute(path: '/favorites', builder: (context, state) => const FavoritesPage()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsPage()),
       GoRoute(path: '/settings', builder: (context, state) => const SettingsPage()),
+      GoRoute(path: '/profile/edit', builder: (context, state) => EditProfilePage(customer: state.extra as Customer)),
       GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShell(navigationShell: navigationShell),

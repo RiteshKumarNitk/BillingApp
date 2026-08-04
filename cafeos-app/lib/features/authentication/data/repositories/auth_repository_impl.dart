@@ -83,4 +83,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<bool> hasStoredSession() async => (await secureStorage.getToken()) != null;
+
+  @override
+  Future<Either<Failure, Customer>> updateProfile({
+    required String name,
+    String? phone,
+    String? currentPassword,
+    String? newPassword,
+  }) async {
+    try {
+      final customer = await remoteDataSource.updateProfile(
+        name: name,
+        phone: phone,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return right(customer);
+    } on DioException catch (e) {
+      return left(mapDioExceptionToFailure(e));
+    }
+  }
 }

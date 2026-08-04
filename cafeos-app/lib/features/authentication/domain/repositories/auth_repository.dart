@@ -21,6 +21,15 @@ abstract class AuthRepository {
 
   Future<Either<Failure, Unit>> resetPassword({required String email, required String code, required String newPassword});
 
+  /// Updates name/phone, and optionally the account password (requires currentPassword when
+  /// newPassword is provided — enforced server-side). Returns the updated Customer on success.
+  Future<Either<Failure, Customer>> updateProfile({
+    required String name,
+    String? phone,
+    String? currentPassword,
+    String? newPassword,
+  });
+
   /// Sliding-session refresh: reissues a new token from the current one and stores it. Called
   /// opportunistically (app resume) or by DioClient after a 401 — failures are expected whenever
   /// there's no session yet and are not surfaced as user-facing errors.

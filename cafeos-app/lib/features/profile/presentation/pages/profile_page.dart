@@ -65,7 +65,13 @@ class ProfilePage extends StatelessWidget {
               const SizedBox(height: 4),
               Text(customer.email, style: theme.textTheme.bodyMedium),
               if (customer.phone != null) Text(customer.phone!, style: theme.textTheme.bodyMedium),
-              const SizedBox(height: 28),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => context.push('/profile/edit', extra: customer),
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: const Text('Edit Profile'),
+              ),
+              const SizedBox(height: 16),
               const Divider(),
               ListTile(
                 contentPadding: EdgeInsets.zero,

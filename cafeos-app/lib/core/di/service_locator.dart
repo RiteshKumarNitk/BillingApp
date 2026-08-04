@@ -12,6 +12,7 @@ import '../../features/authentication/domain/usecases/login_usecase.dart';
 import '../../features/authentication/domain/usecases/register_usecase.dart';
 import '../../features/authentication/domain/usecases/forgot_password_usecase.dart';
 import '../../features/authentication/domain/usecases/reset_password_usecase.dart';
+import '../../features/authentication/domain/usecases/update_profile_usecase.dart';
 import '../../features/authentication/presentation/cubit/auth_cubit.dart';
 
 import '../../features/cafes/data/datasources/cafes_remote_datasource.dart';
@@ -97,7 +98,8 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
   sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
-  sl.registerFactory(() => AuthCubit(authRepository: sl(), loginUseCase: sl(), registerUseCase: sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerFactory(() => AuthCubit(authRepository: sl(), loginUseCase: sl(), registerUseCase: sl(), updateProfileUseCase: sl()));
 
   // Cafes
   sl.registerLazySingleton<CafesRemoteDataSource>(() => CafesRemoteDataSource(sl<DioClient>().dio));

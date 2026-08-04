@@ -1,22 +1,27 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/error/failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/update_profile_usecase.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
+  final UpdateProfileUseCase _updateProfileUseCase;
 
   AuthCubit({
     required AuthRepository authRepository,
     required LoginUseCase loginUseCase,
     required RegisterUseCase registerUseCase,
+    required UpdateProfileUseCase updateProfileUseCase,
   })  : _authRepository = authRepository,
         _loginUseCase = loginUseCase,
         _registerUseCase = registerUseCase,
+        _updateProfileUseCase = updateProfileUseCase,
         super(const AuthState());
 
   /// Called once at splash — a stored token means "was logged in last time"; go-router's redirect
@@ -55,5 +60,24 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     await _authRepository.logout();
     emit(const AuthState(status: AuthStatus.unauthenticated));
+  }
+
+  /// Returns the failure (if any) so the calling page can show it inline — the profile edit form
+  /// wants a form-level error, not just cubit state, so this deliberately doesn't rely solely on
+  /// AuthState.errorMessage the way login/register do.
+  Future<Failure?> updateProfile({required String name, String? phone, String? currentPassword, String? newPassword}) async {
+    final result = await _updateProfileUseCase(UpdateProfileParams(
+      name: name,
+      phone: phone,
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    ));
+    return result.match(
+      (failure) => failure,
+      (customer) {
+        emit(state.copyWith(customer: customer));
+        return null;
+      },
+    );
   }
 }

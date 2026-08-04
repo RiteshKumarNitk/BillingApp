@@ -44,4 +44,20 @@ class AuthRemoteDataSource {
   Future<void> resetPassword({required String email, required String code, required String newPassword}) {
     return dio.post('/customer/auth/reset-password', data: {'email': email, 'code': code, 'newPassword': newPassword});
   }
+
+  Future<CustomerModel> updateProfile({
+    required String name,
+    String? phone,
+    String? currentPassword,
+    String? newPassword,
+  }) async {
+    final response = await dio.put('/customer/profile', data: {
+      'name': name,
+      'phone': phone,
+      if (currentPassword != null) 'currentPassword': currentPassword,
+      if (newPassword != null) 'newPassword': newPassword,
+    });
+    final data = response.data as Map<String, dynamic>;
+    return CustomerModel.fromJson(data['profile'] as Map<String, dynamic>);
+  }
 }
