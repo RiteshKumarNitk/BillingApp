@@ -104,10 +104,16 @@ export function verifyRazorpayWebhook(
   signature: string,
   secret: string
 ): boolean {
-  if (isSimulationMode || !secret || secret === 'dummy_secret') {
+  if (isSimulationMode) {
     return true; // Bypass in simulation/mock mode
   }
-  
+  if (!secret) {
+    // Live Razorpay keys are configured but RAZORPAY_WEBHOOK_SECRET is not — reject rather than
+    // silently accepting unsigned webhooks (a prior fallback here treated a missing secret as an
+    // automatic pass, which would accept forged payment webhooks in production).
+    return false;
+  }
+
   try {
     const expectedSignature = crypto
       .createHmac('sha256', secret)

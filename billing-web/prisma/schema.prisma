@@ -537,6 +537,7 @@ model Transaction {
   editHistory           TransactionEditHistory[]
 
   @@index([customerId])
+  @@index([tenantId, createdAt])
 }
 
 // One row per edit to a completed Transaction — a frozen snapshot of the FULL pre-edit state

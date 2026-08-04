@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { sendEmail, EmailTemplates } from "@/lib/mail";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -9,6 +10,11 @@ const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 // be used to enumerate registered accounts.
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`forgot-password:${ip}`, 5, 15 * 60 * 1000)) {
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+    }
+
     const { email } = await request.json();
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });

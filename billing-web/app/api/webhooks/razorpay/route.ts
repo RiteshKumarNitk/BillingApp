@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
     const signature = request.headers.get("x-razorpay-signature") || "";
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "dummy_secret";
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
 
     const isValid = verifyRazorpayWebhook(rawBody, signature, webhookSecret);
     if (!isValid) {
