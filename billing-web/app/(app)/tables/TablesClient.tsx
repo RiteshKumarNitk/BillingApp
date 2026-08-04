@@ -50,6 +50,7 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
   };
 
   const handleDelete = async (table: Table) => {
+    if (!window.confirm(`Delete "${table.label}"? Its QR code will stop working, including any copies already printed.`)) return;
     try {
       await deleteTable(table.id);
       setTables(prev => prev.filter(t => t.id !== table.id));

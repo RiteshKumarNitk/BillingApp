@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, PauseCircle, ChefHat, RefreshCw } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, PauseCircle, ChefHat, RefreshCw, AlertCircle } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
 const VALID_STATUS_TABS = ["PENDING", "ON_HOLD", "ACCEPTED", "COMPLETED", "REJECTED"];
 
@@ -46,6 +47,7 @@ const STATUS_STYLE: Record<string, string> = {
 const POLL_INTERVAL_MS = 15000;
 
 export default function OrderQueueClient() {
+  const { addToast } = useToast();
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get("status");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -56,6 +58,7 @@ export default function OrderQueueClient() {
     initialStatus && VALID_STATUS_TABS.includes(initialStatus) ? initialStatus : "PENDING"
   );
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const activeTabRef = useRef(activeTab);
   activeTabRef.current = activeTab;
@@ -64,11 +67,14 @@ export default function OrderQueueClient() {
     if (!silent) setLoading(true);
     try {
       const res = await fetch(`/api/tenant/orders?status=${status}`);
+      if (!res.ok) throw new Error("Failed to load orders");
       const data = await res.json();
       setOrders(data.orders || []);
       setStatusCounts(data.statusCounts || {});
+      setFetchError(false);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
+      if (!silent) setFetchError(true);
     }
     if (!silent) setLoading(false);
   }, []);
@@ -93,9 +99,13 @@ export default function OrderQueueClient() {
       if (res.ok) {
         setOrders((prev) => prev.filter((o) => o.id !== orderId));
         fetchOrders(activeTab, true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        addToast("error", data.error || "Failed to update the order. Please try again.");
       }
     } catch (error) {
       console.error("Failed to process order:", error);
+      addToast("error", "Failed to update the order. Please try again.");
     }
     setProcessingId(null);
   };
@@ -151,6 +161,14 @@ export default function OrderQueueClient() {
       {/* Orders List */}
       {loading ? (
         <div className="text-center py-16 text-gray-400">Loading orders...</div>
+      ) : fetchError ? (
+        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <AlertCircle className="w-10 h-10 text-rose-400 mb-2" />
+          <p className="text-rose-500 font-medium">Failed to load orders.</p>
+          <button onClick={() => fetchOrders(activeTab)} className="mt-3 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">
+            Retry
+          </button>
+        </div>
       ) : orders.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
           <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />

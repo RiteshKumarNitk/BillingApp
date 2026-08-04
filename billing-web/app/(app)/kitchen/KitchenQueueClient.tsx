@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChefHat, Clock, Flame, CheckCircle2, Utensils, Globe, RefreshCw } from "lucide-react";
+import { ChefHat, Clock, Flame, CheckCircle2, Utensils, Globe, RefreshCw, AlertCircle } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
 interface KitchenTicket {
   id: string;
@@ -29,20 +30,71 @@ function elapsed(createdAt: string) {
   return mins < 1 ? "just now" : `${mins}m ago`;
 }
 
+// Short two-tone beep via WebAudio — no audio file asset needed, so there's nothing to fail to
+// load. Best-effort only: browsers block audio before any user interaction with the page, which
+// is an acceptable tradeoff for a kitchen display that's already been touched/loaded for a shift.
+function playNewOrderChime() {
+  try {
+    const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    [880, 1108].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.15);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.16);
+    });
+  } catch {
+    // Audio isn't essential to the workflow — the ticket still appears either way.
+  }
+}
+
 export default function KitchenQueueClient() {
+  const { addToast } = useToast();
   const [tickets, setTickets] = useState<KitchenTicket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [, forceTick] = useState(0);
+  const knownIds = useRef<Set<string> | null>(null);
+  const [newTicketIds, setNewTicketIds] = useState<Set<string>>(new Set());
 
   const fetchTickets = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
       const res = await fetch("/api/tenant/kitchen");
+      if (!res.ok) throw new Error("Failed to load kitchen tickets");
       const data = await res.json();
-      setTickets(data.tickets || []);
+      const nextTickets: KitchenTicket[] = data.tickets || [];
+
+      // Diff against the previous poll (not the first load) to detect genuinely new tickets, so
+      // the kitchen gets an audible/visual nudge instead of having to keep staring at the screen.
+      if (knownIds.current) {
+        const arrived = nextTickets.filter((t) => t.status === "ACCEPTED" && !knownIds.current!.has(t.id));
+        if (arrived.length > 0) {
+          playNewOrderChime();
+          setNewTicketIds((prev) => new Set([...prev, ...arrived.map((t) => t.id)]));
+          setTimeout(() => {
+            setNewTicketIds((prev) => {
+              const next = new Set(prev);
+              arrived.forEach((t) => next.delete(t.id));
+              return next;
+            });
+          }, 8000);
+        }
+      }
+      knownIds.current = new Set(nextTickets.map((t) => t.id));
+
+      setTickets(nextTickets);
+      setFetchError(false);
     } catch (error) {
       console.error("Failed to fetch kitchen tickets:", error);
+      if (!silent) setFetchError(true);
     }
     if (!silent) setLoading(false);
   }, []);
@@ -76,9 +128,13 @@ export default function KitchenQueueClient() {
       if (res.ok) {
         setTickets((prev) => prev.filter((t) => t.id !== ticket.id));
         fetchTickets(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        addToast("error", data.error || "Failed to update the ticket. Please try again.");
       }
     } catch (error) {
       console.error("Failed to advance ticket:", error);
+      addToast("error", "Failed to update the ticket. Please try again.");
     }
     setProcessingId(null);
   };
@@ -102,6 +158,14 @@ export default function KitchenQueueClient() {
 
       {loading ? (
         <div className="text-center py-16 text-gray-400">Loading tickets...</div>
+      ) : fetchError ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+          <AlertCircle className="w-8 h-8 text-rose-400 mb-2" />
+          <p className="text-sm font-medium text-rose-500">Failed to load the kitchen queue.</p>
+          <button onClick={() => fetchTickets()} className="mt-3 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700">
+            Retry
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {COLUMNS.map((col) => {
@@ -121,7 +185,12 @@ export default function KitchenQueueClient() {
                 ) : (
                   <div className="space-y-3">
                     {colTickets.map((ticket) => (
-                      <div key={ticket.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                      <div
+                        key={ticket.id}
+                        className={`bg-white rounded-xl border shadow-sm p-4 transition-colors ${
+                          newTicketIds.has(ticket.id) ? "border-indigo-300 ring-2 ring-indigo-100 animate-pulse" : "border-gray-100"
+                        }`}
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             {ticket.source === "online" ? (
