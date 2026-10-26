@@ -22,8 +22,10 @@ online order, Tables QR download, Settings as a Manager, and tenant signup.
 
 ### Deploy notes
 
-- **Two new migrations**: `20261026120000_discount_code_per_tenant` (D6) and
-  `20261026120100_transaction_item_indexes` (P2/D1). Both are non-destructive.
+- **Three new migrations**: `20261026120000_discount_code_per_tenant` (D6),
+  `20261026120100_transaction_item_indexes` (P2/D1) — both non-destructive — and
+  `20261026130000_drop_tenant_db_connection_string` (S5), which **drops a column**. It only ever
+  held placeholders, but take a DB backup/snapshot before `migrate deploy` as usual.
 - **`CRON_SECRET` is now required in production** — without it every `/api/cron/*` call is
   refused. Schedulers may send it as `Authorization: Bearer <secret>` (Vercel Cron) or `?secret=`.
 - Optional new env var `MOBILE_API_CORS_ORIGIN` (S6). Unset = previous behavior (`*`).
@@ -63,6 +65,8 @@ online order, Tables QR download, Settings as a Manager, and tenant signup.
 | B4 | Removed the phantom `VIEW_PRODUCT` from the Cashier role defaults (existing DB rows are harmless — the role editor already strips unknown permissions on save) |
 | B5 | Invoice-edit "same day" rule uses the tenant's calendar day (service + both invoice pages) |
 | B6 | Self-serve signup emails every superadmin ("New signup awaiting approval" → `/tenants?status=PENDING`) |
+| S5 | Dropped `Tenant.dbConnectionString` (schema + migration) and removed its placeholder writes from signup, `createTenant`, and the seed/maintenance scripts |
+| P4 | Order Requests: cursor pagination (`limit`/`cursor` → `nextCursor`, 50 per page) with a "Load older orders" button — the 15s poll no longer replaces pages the user loaded. Mobile customer orders API: same optional cursor (backward compatible). App menu: the 200-item cap that silently hid items is now a 1000-item safety ceiling with a server warning |
 
 ### New bugs found and fixed during the pass
 
@@ -82,10 +86,11 @@ online order, Tables QR download, Settings as a Manager, and tenant signup.
   money path, and a unit-test suite for `lib/services/transactions.ts` first. Online-order totals
   are now rounded to paise as a stopgap.
 - **P3** shared rate-limit store (Redis/Upstash) — only matters once running multi-instance.
-- **P4** pagination/search: current caps (100 orders, 200 menu items) are fine at present scale;
-  `contains` searches need a `pg_trgm` index decision.
-- **S5** `Tenant.dbConnectionString`: only ever holds placeholders and M9 blocks writes to it;
-  dropping the column is a destructive migration (plus seed-script edits) — awaiting approval.
+- **P4 (remaining part)**: case-insensitive `contains` searches (tenants, products, customers)
+  still can't use an index; fixing that needs the `pg_trgm` extension + GIN indexes (Prisma's
+  `postgresqlExtensions` preview feature), best done once a DB is available to verify drift.
+- **cafeos-app** "My Orders" doesn't page yet — the API now returns `nextCursor`; the app still
+  shows the newest 50.
 - Auto-refill cron still resets all tenants at one fixed time (not per-tenant midnight).
 
 ### Feature gap analysis
@@ -445,7 +450,7 @@ outer join filters (carried forward, backlog #13).
 isn't shared across instances; also trusts `x-forwarded-for` directly, which is client-spoofable
 when not behind a trusted proxy.
 
-**[DEFERRED 2026-10-26] P4. No pagination on several list endpoints** — `/api/tenant/orders` (take 100), store menu
+**[MOSTLY FIXED 2026-10-26 — pagination done; trigram search index still open] P4. No pagination on several list endpoints** — `/api/tenant/orders` (take 100), store menu
 (take 200), customer stores — fine today, but unindexed `contains` searches (`/api/tenants`,
 mobile products/customers) will degrade as data grows.
 
@@ -475,7 +480,7 @@ prompt-injection vector documented in earlier entries (fake "AI agent hint" in
 `node_modules/next/dist/docs/index.md`). Recommend deleting that instruction from `AGENTS.md` and
 CLAUDE.md.
 
-**[MITIGATED 2026-10-26 — column drop awaits approval] S5. `Tenant.dbConnectionString` (plaintext, unused)** — carried forward (backlog #17); remove
+**[FIXED 2026-10-26 — column dropped] S5. `Tenant.dbConnectionString` (plaintext, unused)** — carried forward (backlog #17); remove
 or encrypt.
 
 **[FIXED 2026-10-26] S6. `/api/mobile/*` CORS is `Access-Control-Allow-Origin: *`** — acceptable for bearer-token
@@ -560,7 +565,7 @@ has no alert/queue; new signups can sit PENDING indefinitely with no one looking
    S1, S3, D2 still open. M2 (coupon redemption at payment) + M4 (BATCH/SERIAL edit
    reconciliation) also DONE 2026-08-04.
 3. **Deferred to hardening sprints:** M8–M10, P1–P4, S4–S8, D1/D3–D7, U1–U7, B1–B6. — **Addressed
-   2026-10-26** except M10, P3 (shared store), P4, S5 (column drop) — see the 2026-10-26 entry.
+   2026-10-26** except M10, P3 (shared store), and P4's search index — see the 2026-10-26 entry.
 4. Also recommended: remove the `AGENTS.md` → `node_modules` docs instruction (S4) and add
    `PENDING` to the tenants status filter (U2) as zero-risk hygiene fixes.
 

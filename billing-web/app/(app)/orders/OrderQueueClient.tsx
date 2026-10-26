@@ -60,8 +60,14 @@ export default function OrderQueueClient() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const activeTabRef = useRef(activeTab);
   activeTabRef.current = activeTab;
+  // Once "Load more" has appended older pages, the background poll must not replace the list with
+  // just the first page again (that would yank the older orders out from under the user) — it then
+  // only refreshes the tab counts until the tab is reopened or refreshed manually.
+  const loadedMoreRef = useRef(false);
 
   const fetchOrders = useCallback(async (status: string, silent = false) => {
     if (!silent) setLoading(true);
@@ -69,8 +75,12 @@ export default function OrderQueueClient() {
       const res = await fetch(`/api/tenant/orders?status=${status}`);
       if (!res.ok) throw new Error("Failed to load orders");
       const data = await res.json();
-      setOrders(data.orders || []);
       setStatusCounts(data.statusCounts || {});
+      if (!silent || !loadedMoreRef.current) {
+        setOrders(data.orders || []);
+        setNextCursor(data.nextCursor || null);
+        loadedMoreRef.current = false;
+      }
       setFetchError(false);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -78,6 +88,26 @@ export default function OrderQueueClient() {
     }
     if (!silent) setLoading(false);
   }, []);
+
+  const loadMore = async () => {
+    if (!nextCursor) return;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/tenant/orders?status=${activeTab}&cursor=${encodeURIComponent(nextCursor)}`);
+      if (!res.ok) throw new Error("Failed to load more orders");
+      const data = await res.json();
+      loadedMoreRef.current = true;
+      setOrders((prev) => {
+        const seen = new Set(prev.map((o) => o.id));
+        return [...prev, ...(data.orders || []).filter((o: Order) => !seen.has(o.id))];
+      });
+      setNextCursor(data.nextCursor || null);
+    } catch (error) {
+      console.error("Failed to load more orders:", error);
+      addToast("error", "Couldn't load older orders. Please try again.");
+    }
+    setLoadingMore(false);
+  };
 
   useEffect(() => {
     fetchOrders(activeTab);
@@ -291,6 +321,15 @@ export default function OrderQueueClient() {
               )}
             </div>
           ))}
+          {nextCursor && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="w-full py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            >
+              {loadingMore ? "Loading…" : "Load older orders"}
+            </button>
+          )}
         </div>
       )}
     </div>

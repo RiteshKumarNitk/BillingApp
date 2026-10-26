@@ -28,17 +28,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid status filter" }, { status: 400 });
     }
 
-    const orders = await prisma.orderRequest.findMany({
+    // P4: optional cursor pagination — `nextCursor` is returned when older orders exist; pass it
+    // back as `?cursor=` for the next page. Clients that ignore it get the newest 50 as before.
+    const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "", 10) || 50, 1), 100);
+    const cursor = searchParams.get("cursor");
+
+    const page = await prisma.orderRequest.findMany({
       where: { customerAccountId, ...(statuses ? { status: { in: statuses } } : {}) },
       include: {
         items: true,
         tenant: { select: { name: true, logoUrl: true } },
       },
-      orderBy: { createdAt: "desc" },
-      take: 50,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     });
+    const hasMore = page.length > limit;
+    const orders = hasMore ? page.slice(0, limit) : page;
 
-    return NextResponse.json({ orders });
+    return NextResponse.json({ orders, nextCursor: hasMore ? orders[orders.length - 1].id : null });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

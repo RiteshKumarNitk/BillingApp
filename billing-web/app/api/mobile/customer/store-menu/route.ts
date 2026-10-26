@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { resolveTenant } from "@/lib/website/utils";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
+const MENU_ITEM_CEILING = 1000;
+
 // Public, no auth — a cafe's menu is the same thing a guest can already see on its public website
 // (app/site/[tenantId]/shop has no auth either), and the app's own "browse freely, only checkout
 // needs login" principle means a not-logged-in customer must be able to open a cafe and see its
@@ -58,8 +60,13 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { name: "asc" },
-      take: 200,
+      // P4: the menu is returned whole (the app groups it by category, so paging doesn't fit).
+      // The old 200 cap silently hid items from larger menus; this is just a safety ceiling.
+      take: MENU_ITEM_CEILING,
     });
+    if (products.length === MENU_ITEM_CEILING) {
+      console.warn(`store-menu: tenant ${tenant.id} hit the ${MENU_ITEM_CEILING}-item ceiling; some items are not shown`);
+    }
 
     // Active (non-coupon, auto-applied) discounts, matched to each product by category — same
     // eligibility rule createCustomerOrder() uses when actually applying one at checkout, so what a
