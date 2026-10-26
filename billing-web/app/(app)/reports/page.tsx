@@ -90,7 +90,7 @@ export default async function ReportsPage({
 
         {/* GST Summary stat cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="GST This Week" value={`₹${gstSummary.weekTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}`} icon={<Receipt className="h-5 w-5 text-indigo-600" />} gradient="from-indigo-500/20 to-indigo-500/5" />
+          <StatCard title="GST Last 7 Days" value={`₹${gstSummary.weekTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}`} icon={<Receipt className="h-5 w-5 text-indigo-600" />} gradient="from-indigo-500/20 to-indigo-500/5" />
           <StatCard title="GST This Month" value={`₹${gstSummary.monthTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}`} icon={<Receipt className="h-5 w-5 text-emerald-600" />} gradient="from-emerald-500/20 to-emerald-500/5" />
           <StatCard title="GST This Year" value={`₹${gstSummary.yearTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}`} icon={<Receipt className="h-5 w-5 text-amber-600" />} gradient="from-amber-500/20 to-amber-500/5" />
           <StatCard

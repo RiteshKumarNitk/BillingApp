@@ -7,6 +7,131 @@ Newest entries first. When adding a new report, keep the same structure: date, s
 
 ---
 
+## 2026-10-26 — Feature gap analysis + RC-1 backlog fix pass
+
+**Scope:** (1) Whole-project review of billing-web (Next.js admin + public sites + API) and
+cafeos-app (Flutter customer app) for **missing features**, and (2) a fix pass over every item
+still open in the 2026-08-04 RC-1 audit below (M8–M10, U1–U7, P1–P4, S1–S8, D1–D7, B1–B6).
+
+**⚠️ Verification caveat:** this session's machine had no Node.js, no `node_modules`, and no
+Flutter SDK, so **nothing was built, linted, or run**. Every change was reviewed by reading the
+code only. Before merging:
+`cd billing-web && npm install && npx prisma migrate deploy && npm run build && npm run lint`,
+then smoke-test: web login (staff + customer), Dashboard + Reports, Kitchen Queue → complete an
+online order, Tables QR download, Settings as a Manager, and tenant signup.
+
+### Deploy notes
+
+- **Two new migrations**: `20261026120000_discount_code_per_tenant` (D6) and
+  `20261026120100_transaction_item_indexes` (P2/D1). Both are non-destructive.
+- **`CRON_SECRET` is now required in production** — without it every `/api/cron/*` call is
+  refused. Schedulers may send it as `Authorization: Bearer <secret>` (Vercel Cron) or `?secret=`.
+- Optional new env var `MOBILE_API_CORS_ORIGIN` (S6). Unset = previous behavior (`*`).
+- Kitchen Queue behavior change: completing an **online** order now asks Cash / UPI / Card (B1).
+
+### Fixed this session (from the RC-1 backlog)
+
+| # | Fix |
+|---|---|
+| M8 | New `lib/tenantTime.ts` (Intl-based, no new dependency): today/yesterday/this-month/this-year boundaries in `lib/analytics.ts` now use `Tenant.timezone`; SQL day buckets and peak hours use `("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE <tz>` (peak-hours chart was 5.5h off for IST tenants on a UTC server). Monthly transaction quota (`checkFeatureLimit`) uses the tenant month too. Chart date labels read UTC parts of Postgres `DATE` values so they no longer shift a day on servers west of UTC |
+| M9 | `PATCH /api/tenants/[id]` whitelists the same fields PUT accepts, validates `status`, and bumps `Tenant.version` on status change (PUT/DELETE now do too) |
+| U1 | ESLint ignores `scripts/**`, `prisma/seed.*`, `generated/**`; removed the unused `NextAuth` import in `types/next-auth.d.ts` |
+| U2 | "Pending approval" option in the Tenants status filter (the page already honored `?status=`) |
+| U3 | Website order confirmation now shows the order number (same 8-char ref staff see) and total, and stays until dismissed; logged-in customers get a "My Orders" link. (A full guest order-tracking page is listed under feature gaps.) |
+| U4 | `getTenantUsers` requires `MANAGE_USERS` for tenant users |
+| U5 | Tables + Website Builder QR codes render locally with `qrcode.react` (already a dependency). Also fixes "Download HD Image", which never downloaded — browsers ignore `download` on cross-origin links |
+| U6 | Already resolved — the Team section has no carousel buttons any more. Related dead button fixed instead: the website **Reservation** section's "Make Reservation" did nothing; it now opens the site's Contact page (lead form), or dials the cafe, or is hidden |
+| U7 | Settings shows a read-only notice and disables Save for users without `MANAGE_USERS` |
+| P1 | NextAuth `jwt` callback re-validation (user + tenant + subscription) is cached per user for 30s; role/user/tenant-status/password changes call `clearSessionStateCache()` so they still apply immediately in-process. Trade-off: other instances see revocations within 30s |
+| P2 | `getProfitTrendData` aggregates cost only over this tenant's in-window transactions (was: whole `TransactionItem` table). Added the missing `TransactionItem(transactionId)` / `(productId)` indexes |
+| P3 | (Partial) `getClientIp` uses the right-most `X-Forwarded-For` hop (the one our edge proxy appends), so clients can no longer rotate spoofed IPs past every limiter. Shared store still deferred (see below) |
+| S1 | Auth endpoints were already throttled in the last commit (never marked); added the two missing ones: NextAuth web login (staff + customer providers, per-IP and per-email) and `/api/register` (5/hour/IP, plus email validation + normalization). Customer web login and `customer/auth/register` duplicate check are now case-insensitive |
+| S2 | Already fixed by H2/H3 (2026-08-04) |
+| S3 | Checkout/cancel already guarded by `assertRazorpayConfigured()`; the remaining hole was the **sandbox checkout simulator page**, which was reachable with real keys/in production and **loaded any tenant's subscription by id (IDOR)**. Now 404s outside dev simulation mode and checks tenant ownership. Also fixed the simulator 404ing on the mock Razorpay subscription id |
+| S4 | `AGENTS.md` no longer tells agents to read `node_modules/next/dist/docs/` as instructions |
+| S6 | `/api/mobile/*` CORS origin configurable via `MOBILE_API_CORS_ORIGIN` (default unchanged) |
+| S7 | `SessionSync` no longer writes the session/tenant profile to localStorage (nothing read it); it now clears copies older builds left behind |
+| S8 | No change needed — `Discount` has no redemption cap, so there's no check-then-apply race. Per-coupon usage caps are a feature gap (below) |
+| D2 | Already resolved by the `0_baseline_current_schema` rebaseline (old history in `prisma/migrations_archive/`) |
+| D3 | Dunning writes `UNPAID` (the documented "access blocked" status) instead of `SUSPENDED` — which also lets `markInvoiceAsPaid` reactivate it (it never matched `SUSPENDED`) |
+| D4/B2 | Online orders are taxed per product (`gstRate`/`gstInclusive`, same rule as the Cafe POS), with the order discount spread proportionally; `Shop.defaultTaxRate` remains only as the fallback for tenants that never set per-product GST. Amounts rounded to paise |
+| D5 | `OrderRequest.status` schema comment documents `ON_HOLD` and the real lifecycle |
+| D6 | `Discount.code` is unique **per tenant** (`@@unique([tenantId, code])`) instead of globally; APIs reject case-insensitive duplicates with 409. `Customer.email` non-unique is intended (phone is the customer key) |
+| D7 | Web delete already handled it; mobile `DELETE /api/mobile/products/[id]` now returns the same clear 409 instead of a 500 on FK violation |
+| B1 | Kitchen "Complete" for online orders records the payment method (Cash/UPI/Card) on the Transaction **and** a `TransactionPayment` row, so payment reports include online revenue. Mobile merchant APPROVE accepts an optional `paymentMethod` |
+| B3 | Labels now match the data: "Sales — last 7 days" (rolling) with "this month / this year" (calendar, tenant TZ); "GST Last 7 Days" |
+| B4 | Removed the phantom `VIEW_PRODUCT` from the Cashier role defaults (existing DB rows are harmless — the role editor already strips unknown permissions on save) |
+| B5 | Invoice-edit "same day" rule uses the tenant's calendar day (service + both invoice pages) |
+| B6 | Self-serve signup emails every superadmin ("New signup awaiting approval" → `/tenants?status=PENDING`) |
+
+### New bugs found and fixed during the pass
+
+- **Cron jobs never ran**: `/api/cron/*` wasn't in the middleware allowlist, so the scheduler
+  (no session cookie) got 401 before the route — same failure mode M1 found for the webhook.
+  Allowlisted; both crons now share `lib/cronAuth.ts`.
+- **POS coupon codes could never be created**: neither discount API wrote `Discount.code`, so the
+  POS coupon field could never match anything. Both create/update now accept `code`.
+- **Online sales showed 100% margin**: kitchen COMPLETE / merchant APPROVE wrote every line with
+  `purchasePrice: 0`. Now snapshots the product's real cost.
+- **Online-order discount dropped from the invoice**: recorded as `couponDiscountAmount` now.
+- `PUT /api/tenants/[id]` password reset didn't bump the admin's `tokenVersion`.
+
+### Deferred (needs a decision or infrastructure)
+
+- **M10** (money as `Float`): needs a `Decimal`/integer-paise migration across schema + every
+  money path, and a unit-test suite for `lib/services/transactions.ts` first. Online-order totals
+  are now rounded to paise as a stopgap.
+- **P3** shared rate-limit store (Redis/Upstash) — only matters once running multi-instance.
+- **P4** pagination/search: current caps (100 orders, 200 menu items) are fine at present scale;
+  `contains` searches need a `pg_trgm` index decision.
+- **S5** `Tenant.dbConnectionString`: only ever holds placeholders and M9 blocks writes to it;
+  dropping the column is a destructive migration (plus seed-script edits) — awaiting approval.
+- Auto-refill cron still resets all tenants at one fixed time (not per-tenant midnight).
+
+### Feature gap analysis
+
+**Biggest gaps**
+1. **No staff/merchant mobile app.** `mobile-app/` was deleted (`953801c`) but ~17 staff routes
+   under `/api/mobile/*` remain with no client. Decide: rebuild in Flutter, or make the web POS a PWA.
+2. **No online payment for customers** (app + website). Orders are pay-at-counter only; Razorpay is
+   wired for SaaS subscriptions only.
+3. **Push notifications half-built.** Server FCM sender + `fcm-token` endpoint exist; the Flutter
+   app has no Firebase ("push delivery is coming soon").
+4. **No void / refund / sales return.** Completed bills can only be edited.
+5. **Delivery not implemented** — `DELIVERY` order type and saved addresses exist, no flow.
+
+**Backend exists, no UI**
+- Expenses (`/api/tenant/expenses`) — no page; not in profit reports.
+- Discounts/coupons — only creatable via the (deleted) staff app's API; no web admin page.
+- Employees (`Employee` model, sales targets) — no UI; overlaps with `User`.
+- Marketing leads (`MarketingLead`) — superadmin can't view them.
+- No store-side notification inbox (only a sound alert in the order queue).
+- Customer-entered coupon codes at online checkout.
+
+**Web admin**
+- POS: shift open/close + cash drawer + day-end Z report; credit sales / customer dues (khata);
+  thermal ESC/POS + KOT printing; PDF invoices; WhatsApp/SMS/email invoice sharing; offline mode.
+- Inventory: suppliers, purchase orders, goods received; stock-adjustment log (wastage/damage);
+  recipe/ingredient deduction; batch expiry alerts.
+- Reports: CSV/Excel/PDF export (none anywhere); P&L with expenses; item/category/staff/hour/
+  payment-mode reports; GSTR-1/3B + HSN summary; custom date ranges.
+- Restaurant ops: table status board, merge/split tables, split bill, waiter ordering from phone,
+  modify/cancel after acceptance; table reservations (website button now routes to Contact).
+- Platform: multi-outlet per tenant; staff password reset + email verification + 2FA; guest order
+  tracking page; i18n (Hindi/regional); per-coupon usage caps.
+
+**Customer app (cafeos-app)**
+- Online payment / pay-at-table; cancel order; ratings & reviews ("coming soon"); live order
+  tracking; loyalty balance + redemption (backend has loyalty, app shows none); coupons at
+  checkout; delivery ordering; social/OTP login; receipt download; deep links from QR; reservations.
+
+**Engineering**
+- No tests (only the default Flutter widget test and iOS/macOS Runner stubs); no CI/CD; the
+  `billing-web/README.md` is create-next-app boilerplate and contains plaintext admin credentials.
+- Kitchen/order queues poll instead of using WebSockets/SSE.
+
+---
+
 ## 2026-08-04 — RC-1 Release-Candidate end-to-end audit (no code written)
 
 **Scope:** Feature-freeze pass over the entire CafeOS platform (billing-web Next.js app + cafeos-app
@@ -256,20 +381,20 @@ not in the seeded Owner permissions.** — **FIXED 2026-08-04** (defaults + back
   robots via a Route Handler.
 - **Priority:** Medium (SEO).
 
-**M8. Analytics day boundaries use the server clock, not `Tenant.timezone`.**
+**M8. Analytics day boundaries use the server clock, not `Tenant.timezone`.** — **FIXED 2026-10-26**
 - **Description:** Carried forward (2026-07-12 backlog #12). `startOfDay(new Date())` in
   `lib/analytics.ts` — today/yesterday/this-month numbers are wrong for non-server-local timezones.
 - **Recommended Fix:** Derive boundaries from `Tenant.timezone`.
 - **Priority:** Medium.
 
-**M9. Mass-assignment on `PATCH /api/tenants/[id]`.**
+**M9. Mass-assignment on `PATCH /api/tenants/[id]`.** — **FIXED 2026-10-26**
 - **Description:** Carried forward (backlog #9). Raw request body is passed to
   `prisma.tenant.update({ data: body })`. SUPERADMIN-gated, so lower risk, but allows updating
   fields like `dbConnectionString`/`version` unintentionally.
 - **Recommended Fix:** Whitelist fields (as PUT already does).
 - **Priority:** Medium.
 
-**M10. Money stored as `Float` with JS float math.**
+**M10. Money stored as `Float` with JS float math.** — **DEFERRED 2026-10-26** (needs Decimal migration + tests; see 2026-10-26 entry)
 - **Description:** Carried forward (backlog #5). Rounding drift compounds across item → coupon →
   bill % → loyalty → tax. No test suite covers the money math.
 - **Recommended Fix:** Move to integer paise/`Decimal`, or at minimum round at each boundary and
@@ -280,47 +405,47 @@ not in the seeded Owner permissions.** — **FIXED 2026-08-04** (defaults + back
 
 ### MINOR UI ISSUES
 
-**U1. `test.js`/scripts lint debt — `npx eslint` reports 1184 errors / 850 warnings** (most in
+**[FIXED 2026-10-26] U1. `test.js`/scripts lint debt — `npx eslint` reports 1184 errors / 850 warnings** (most in
 `scripts/*.js` `require` imports, some real: `types/next-auth.d.ts` unused import, a binary
 `scripts/test.js`). Not runtime-blocking but `npm run lint` cannot pass. Recommend scoping ESLint
 away from `scripts/` and cleaning the app-code findings.
 
-**U2. Tenants list filter has no PENDING status option** while PENDING tenants exist (register
+**[FIXED 2026-10-26] U2. Tenants list filter has no PENDING status option** while PENDING tenants exist (register
 flow creates them). Badges render PENDING in yellow but you can't filter for them.
 
-**U3. Guest checkout success is a transient toast only** — no order-tracking page/link is shown
+**[FIXED 2026-10-26 — order ref shown; full tracking page is a feature gap] U3. Guest checkout success is a transient toast only** — no order-tracking page/link is shown
 on the tenant website after placing an order.
 
-**U4. `getTenantUsers` server action isn't permission-gated** — any staff session can list all
+**[FIXED 2026-10-26] U4. `getTenantUsers` server action isn't permission-gated** — any staff session can list all
 tenant users' names/emails/phones (minor info exposure; the page itself may not be linked).
 
-**U5. QR codes (Tables + Website Builder) render via third-party `api.qrserver.com`** — carried
+**[FIXED 2026-10-26] U5. QR codes (Tables + Website Builder) render via third-party `api.qrserver.com`** — carried
 forward (backlog/2026-07-20 #12). Works offline only for tenants; external dependency + privacy.
 Recommend switching to the bundled `qrcode.react` (self-hosted, already a dependency).
 
-**U6. `premium-food/Team.tsx` carousel buttons with no onClick** — carried forward (2026-07-20
+**[RESOLVED earlier — no carousel buttons remain; Reservation dead button fixed 2026-10-26] U6. `premium-food/Team.tsx` carousel buttons with no onClick** — carried forward (2026-07-20
 #13), still dead UI.
 
-**U7. Manager cannot save Settings** (settings route requires `MANAGE_USERS`, which Manager lacks)
+**[FIXED 2026-10-26] U7. Manager cannot save Settings** (settings route requires `MANAGE_USERS`, which Manager lacks)
 — likely intended, but there's no UI hint that the Save button will 403.
 
 ---
 
 ### PERFORMANCE ISSUES
 
-**P1. The NextAuth `jwt` callback does 2–3 DB queries on every authenticated request**
+**[FIXED 2026-10-26] P1. The NextAuth `jwt` callback does 2–3 DB queries on every authenticated request**
 (`user.findUnique` + `tenant.findUnique` + `getActiveSubscription`, which itself loads the tenant
 with subscriptions) via every `getServerSession`. This is the single biggest per-request cost on
 all admin/mobile-web API routes.
 
-**P2. `getProfitTrendData` cost subquery scans `TransactionItem` across all tenants** before the
+**[FIXED 2026-10-26] P2. `getProfitTrendData` cost subquery scans `TransactionItem` across all tenants** before the
 outer join filters (carried forward, backlog #13).
 
-**P3. Rate limiter is in-memory + single-process** (carried forward). State resets on restart and
+**[PARTIALLY FIXED 2026-10-26 — IP spoofing closed; shared store deferred] P3. Rate limiter is in-memory + single-process** (carried forward). State resets on restart and
 isn't shared across instances; also trusts `x-forwarded-for` directly, which is client-spoofable
 when not behind a trusted proxy.
 
-**P4. No pagination on several list endpoints** — `/api/tenant/orders` (take 100), store menu
+**[DEFERRED 2026-10-26] P4. No pagination on several list endpoints** — `/api/tenant/orders` (take 100), store menu
 (take 200), customer stores — fine today, but unindexed `contains` searches (`/api/tenants`,
 mobile products/customers) will degrade as data grows.
 
@@ -328,15 +453,15 @@ mobile products/customers) will degrade as data grows.
 
 ### SECURITY ISSUES
 
-**S1. No rate limiting on authentication endpoints** — `/api/mobile/customer/auth/login`,
+**[FIXED 2026-10-26] S1. No rate limiting on authentication endpoints** — `/api/mobile/customer/auth/login`,
 `/api/mobile/customer/auth/register`, `/api/customer/auth/register`, `/api/mobile/auth/login` are
 all unauthenticated + unthrottled (bcrypt slows brute force but doesn't stop abuse/account spam).
 `/api/customer/auth/register` also doesn't validate email format.
 
-**S2. Staff mobile token gap** (see H2/H3) — no `tokenVersion`, no tenant-status/subscription
+**[FIXED 2026-08-04 via H2/H3] S2. Staff mobile token gap** (see H2/H3) — no `tokenVersion`, no tenant-status/subscription
 re-check.
 
-**S3. Silent Razorpay simulation mode** — **PARTIALLY FIXED 2026-08-04** (webhook path closed)
+**S3. Silent Razorpay simulation mode** — **PARTIALLY FIXED 2026-08-04** (webhook path closed) — **FIXED 2026-10-26** (simulator page gated + IDOR closed)
 `lib/razorpay.ts` treats missing/dummy keys as simulation and `verifyRazorpayWebhook` returns
 `true` in simulation. If env vars are missing in a "production" deploy, the whole billing flow
 mocks itself and unsigned webhooks are accepted. The webhook route now refuses to process any
@@ -345,52 +470,52 @@ webhook in simulation mode under `NODE_ENV=production` (503) — added because M
 anonymous callers. Still open: the rest of the billing flow (checkout/plans) silently mocks
 itself; a broader "refuse to start in simulation when production" guard is recommended.
 
-**S4. `AGENTS.md` still instructs AI agents to read `node_modules/next/dist/docs/`** — the
+**[FIXED 2026-10-26] S4. `AGENTS.md` still instructs AI agents to read `node_modules/next/dist/docs/`** — the
 prompt-injection vector documented in earlier entries (fake "AI agent hint" in
 `node_modules/next/dist/docs/index.md`). Recommend deleting that instruction from `AGENTS.md` and
 CLAUDE.md.
 
-**S5. `Tenant.dbConnectionString` (plaintext, unused)** — carried forward (backlog #17); remove
+**[MITIGATED 2026-10-26 — column drop awaits approval] S5. `Tenant.dbConnectionString` (plaintext, unused)** — carried forward (backlog #17); remove
 or encrypt.
 
-**S6. `/api/mobile/*` CORS is `Access-Control-Allow-Origin: *`** — acceptable for bearer-token
+**[FIXED 2026-10-26] S6. `/api/mobile/*` CORS is `Access-Control-Allow-Origin: *`** — acceptable for bearer-token
 APIs, but worth narrowing to the mobile app origins when the app ships.
 
-**S7. `SessionSync.tsx` mirrors the session into `localStorage`** — not the JWT itself (cookie
+**[FIXED 2026-10-26] S7. `SessionSync.tsx` mirrors the session into `localStorage`** — not the JWT itself (cookie
 remains httpOnly), but user profile data sits in localStorage; consider clearing on sign-out (it
 is, in TopNav) and gating the sync component to authenticated pages.
 
-**S8. Coupon/`Discount` usage has no atomicity guard** (carried forward, backlog #6) — no
+**[NO CHANGE NEEDED 2026-10-26 — no cap exists, so no race] S8. Coupon/`Discount` usage has no atomicity guard** (carried forward, backlog #6) — no
 redemption cap on `Discount`; the TOCTOU between check and apply exists for store coupons.
 
 ---
 
 ### DATABASE ISSUES
 
-**D1. Missing `@@index([tenantId])` on `Product`, `Transaction`, `Role`, `Shop`** (carried
+**[NO CHANGE NEEDED 2026-10-26 — each has a tenantId-leading index; real gap was TransactionItem, fixed] D1. Missing `@@index([tenantId])` on `Product`, `Transaction`, `Role`, `Shop`** (carried
 forward, backlog #7). `Transaction`/`Product` have composite indexes that cover most paths; the
 single-column ones are still worth adding for count/filter queries.
 
-**D2. `prisma migrate dev` is broken** (carried forward, backlog #19) — shadow-DB replay fails on
+**[RESOLVED — rebaselined as 0_baseline_current_schema] D2. `prisma migrate dev` is broken** (carried forward, backlog #19) — shadow-DB replay fails on
 `20260708190000_add_stock_check_constraints` (schema drifted from history via an earlier `db
 push`). Only `migrate deploy` works. Needs a proper baselining before release.
 
-**D3. `TenantSubscription.status` drift** — the dunning cron writes `'SUSPENDED'`, which isn't in
+**[FIXED 2026-10-26] D3. `TenantSubscription.status` drift** — the dunning cron writes `'SUSPENDED'`, which isn't in
 the documented set (ACTIVE/TRIAL/CANCELLED/PAST_DUE/EXPIRED/UNPAID); `getActiveSubscription`
 ignores it (good outcome, inconsistent vocabulary). Align to one set.
 
-**D4. `Product.gstInclusive`/`gstRate` per-product vs `Shop.defaultTaxRate` tenant-level fallback**
+**[FIXED 2026-10-26] D4. `Product.gstInclusive`/`gstRate` per-product vs `Shop.defaultTaxRate` tenant-level fallback**
 — two tax systems coexist; the POS path uses product GST, the online-order path uses
 `Shop.defaultTaxRate`. Risk of inconsistent tax between POS and online orders for the same item.
 
-**D5. `OrderRequest` statuses in code (`ON_HOLD`) vs schema comment** (PENDING/ACCEPTED/PREPARING/
+**[FIXED 2026-10-26] D5. `OrderRequest` statuses in code (`ON_HOLD`) vs schema comment** (PENDING/ACCEPTED/PREPARING/
 READY/COMPLETED/REJECTED/CANCELLED) — `ON_HOLD` isn't documented but is used. Harmless, but
 finish the documentation or rename.
 
-**D6. `Customer.email` not unique; `Discount.code` globally unique (not per-tenant)** — review
+**[FIXED 2026-10-26 — Discount.code per-tenant; Customer.email intended] D6. `Customer.email` not unique; `Discount.code` globally unique (not per-tenant)** — review
 against intended semantics before scale.
 
-**D7. No cascade rules on `TransactionItem.product`, `OrderRequest.customer/table`, `ComboItem
+**[FIXED 2026-10-26 — delete flows return clear 409] D7. No cascade rules on `TransactionItem.product`, `OrderRequest.customer/table`, `ComboItem
 .component`** (default Restrict) — deleting a product used in a sale/combo will fail with FK
 errors; confirm the app's delete flows handle this (product deletion appears to soft-skip
 in-use products).
@@ -399,27 +524,27 @@ in-use products).
 
 ### BUSINESS LOGIC ISSUES
 
-**B1. Kitchen COMPLETE creates transactions with `paymentMethod: 'PENDING'`** and doesn't create
+**[FIXED 2026-10-26] B1. Kitchen COMPLETE creates transactions with `paymentMethod: 'PENDING'`** and doesn't create
 `TransactionPayment` rows — reports that aggregate on `TransactionPayment` (Payment Summary,
 Payment Method chart) undercount online orders. Either create a payment row at COMPLETE (e.g.
 `UPI`/`CASH` collected at counter) or exclude PENDING from those aggregates.
 
-**B2. Online-order tax uses `Shop.defaultTaxRate`, ignoring per-product `gstRate`/`gstInclusive`**
+**[FIXED 2026-10-26] B2. Online-order tax uses `Shop.defaultTaxRate`, ignoring per-product `gstRate`/`gstInclusive`**
 — customers see different totals on the website vs the POS for the same items.
 
-**B3. `checkFeatureLimit('transactions')` counts this calendar month; `getPeriodTotals` mixes a
+**[FIXED 2026-10-26] B3. `checkFeatureLimit('transactions')` counts this calendar month; `getPeriodTotals` mixes a
 rolling 7-day window with calendar month/year** (carried forward, backlog #11) — dashboard cards
 mislead early in a period.
 
-**B4. Cashier's `VIEW_PRODUCT` permission doesn't exist in `PERMISSIONS`** — role definitions and
+**[FIXED 2026-10-26] B4. Cashier's `VIEW_PRODUCT` permission doesn't exist in `PERMISSIONS`** — role definitions and
 the actual permission set have drifted; a cashier's reported permissions don't map to any real
 check (products page appears ungated for cashiers).
 
-**B5. `editTransaction`'s same-day window uses `toDateString()` on server time** — a sale at 23:30
+**[FIXED 2026-10-26] B5. `editTransaction`'s same-day window uses `toDateString()` on server time** — a sale at 23:30
 server time edited at 00:10 (tenant's later timezone) incorrectly requires
 REOPEN_OLD_TRANSACTION. Use tenant timezone for the day boundary.
 
-**B6. No notification to the superadmin when a tenant registers (PENDING)** — approval workflow
+**[FIXED 2026-10-26] B6. No notification to the superadmin when a tenant registers (PENDING)** — approval workflow
 has no alert/queue; new signups can sit PENDING indefinitely with no one looking.
 
 ---
@@ -434,7 +559,8 @@ has no alert/queue; new signups can sit PENDING indefinitely with no one looking
    S3 (simulation-mode guard), D2 (migration baselining). — **M1/M3/M5/M6 DONE 2026-08-04**;
    S1, S3, D2 still open. M2 (coupon redemption at payment) + M4 (BATCH/SERIAL edit
    reconciliation) also DONE 2026-08-04.
-3. **Deferred to hardening sprints:** M8–M10, P1–P4, S4–S8, D1/D3–D7, U1–U7, B1–B6.
+3. **Deferred to hardening sprints:** M8–M10, P1–P4, S4–S8, D1/D3–D7, U1–U7, B1–B6. — **Addressed
+   2026-10-26** except M10, P3 (shared store), P4, S5 (column drop) — see the 2026-10-26 entry.
 4. Also recommended: remove the `AGENTS.md` → `node_modules` docs instruction (S4) and add
    `PENDING` to the tenants status filter (U2) as zero-risk hygiene fixes.
 

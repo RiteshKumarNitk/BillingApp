@@ -1,5 +1,8 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/nextauth";
+import { isSimulationMode } from "@/lib/razorpay";
 import CheckoutClient from "./CheckoutClient";
 
 export const dynamic = "force-dynamic";
@@ -7,11 +10,17 @@ export const dynamic = "force-dynamic";
 export default async function CheckoutPage(props: {
   searchParams: Promise<{ subscription_id?: string; success?: string }>;
 }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    return notFound();
+  }
+
   const searchParams = await props.searchParams;
   const subId = searchParams.subscription_id;
 
   if (!subId) {
-    // If no subId but success=true was passed as fallback mock
+    // success=true is where a zero-amount (fully discounted / free) checkout lands, in real and
+    // simulated mode alike.
     if (searchParams.success === "true") {
       return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6">
@@ -32,16 +41,25 @@ export default async function CheckoutPage(props: {
     return notFound();
   }
 
-  // Fetch subscription details
-  const subscription = await prisma.tenantSubscription.findUnique({
-    where: { id: subId },
+  // S3: everything below is the sandbox simulator that stands in for Razorpay's hosted checkout.
+  // With real keys configured (or in a production deploy) Razorpay's own page is used instead, so
+  // the simulator must not exist there.
+  if (!isSimulationMode || process.env.NODE_ENV === "production") {
+    return notFound();
+  }
+
+  // The mock Razorpay client's short_url carries the (mock) Razorpay subscription id, not our row id.
+  const subscription = await prisma.tenantSubscription.findFirst({
+    where: { OR: [{ id: subId }, { razorpaySubscriptionId: subId }] },
     include: {
       tenant: true,
       plan: true
     }
   });
 
-  if (!subscription) {
+  // Only the subscription's own tenant may open its checkout (previously any logged-in user could
+  // load another tenant's subscription by id).
+  if (!subscription || (session.user.role !== "SUPERADMIN" && subscription.tenantId !== session.user.tenantId)) {
     return notFound();
   }
 

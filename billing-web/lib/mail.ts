@@ -115,4 +115,22 @@ export const EmailTemplates = {
       </div>
     `;
   },
+  // B6: sent to every superadmin when a self-serve signup lands as a PENDING tenant, so new
+  // signups don't sit unapproved with no one looking. All interpolated values are HTML-escaped.
+  TenantPendingApproval: (tenantName: string, ownerName: string, ownerEmail: string, reviewUrl: string) => {
+    const e = escapeHtml;
+    return `
+      <div style="font-family: sans-serif; max-w: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
+        <h2 style="color: #F59E0B;">New signup awaiting approval</h2>
+        <p><strong>${e(tenantName)}</strong> just registered and is waiting for approval.</p>
+        <p style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; font-size: 14px;">
+          <strong>Owner:</strong> ${e(ownerName)}<br />
+          <strong>Email:</strong> ${e(ownerEmail)}
+        </p>
+        <p><a href="${e(reviewUrl)}">Review pending tenants</a></p>
+        <br />
+        <p style="color: #6B7280; font-size: 12px;">CafeOS Platform</p>
+      </div>
+    `;
+  },
 };

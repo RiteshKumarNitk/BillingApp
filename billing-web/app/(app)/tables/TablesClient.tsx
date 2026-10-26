@@ -4,6 +4,21 @@ import { useState } from 'react';
 import { createTable, updateTable, deleteTable } from '@/lib/actions/tables';
 import { useToast } from '@/components/ui/Toast';
 import { Plus, Trash2, Download, QrCode, X } from 'lucide-react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
+
+// U5: QR codes are rendered locally (qrcode.react) instead of via the third-party
+// api.qrserver.com — no external dependency, nothing about the tenant's tables leaks to a third
+// party, and the download now actually downloads (browsers ignore `download` on cross-origin links).
+const HD_QR_CANVAS_ID = 'table-qr-hd-canvas';
+
+function downloadQrCanvas(canvasId: string, filename: string) {
+  const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = filename;
+  link.click();
+}
 
 interface Table {
   id: string;
@@ -21,8 +36,6 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const getTableUrl = (table: Table) => `${origin}/site/${siteId}?t=${table.qrToken}`;
-  const getQrImageUrl = (table: Table, size: number) =>
-    `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(getTableUrl(table))}`;
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +113,7 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
                 onClick={() => setQrTable(table)}
                 className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0 hover:border-indigo-300 transition-colors"
               >
-                <img src={getQrImageUrl(table, 120)} alt={`QR for ${table.label}`} className="w-14 h-14" />
+                <QRCodeSVG value={getTableUrl(table)} size={56} title={`QR for ${table.label}`} />
               </button>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 truncate">{table.label}</p>
@@ -131,15 +144,17 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
             <h2 className="text-lg font-bold text-gray-900 mb-1">{qrTable.label}</h2>
             <p className="text-xs text-gray-400 mb-5 break-all">{getTableUrl(qrTable)}</p>
             <div className="bg-gray-50 rounded-xl p-6 mb-5 inline-block">
-              <img src={getQrImageUrl(qrTable, 260)} alt={`QR for ${qrTable.label}`} className="w-56 h-56" />
+              <QRCodeSVG value={getTableUrl(qrTable)} size={224} title={`QR for ${qrTable.label}`} />
             </div>
-            <a
-              href={getQrImageUrl(qrTable, 800)}
-              download={`QR_${qrTable.label.replace(/\s+/g, '_')}.png`}
+            {/* Off-screen high-resolution copy used only as the PNG download source. */}
+            <QRCodeCanvas id={HD_QR_CANVAS_ID} value={getTableUrl(qrTable)} size={800} marginSize={4} style={{ display: 'none' }} />
+            <button
+              type="button"
+              onClick={() => downloadQrCanvas(HD_QR_CANVAS_ID, `QR_${qrTable.label.replace(/\s+/g, '_')}.png`)}
               className="inline-flex items-center justify-center gap-2 w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               <Download className="w-4 h-4" /> Download HD Image
-            </a>
+            </button>
           </div>
         </div>
       )}

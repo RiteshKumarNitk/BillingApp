@@ -10,14 +10,32 @@ import type { MenuTheme } from '@/lib/website/menuTheme';
 const DEFAULT_ACCENT = '#111827';
 
 export function OrderSuccessToast({ theme }: { theme?: MenuTheme }) {
-  const { orderSuccess } = useCart();
+  const { orderSuccess, dismissOrderSuccess } = useCart();
   if (!orderSuccess) return null;
+  // Same 8-char reference the Kitchen Queue / Order Requests screens show staff.
+  const orderRef = orderSuccess.id ? orderSuccess.id.slice(0, 8) : null;
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-xl animate-slide-up flex items-center gap-2">
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-      </svg>
-      <span className="text-sm font-black">Order placed! Store will review.</span>
+    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm bg-gray-900 text-white px-5 py-4 rounded-2xl shadow-xl animate-slide-up" role="status">
+      <button onClick={dismissOrderSuccess} className="absolute top-3 right-3 p-1 text-gray-400 hover:text-white" aria-label="Dismiss">
+        <X className="w-4 h-4" />
+      </button>
+      <div className="flex items-center gap-2 mb-2">
+        <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span className="text-sm font-black">Order placed! The store will review it shortly.</span>
+      </div>
+      {orderRef && (
+        <p className="text-xs text-gray-300">
+          Order <span className="font-mono font-bold text-white">#{orderRef}</span>
+          {orderSuccess.netAmount > 0 && <> · ₹{orderSuccess.netAmount.toFixed(2)}</>}
+        </p>
+      )}
+      <p className="text-xs text-gray-400 mt-1">
+        {orderSuccess.isGuest
+          ? 'Show this order number at the counter. Keep this page open or note it down.'
+          : <>Track it any time under <a href="/customer/orders" className="underline text-white">My Orders</a>.</>}
+      </p>
     </div>
   );
 }

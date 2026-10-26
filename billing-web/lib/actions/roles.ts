@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/nextauth";
+import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
 import { requirePermission, PERMISSIONS, Permission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 
@@ -69,6 +69,7 @@ export async function updateRole(roleId: string, name: string, permissions: stri
     where: { tenantRoleId: roleId },
     data: { tokenVersion: { increment: 1 } }
   });
+  clearSessionStateCache();
 
   revalidatePath('/roles');
   return role;
@@ -94,6 +95,7 @@ export async function deleteRole(roleId: string) {
     where: { tenantRoleId: roleId },
     data: { tenantRoleId: null, tokenVersion: { increment: 1 } }
   });
+  clearSessionStateCache();
 
   await prisma.role.delete({
     where: { id: roleId }

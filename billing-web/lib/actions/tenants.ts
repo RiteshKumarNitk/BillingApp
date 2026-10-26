@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/nextauth";
+import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { toUrlSlug } from "@/lib/website/slug";
@@ -95,7 +95,6 @@ export async function createTenant(data: any) {
   const tenantCreateData: any = {
     name: data.name,
     domain: domain,
-    dbConnectionString: '',
     status: 'ACTIVE',
     contactPerson: data.contactPerson || null,
     email: data.email,
@@ -325,6 +324,7 @@ export async function toggleTenantStatus(tenantId: string) {
     where: { id: tenantId },
     data: { status: newStatus, version: { increment: 1 } }
   });
+  clearSessionStateCache();
 
   revalidatePath('/tenants');
   revalidatePath(`/tenants/${tenantId}`);

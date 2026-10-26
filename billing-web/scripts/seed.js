@@ -17,7 +17,6 @@ async function main() {
       data: {
         name: 'Acme Corp',
         domain: 'acme.example.com',
-        dbConnectionString: '', // In a real app, this would be set per tenant
         status: 'ACTIVE'
       }
     });

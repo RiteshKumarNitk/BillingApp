@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { isAuthorizedCronRequest } from '@/lib/cronAuth';
 
 // Resets every AUTO_REFILL product's stock back to its configured autoRefillQuantity once per
 // day — meant to run once daily (e.g. 00:00 UTC via the hosting platform's cron scheduler,
@@ -11,9 +12,7 @@ import prisma from '@/lib/prisma';
 // per row — fetch the (typically small) set of AUTO_REFILL products and update each individually.
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const cronSecret = searchParams.get('secret');
-    if (process.env.NODE_ENV === 'production' && cronSecret !== process.env.CRON_SECRET) {
+    if (!isAuthorizedCronRequest(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

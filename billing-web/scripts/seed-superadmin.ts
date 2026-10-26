@@ -20,7 +20,6 @@ async function main() {
       data: {
         name: 'System Administration',
         domain: 'system',
-        dbConnectionString: 'default',
         status: 'ACTIVE',
       }
     });

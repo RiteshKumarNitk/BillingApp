@@ -43,7 +43,10 @@ interface CartContextValue {
   handleGuestCheckout: (e: React.FormEvent) => Promise<void>;
 
   submitting: boolean;
-  orderSuccess: boolean;
+  // U3: the placed order (reference + total) — shown as a confirmation that stays until the
+  // customer dismisses it, instead of a 5-second toast that left guests with no order reference.
+  orderSuccess: { id: string; netAmount: number; isGuest: boolean } | null;
+  dismissOrderSuccess: () => void;
   handlePlaceOrder: () => Promise<void>;
 
   // QR table ordering: set once from a `?t=<token>` on the URL the customer landed on (e.g. from
@@ -68,7 +71,7 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState<CartContextValue['orderSuccess']>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'guest'>('guest');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -201,7 +204,16 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
           ...(!isLoggedIn && effectiveGuest ? { guestName: effectiveGuest.name, guestPhone: effectiveGuest.phone } : {}),
         }),
       });
-      if (res.ok) { setCart([]); setShowCart(false); setOrderSuccess(true); setTimeout(() => setOrderSuccess(false), 5000); }
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setCart([]);
+        setShowCart(false);
+        setOrderSuccess({
+          id: data?.order?.id ?? '',
+          netAmount: Number(data?.order?.netAmount ?? 0),
+          isGuest: !isLoggedIn,
+        });
+      }
       else { const data = await res.json(); if (res.status === 401) { setShowCart(false); setShowAuthModal(true); } else { alert(data.error || 'Failed to place order.'); } }
     } catch { alert('Failed to place order.'); }
     setSubmitting(false);
@@ -227,7 +239,7 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
       showCart, setShowCart,
       isLoggedIn, showAuthModal, setShowAuthModal, authMode, setAuthMode, authForm, setAuthForm, authError, authLoading, handleAuth,
       guestInfo, guestForm, setGuestForm, handleGuestCheckout,
-      submitting, orderSuccess, handlePlaceOrder,
+      submitting, orderSuccess, dismissOrderSuccess: () => setOrderSuccess(null), handlePlaceOrder,
       tableToken, tableLabel,
     }}>
       {children}

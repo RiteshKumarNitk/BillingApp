@@ -31,10 +31,27 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const data = await request.json();
+
+    // code: undefined = leave as is, '' / null = remove the coupon code, string = set it.
+    let code: string | null | undefined = undefined;
+    if (data.code !== undefined) {
+      code = typeof data.code === 'string' && data.code.trim() ? data.code.trim().toUpperCase() : null;
+      if (code) {
+        const clash = await prisma.discount.findFirst({
+          where: { tenantId: user.tenantId, id: { not: id }, code: { equals: code, mode: 'insensitive' } },
+          select: { id: true },
+        });
+        if (clash) {
+          return corsResponse({ error: 'A discount with this coupon code already exists' }, { status: 409 });
+        }
+      }
+    }
+
     const discount = await prisma.discount.update({
       where: { id },
       data: {
         name: data.name?.trim(),
+        code,
         description: data.description,
         discountPercentage: data.discountPercentage !== undefined ? parseFloat(data.discountPercentage) : undefined,
         applicableCategory: data.applicableCategory,
@@ -47,6 +64,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     return corsResponse({ discount });
   } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return corsResponse({ error: 'A discount with this coupon code already exists' }, { status: 409 });
+    }
     console.error('Mobile discounts PUT error:', error);
     return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }

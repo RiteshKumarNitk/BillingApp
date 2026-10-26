@@ -13,7 +13,6 @@ async function main() {
     create: {
       name: "System Administration",
       domain: "system",
-      dbConnectionString: "system_default",
       status: "ACTIVE"
     }
   });
@@ -131,7 +130,6 @@ async function main() {
     create: {
       name: "Acme Corp",
       domain: "acme.example.com",
-      dbConnectionString: "",
       status: "ACTIVE",
       subscriptionPlan: growthPlan.name
     }
@@ -266,7 +264,6 @@ async function main() {
       data: {
         name: "Demo General Store",
         domain: "demo.example.com",
-        dbConnectionString: "demo_default",
         status: "ACTIVE",
         contactPerson: "Demo Owner",
         email: "owner@demo.com",

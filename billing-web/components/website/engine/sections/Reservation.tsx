@@ -1,7 +1,17 @@
 import React from 'react';
+import Link from 'next/link';
 import { ReservationSection, WebsiteConfig } from '@/lib/website/types';
 
-export default function Reservation({ data }: { data: ReservationSection['data']; config: WebsiteConfig }) {
+// There's no table-booking system yet, so the button used to do nothing at all. It now routes the
+// visitor to a channel that actually reaches the cafe: the site's Contact page (whose form lands in
+// the owner's leads inbox) when enabled, else a phone call, else no button.
+export default function Reservation({ data, config, tenant }: { data: ReservationSection['data']; config: WebsiteConfig; tenant?: any }) {
+  const siteId = tenant?.websiteSlug || tenant?.id;
+  const contactHref = siteId && config.pages?.contact !== false ? `/site/${siteId}/contact` : null;
+  const phoneHref = tenant?.phone ? `tel:${String(tenant.phone).replace(/[^\d+]/g, '')}` : null;
+  const buttonClass = "inline-block px-8 py-3.5 bg-[var(--theme-primary)] text-gray-900 font-bold rounded-full hover:shadow-lg hover:scale-105 transition-all w-full sm:w-auto text-center";
+  const buttonText = data.buttonText || 'Make Reservation';
+
   return (
     <section className="py-20 bg-[var(--theme-background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,9 +23,11 @@ export default function Reservation({ data }: { data: ReservationSection['data']
             <p className="text-gray-600 leading-relaxed mb-8 max-w-lg">
               {data.subtitle || 'Make online reservations and earn points towards free meals.'}
             </p>
-            <button className="px-8 py-3.5 bg-[var(--theme-primary)] text-gray-900 font-bold rounded-full hover:shadow-lg hover:scale-105 transition-all w-full sm:w-auto text-center">
-              {data.buttonText || 'Make Reservation'}
-            </button>
+            {contactHref ? (
+              <Link href={contactHref} className={buttonClass}>{buttonText}</Link>
+            ) : phoneHref ? (
+              <a href={phoneHref} className={buttonClass}>{buttonText}</a>
+            ) : null}
           </div>
           <div className="flex-1 relative flex justify-center items-center">
             <div className="absolute inset-0 bg-orange-100 opacity-50 rounded-full blur-3xl transform translate-x-12" />

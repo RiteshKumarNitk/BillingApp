@@ -10,6 +10,8 @@ import { productTracksStock } from "@/lib/products/availability";
 // kitchen can deal with it instead of silently over-selling negative stock.
 class OrderCompletionError extends Error {}
 
+const ORDER_PAYMENT_METHODS = ["CASH", "UPI", "CARD"];
+
 // Order lifecycle: PENDING -> (ACCEPT | HOLD | REJECT). ACCEPTED orders then move through the
 // Kitchen Queue (Phase 9): ACCEPTED -> PREPARING -> READY -> COMPLETE (this last step is where the
 // Transaction/invoice is actually created — moved out of ACCEPT so "we're making it" and "it's
@@ -79,7 +81,7 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { action } = await request.json();
+    const { action, paymentMethod } = await request.json();
 
     const tenant = await prisma.tenant.findUnique({
       where: { id: session.user.tenantId },
@@ -88,6 +90,13 @@ export async function PATCH(
     const tenantName = tenant?.name || "The store";
 
     if (action === "COMPLETE") {
+      // B1: online orders are paid at the counter on pickup/serve, so completing one must record
+      // how — otherwise the sale lands as paymentMethod "PENDING" with no TransactionPayment row
+      // and every payment-method report undercounts online revenue.
+      if (!ORDER_PAYMENT_METHODS.includes(paymentMethod)) {
+        return NextResponse.json({ error: "Select how the customer paid (CASH, UPI or CARD)" }, { status: 400 });
+      }
+
       const order = await prisma.orderRequest.findFirst({
         where: { id, tenantId: session.user.tenantId, status: "READY" },
         include: { items: true, customerAccount: true, customer: true, table: true },
@@ -95,6 +104,14 @@ export async function PATCH(
       if (!order) {
         return NextResponse.json({ error: "Order not found or not ready to complete" }, { status: 404 });
       }
+
+      // Cost snapshot for profit reports (lines used to be written with purchasePrice 0, so every
+      // online sale showed as 100% margin).
+      const costProducts = await prisma.product.findMany({
+        where: { id: { in: order.items.map((i) => i.productId) }, tenantId: session.user.tenantId },
+        select: { id: true, purchasePrice: true },
+      });
+      const costById = new Map(costProducts.map((p) => [p.id, p.purchasePrice]));
 
       const transaction = await prisma.$transaction(async (tx) => {
         const txn = await tx.transaction.create({
@@ -105,9 +122,15 @@ export async function PATCH(
             totalAmount: order.totalAmount,
             discount: 0,
             discountType: "PERCENTAGE",
+            // The order's auto-applied discount (already reflected in netAmount) — recorded so the
+            // invoice and reports show it instead of an unexplained gap between total and net.
+            couponDiscountAmount: order.discountAmount,
             taxAmount: order.taxAmount,
             netAmount: order.netAmount,
-            paymentMethod: "PENDING",
+            paymentMethod,
+            amountReceived: order.netAmount,
+            changeAmount: 0,
+            payments: { create: [{ method: paymentMethod, amount: order.netAmount }] },
             customerId: order.customerId,
             customerName: order.customerAccount?.name || order.guestName || "Customer",
             customerPhone: order.customerAccount?.phone || order.guestPhone || null,
@@ -119,7 +142,7 @@ export async function PATCH(
                 productId: item.productId,
                 name: item.name,
                 barcode: item.barcode,
-                purchasePrice: 0,
+                purchasePrice: costById.get(item.productId) ?? 0,
                 mrp: item.salePrice,
                 salePrice: item.salePrice,
                 quantity: item.quantity,

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import { History } from 'lucide-react';
 import PrintInvoiceButton from './PrintInvoiceButton';
+import { getTenantTimeZone, isSameDayInTz } from '@/lib/tenantTime';
 
 export default async function BillPreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: transactionId } = await params;
@@ -54,7 +55,7 @@ export default async function BillPreviewPage({ params }: { params: Promise<{ id
   const userPermissions = session.user.permissions || [];
   const isSuperAdmin = session.user.role === 'SUPERADMIN';
   const hasEditPermission = isSuperAdmin || userPermissions.includes('EDIT_TRANSACTION');
-  const isSameDay = new Date(transaction.createdAt).toDateString() === new Date().toDateString();
+  const isSameDay = isSameDayInTz(new Date(transaction.createdAt), new Date(), await getTenantTimeZone(session.user.tenantId));
   const hasReopenPermission = isSuperAdmin || userPermissions.includes('REOPEN_OLD_TRANSACTION');
   const canEditInvoice = transaction.status === 'COMPLETED' && hasEditPermission && (isSameDay || hasReopenPermission);
 

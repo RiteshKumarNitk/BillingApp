@@ -30,8 +30,17 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): bo
   return bucket.count <= limit;
 }
 
+// P3: a client can put anything at the *start* of X-Forwarded-For, so taking the first entry let
+// an attacker rotate fake IPs to dodge every limiter. The right-most entry is the one appended by
+// the proxy closest to us (the hosting platform's edge), which the client can't forge.
+export function clientIpFromHeaderValues(forwarded: string | null | undefined, realIp: string | null | undefined): string {
+  if (forwarded) {
+    const hops = forwarded.split(',').map((h) => h.trim()).filter(Boolean);
+    if (hops.length > 0) return hops[hops.length - 1];
+  }
+  return realIp || 'unknown';
+}
+
 export function getClientIp(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return request.headers.get('x-real-ip') || 'unknown';
+  return clientIpFromHeaderValues(request.headers.get('x-forwarded-for'), request.headers.get('x-real-ip'));
 }

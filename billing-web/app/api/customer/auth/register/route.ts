@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 });
     }
 
-    const existing = await prisma.customerAccount.findUnique({ where: { email } });
+    const existing = await prisma.customerAccount.findUnique({ where: { email: String(email).trim().toLowerCase() } });
     if (existing) {
       return NextResponse.json({ error: "An account with this email already exists" }, { status: 400 });
     }

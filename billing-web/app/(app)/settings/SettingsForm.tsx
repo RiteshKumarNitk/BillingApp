@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Globe, Clock, IndianRupee, MapPin, LocateFixed } from 'lucide-react';
 
-export default function SettingsForm({ initialData }: { initialData: any }) {
+// canEdit mirrors /api/settings's MANAGE_USERS gate (U7) — without it a Manager could fill in the
+// whole form and only find out on Save that it 403s.
+export default function SettingsForm({ initialData, canEdit = true }: { initialData: any; canEdit?: boolean }) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: initialData.name || "",
@@ -93,6 +95,11 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {!canEdit && (
+        <div className="p-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg">
+          You can view these settings, but only the business owner (or a role with Manage Users) can change them.
+        </div>
+      )}
       {error && <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">{error}</div>}
       {success && <div className="p-3 text-sm text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg">{success}</div>}
 
@@ -298,8 +305,9 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
             <div className="flex justify-end pt-4 border-t border-gray-100">
         <button
           type="submit"
-          disabled={loading}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 font-medium"
+          disabled={loading || !canEdit}
+          title={canEdit ? undefined : "Requires the Manage Users permission"}
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
         >
           {loading ? "Saving..." : "Save Changes"}
         </button>

@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // U1: one-off CommonJS maintenance/seed scripts run directly with node — not app code, and
+    // their require() style made `npm run lint` fail with ~1k findings unrelated to the app.
+    "scripts/**",
+    "prisma/seed.*",
+    "generated/**",
   ]),
 ]);
 

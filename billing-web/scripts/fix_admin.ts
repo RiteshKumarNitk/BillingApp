@@ -13,7 +13,6 @@ async function main() {
       data: {
         name: 'System Administration',
         domain: 'system.example.com',
-        dbConnectionString: 'system_default',
         status: 'ACTIVE',
       }
     });

@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import type { Prisma } from "../../generated/prisma";
 import { checkFeatureLimit } from "@/lib/subscription";
 import { findOrCreateCustomerByPhone } from "@/lib/actions/customers";
+import { getTenantTimeZone, isSameDayInTz } from "@/lib/tenantTime";
 
 export class TransactionError extends Error {
   status: number;
@@ -924,7 +925,9 @@ export async function editTransaction(params: EditTransactionParams) {
     throw new TransactionError("Invoice not found", 404);
   }
 
-  const isSameDay = new Date(existing.createdAt).toDateString() === new Date().toDateString();
+  // B5: "same day" is the tenant's calendar day, not the server's (a 23:30 sale edited at 00:10
+  // used to fall on different days depending on the server's timezone).
+  const isSameDay = isSameDayInTz(new Date(existing.createdAt), new Date(), await getTenantTimeZone(tenantId));
   if (!isSameDay && role !== "SUPERADMIN" && !permissions.includes("REOPEN_OLD_TRANSACTION")) {
     throw new TransactionError("Editing an invoice from a previous day requires the Reopen Old Invoice permission", 403);
   }

@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendEmail, EmailTemplates } from '@/lib/mail';
+import { isAuthorizedCronRequest } from '@/lib/cronAuth';
 
-// This endpoint should ideally be protected by a cron secret in production
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const cronSecret = searchParams.get('secret');
-
-    // In a real app, verify cronSecret === process.env.CRON_SECRET
-    // For now, we'll allow it or use a dummy check
-    if (process.env.NODE_ENV === 'production' && cronSecret !== process.env.CRON_SECRET) {
+    if (!isAuthorizedCronRequest(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -41,11 +36,13 @@ export async function GET(request: Request) {
       const attempts = invoice.failedPaymentAttempts + 1;
 
       if (attempts >= 3) {
-        // Suspend the tenant's subscription
+        // Suspend the tenant's subscription. D3: uses UNPAID — the documented "access blocked"
+        // status the Razorpay webhook also uses — rather than an off-vocabulary 'SUSPENDED', so
+        // markInvoiceAsPaid can reactivate it once the invoice is settled manually.
         if (invoice.subscriptionId) {
           await prisma.tenantSubscription.update({
             where: { id: invoice.subscriptionId },
-            data: { status: 'SUSPENDED' }
+            data: { status: 'UNPAID' }
           });
           
           await prisma.auditLog.create({

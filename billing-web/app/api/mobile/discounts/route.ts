@@ -59,9 +59,23 @@ export async function POST(request: Request) {
       return corsResponse({ error: 'Name and discount percentage are required' }, { status: 400 });
     }
 
+    // Optional coupon code the cashier types at POS (matched case-insensitively per tenant). Without
+    // a code the discount can only be auto-applied, never entered as a coupon.
+    const code = typeof data.code === 'string' && data.code.trim() ? data.code.trim().toUpperCase() : null;
+    if (code) {
+      const clash = await prisma.discount.findFirst({
+        where: { tenantId: user.tenantId, code: { equals: code, mode: 'insensitive' } },
+        select: { id: true },
+      });
+      if (clash) {
+        return corsResponse({ error: 'A discount with this coupon code already exists' }, { status: 409 });
+      }
+    }
+
     const discount = await prisma.discount.create({
       data: {
         name: data.name.trim(),
+        code,
         description: data.description || null,
         discountPercentage: parseFloat(data.discountPercentage),
         applicableCategory: data.applicableCategory || null,
@@ -75,6 +89,9 @@ export async function POST(request: Request) {
 
     return corsResponse({ discount }, { status: 201 });
   } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return corsResponse({ error: 'A discount with this coupon code already exists' }, { status: 409 });
+    }
     console.error('Mobile discounts POST error:', error);
     return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }

@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/nextauth";
+import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
 import { requirePermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { checkFeatureLimit } from "@/lib/subscription";
@@ -34,7 +34,9 @@ export async function getTenantUsers() {
     });
   }
 
-  // Regular tenant users only see users in their tenant
+  // Regular tenant users only see users in their tenant — and only with MANAGE_USERS (U4: this
+  // returns every team member's name/email/phone, so it's gated like the /users page itself).
+  await requirePermission('MANAGE_USERS');
   return await prisma.user.findMany({
     where: { tenantId: session.user.tenantId },
     include: { tenantRole: true },
@@ -178,6 +180,7 @@ export async function deleteTenantUser(userId: string) {
 
   // Note: deleted user's JWT becomes invalid because the JWT callback
   // re-fetches the user and returns empty token if user not found.
+  clearSessionStateCache();
 
   revalidatePath('/users');
 }

@@ -252,7 +252,7 @@ export default async function TenantDashboard({
         {/* Period totals + profit + avg bill + customers */}
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Sales (7 / 30 / 365d)"
+            title="Sales — last 7 days"
             value={`₹${weekSales.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
             subtitle={`₹${monthSales.toLocaleString(undefined, { maximumFractionDigits: 0 })} this month · ₹${yearSales.toLocaleString(undefined, { maximumFractionDigits: 0 })} this year`}
             icon={<Receipt className="h-5 w-5 text-cyan-600" />}

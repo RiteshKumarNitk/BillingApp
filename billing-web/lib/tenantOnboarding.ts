@@ -6,7 +6,10 @@ import { DEFAULT_THEME_ID, getThemeDefaultConfig } from "@/lib/website/themeDefi
 export const DEFAULT_ROLE_DEFINITIONS = [
   { name: "Owner", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "DELETE_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "MANAGE_USERS", "VIEW_PROFIT", "OVERRIDE_PRICE", "EDIT_TRANSACTION", "REOPEN_OLD_TRANSACTION"] },
   { name: "Manager", permissions: ["CREATE_PRODUCT", "EDIT_PRODUCT", "VIEW_REPORTS", "CREATE_BILL", "VIEW_PROFIT", "OVERRIDE_PRICE"] },
-  { name: "Cashier", permissions: ["CREATE_BILL", "VIEW_PRODUCT"] },
+  // B4: Cashier previously also carried "VIEW_PRODUCT", which isn't in PERMISSIONS and is checked
+  // nowhere — product browsing for billing needs no permission. Every name here must exist in
+  // lib/permissions.client.ts.
+  { name: "Cashier", permissions: ["CREATE_BILL"] },
 ] as const;
 
 // Creates the standard Owner/Manager/Cashier roles for a newly created tenant and returns the

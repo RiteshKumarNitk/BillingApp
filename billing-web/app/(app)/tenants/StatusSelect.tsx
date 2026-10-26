@@ -11,6 +11,7 @@ export default function StatusSelect({ defaultValue }: { defaultValue: string })
       <option value="">All Status</option>
       <option value="ACTIVE">Active</option>
       <option value="INACTIVE">Inactive</option>
+      <option value="PENDING">Pending approval</option>
     </select>
   );
 }

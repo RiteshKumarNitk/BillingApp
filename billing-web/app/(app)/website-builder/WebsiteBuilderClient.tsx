@@ -10,6 +10,7 @@ import SectionEditor from './SectionEditor';
 import ImageUpload from '@/components/ImageUpload';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import { CartProvider } from '@/components/website/CartContext';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 
 type TabId = 'theme' | 'branding' | 'appearance' | 'sections' | 'about' | 'contact' | 'seo' | 'pages' | 'settings';
 
@@ -665,20 +666,23 @@ export default function WebsiteBuilderClient({
               
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 flex flex-col items-center">
                 <div className="bg-white p-4 rounded-xl shadow-sm mb-4">
+                  {/* U5: rendered locally with qrcode.react instead of the third-party api.qrserver.com */}
                   {typeof window !== 'undefined' ? (
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + '/s/' + tenantId)}`} 
-                      alt="Website QR Code" 
-                      className="w-32 h-32"
-                    />
+                    <>
+                      <QRCodeSVG value={window.location.origin + '/s/' + tenantId} size={128} title="Website QR Code" />
+                      {/* Off-screen high-resolution copy used only as the PNG download source. */}
+                      <QRCodeCanvas id="website-qr-hd-canvas" value={window.location.origin + '/s/' + tenantId} size={500} marginSize={4} style={{ display: 'none' }} />
+                    </>
                   ) : (
                     <div className="w-32 h-32 bg-gray-200 animate-pulse rounded-lg"></div>
                   )}
                 </div>
-                <button 
+                <button
                   onClick={() => {
+                    const canvas = document.getElementById('website-qr-hd-canvas') as HTMLCanvasElement | null;
+                    if (!canvas) return;
                     const link = document.createElement('a');
-                    link.href = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(window.location.origin + '/s/' + tenantId)}`;
+                    link.href = canvas.toDataURL('image/png');
                     link.download = `QR_Code_${tenantId}.png`;
                     document.body.appendChild(link);
                     link.click();

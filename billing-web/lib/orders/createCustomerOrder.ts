@@ -88,6 +88,9 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
   // Category subtotals/quantities across the whole cart, for matching Discount.applicableCategory.
   const categorySubtotals = new Map<string, number>();
   const categoryQuantities = new Map<string, number>();
+  // B2: per-line GST inputs, so online orders are taxed by the same per-product gstRate /
+  // gstInclusive rule the Cafe POS uses instead of a flat Shop.defaultTaxRate.
+  const lineTax: { itemTotal: number; gstRate: number | null; gstInclusive: boolean }[] = [];
 
   for (const item of items) {
     // Reject non-positive/non-numeric quantities outright — the website cart caps quantity
@@ -161,6 +164,7 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
 
     const itemTotal = salePrice * quantity;
     totalAmount += itemTotal;
+    lineTax.push({ itemTotal, gstRate: product.gstRate, gstInclusive: product.gstInclusive });
 
     const category = product.category || 'Other';
     categorySubtotals.set(category, (categorySubtotals.get(category) || 0) + itemTotal);
@@ -199,10 +203,24 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
   );
 
   const taxableAmount = totalAmount - discountAmount;
-  const shop = await prisma.shop.findUnique({ where: { tenantId } });
-  const taxRate = shop?.defaultTaxRate || 0;
-  const taxAmount = taxableAmount * (taxRate / 100);
-  const netAmount = taxableAmount + taxAmount;
+  let taxAmount: number;
+  if (lineTax.some((l) => l.gstRate !== null)) {
+    // Same rule as the POS: a null gstRate means "no tax"; an inclusive rate is already inside
+    // the price (adds nothing); an exclusive rate is added on top. The order-level discount is
+    // spread across lines in proportion to their value, since GST is charged on what's paid.
+    const discountFactor = totalAmount > 0 ? taxableAmount / totalAmount : 1;
+    taxAmount = lineTax.reduce(
+      (sum, l) => (l.gstRate && !l.gstInclusive ? sum + (l.itemTotal * discountFactor * l.gstRate) / 100 : sum),
+      0
+    );
+  } else {
+    // Legacy fallback for tenants that have never set per-product GST: tenant-wide default rate.
+    const shop = await prisma.shop.findUnique({ where: { tenantId } });
+    const taxRate = shop?.defaultTaxRate || 0;
+    taxAmount = taxableAmount * (taxRate / 100);
+  }
+  taxAmount = Math.round(taxAmount * 100) / 100;
+  const netAmount = Math.round((taxableAmount + taxAmount) * 100) / 100;
 
   const customer = await findOrCreateCustomer(tenantId, customerAccountId, guest);
 

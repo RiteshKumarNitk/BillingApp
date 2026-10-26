@@ -11,7 +11,6 @@ model Tenant {
   id                 String               @id @default(uuid())
   name               String
   domain             String               @unique
-  dbConnectionString String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   status             String               @default("ACTIVE")
@@ -347,11 +346,12 @@ model Table {
 
 model OrderRequest {
   id                String             @id @default(uuid())
-  // PENDING | ACCEPTED | PREPARING | READY | COMPLETED | REJECTED | CANCELLED. Kept as a plain
-  // String (matching Transaction.status/orderType elsewhere in this schema) rather than a Prisma
-  // enum so new stages can be introduced without a migration; only PENDING/COMPLETED/REJECTED are
-  // written by any code path as of this migration — ACCEPTED/PREPARING/READY/CANCELLED are reserved
-  // for the Cafe Dashboard + Kitchen Queue phases.
+  // PENDING | ON_HOLD | ACCEPTED | PREPARING | READY | COMPLETED | REJECTED | CANCELLED. Kept as a
+  // plain String (matching Transaction.status/orderType elsewhere in this schema) rather than a
+  // Prisma enum so new stages can be introduced without a migration. Lifecycle (see
+  // app/api/tenant/orders/[id]/route.ts): PENDING -> ACCEPTED | ON_HOLD | REJECTED; ON_HOLD ->
+  // ACCEPTED | REJECTED; ACCEPTED -> PREPARING -> READY -> COMPLETED (Transaction created here);
+  // CANCELLED from anything not yet COMPLETED/REJECTED.
   status            String             @default("PENDING")
   notes             String?
   totalAmount       Float              @default(0)
@@ -450,7 +450,10 @@ model Discount {
   id                 String    @id @default(uuid())
   name               String
   description        String?
-  code               String?   @unique
+  // Per-tenant coupon code (D6: was globally unique, so two cafes couldn't both use "WELCOME10").
+  // Lookups are case-insensitive (see buildTransactionPlan), so the API layer rejects a code that
+  // differs from an existing one only by case.
+  code               String?
   discountPercentage Float
   applicableCategory String?
   minimumQuantity    Int       @default(1)
@@ -460,6 +463,7 @@ model Discount {
   tenantId           String
   tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([tenantId, code])
   @@index([tenantId])
 }
 
@@ -592,6 +596,11 @@ model TransactionItem {
   comboComponents Json?
   product        Product     @relation(fields: [productId], references: [id])
   transaction    Transaction @relation(fields: [transactionId], references: [id])
+
+  // Postgres doesn't index foreign keys automatically — without these, loading an invoice's items
+  // and every report join (cost, best sellers, categories) scanned the whole table.
+  @@index([transactionId])
+  @@index([productId])
 }
 
 model SubscriptionPlan {

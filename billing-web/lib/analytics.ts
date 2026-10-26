@@ -1,12 +1,22 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "../generated/prisma";
-import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, startOfYear } from "date-fns";
+import { format, subDays } from "date-fns";
+import {
+  getTenantTimeZone, startOfDayInTz, startOfMonthInTz, startOfYearInTz, formatDateKey,
+} from "@/lib/tenantTime";
 
 // HELD bills are drafts, not completed sales — every query in this file excludes them so
 // dashboard numbers only ever reflect real, finished transactions.
 const NOT_HELD = { not: "HELD" } as const;
 
+// M8: calendar boundaries ("today", "this month") and SQL day/hour buckets all use the tenant's
+// timezone (lib/tenantTime.ts), not the server clock. Rolling windows ("last 30 days") are plain
+// instants and need no timezone. `createdAt` is a UTC TIMESTAMP, so the SQL local-time expression
+// is `("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE <tz>`; GROUP/ORDER BY use positions because a
+// re-bound tz parameter wouldn't count as "the same expression" for Postgres.
+
 export async function getSalesOverview(tenantId: string) {
+  const tz = await getTenantTimeZone(tenantId);
   const totalSalesResult = await prisma.transaction.aggregate({
     _sum: { netAmount: true },
     where: { tenantId, status: NOT_HELD },
@@ -16,22 +26,22 @@ export async function getSalesOverview(tenantId: string) {
     where: { tenantId, status: NOT_HELD },
   });
 
-  const todayStart = startOfDay(new Date());
-  const todayEnd = endOfDay(new Date());
+  const now = new Date();
+  const todayStart = startOfDayInTz(now, tz);
+  const tomorrowStart = startOfDayInTz(now, tz, 1);
   const todaySalesResult = await prisma.transaction.aggregate({
     _sum: { netAmount: true },
-    where: { tenantId, status: NOT_HELD, createdAt: { gte: todayStart, lte: todayEnd } },
+    where: { tenantId, status: NOT_HELD, createdAt: { gte: todayStart, lt: tomorrowStart } },
   });
   const todaySales = todaySalesResult._sum.netAmount || 0;
   const todayTransactions = await prisma.transaction.count({
-    where: { tenantId, status: NOT_HELD, createdAt: { gte: todayStart, lte: todayEnd } },
+    where: { tenantId, status: NOT_HELD, createdAt: { gte: todayStart, lt: tomorrowStart } },
   });
 
-  const yesterdayStart = startOfDay(subDays(new Date(), 1));
-  const yesterdayEnd = endOfDay(subDays(new Date(), 1));
+  const yesterdayStart = startOfDayInTz(now, tz, -1);
   const yesterdaySalesResult = await prisma.transaction.aggregate({
     _sum: { netAmount: true },
-    where: { tenantId, status: NOT_HELD, createdAt: { gte: yesterdayStart, lte: yesterdayEnd } },
+    where: { tenantId, status: NOT_HELD, createdAt: { gte: yesterdayStart, lt: todayStart } },
   });
   const yesterdaySales = yesterdaySalesResult._sum.netAmount || 0;
   const todayTrend = yesterdaySales > 0 ? ((todaySales - yesterdaySales) / yesterdaySales) * 100 : null;
@@ -56,11 +66,14 @@ export async function getSalesOverview(tenantId: string) {
   };
 }
 
+// B3: week is a rolling last-7-days window; month/year are calendar periods in the tenant's
+// timezone ("this month" / "this year") — the dashboard labels say exactly that.
 export async function getPeriodTotals(tenantId: string) {
+  const tz = await getTenantTimeZone(tenantId);
   const now = new Date();
   const weekStart = subDays(now, 7);
-  const monthStart = startOfMonth(now);
-  const yearStart = startOfYear(now);
+  const monthStart = startOfMonthInTz(now, tz);
+  const yearStart = startOfYearInTz(now, tz);
 
   const [weekResult, monthResult, yearResult] = await Promise.all([
     prisma.transaction.aggregate({ _sum: { netAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: weekStart } } }),
@@ -149,7 +162,7 @@ export async function getBestWorstProducts(tenantId: string) {
 // New = signed up within the window. Returning = existed before the window and purchased
 // again during it. Walk-in sales without a linked Customer record aren't counted either way.
 export async function getCustomerGrowth(tenantId: string) {
-  const monthStart = startOfMonth(new Date());
+  const monthStart = startOfMonthInTz(new Date(), await getTenantTimeZone(tenantId));
 
   const newCustomers = await prisma.customer.count({
     where: { tenantId, createdDate: { gte: monthStart } },
@@ -170,17 +183,18 @@ export async function getCustomerGrowth(tenantId: string) {
 // `endDate` is optional (defaults to now) so existing callers that only pass `days` are unaffected —
 // lets the Reports page's dashboard-linked date-range filter reuse this instead of a parallel query.
 export async function getSalesChartData(tenantId: string, days: number, endDate?: Date) {
+  const tz = await getTenantTimeZone(tenantId);
   const end = endDate ?? new Date();
   const startDate = subDays(end, days);
   const rawSalesData = await prisma.$queryRaw<any[]>`
-    SELECT DATE("createdAt") as date, SUM("netAmount") as total
+    SELECT DATE(("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) as date, SUM("netAmount") as total
     FROM "Transaction"
     WHERE "createdAt" >= ${startDate} AND "createdAt" <= ${end} AND "tenantId" = ${tenantId} AND "status" != 'HELD'
-    GROUP BY DATE("createdAt")
-    ORDER BY DATE("createdAt")
+    GROUP BY 1
+    ORDER BY 1
   `;
   return rawSalesData.map((item) => ({
-    date: format(new Date(item.date), "MM/dd"),
+    date: formatDateKey(item.date),
     total: Number(item.total),
   }));
 }
@@ -203,59 +217,68 @@ export async function getCategoryChartData(tenantId: string, limit = 5) {
 }
 
 // Daily profit for the last N days, shaped for the reused RevenueChart line-chart component.
-// Cost is pre-aggregated per-transaction in a subquery before joining, so a transaction with
-// multiple line items doesn't cause its netAmount to be summed once per item.
+// Cost is pre-aggregated per-transaction before joining, so a transaction with multiple line
+// items doesn't cause its netAmount to be summed once per item. P2: the cost aggregation used to
+// scan and group the ENTIRE TransactionItem table (every tenant, all time) before the outer
+// filter applied; it now only touches the items of this tenant's in-window transactions.
 export async function getProfitTrendData(tenantId: string, days: number, endDate?: Date) {
+  const tz = await getTenantTimeZone(tenantId);
   const end = endDate ?? new Date();
   const startDate = subDays(end, days);
   const rawProfitData = await prisma.$queryRaw<any[]>`
-    SELECT DATE(t."createdAt") as date,
-      SUM(t."netAmount") as revenueSum,
+    WITH tx AS (
+      SELECT t."id", t."netAmount", DATE((t."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) AS day
+      FROM "Transaction" t
+      WHERE t."createdAt" >= ${startDate} AND t."createdAt" <= ${end} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
+    ), cost_per_tx AS (
+      SELECT ti."transactionId", SUM(ti."purchasePrice" * ti."quantity") AS cost
+      FROM "TransactionItem" ti
+      JOIN tx ON tx."id" = ti."transactionId"
+      GROUP BY ti."transactionId"
+    )
+    SELECT tx.day as date,
+      SUM(tx."netAmount") as revenueSum,
       SUM(cost_per_tx.cost) as cost
-    FROM "Transaction" t
-    JOIN (
-      SELECT "transactionId", SUM("purchasePrice" * "quantity") as cost
-      FROM "TransactionItem"
-      GROUP BY "transactionId"
-    ) cost_per_tx ON cost_per_tx."transactionId" = t."id"
-    WHERE t."createdAt" >= ${startDate} AND t."createdAt" <= ${end} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
-    GROUP BY DATE(t."createdAt")
-    ORDER BY DATE(t."createdAt")
+    FROM tx
+    JOIN cost_per_tx ON cost_per_tx."transactionId" = tx."id"
+    GROUP BY tx.day
+    ORDER BY tx.day
   `;
   return rawProfitData.map((item) => ({
-    date: format(new Date(item.date), "MM/dd"),
+    date: formatDateKey(item.date),
     revenue: Number(item.revenuesum || 0) - Number(item.cost || 0),
   }));
 }
 
 export async function getCustomerGrowthChartData(tenantId: string, days: number, endDate?: Date) {
+  const tz = await getTenantTimeZone(tenantId);
   const end = endDate ?? new Date();
   const startDate = subDays(end, days);
   const rawData = await prisma.$queryRaw<any[]>`
-    SELECT DATE("createdDate") as date, COUNT(*) as count
+    SELECT DATE(("createdDate" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) as date, COUNT(*) as count
     FROM "Customer"
     WHERE "createdDate" >= ${startDate} AND "createdDate" <= ${end} AND "tenantId" = ${tenantId}
-    GROUP BY DATE("createdDate")
-    ORDER BY DATE("createdDate")
+    GROUP BY 1
+    ORDER BY 1
   `;
   return rawData.map((item) => ({
-    date: format(new Date(item.date), "MM/dd"),
+    date: formatDateKey(item.date),
     count: Number(item.count),
   }));
 }
 
 export async function getMonthlyComparison(tenantId: string) {
+  const tz = await getTenantTimeZone(tenantId);
   const now = new Date();
-  const thisMonthStart = startOfMonth(now);
-  const thisMonthEnd = endOfMonth(now);
-  const lastMonthStart = startOfMonth(subMonths(now, 1));
-  const lastMonthEnd = endOfMonth(subMonths(now, 1));
+  const thisMonthStart = startOfMonthInTz(now, tz);
+  const nextMonthStart = startOfMonthInTz(now, tz, 1);
+  const lastMonthStart = startOfMonthInTz(now, tz, -1);
 
   const [thisMonth, lastMonth, thisMonthTx, lastMonthTx] = await Promise.all([
-    prisma.transaction.aggregate({ _sum: { netAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: thisMonthStart, lte: thisMonthEnd } } }),
-    prisma.transaction.aggregate({ _sum: { netAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: lastMonthStart, lte: lastMonthEnd } } }),
-    prisma.transaction.count({ where: { tenantId, status: NOT_HELD, createdAt: { gte: thisMonthStart, lte: thisMonthEnd } } }),
-    prisma.transaction.count({ where: { tenantId, status: NOT_HELD, createdAt: { gte: lastMonthStart, lte: lastMonthEnd } } }),
+    prisma.transaction.aggregate({ _sum: { netAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: thisMonthStart, lt: nextMonthStart } } }),
+    prisma.transaction.aggregate({ _sum: { netAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: lastMonthStart, lt: thisMonthStart } } }),
+    prisma.transaction.count({ where: { tenantId, status: NOT_HELD, createdAt: { gte: thisMonthStart, lt: nextMonthStart } } }),
+    prisma.transaction.count({ where: { tenantId, status: NOT_HELD, createdAt: { gte: lastMonthStart, lt: thisMonthStart } } }),
   ]);
 
   return [
@@ -294,12 +317,14 @@ export async function getOverviewCounts(tenantId: string) {
 // Revenue + order count by hour-of-day (0-23), last 30 days. Every hour is present in the
 // result (zero-filled) so the chart's x-axis doesn't skip hours with no sales.
 export async function getPeakHoursData(tenantId: string) {
+  const tz = await getTenantTimeZone(tenantId);
   const startDate = subDays(new Date(), 30);
+  // Local hour-of-day — previously the UTC hour, which put an Indian cafe's lunch rush at 6-8am.
   const raw = await prisma.$queryRaw<any[]>`
-    SELECT EXTRACT(HOUR FROM "createdAt") as hour, SUM("netAmount") as total, COUNT(*) as count
+    SELECT EXTRACT(HOUR FROM (("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz})) as hour, SUM("netAmount") as total, COUNT(*) as count
     FROM "Transaction"
     WHERE "tenantId" = ${tenantId} AND "status" != 'HELD' AND "createdAt" >= ${startDate}
-    GROUP BY EXTRACT(HOUR FROM "createdAt")
+    GROUP BY 1
   `;
   const byHour = new Map(raw.map((r) => [Number(r.hour), { total: Number(r.total), count: Number(r.count) }]));
   return Array.from({ length: 24 }, (_, hour) => ({
@@ -323,12 +348,14 @@ export async function getPaymentSummary(tenantId: string) {
   return raw.map((r) => ({ method: r.method, total: Number(r.total), count: Number(r.count) }));
 }
 
-// GST/tax collected — mirrors getPeriodTotals' week/month/year window pattern but for taxAmount.
+// GST/tax collected — mirrors getPeriodTotals' window pattern (rolling 7 days, calendar month and
+// year in the tenant's timezone) but for taxAmount.
 export async function getGstSummary(tenantId: string) {
+  const tz = await getTenantTimeZone(tenantId);
   const now = new Date();
   const weekStart = subDays(now, 7);
-  const monthStart = startOfMonth(now);
-  const yearStart = startOfYear(now);
+  const monthStart = startOfMonthInTz(now, tz);
+  const yearStart = startOfYearInTz(now, tz);
 
   const [weekResult, monthResult, yearResult, taxableCount, totalCount] = await Promise.all([
     prisma.transaction.aggregate({ _sum: { taxAmount: true }, where: { tenantId, status: NOT_HELD, createdAt: { gte: weekStart } } }),
@@ -350,16 +377,17 @@ export async function getGstSummary(tenantId: string) {
 // Shaped to match RevenueChart's expected {date, revenue} points so the GST trend can reuse
 // the same line-chart component as the dashboard's Profit Trend.
 export async function getGstTrendData(tenantId: string, days: number) {
+  const tz = await getTenantTimeZone(tenantId);
   const startDate = subDays(new Date(), days);
   const raw = await prisma.$queryRaw<any[]>`
-    SELECT DATE("createdAt") as date, SUM("taxAmount") as tax
+    SELECT DATE(("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) as date, SUM("taxAmount") as tax
     FROM "Transaction"
     WHERE "createdAt" >= ${startDate} AND "tenantId" = ${tenantId} AND "status" != 'HELD'
-    GROUP BY DATE("createdAt")
-    ORDER BY DATE("createdAt")
+    GROUP BY 1
+    ORDER BY 1
   `;
   return raw.map((item) => ({
-    date: format(new Date(item.date), "MM/dd"),
+    date: formatDateKey(item.date),
     revenue: Number(item.tax),
   }));
 }
@@ -392,13 +420,14 @@ export async function getTopCustomers(tenantId: string, take = 10, since?: Date)
 // order count and visit frequency for loyalty, then average order value). Not ML, just a
 // normalized-weighted-sum over real data — no fabricated rating/review signal involved.
 export async function getCustomerOfTheMonth(tenantId: string) {
-  const monthStart = startOfMonth(new Date());
+  const tz = await getTenantTimeZone(tenantId);
+  const monthStart = startOfMonthInTz(new Date(), tz);
 
   const raw = await prisma.$queryRaw<any[]>`
     SELECT c."id", c."name", c."phone", c."photoUrl",
       COUNT(t."id") as orders,
       SUM(t."netAmount") as spend,
-      COUNT(DISTINCT DATE(t."createdAt")) as visits
+      COUNT(DISTINCT DATE((t."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz})) as visits
     FROM "Transaction" t
     JOIN "Customer" c ON t."customerId" = c."id"
     WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${monthStart}

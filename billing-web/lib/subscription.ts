@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import type { PrismaClient } from "../generated/prisma";
+import { getTenantTimeZone, startOfMonthInTz } from "@/lib/tenantTime";
 
 // Accepts either the default prisma client or an interactive-transaction client (`tx`), so
 // callers can re-run these checks inside a `prisma.$transaction(...)` for a tight race window.
@@ -112,10 +113,8 @@ export async function checkFeatureLimit(
   if (feature === "transactions") {
     if (plan.maxTransactions === -1) return { allowed: true };
     
-    // Calculate current month's transactions
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
+    // Current calendar month in the tenant's timezone (M8), not the server's.
+    const startOfMonth = startOfMonthInTz(new Date(), await getTenantTimeZone(tenantId));
 
     // HELD bills are unfinished drafts, not completed sales — they shouldn't consume the
     // tenant's monthly transaction quota until (if ever) they're resumed and completed.

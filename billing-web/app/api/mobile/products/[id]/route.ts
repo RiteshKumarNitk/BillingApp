@@ -71,6 +71,14 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await prisma.product.delete({ where: { id } });
     return corsResponse({ success: true });
   } catch (error: any) {
+    // D7: TransactionItem/ComboItem reference products with Restrict, so a product with sales or
+    // combo history can't be hard-deleted — same message as the web deleteProduct action.
+    if (error?.code === 'P2003') {
+      return corsResponse(
+        { error: "Can't delete: this product has existing sales or order history. Mark it unavailable instead." },
+        { status: 409 }
+      );
+    }
     console.error('Mobile products DELETE error:', error);
     return corsResponse({ error: 'Internal server error' }, { status: 500 });
   }

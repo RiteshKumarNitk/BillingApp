@@ -27,10 +27,15 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { action } = await request.json();
+    const { action, paymentMethod } = await request.json();
 
     if (!["APPROVE", "REJECT"].includes(action)) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
+    // B1: optional here for backward compatibility with older staff-app builds; when given, the
+    // sale is recorded with a real payment row (see the web COMPLETE handler for the full rule).
+    if (paymentMethod !== undefined && !["CASH", "UPI", "CARD"].includes(paymentMethod)) {
+      return NextResponse.json({ error: "paymentMethod must be CASH, UPI or CARD" }, { status: 400 });
     }
 
     const order = await prisma.orderRequest.findFirst({
@@ -79,6 +84,12 @@ export async function PATCH(
       return NextResponse.json({ message: "Order rejected" });
     }
 
+    const costProducts = await prisma.product.findMany({
+      where: { id: { in: order.items.map((i) => i.productId) }, tenantId: auth.tenantId },
+      select: { id: true, purchasePrice: true },
+    });
+    const costById = new Map(costProducts.map((p) => [p.id, p.purchasePrice]));
+
     // APPROVE: Create transaction, update stock, create notification
     const transaction = await prisma.$transaction(async (tx) => {
       const txn = await tx.transaction.create({
@@ -89,9 +100,17 @@ export async function PATCH(
           totalAmount: order.totalAmount,
           discount: 0,
           discountType: "PERCENTAGE",
+          couponDiscountAmount: order.discountAmount,
           taxAmount: order.taxAmount,
           netAmount: order.netAmount,
-          paymentMethod: "PENDING",
+          paymentMethod: paymentMethod || "PENDING",
+          ...(paymentMethod
+            ? {
+                amountReceived: order.netAmount,
+                changeAmount: 0,
+                payments: { create: [{ method: paymentMethod, amount: order.netAmount }] },
+              }
+            : {}),
           customerId: order.customerId,
           customerName: order.customerAccount?.name || order.guestName || "Customer",
           customerPhone: order.customerAccount?.phone || order.guestPhone || null,
@@ -101,7 +120,7 @@ export async function PATCH(
               productId: item.productId,
               name: item.name,
               barcode: item.barcode,
-              purchasePrice: 0,
+              purchasePrice: costById.get(item.productId) ?? 0,
               mrp: item.salePrice,
               salePrice: item.salePrice,
               quantity: item.quantity,

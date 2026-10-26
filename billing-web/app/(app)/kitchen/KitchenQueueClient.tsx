@@ -110,7 +110,10 @@ export default function KitchenQueueClient() {
     return () => clearInterval(t);
   }, []);
 
-  const advance = async (ticket: KitchenTicket) => {
+  // paymentMethod is only sent when completing an online order — that's the moment the customer
+  // pays at the counter, and the server records it as the sale's payment (POS tickets were
+  // already paid at billing time).
+  const advance = async (ticket: KitchenTicket, paymentMethod?: string) => {
     setProcessingId(ticket.id);
     const [kind, uuid] = ticket.id.split(":");
     try {
@@ -120,7 +123,7 @@ export default function KitchenQueueClient() {
         res = await fetch(`/api/tenant/orders/${uuid}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action }),
+          body: JSON.stringify({ action, ...(action === "COMPLETE" ? { paymentMethod } : {}) }),
         });
       } else {
         res = await fetch(`/api/tenant/kitchen/transaction/${uuid}`, { method: "PATCH" });
@@ -236,13 +239,33 @@ export default function KitchenQueueClient() {
                           <p className="text-[11px] text-amber-700 bg-amber-50 rounded-lg px-2 py-1 mb-3">{ticket.notes}</p>
                         )}
 
-                        <button
-                          onClick={() => advance(ticket)}
-                          disabled={processingId === ticket.id}
-                          className="w-full py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-                        >
-                          {processingId === ticket.id ? "Updating…" : col.nextLabel}
-                        </button>
+                        {ticket.source === "online" && ticket.status === "READY" ? (
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">
+                              {processingId === ticket.id ? "Updating…" : "Complete — paid by"}
+                            </p>
+                            <div className="grid grid-cols-3 gap-1.5">
+                              {(["CASH", "UPI", "CARD"] as const).map((method) => (
+                                <button
+                                  key={method}
+                                  onClick={() => advance(ticket, method)}
+                                  disabled={processingId === ticket.id}
+                                  className="py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                                >
+                                  {method === "CASH" ? "Cash" : method === "UPI" ? "UPI" : "Card"}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => advance(ticket)}
+                            disabled={processingId === ticket.id}
+                            className="w-full py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                          >
+                            {processingId === ticket.id ? "Updating…" : col.nextLabel}
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
