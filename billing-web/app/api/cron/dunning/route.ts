@@ -21,7 +21,12 @@ export async function GET(request: Request) {
           { nextRetryDate: null }
         ],
         // Safety: don't retry invoices older than 30 days automatically without manual intervention
-        createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+        createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+        // Idempotency: an invoice that already hit the final (3rd) failure is FAILED with
+        // nextRetryDate=null, which the OR above also matches — without this it was re-processed on
+        // every run for 30 days (re-suspending the subscription, even after a manual reactivation,
+        // and writing a new audit-log entry each night).
+        failedPaymentAttempts: { lt: 3 },
       },
       include: {
         tenant: true,
