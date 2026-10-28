@@ -46,7 +46,7 @@ interface CartContextValue {
   submitting: boolean;
   // U3: the placed order (reference + total) — shown as a confirmation that stays until the
   // customer dismisses it, instead of a 5-second toast that left guests with no order reference.
-  orderSuccess: { id: string; netAmount: number; isGuest: boolean } | null;
+  orderSuccess: { id: string; netAmount: number; isGuest: boolean; trackUrl: string | null } | null;
   dismissOrderSuccess: () => void;
   handlePlaceOrder: () => Promise<void>;
 
@@ -218,6 +218,8 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
           id: data?.order?.id ?? '',
           netAmount: Number(data?.order?.netAmount ?? 0),
           isGuest: !isLoggedIn,
+          // Live status page — the only way a guest can follow their order after this toast.
+          trackUrl: data?.order?.id ? `/track/${tenantId}/${data.order.id}` : null,
         });
       }
       else { const data = await res.json(); if (res.status === 401) { setShowCart(false); setShowAuthModal(true); } else { alert(data.error || 'Failed to place order.'); } }

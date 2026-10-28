@@ -16,6 +16,7 @@ import { Clock, Wallet, Receipt, Tag, Users } from "lucide-react";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import { CustomerGrowthChart } from "@/components/dashboard/AdvancedCharts";
 import { PeakHoursChart, PaymentMethodChart, FullCategoryChart } from "@/components/reports/ReportsCharts";
+import ProfitLossSection from "@/components/reports/ProfitLossSection";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,8 @@ export default async function ReportsPage({
 
   const tenantId = session.user.tenantId as string;
   const sp = await searchParams; // a Promise in Next 15+ — sync reads were always undefined
+  // P&L shows cost and profit, so it needs VIEW_PROFIT on top of VIEW_REPORTS.
+  const canViewProfit = await hasPermission("VIEW_PROFIT");
 
   // A dashboard card (e.g. "Average Bill Value" / "Profit") can deep-link here with an explicit
   // range; falls back to the existing fixed 30-day window when absent so nothing else on this
@@ -88,6 +91,8 @@ export default async function ReportsPage({
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Reports</h1>
           <p className="mt-1 text-sm text-gray-500">Peak hours, payments, GST, categories and customers</p>
         </header>
+
+        {canViewProfit && <ProfitLossSection tenantId={tenantId} monthKey={(sp?.pl as string) || undefined} />}
 
         {/* GST Summary stat cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

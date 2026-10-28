@@ -17,6 +17,9 @@ const record = (scenario, pass, detail) => { results.push({ scenario, result: pa
 // --- minimal cookie-jar HTTP client -------------------------------------------------------
 function jar() {
   const cookies = new Map();
+  // Each simulated client gets its own address, so per-IP rate limits (guest orders: 10 / 10 min)
+  // see distinct customers instead of one machine.
+  const ip = `10.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}`;
   const store = (res) => {
     for (const c of res.headers.getSetCookie?.() || []) {
       const [pair] = c.split(';');
@@ -30,7 +33,7 @@ function jar() {
       const res = await fetch(BASE + path, {
         method,
         redirect: 'manual',
-        headers: { 'content-type': 'application/json', cookie: header(), ...extraHeaders },
+        headers: { 'content-type': 'application/json', 'x-forwarded-for': ip, cookie: header(), ...extraHeaders },
         body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body),
       });
       store(res);

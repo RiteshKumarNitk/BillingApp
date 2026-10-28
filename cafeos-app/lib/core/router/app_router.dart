@@ -32,6 +32,7 @@ import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/welcome/presentation/pages/welcome_page.dart';
+import '../../features/loyalty/presentation/pages/loyalty_page.dart';
 import '../di/service_locator.dart';
 import '../storage/local_storage_service.dart';
 import 'go_router_refresh_stream.dart';
@@ -47,7 +48,7 @@ const _preHomeLocations = {'/splash', '/onboarding', '/welcome'};
 const _authOnlyLocations = {'/login', '/register'};
 // Guest checkout only exists on the cookie-based website path (see the backend audit this app was
 // built against) — the mobile app always requires a logged-in customer to place an order.
-const _requiresLoginLocations = {'/checkout'};
+const _requiresLoginLocations = {'/checkout', '/loyalty'};
 
 GoRouter buildAppRouter(AuthCubit authCubit) {
   return GoRouter(
@@ -107,6 +108,7 @@ GoRouter buildAppRouter(AuthCubit authCubit) {
       GoRoute(path: '/order-success', builder: (context, state) => OrderSuccessPage(args: state.extra as OrderSuccessArgs)),
       GoRoute(path: '/orders/:id', builder: (context, state) => OrderDetailPage(orderId: state.pathParameters['id']!)),
       GoRoute(path: '/favorites', builder: (context, state) => const FavoritesPage()),
+      GoRoute(path: '/loyalty', builder: (context, state) => const LoyaltyPage()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsPage()),
       GoRoute(path: '/settings', builder: (context, state) => const SettingsPage()),
       GoRoute(path: '/profile/edit', builder: (context, state) => EditProfilePage(customer: state.extra as Customer)),

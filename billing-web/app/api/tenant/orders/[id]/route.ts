@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
 import { sendPushNotification } from "@/lib/push-notifications";
 import { productTracksStock } from "@/lib/products/availability";
+import { loyaltyPointsFor } from "@/lib/loyalty";
 
 // Thrown when an order can't be completed because a managed-stock item doesn't have enough
 // stock left. Rolled back (thrown inside the $transaction) so the order stays READY and the
@@ -136,6 +137,9 @@ export async function PATCH(
             // The order's auto-applied discount (already reflected in netAmount) — recorded so the
             // invoice and reports show it instead of an unexplained gap between total and net.
             couponDiscountAmount: order.discountAmount,
+            // Recorded on the sale so a later invoice edit computes the loyalty delta from the real value
+            // (it read 0 before, and would have credited these points a second time).
+            loyaltyPointsEarned: order.customerId ? loyaltyPointsFor(order.netAmount) : 0,
             taxAmount: order.taxAmount,
             netAmount: order.netAmount,
             paymentMethod,
@@ -191,7 +195,7 @@ export async function PATCH(
             data: {
               totalSpent: { increment: order.netAmount },
               lastPurchaseDate: new Date(),
-              loyaltyPoints: { increment: Math.floor(order.netAmount / 10) },
+              loyaltyPoints: { increment: loyaltyPointsFor(order.netAmount) },
             },
           });
         }

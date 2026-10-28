@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, PauseCircle, ChefHat, RefreshCw, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ShoppingCart, User, Phone, PauseCircle, ChefHat, RefreshCw, AlertCircle, Ban } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 
-const VALID_STATUS_TABS = ["PENDING", "ON_HOLD", "ACCEPTED", "COMPLETED", "REJECTED"];
+const VALID_STATUS_TABS = ["PENDING", "ON_HOLD", "ACCEPTED", "COMPLETED", "REJECTED", "CANCELLED"];
 
 interface OrderItem {
   id: string;
@@ -146,6 +146,8 @@ export default function OrderQueueClient() {
     { key: "ACCEPTED", label: "Accepted", icon: ChefHat },
     { key: "COMPLETED", label: "Completed", icon: CheckCircle },
     { key: "REJECTED", label: "Rejected", icon: XCircle },
+    // Customer-cancelled from the app (only possible before the cafe accepted).
+    { key: "CANCELLED", label: "Cancelled", icon: Ban },
   ];
 
   return (

@@ -27,4 +27,14 @@ class OrdersRepositoryImpl implements OrdersRepository {
       return left(mapDioExceptionToFailure(e));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> cancelOrder(String id) async {
+    try {
+      await remoteDataSource.cancelOrder(id);
+      return right(unit);
+    } on DioException catch (e) {
+      return left(mapDioExceptionToFailure(e));
+    }
+  }
 }

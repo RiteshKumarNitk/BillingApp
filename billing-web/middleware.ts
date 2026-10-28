@@ -47,6 +47,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/menu') ||
     pathname.startsWith('/site') ||
     pathname.startsWith('/s/') ||
+    // Public order-status pages for guests (the random order id in the URL is the credential).
+    pathname.startsWith('/track/') ||
     pathname.startsWith('/customer') ||
     MARKETING_PAGES.includes(pathname) ||
     // SEO metadata files must reach crawlers without a session (previously /robots.txt 307'd to
@@ -88,7 +90,7 @@ export async function middleware(request: NextRequest) {
     }
     
     // Tenant only routes
-    const tenantOnlyRoutes = ['/products', '/billing', '/roles'];
+    const tenantOnlyRoutes = ['/products', '/billing', '/roles', '/expenses', '/discounts'];
     const isTenantRoute = tenantOnlyRoutes.some(route => pathname.startsWith(route));
     
     if (role === 'SUPERADMIN' && isTenantRoute) {

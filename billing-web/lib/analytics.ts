@@ -522,3 +522,57 @@ export async function getCustomerOfTheMonth(tenantId: string) {
     lastVisit: customer?.lastPurchaseDate ?? null,
   };
 }
+
+// Profit & Loss for [from, to). Revenue is what customers were billed (netAmount); GST collected
+// is a liability, not income, so it's removed to get net sales. COGS uses the purchase price
+// snapshotted on each sale line; expenses come from the Expense ledger by date. Callers must check
+// VIEW_PROFIT. Line items are fetched per in-range sale (OFFSET 0 fence, see windowedLinesSql) so
+// the cost stays proportional to this tenant's period, not the platform's line-item table.
+export async function getProfitAndLoss(tenantId: string, from: Date, to: Date) {
+  const [salesRow, cogsRow, expenseRows] = await Promise.all([
+    prisma.transaction.aggregate({
+      _sum: { netAmount: true, taxAmount: true },
+      _count: true,
+      where: { tenantId, status: NOT_HELD, createdAt: { gte: from, lt: to } },
+    }),
+    prisma.$queryRaw<{ cost: number | string | null }[]>`
+      SELECT SUM(l."purchasePrice" * l."quantity") AS cost
+      FROM "Transaction" t
+      CROSS JOIN LATERAL (
+        SELECT ti."purchasePrice", ti."quantity" FROM "TransactionItem" ti WHERE ti."transactionId" = t."id" OFFSET 0
+      ) l
+      WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${from} AND t."createdAt" < ${to}
+    `,
+    prisma.expense.groupBy({
+      by: ["category"],
+      where: { tenantId, date: { gte: from, lt: to } },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const round = (n: number) => Math.round(n * 100) / 100;
+  const grossBilled = salesRow._sum.netAmount || 0;
+  const taxCollected = salesRow._sum.taxAmount || 0;
+  const netSales = grossBilled - taxCollected;
+  const costOfGoods = Number(cogsRow[0]?.cost || 0);
+  const grossProfit = netSales - costOfGoods;
+  const expenses = expenseRows
+    .map((r) => ({ category: r.category, total: round(r._sum.amount || 0) }))
+    .sort((a, b) => b.total - a.total);
+  const totalExpenses = expenses.reduce((s, e) => s + e.total, 0);
+  const netProfit = grossProfit - totalExpenses;
+
+  return {
+    salesCount: salesRow._count,
+    grossBilled: round(grossBilled),
+    taxCollected: round(taxCollected),
+    netSales: round(netSales),
+    costOfGoods: round(costOfGoods),
+    grossProfit: round(grossProfit),
+    grossMarginPercent: netSales > 0 ? round((grossProfit / netSales) * 100) : 0,
+    expenses,
+    totalExpenses: round(totalExpenses),
+    netProfit: round(netProfit),
+    netMarginPercent: netSales > 0 ? round((netProfit / netSales) * 100) : 0,
+  };
+}

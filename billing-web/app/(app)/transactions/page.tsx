@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth/nextauth';
 import { format, startOfDay, endOfDay, parseISO } from 'date-fns';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Receipt, Search, Calendar } from 'lucide-react';
+import { Receipt, Search, Calendar, Download } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -58,6 +58,9 @@ export default async function TransactionsPage({
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
+  // Export follows the date filter when both ends are set (otherwise the current month).
+  const canExport = session.user.role === 'SUPERADMIN' || (session.user.permissions || []).includes('VIEW_REPORTS');
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -65,6 +68,11 @@ export default async function TransactionsPage({
           <h1 className="text-2xl font-bold text-gray-900">All Transactions</h1>
           <p className="mt-1 text-sm text-gray-500">{total} total bills found</p>
         </div>
+        {canExport && (
+          <a href={dateFrom && dateTo ? `/api/export/sales?from=${dateFrom}&to=${dateTo}` : '/api/export/sales'} className="inline-flex items-center gap-1.5 self-start rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:self-auto">
+            <Download className="h-4 w-4" /> Export CSV
+          </a>
+        )}
       </div>
 
       {/* Filters */}

@@ -3,6 +3,7 @@ import type { Prisma } from "../../generated/prisma";
 import { checkFeatureLimit } from "@/lib/subscription";
 import { findOrCreateCustomerByPhone } from "@/lib/customers";
 import { getTenantTimeZone, isSameDayInTz } from "@/lib/tenantTime";
+import { LOYALTY_POINT_VALUE, loyaltyPointsFor } from "@/lib/loyalty";
 
 export class TransactionError extends Error {
   status: number;
@@ -12,9 +13,7 @@ export class TransactionError extends Error {
   }
 }
 
-// 1 loyalty point = ₹1 of discount when redeemed; 1 point earned per ₹100 of net spend.
-const LOYALTY_POINT_VALUE = 1;
-const LOYALTY_EARN_RATE = 100;
+// Loyalty rules live in lib/loyalty.ts (shared with online-order completion and the app).
 
 interface SelectedAddOnInput {
   id?: string;
@@ -362,7 +361,7 @@ async function buildTransactionPlan(params: CreateTransactionParams) {
     subtotalAfterItemDiscounts - couponDiscountAmount - billDiscountAmount - loyaltyDiscountAmount + taxValue
   );
 
-  const loyaltyPointsEarned = Math.floor(netAmount / LOYALTY_EARN_RATE);
+  const loyaltyPointsEarned = loyaltyPointsFor(netAmount);
 
   // --- Payment(s) ---
   // Split-payment path: caller sends `payments: [{method, amount}, ...]`. Falls back to the
@@ -1098,7 +1097,7 @@ export async function editTransaction(params: EditTransactionParams) {
     subtotalAfterItemDiscounts - existing.couponDiscountAmount - billDiscountAmount - existing.loyaltyDiscountAmount + taxValue
   );
 
-  const newLoyaltyPointsEarned = existing.customerId ? Math.floor(netAmount / LOYALTY_EARN_RATE) : 0;
+  const newLoyaltyPointsEarned = existing.customerId ? loyaltyPointsFor(netAmount) : 0;
   const loyaltyPointsEarnedDelta = newLoyaltyPointsEarned - existing.loyaltyPointsEarned;
 
   return prisma.$transaction(async (tx) => {

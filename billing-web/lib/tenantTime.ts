@@ -91,3 +91,31 @@ export function formatDateKey(value: Date | string): string {
   const dd = String(d.getUTCDate()).padStart(2, "0");
   return `${mm}/${dd}`;
 }
+
+// "YYYY-MM" → that calendar month in the tenant's timezone as UTC instants [start, end). Anything
+// missing or malformed falls back to the current month. Also returns the key actually used and
+// its neighbours for prev/next navigation.
+export function monthRangeInTz(monthKey: string | null | undefined, timeZone: string) {
+  const now = wallClockInTz(new Date(), timeZone);
+  const m = /^(\d{4})-(\d{2})$/.exec(monthKey || "");
+  let year = now.year;
+  let month = now.month;
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    if (y >= 2000 && y <= 2100 && mo >= 1 && mo <= 12) { year = y; month = mo; }
+  }
+  const key = (y: number, mo: number) => {
+    const d = new Date(Date.UTC(y, mo - 1, 1));
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+  };
+  return {
+    key: key(year, month),
+    prevKey: key(year, month - 1),
+    nextKey: key(year, month + 1),
+    isCurrentMonth: year === now.year && month === now.month,
+    start: zonedMidnightToUtc(year, month, 1, timeZone),
+    end: zonedMidnightToUtc(year, month + 1, 1, timeZone),
+    label: new Date(Date.UTC(year, month - 1, 15)).toLocaleDateString("en-IN", { month: "long", year: "numeric", timeZone: "UTC" }),
+  };
+}

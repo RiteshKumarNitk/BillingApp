@@ -33,9 +33,14 @@ export function OrderSuccessToast({ theme }: { theme?: MenuTheme }) {
       )}
       <p className="text-xs text-gray-400 mt-1">
         {orderSuccess.isGuest
-          ? 'Show this order number at the counter. Keep this page open or note it down.'
-          : <>Track it any time under <a href="/customer/orders" className="underline text-white">My Orders</a>.</>}
+          ? 'Show this order number at the counter.'
+          : <>Also in <a href="/customer/orders" className="underline text-white">My Orders</a>.</>}
       </p>
+      {orderSuccess.trackUrl && (
+        <a href={orderSuccess.trackUrl} className="mt-3 inline-block rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-900 hover:bg-gray-100">
+          Track your order →
+        </a>
+      )}
     </div>
   );
 }

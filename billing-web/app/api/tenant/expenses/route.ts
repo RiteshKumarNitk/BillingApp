@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
+import { hasPermission } from "@/lib/permissions";
 
 // GET: List expenses for tenant
 export async function GET(request: NextRequest) {
@@ -9,6 +10,10 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.tenantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // Expenses are the private ledger behind net profit — same gate as the Expenses page.
+    if (!(await hasPermission("VIEW_PROFIT"))) {
+      return NextResponse.json({ error: "Forbidden: requires VIEW_PROFIT" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -45,6 +50,10 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.tenantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    // Expenses are the private ledger behind net profit — same gate as the Expenses page.
+    if (!(await hasPermission("VIEW_PROFIT"))) {
+      return NextResponse.json({ error: "Forbidden: requires VIEW_PROFIT" }, { status: 403 });
+    }
 
     const { name, category, amount, date, notes } = await request.json();
 
@@ -76,6 +85,10 @@ export async function DELETE(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.tenantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // Expenses are the private ledger behind net profit — same gate as the Expenses page.
+    if (!(await hasPermission("VIEW_PROFIT"))) {
+      return NextResponse.json({ error: "Forbidden: requires VIEW_PROFIT" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

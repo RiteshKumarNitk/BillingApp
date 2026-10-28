@@ -7,6 +7,51 @@ Newest entries first. When adding a new report, keep the same structure: date, s
 
 ---
 
+## 2026-10-28 — Tier 1 features (from the 10-26 gap analysis)
+
+**Scope:** the six "backend exists, UI missing" features. No schema changes or migrations were
+needed. Verified on a production build against the dev DB with the synthetic dataset (removed
+afterwards): **41/41** feature checks (`scripts/loadtest/features.cjs`), **17/17** server-action
+checks called exactly as the browser does (`scripts/loadtest/actions.cjs`), and the 13-scenario
+concurrency/isolation suite re-run as a regression (13/13). 0 unhandled server errors.
+
+| Feature | Where | Verified |
+|---|---|---|
+| **Expenses** | `/expenses` (sidebar → Insights, needs VIEW_PROFIT), `lib/actions/expenses.ts` | Add/delete, month navigation, per-category totals, paise rounding, unknown category → Other, Cashier denied, can't touch another cafe's expense |
+| **Profit & Loss** | Reports page (VIEW_PROFIT only), `getProfitAndLoss` | Net sales and net profit match an independent SQL computation to the paisa (7,495 sales in the month) |
+| **Discounts & Coupons admin** | `/discounts` (sidebar → Catalog, needs EDIT_PRODUCT), `lib/actions/discounts.ts` | Create/edit/toggle/delete; coupon vs automatic offer; case-insensitive duplicate codes rejected; dates are the cafe's calendar days; POS applies a created coupon and rejects an expired one |
+| **CSV export** | `/api/export/{sales,gst,customers,expenses}`; buttons on Transactions, Customers, Expenses, P&L | Row counts and totals match the DB; streamed (30,004 customers); spreadsheet formula injection neutralised; customer export audit-logged; permission/validation/auth errors |
+| **Guest order tracking** | `/track/[cafe]/[orderId]`, linked from the order confirmation | Live status + auto-refresh, first name only (no phone), noindex, real 404 for unknown/other-cafe/malformed ids |
+| **Cancel order (app)** | `PATCH /api/mobile/customer/orders/[id]`, Flutter order detail, new Cancelled tab in Order Requests | Pending only; 409 with explanation once accepted; idempotent; other customers get 404; cancel racing Accept → exactly one wins |
+| **Loyalty in the app** | `GET /api/mobile/customer/loyalty`, Flutter Profile → Loyalty Points | App balance = DB balance; rules served by the API |
+
+**Bugs found and fixed while building these:**
+- **Loyalty earn rate was inconsistent:** POS earned 1 point per ₹100, online orders 1 per ₹10 (10×).
+  Now one source of truth (`lib/loyalty.ts`). Online completions also now record
+  `loyaltyPointsEarned` on the sale (an invoice edit would otherwise have re-credited the points).
+- **Server action error messages were masked in production** — the browser received only a digest,
+  so "Amount must be greater than zero" became a generic error. New actions return
+  `ActionResult` (`lib/actionResult.ts`); verified the real message reaches the client. **Every
+  older action in the app (units, products, roles, tables, users, tenants…) still throws, so their
+  validation messages are masked in production — open.**
+- The legacy `/api/tenant/expenses` route had no permission check (any cashier could add/delete) —
+  now VIEW_PROFIT.
+- CSV money rounding used `Math.round(v*100)/100` (binary float) — 6 paise drift over a month; now
+  decimal-correct (12 edge cases).
+- Pages under `/site/[tenantId]` stream (that segment has `loading.tsx`), so `notFound()` there
+  renders the 404 page with **HTTP 200** — why tracking lives at `/track/`.
+
+**Not verified:** the Flutter changes (cancel button, loyalty screen, DI/route wiring) — no
+Flutter SDK on this machine, so they are uncompiled and untested on a device. Run
+`flutter analyze` and test on Android before release.
+
+**Known limitations (by design, documented in the UI):** loyalty points are redeemed at the POS
+counter only; customers can't cancel after the cafe accepts; GST export is a daily summary (sale
+lines don't snapshot their GST rate, so no per-rate/HSN breakdown); P&L counts products without a
+purchase price as zero cost.
+
+---
+
 ## 2026-10-28 — Production readiness, scalability & reliability phase
 
 **Scope:** No new features. Measure → find bottleneck → fix → re-measure, across security,

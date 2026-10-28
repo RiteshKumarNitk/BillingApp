@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Users, Star } from 'lucide-react';
+import { Search, Users, Star, Download } from 'lucide-react';
 import { listCustomers } from '@/lib/customers';
 
 const ITEMS_PER_PAGE = 25;
@@ -28,6 +28,9 @@ export default async function CustomersPage({
   const { customers, total } = await listCustomers({ tenantId, search: query, page, pageSize: ITEMS_PER_PAGE, createdFrom: createdFrom || undefined });
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
+  // Bulk personal data: only roles that can see reports may export it (each export is audit-logged).
+  const canExport = (session.user.permissions || []).includes('VIEW_REPORTS');
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -37,6 +40,11 @@ export default async function CustomersPage({
             {total} customer{total === 1 ? '' : 's'} {createdFrom ? 'joined since ' + createdFrom : 'on file'}
           </p>
         </div>
+        {canExport && (
+          <a href={'/api/export/customers'} className="inline-flex items-center gap-1.5 self-start rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:self-auto">
+            <Download className="h-4 w-4" /> Export CSV
+          </a>
+        )}
       </div>
 
       <form className="mb-6 flex flex-col sm:flex-row gap-3" method="GET">

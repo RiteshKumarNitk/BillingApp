@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 // https://app.example.com) to lock browser access down to a single web origin once one exists.
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.MOBILE_API_CORS_ORIGIN || '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 

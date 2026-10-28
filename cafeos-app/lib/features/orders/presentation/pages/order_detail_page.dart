@@ -49,6 +49,31 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
     );
   }
 
+  /// Only offered while the cafe hasn't started (pending). The server enforces the same rule and
+  /// explains if the cafe accepted the order in the meantime.
+  Future<void> _confirmCancel(BuildContext context) async {
+    final cubit = context.read<OrderDetailCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cancel this order?'),
+        content: const Text('The cafe hasn\'t started on it yet, so you can still cancel.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Keep order')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Cancel order')),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final cancelled = await cubit.cancelOrder();
+    if (!mounted) return;
+    if (cancelled) {
+      AppToast.success(this.context, 'Order cancelled');
+    } else {
+      AppToast.error(this.context, cubit.state.cancelError ?? 'Could not cancel this order');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,6 +183,16 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                if (order.status == OrderStatus.pending) ...[
+                  PrimaryButton(
+                    label: 'Cancel order',
+                    icon: Icons.close_rounded,
+                    outlined: true,
+                    isLoading: state.isCancelling,
+                    onPressed: state.isCancelling ? null : () => _confirmCancel(context),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 PrimaryButton(
                   label: 'Reorder from ${order.tenantName}',
                   icon: Icons.replay_rounded,

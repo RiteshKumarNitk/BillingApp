@@ -82,6 +82,13 @@ class ProfilePage extends StatelessWidget {
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.stars_outlined),
+                title: const Text('Loyalty Points'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/loyalty'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.receipt_long_outlined),
                 title: const Text('Order History'),
                 trailing: const Icon(Icons.chevron_right_rounded),

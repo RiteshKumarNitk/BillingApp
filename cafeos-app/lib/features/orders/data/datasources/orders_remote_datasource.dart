@@ -17,4 +17,10 @@ class OrdersRemoteDataSource {
     final data = response.data as Map<String, dynamic>;
     return OrderModel.fromJson(data['order'] as Map<String, dynamic>);
   }
+
+  /// Cancels an order the cafe hasn't started yet. The server answers 409 once the cafe has
+  /// accepted it (the message tells the customer to contact the cafe).
+  Future<void> cancelOrder(String id) async {
+    await dio.patch('/customer/orders/$id', data: {'action': 'CANCEL'});
+  }
 }

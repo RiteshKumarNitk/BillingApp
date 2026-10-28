@@ -19,7 +19,9 @@ import {
   Globe,
   QrCode,
   ChefHat,
-  BarChart3
+  BarChart3,
+  Wallet,
+  Percent
 } from 'lucide-react';
 import { getProductsAreaLabel } from '@/lib/productForm/businessTypeConfig';
 
@@ -31,6 +33,8 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
 
   const hasManageUsers = user?.permissions?.includes('MANAGE_USERS');
   const hasViewReports = user?.permissions?.includes('VIEW_REPORTS');
+  const hasViewProfit = user?.permissions?.includes('VIEW_PROFIT');
+  const hasEditProduct = user?.permissions?.includes('EDIT_PRODUCT');
 
   type NavLink = { name: string, href: string, icon: any };
   // A section with no `title` renders with no header (used for Dashboard, which sits above every
@@ -68,6 +72,7 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
       { name: 'Base Units', href: '/products/units', icon: Ruler },
       { name: 'Bulk Inventory', href: '/inventory', icon: Package },
       { name: 'Barcode Labels', href: '/barcodes', icon: Tag },
+      ...(hasEditProduct ? [{ name: 'Discounts & Coupons', href: '/discounts', icon: Percent }] : []),
     ];
 
     const storefrontLinks: NavLink[] = [];
@@ -81,6 +86,9 @@ export default function Sidebar({ user, tenant }: { user: any, tenant: any }) {
     const insightsLinks: NavLink[] = [];
     if (hasViewReports) {
       insightsLinks.push({ name: 'Reports', href: '/reports', icon: BarChart3 });
+    }
+    if (hasViewProfit) {
+      insightsLinks.push({ name: 'Expenses', href: '/expenses', icon: Wallet });
     }
 
     const teamLinks: NavLink[] = [];

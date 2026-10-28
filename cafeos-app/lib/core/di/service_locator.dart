@@ -16,6 +16,7 @@ import '../../features/authentication/domain/usecases/update_profile_usecase.dar
 import '../../features/authentication/presentation/cubit/auth_cubit.dart';
 
 import '../../features/cafes/data/datasources/cafes_remote_datasource.dart';
+import '../../features/loyalty/data/loyalty_remote_datasource.dart';
 import '../../features/cafes/data/repositories/cafes_repository_impl.dart';
 import '../../features/cafes/domain/repositories/cafes_repository.dart';
 import '../../features/cafes/domain/usecases/get_cafes_usecase.dart';
@@ -41,6 +42,7 @@ import '../../features/orders/data/repositories/orders_repository_impl.dart';
 import '../../features/orders/domain/repositories/orders_repository.dart';
 import '../../features/orders/domain/usecases/get_orders_usecase.dart';
 import '../../features/orders/domain/usecases/get_order_by_id_usecase.dart';
+import '../../features/orders/domain/usecases/cancel_order_usecase.dart';
 import '../../features/orders/presentation/cubit/orders_cubit.dart';
 import '../../features/orders/presentation/cubit/order_detail_cubit.dart';
 
@@ -103,6 +105,7 @@ Future<void> initServiceLocator() async {
 
   // Cafes
   sl.registerLazySingleton<CafesRemoteDataSource>(() => CafesRemoteDataSource(sl<DioClient>().dio));
+  sl.registerLazySingleton<LoyaltyRemoteDataSource>(() => LoyaltyRemoteDataSource(sl<DioClient>().dio));
   sl.registerLazySingleton<CafesRepository>(() => CafesRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetCafesUseCase(sl()));
   sl.registerLazySingleton(() => GetCafeByIdUseCase(sl()));
@@ -131,7 +134,8 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
   sl.registerLazySingleton(() => GetOrderByIdUseCase(sl()));
   sl.registerFactory(() => OrdersCubit(getOrdersUseCase: sl()));
-  sl.registerFactoryParam<OrderDetailCubit, String, void>((orderId, _) => OrderDetailCubit(getOrderByIdUseCase: sl(), orderId: orderId));
+  sl.registerLazySingleton(() => CancelOrderUseCase(sl()));
+  sl.registerFactoryParam<OrderDetailCubit, String, void>((orderId, _) => OrderDetailCubit(getOrderByIdUseCase: sl(), cancelOrderUseCase: sl(), orderId: orderId));
 
   // Favorites — one instance for the whole app session (see main.dart), same reasoning as Cart.
   sl.registerLazySingleton<FavoritesRemoteDataSource>(() => FavoritesRemoteDataSource(sl<DioClient>().dio));
