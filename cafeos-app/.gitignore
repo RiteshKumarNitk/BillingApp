@@ -54,3 +54,9 @@ lib/firebase_options.dart
 .env
 .env.*
 *.env.json
+
+# A stray `npm install flutter` (the npm package, not the Flutter SDK) was committed once.
+# This is a Flutter project: no npm files belong here.
+/node_modules/
+/package.json
+/package-lock.json
