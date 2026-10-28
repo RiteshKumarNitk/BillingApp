@@ -54,7 +54,12 @@ export async function PATCH(
 
     if (action === "REJECT") {
       await prisma.$transaction(async (tx) => {
-        await tx.orderRequest.update({ where: { id }, data: { status: "REJECTED" } });
+        // Compare-and-set so a concurrent APPROVE and REJECT can't both apply.
+        const moved = await tx.orderRequest.updateMany({
+          where: { id, tenantId: auth.tenantId, status: "PENDING" },
+          data: { status: "REJECTED" },
+        });
+        if (moved.count === 0) throw new OrderApprovalError("This order was already processed");
         // Guest orders (no CustomerAccount) have no in-app notification/push target.
         if (order.customerAccountId) {
           await tx.notification.create({
@@ -92,6 +97,13 @@ export async function PATCH(
 
     // APPROVE: Create transaction, update stock, create notification
     const transaction = await prisma.$transaction(async (tx) => {
+      // Atomic claim (PENDING → COMPLETED) so two concurrent approvals can't create two invoices.
+      const claimed = await tx.orderRequest.updateMany({
+        where: { id, tenantId: auth.tenantId, status: "PENDING" },
+        data: { status: "COMPLETED" },
+      });
+      if (claimed.count === 0) throw new OrderApprovalError("This order was already processed");
+
       const txn = await tx.transaction.create({
         data: {
           tenantId: auth.tenantId,

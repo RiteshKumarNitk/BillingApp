@@ -6,6 +6,7 @@ import { searchProducts } from '@/lib/actions/products';
 import { findCustomerByPhone } from '@/lib/actions/customers';
 import { getMyPermissions } from '@/lib/actions/users';
 import { isValidPhone } from '@/lib/utils/phone';
+import { newIdempotencyKey } from '@/lib/utils/idempotency';
 import { isOutOfStock as checkOutOfStock } from '@/lib/products/availability';
 import { useToast } from '@/components/ui/Toast';
 import { Search, Camera, Plus, Minus, Trash2, Barcode, X, ShoppingCart, AlertCircle, Printer, User, CreditCard, Landmark, Smartphone, ChevronDown, Check, Package, Tag, Star, PauseCircle, PlayCircle } from 'lucide-react';
@@ -35,6 +36,9 @@ export default function GenericBillingClient() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<number | null>(null);
   const cartRef = useRef<HTMLDivElement>(null);
+  // One idempotency key per checkout attempt — reused if the same bill is retried (network error,
+  // double click), cleared once a sale succeeds, so the server can never record it twice.
+  const checkoutKeyRef = useRef<string | null>(null);
 
   const [selectedComplexProduct, setSelectedComplexProduct] = useState<any>(null);
   const [customerName, setCustomerName] = useState('');
@@ -356,6 +360,7 @@ export default function GenericBillingClient() {
       // A resumed held bill is finalized through /resume, which re-validates stock/coupon/loyalty
       // against the held record itself and only accepts payment + customer info — item/discount
       // edits aren't possible here (see resumingBillId guards above).
+      if (!checkoutKeyRef.current) checkoutKeyRef.current = newIdempotencyKey();
       const response = resumingBillId
         ? await fetch(`/api/transactions/${resumingBillId}/resume`, {
             method: 'POST',
@@ -364,7 +369,7 @@ export default function GenericBillingClient() {
           })
         : await fetch('/api/transactions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Idempotency-Key': checkoutKeyRef.current },
             body: JSON.stringify({
               items: cart.map(item => ({
                 productId: item.productId,
@@ -393,6 +398,7 @@ export default function GenericBillingClient() {
         throw new Error(data.error || 'Failed to create bill');
       }
 
+      checkoutKeyRef.current = null;
       addToast('success', 'Bill created successfully!');
       setResumingBillId(null);
       router.push(`/billing/${data.transaction.id}`);

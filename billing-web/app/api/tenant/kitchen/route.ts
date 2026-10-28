@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import prisma from "@/lib/prisma";
 
+// Per source (online / POS). A real kitchen board shows tens of tickets; this only bites when a
+// backlog of never-closed orders builds up.
+const KITCHEN_TICKET_CAP = 150;
+
 export interface KitchenTicket {
   id: string; // "order:<uuid>" | "txn:<uuid>"
   source: "online" | "pos";
@@ -28,17 +32,36 @@ export async function GET(request: NextRequest) {
     }
     const tenantId = session.user.tenantId;
 
-    const [orderRequests, transactions] = await Promise.all([
+    // Bounded: every kitchen screen polls this every 10s. Previously it returned EVERY active
+    // ticket — a backlog of never-closed online orders made one poll 3.4 MB / 18–35 s in the load
+    // test (11k tickets), stalling the whole instance. Oldest first is the kitchen's own priority,
+    // so the cap never hides the most urgent tickets; totals below let the screen show "+N more".
+    const onlineWhere = { tenantId, status: { in: ["ACCEPTED", "PREPARING", "READY"] } };
+    const posWhere = { tenantId, kitchenStatus: { in: ["PREPARING", "READY"] } };
+    const ticketItemSelect = { select: { name: true, quantity: true, comboComponents: true } };
+    const [orderRequests, transactions, onlineTotal, posTotal] = await Promise.all([
       prisma.orderRequest.findMany({
-        where: { tenantId, status: { in: ["ACCEPTED", "PREPARING", "READY"] } },
-        include: { items: true, table: true, customerAccount: { select: { name: true } } },
+        where: onlineWhere,
+        select: {
+          id: true, status: true, orderType: true, guestName: true, notes: true, createdAt: true,
+          items: ticketItemSelect,
+          table: { select: { label: true } },
+          customerAccount: { select: { name: true } },
+        },
         orderBy: { createdAt: "asc" },
+        take: KITCHEN_TICKET_CAP,
       }),
       prisma.transaction.findMany({
-        where: { tenantId, kitchenStatus: { in: ["PREPARING", "READY"] } },
-        include: { items: true },
+        where: posWhere,
+        select: {
+          id: true, kitchenStatus: true, tableNumber: true, orderType: true, customerName: true, notes: true, createdAt: true,
+          items: ticketItemSelect,
+        },
         orderBy: { createdAt: "asc" },
+        take: KITCHEN_TICKET_CAP,
       }),
+      prisma.orderRequest.count({ where: onlineWhere }),
+      prisma.transaction.count({ where: posWhere }),
     ]);
 
     const onlineTickets: KitchenTicket[] = orderRequests.map((o) => ({
@@ -77,7 +100,8 @@ export async function GET(request: NextRequest) {
 
     const tickets = [...onlineTickets, ...posTickets].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
-    return NextResponse.json({ tickets });
+    const hiddenCount = Math.max(0, onlineTotal - orderRequests.length) + Math.max(0, posTotal - transactions.length);
+    return NextResponse.json({ tickets, totalActive: onlineTotal + posTotal, hiddenCount });
   } catch (error) {
     console.error("Error fetching kitchen tickets:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

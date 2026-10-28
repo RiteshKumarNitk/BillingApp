@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { signIn } from 'next-auth/react';
+import { newIdempotencyKey } from '@/lib/utils/idempotency';
 
 export interface CartItem {
   productId: string;
@@ -71,6 +72,9 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // One idempotency key per checkout attempt, reused on retries and cleared after success, so a
+  // double tap or network retry can never create two orders.
+  const checkoutKeyRef = useRef<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<CartContextValue['orderSuccess']>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'guest'>('guest');
@@ -193,9 +197,10 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
     if (!isLoggedIn && !effectiveGuest) { setShowCart(false); setShowAuthModal(true); return; }
     setSubmitting(true);
     try {
+      if (!checkoutKeyRef.current) checkoutKeyRef.current = newIdempotencyKey();
       const res = await fetch('/api/customer/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': checkoutKeyRef.current },
         body: JSON.stringify({
           tenantId,
           items: cart.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
@@ -206,6 +211,7 @@ export function CartProvider({ tenantId, children }: { tenantId: string; childre
       });
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
+        checkoutKeyRef.current = null;
         setCart([]);
         setShowCart(false);
         setOrderSuccess({

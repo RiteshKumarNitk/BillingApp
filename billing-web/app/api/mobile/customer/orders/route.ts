@@ -3,6 +3,10 @@ import prisma from "@/lib/prisma";
 import { sendPushNotification } from "@/lib/push-notifications";
 import { getCustomerIdFromAuthHeader } from "@/lib/auth/customer-mobile";
 import { createCustomerOrder } from "@/lib/orders/createCustomerOrder";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { CUSTOMER_ORDER_LIMIT, CUSTOMER_ORDER_WINDOW_MS } from "@/lib/orders/limits";
+import { isDatabaseBusyError, DB_BUSY_RESPONSE } from "@/lib/dbErrors";
+import { log } from "@/lib/logger";
 
 // Bucketed for the "My Orders" tabs — status is a free-form string (see schema comment on
 // OrderRequest.status), so bucketing happens here rather than via a Prisma enum.
@@ -62,6 +66,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Customer accounts are free to create, so a logged-in customer is still an untrusted caller —
+    // cap order spam against a cafe's queue (same key as the website checkout).
+    if (!checkRateLimit(`customer-order:${customerAccountId}`, CUSTOMER_ORDER_LIMIT, CUSTOMER_ORDER_WINDOW_MS)) {
+      return NextResponse.json({ error: "Too many orders. Please try again in a few minutes." }, { status: 429 });
+    }
+
     const { tenantId, items, notes, tableToken, idempotencyKey } = await request.json();
 
     const result = await createCustomerOrder({
@@ -90,7 +100,12 @@ export async function POST(request: NextRequest) {
       order: result.order,
     }, { status: 201 });
   } catch (error) {
-    console.error("Order submission error:", error);
+    // Transient DB saturation → 503 + Retry-After; the order's idempotency key makes a retry safe.
+    if (isDatabaseBusyError(error)) {
+      log.warn("order.create_db_busy", { error });
+      return NextResponse.json(DB_BUSY_RESPONSE.body, DB_BUSY_RESPONSE.init);
+    }
+    log.error("order.create_failed", { error });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

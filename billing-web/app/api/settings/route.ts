@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import prisma from '@/lib/prisma';
 import { hasPermission } from '@/lib/permissions';
+import { invalidatePublicCache } from "@/lib/publicCache";
 
 export async function PUT(request: NextRequest) {
   try {
@@ -57,6 +58,8 @@ export async function PUT(request: NextRequest) {
 
     const updatedTenant = await prisma.tenant.update({ where: { id: tenantId }, data: updateData });
 
+    // Public storefront/app menu caches (lib/publicCache.ts) must not serve the pre-edit version.
+    invalidatePublicCache();
     return NextResponse.json({ message: 'Settings updated successfully', tenant: updatedTenant });
   } catch (error: any) {
     console.error('Settings update error:', error);

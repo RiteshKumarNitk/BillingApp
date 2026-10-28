@@ -2,7 +2,8 @@ import React from 'react';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { resolveTenant, resolveTenantWithProducts, getWebsiteConfig } from '@/lib/website/utils';
+import { getCachedPublicSite, getWebsiteConfig } from '@/lib/website/utils';
+import { toPublicSiteTenant } from '@/lib/website/publicTenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ interface SitePageProps {
 
 export async function generateMetadata({ params }: SitePageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const tenant = await resolveTenant(resolvedParams.tenantId);
+  const tenant = await getCachedPublicSite(resolvedParams.tenantId);
 
   if (!tenant) {
     return { title: 'Site Not Found' };
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: SitePageProps): Promise<Metad
 
 export default async function SitePage({ params }: SitePageProps) {
   const resolvedParams = await params;
-  const tenant = await resolveTenantWithProducts(resolvedParams.tenantId);
+  const tenant = await getCachedPublicSite(resolvedParams.tenantId);
 
   if (!tenant) {
     notFound();
@@ -52,6 +53,6 @@ export default async function SitePage({ params }: SitePageProps) {
   const config = getWebsiteConfig(tenant);
 
   return (
-    <WebsiteRenderer config={config} tenant={tenant} />
+    <WebsiteRenderer config={config} tenant={toPublicSiteTenant(tenant)} />
   );
 }

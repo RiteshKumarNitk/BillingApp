@@ -4,6 +4,7 @@ import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
 import SitePageShell from '@/components/website/SitePageShell';
 import PageDisabled from '@/components/website/PageDisabled';
 import AboutContent from './AboutContent';
+import { toPublicSiteTenant } from '@/lib/website/publicTenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,15 +26,15 @@ export default async function AboutPage({ params }: { params: Promise<{ tenantId
 
   if (config.pages?.about === false) {
     return (
-      <SitePageShell config={config} tenant={tenant}>
+      <SitePageShell config={config} tenant={toPublicSiteTenant(tenant)}>
         <PageDisabled label="About" />
       </SitePageShell>
     );
   }
 
   return (
-    <SitePageShell config={config} tenant={tenant}>
-      <AboutContent config={config} tenant={tenant} />
+    <SitePageShell config={config} tenant={toPublicSiteTenant(tenant)}>
+      <AboutContent config={config} tenant={toPublicSiteTenant(tenant)} />
     </SitePageShell>
   );
 }

@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 export default async function ReportsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -45,12 +45,13 @@ export default async function ReportsPage({
   }
 
   const tenantId = session.user.tenantId as string;
+  const sp = await searchParams; // a Promise in Next 15+ — sync reads were always undefined
 
   // A dashboard card (e.g. "Average Bill Value" / "Profit") can deep-link here with an explicit
   // range; falls back to the existing fixed 30-day window when absent so nothing else on this
   // page changes behavior.
-  const fromParam = (searchParams?.from as string) || "";
-  const toParam = (searchParams?.to as string) || "";
+  const fromParam = (sp?.from as string) || "";
+  const toParam = (sp?.to as string) || "";
   const rangeEnd = toParam ? new Date(toParam) : new Date();
   const rangeDays = fromParam
     ? Math.max(1, Math.ceil((rangeEnd.getTime() - new Date(fromParam).getTime()) / (1000 * 60 * 60 * 24)))
@@ -165,7 +166,7 @@ export default async function ReportsPage({
         {/* Top Categories (promoted from dashboard widget) */}
         <section className="mb-8 rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
           <h2 className="mb-4 text-lg font-bold text-gray-800 flex items-center gap-2">
-            <Tag className="h-5 w-5 text-emerald-500" /> Top Categories
+            <Tag className="h-5 w-5 text-emerald-500" /> Top Categories <span className="text-sm font-medium text-gray-400">· last 90 days</span>
           </h2>
           <div className="h-80">
             {categoryData.length === 0 ? (

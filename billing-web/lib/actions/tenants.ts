@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
+import { invalidatePublicCache } from "@/lib/publicCache";
 import bcrypt from "bcryptjs";
 import { toUrlSlug } from "@/lib/website/slug";
 import { createDefaultRoles, seedTenantWorkspaceDefaults } from "@/lib/tenantOnboarding";
@@ -26,6 +27,7 @@ export async function updateBranding(data: { primaryColor: string; fontFamily: s
     }
   });
 
+  invalidatePublicCache();
   revalidatePath("/settings/branding");
   return true;
 }
@@ -250,6 +252,7 @@ export async function createTenant(data: any) {
     console.error(`[createTenant] Welcome email to ${data.email} failed:`, emailResult.error);
   }
 
+  invalidatePublicCache();
   revalidatePath('/tenants');
   return tenant;
 }
@@ -286,8 +289,9 @@ export async function updateTenant(tenantId: string, data: any) {
     if (adminUser) {
       await prisma.user.update({
         where: { id: adminUser.id },
-        data: { password: hashedPassword, tokenVersion: { increment: 1 } }
+        data: { password: hashedPassword, tokenVersion: { increment: 1 }, sessionsValidAfter: new Date() }
       });
+      clearSessionStateCache();
     }
   }
 
@@ -303,7 +307,9 @@ export async function updateTenant(tenantId: string, data: any) {
     });
   }
 
+  invalidatePublicCache();
   revalidatePath('/tenants');
+  invalidatePublicCache();
   revalidatePath(`/tenants/${tenantId}`);
   return tenant;
 }
@@ -326,7 +332,9 @@ export async function toggleTenantStatus(tenantId: string) {
   });
   clearSessionStateCache();
 
+  invalidatePublicCache();
   revalidatePath('/tenants');
+  invalidatePublicCache();
   revalidatePath(`/tenants/${tenantId}`);
   
   return newStatus;
@@ -343,6 +351,7 @@ export async function updateTenantTheme(theme: string) {
     data: { menuTheme: theme }
   });
 
+  invalidatePublicCache();
   revalidatePath('/settings/menu');
   return true;
 }
@@ -379,7 +388,9 @@ export async function updateMenuContent(data: MenuContentInput) {
     }
   });
 
+  invalidatePublicCache();
   revalidatePath(`/site/${session.user.tenantId}`);
+  invalidatePublicCache();
   revalidatePath(`/site/${session.user.tenantId}/about`);
   return true;
 }
@@ -397,6 +408,7 @@ export async function deleteTenant(tenantId: string) {
     where: { id: tenantId }
   });
 
+  invalidatePublicCache();
   revalidatePath('/tenants');
   return true;
 }

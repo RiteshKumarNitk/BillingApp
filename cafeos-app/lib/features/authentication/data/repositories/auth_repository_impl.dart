@@ -92,12 +92,13 @@ class AuthRepositoryImpl implements AuthRepository {
     String? newPassword,
   }) async {
     try {
-      final customer = await remoteDataSource.updateProfile(
+      final (token, customer) = await remoteDataSource.updateProfile(
         name: name,
         phone: phone,
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
+      if (token != null) await secureStorage.saveToken(token);
       return right(customer);
     } on DioException catch (e) {
       return left(mapDioExceptionToFailure(e));

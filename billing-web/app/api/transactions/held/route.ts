@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getStaffSession } from '@/lib/auth/staffSession';
 import { listHeldBills } from '@/lib/services/transactions';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    const staff = await getStaffSession();
 
-    if (!token?.id) {
+    if (!staff) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const heldBills = await listHeldBills(token.tenantId as string);
+    const heldBills = await listHeldBills(staff.tenantId);
 
     return NextResponse.json({ heldBills });
   } catch (error: any) {

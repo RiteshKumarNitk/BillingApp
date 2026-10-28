@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCafeMenu } from '@/lib/actions/products';
 import { findCustomerByPhone } from '@/lib/actions/customers';
 import { isValidPhone } from '@/lib/utils/phone';
+import { newIdempotencyKey } from '@/lib/utils/idempotency';
 import { useToast } from '@/components/ui/Toast';
 import {
   ShoppingCart, Trash2, Plus, Minus, X, User, CreditCard, Landmark, Smartphone,
@@ -70,6 +71,9 @@ export default function CafeBillingClient() {
   const [resumingBillId, setResumingBillId] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
+  // One idempotency key per checkout attempt — reused if the same order is retried (network error,
+  // double tap), cleared once a sale succeeds, so the server can never record it twice.
+  const checkoutKeyRef = useRef<string | null>(null);
 
   const loadMenu = () => {
     setLoadingMenu(true);
@@ -234,14 +238,16 @@ export default function CafeBillingClient() {
             orderType,
           };
 
+      if (!checkoutKeyRef.current) checkoutKeyRef.current = newIdempotencyKey();
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': checkoutKeyRef.current },
         body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to place order');
 
+      checkoutKeyRef.current = null;
       addToast('success', 'Order placed!');
       resetOrder();
       refreshHeldBills();

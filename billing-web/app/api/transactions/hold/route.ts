@@ -1,25 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getStaffSession } from '@/lib/auth/staffSession';
 import { holdBill, TransactionError } from '@/lib/services/transactions';
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    const staff = await getStaffSession();
 
-    if (!token?.id) {
+    if (!staff) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
 
     const held = await holdBill({
-      tenantId: token.tenantId as string,
-      userId: token.id as string,
-      role: token.role as string,
-      permissions: (token.permissions as string[]) || [],
+      tenantId: staff.tenantId,
+      userId: staff.userId,
+      role: staff.role,
+      permissions: staff.permissions,
       items: body.items,
       discount: body.discount,
       taxAmount: body.taxAmount,

@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getStaffSession } from '@/lib/auth/staffSession';
 import { deleteHeldBill, editTransaction, TransactionError } from '@/lib/services/transactions';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    const staff = await getStaffSession();
 
-    if (!token?.id) {
+    if (!staff) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -18,10 +15,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const transaction = await editTransaction({
       transactionId: id,
-      tenantId: token.tenantId as string,
-      userId: token.id as string,
-      role: token.role as string,
-      permissions: (token.permissions as string[]) || [],
+      tenantId: staff.tenantId,
+      userId: staff.userId,
+      role: staff.role,
+      permissions: staff.permissions,
       items: body.items,
       notes: body.notes,
       reason: body.reason,
@@ -40,20 +37,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    const staff = await getStaffSession();
 
-    if (!token?.id) {
+    if (!staff) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await deleteHeldBill(
       id,
-      token.tenantId as string,
-      token.role as string,
-      (token.permissions as string[]) || []
+      staff.tenantId,
+      staff.role,
+      staff.permissions
     );
 
     return NextResponse.json({ success: true });

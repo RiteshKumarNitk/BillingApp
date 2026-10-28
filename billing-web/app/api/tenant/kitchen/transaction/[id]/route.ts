@@ -27,12 +27,18 @@ export async function PATCH(
       return NextResponse.json({ error: "Ticket not found or not in a valid state" }, { status: 404 });
     }
 
-    const updated = await prisma.transaction.update({
-      where: { id },
-      data: { kitchenStatus: NEXT_STATUS[txn.kitchenStatus] },
+    // Compare-and-set on the status we just read, so a double click advances exactly one stage
+    // instead of skipping one (PREPARING → READY → SERVED).
+    const nextStatus = NEXT_STATUS[txn.kitchenStatus];
+    const moved = await prisma.transaction.updateMany({
+      where: { id, tenantId: session.user.tenantId, kitchenStatus: txn.kitchenStatus },
+      data: { kitchenStatus: nextStatus },
     });
+    if (moved.count === 0) {
+      return NextResponse.json({ error: "Ticket was already updated — refresh to see its current state" }, { status: 409 });
+    }
 
-    return NextResponse.json({ message: "Ticket updated", kitchenStatus: updated.kitchenStatus });
+    return NextResponse.json({ message: "Ticket updated", kitchenStatus: nextStatus });
   } catch (error) {
     console.error("Error updating kitchen ticket:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

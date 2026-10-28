@@ -7,6 +7,135 @@ Newest entries first. When adding a new report, keep the same structure: date, s
 
 ---
 
+## 2026-10-28 — Production readiness, scalability & reliability phase
+
+**Scope:** No new features. Measure → find bottleneck → fix → re-measure, across security,
+database, tenant isolation, ordering/billing integrity, auth, uploads, rate limiting, caching,
+observability, health checks, backups, deployment, and load testing.
+
+**How it was tested.** Node.js was available this session, so — unlike 2026-10-26 — everything
+was built and run: `tsc` (clean), `next build` (clean, 0 warnings), and a production `next start`
+against the **dev** Neon database (Postgres 17, `ap-southeast-1`; confirmed dev by the owner).
+Large synthetic data was seeded with `scripts/loadtest/seed.cjs` (1,001 tenants; the busy cafe had
+100k sales / 250k sale lines / 100k payments / 30k customers / 30k orders / 100k visits) and
+removed afterwards with `cleanup.cjs` — the dev DB is back to its original 4 tenants / 8 sales.
+All scripts are in `billing-web/scripts/loadtest/`; procedures in `billing-web/docs/PRODUCTION_RUNBOOK.md`.
+
+**Important caveat on every latency/throughput number below:** the test machine is ~72 ms from
+the database, and the app ran as a single local process. Absolute numbers are therefore a lower
+bound, not production capacity. Relative before/after comparisons are valid.
+
+### Critical findings fixed (all re-tested after the fix)
+
+| # | Finding | Severity | Fix | Evidence after fix |
+|---|---|---|---|---|
+| 1 | **Storefront leaked private data to every visitor** — client-component props carried the raw tenant row (owner's Aadhaar document URL, GSTIN, subscription fields) and every product's purchase price, barcode, batch data | Critical | `lib/website/publicTenant.ts` projections at every `/site` boundary | HTML of home/shop/about/contact: 0 occurrences of the seeded Aadhaar URL, GSTIN, or `purchasePrice` |
+| 2 | **Cross-tenant data access via server actions** — `listCustomers`, `getCustomerDetail`, `findOrCreateCustomerByPhone` were exported from a `"use server"` file and took `tenantId` as an argument (network-callable, no session check) | Critical | Moved to non-action `lib/customers.ts` | Not exported as actions any more (build) |
+| 3 | **`/api/website/stats` returned any tenant's leads** (names/emails/phones/messages) to any logged-in user | High | Tenant from session; superadmin only for others | Concurrency suite: 403 for tenant B's id |
+| 4 | **POS billing routes skipped session revocation** (`getToken` doesn't run the `jwt` callback) — deleted user / deactivated tenant / lapsed plan kept billing for 30 days | High | `lib/auth/staffSession.ts` (`getServerSession`) on all 5 routes | Revocation test: 401 within 29 s |
+| 5 | **No way to revoke a stolen web session**; password resets didn't end existing sessions; customer password change didn't revoke app tokens | High | `User.sessionsValidAfter` (web + staff app), set on password reset; customer `tokenVersion` bump + fresh token returned to the device (Flutter updated to store it) | Revoked session → 401, fresh login → 200 |
+| 6 | **Duplicate sales on double-click / retry** — POS checkout had no idempotency | Critical | `Transaction.idempotencyKey` + `@@unique([tenantId, idempotencyKey])`; both POS screens send a per-attempt key | 10 concurrent retries → 1 sale, stock −1 |
+| 7 | **Duplicate guest orders** — order idempotency only worked for logged-in customers | High | `@@unique([tenantId, idempotencyKey])` on OrderRequest; website cart sends a key | 8 concurrent submits → 1 order, all 201 |
+| 8 | **Double invoices from the kitchen** — "Complete" (and merchant APPROVE) checked state outside the transaction | Critical | Atomic compare-and-set claim inside the transaction (also for all order state transitions and kitchen ticket advance) | 6 concurrent Completes → 1 invoice, 1 payment, five 409s; Accept vs Reject → exactly one wins |
+| 9 | **Concurrent invoice edits corrupted stock** (deltas computed from a stale read) | High | Optimistic concurrency on `editCount` | 2 concurrent edits → 200 + 409, stock delta exactly matches final quantity |
+| 10 | **Lost writes under overload** — Prisma's 2 s transaction `maxWait` (< pool's 10 s) abandoned pending connections, leaving them "idle in transaction"; later writes on them never committed | Critical | `transactionOptions.maxWait` > pool connect timeout (`lib/prisma.ts`) | 40-sale burst ×3: idle-in-transaction 3/1 → 0/0/0, FK violations 8 → 0, successful sales 4–5 → 22–23 of 40 |
+| 11 | **Order placement 500s** — customer find-or-create race, and *deterministic* failure when the phone already belonged to another customer row (e.g. a POS walk-in) | High | P2002 fallback to the existing row (not linked to the account — phone is unverified) | Guest duplicates all 201; 0 errors in server log |
+| 12 | **Kitchen screen stalled the instance** — returned every active ticket (3.4 MB, 18–35 s per poll with a backlog) | High | Oldest 150 per source + field selection + "N more waiting" banner | 93 KB, 270–590 ms |
+| 13 | **Dashboard queries scaled with the whole platform** — planner drove from the global `TransactionItem` table (250k seq scan + 250k PK probes, 576 ms) | High | Tenant-window-driven `LATERAL … OFFSET 0` plans; product-mix widgets windowed to 90 days (labelled) | Category 576 → 110 ms; cost now proportional to the tenant's window only |
+| 14 | **POS rejected valid mobiles starting with 91** (`normalizePhone` stripped "91" unconditionally) | High | Strip the country code only when 10 valid digits remain | 12/12 unit cases; `9123456789` → 201 |
+| 15 | **Migration history never baselined in the DB** — `migrate deploy` would have failed on any existing database | High | `migrate resolve --applied 0_baseline…` after proving zero drift; procedure in runbook §3.1 | Dev DB: 0 drift, all 7 checksums match |
+| 16 | Upload route trusted the client MIME type, buffered unbounded bodies, accepted customer sessions, echoed provider errors | High | Magic-byte sniffing, Content-Length pre-check, staff-only + per-user rate limit, per-tenant folder, ≤2000 px, CDN `f_auto,q_auto`, generic error | HTML-as-PNG / SVG / EXE-as-JPEG → 400; 6 MB → 413; anonymous → 401 |
+| 17 | Customers, Reports, and Transactions pages ignored search/pagination/date filters (`searchParams` read synchronously — a Promise in Next 15+) | Medium | `await searchParams` | Build + typecheck |
+| 18 | Cron jobs unreachable (fixed 10-26) now share `lib/cronAuth.ts`; production requires `CRON_SECRET` | — | — | No secret → 401; with secret → 200 |
+
+**Also added:** structured JSON logging with redaction (`lib/logger.ts`; verified no secrets in
+output), `onRequestError` + process crash hooks (`instrumentation.ts`), production env validation
+that refuses placeholder secrets (verified: instance refused to serve with the `.env` placeholders),
+`/api/health` (app/DB/pool + configured dependencies; verified 200, and 503 under saturation),
+security headers on every response (verified), CORS removed from cookie-auth APIs, 503 +
+`Retry-After` (instead of 500) when the DB pool is saturated, a short-TTL public cache for
+storefront + app menu with stampede protection, per-account order rate limits, a batched
+retention cron for website visits / read notifications, indexes from EXPLAIN (trigram customer
+search, kitchen poll, audit log, customer sort, tenant slug), and the production runbook.
+
+### Measurements
+
+**Query plans** (busy cafe, 100k sales; `scripts/loadtest/explain.cjs`): 31 hot query shapes;
+after fixes, all list/detail/POS/kitchen/app queries < 10 ms except tenant-wide counts and
+all-time aggregates (see risks). Customers search 8 ms → 0.7 ms (trigram), kitchen poll 11.5 → 0.3 ms,
+audit log 8.7 → 0.1 ms.
+
+**Unloaded latency, warm** (72 ms DB round trip): storefront 355–630 → 12–22 ms; app menu
+700–1150 → 3–7 ms (cache hits); kitchen poll 18–35 s → 0.27–0.59 s; staff dashboard ~1.7 s
+(≈23 sequential queries × 72 ms — expected ~100–200 ms in-region).
+
+**Load test** (`scripts/loadtest/load.cjs`, mixed workload: storefront 35%, app menu 25%, app
+orders 10%, POS 10%, kitchen 12%, dashboard 3%, health 5%):
+
+| Config | Stage (users) | Throughput | p50 | p95 | p99 | Errors |
+|---|---|---|---|---|---|---|
+| Before (pool 5) | normal (10) | 7.2 req/s | 747 ms | 4.4 s | 5.0 s | 0% |
+| Before (pool 5) | stress (80) | 7.8 req/s | 4.4 s | 27 s | 30 s | 9.8% |
+| Before (pool 5) | spike (150) | 8.5 req/s | 8.9 s | 30 s | 30 s | 22% |
+| **Final (pool 20)** | normal (10) | 11.3 req/s | 541 ms | 2.7 s | 3.7 s | **0%** |
+| **Final (pool 20)** | peak (40) | 27.7 req/s | 604 ms | 5.1 s | 6.0 s | **0%** |
+| **Final (pool 20)** | stress (80) | 25.6 req/s | 1.2 s | 9.9 s | 10.9 s | **0%** |
+| **Final (pool 20)** | spike (150) | 29.7 req/s | 2.2 s | 14.4 s | 16.7 s | **0%** |
+
+First bottleneck identified: **DB connection pool × per-query network latency** (flat throughput
+regardless of users, P2028 "unable to start a transaction"). Fixed by the transaction-option fix
+and pool sizing; the remaining ceiling (~30 req/s here) is still round-trip-bound. Post-test
+integrity check over all data the tests created: 0 negative stock, 0 orphaned sales/orders, 0
+duplicate idempotency keys, 0 double-invoiced orders, 0 sales without lines, 0 idle-in-transaction.
+
+**"999,999 users":** not claimed. What was shown: correctness holds under contention and overload
+(no duplicates, no oversell, no lost writes), and throughput scales with pool size. What was not
+shown: production-region capacity. With realistic concurrency (a few percent of users active at
+peak), the deciding factors are in-region deployment, instance count × pool size, and Neon compute
+size — all of which need the staging run in runbook §8.
+
+### PRODUCTION READINESS GATE
+
+| Area | Verdict | Basis |
+|---|---|---|
+| **Security** | **PASS** (code) / NOT VERIFIED (prod config) | Findings 1–5, 16 fixed and tested; secrets validated at boot; headers live. Prod secrets/headers behind a real proxy not seen. |
+| **Database** | **PASS** (dev) / NOT VERIFIED (prod) | Plans measured at 100k-sale scale; indexes added; zero drift; checksums match. Production baseline step (runbook §3.1) not performed. |
+| **API** | **PASS** | Auth on every route audited; idempotency; 409/503 semantics; 0 unhandled errors across all test runs. Remaining lint debt is style (`any`). |
+| **Multi-tenant isolation** | **PASS** | Every id-addressed write audited; 2 holes fixed (findings 2, 3); 6 cross-tenant probes all denied. |
+| **Authentication** | **PASS** | Revocation (web + both apps), password-change revocation, throttling, no fallback secrets. Token lifetimes unchanged (30 days, now revocable). |
+| **Billing** | **PASS** (POS/invoices) / NOT VERIFIED (Razorpay live) | Idempotent checkout, edit concurrency, webhook dedupe (2026-08). Razorpay never exercised with real keys. |
+| **Ordering** | **PASS** | Duplicate submits, Complete races, state races all tested. |
+| **Inventory** | **PASS** | Last-unit race: 1 of 10 succeeds, stock 0; DB `CHECK (stock >= 0)` verified present. Online orders don't reserve stock (by design) — the second buyer fails at completion with 409. |
+| **Web** | **PASS** with notes | Build clean; storefront cached + leak-free; shop page is 642 KB for a 300-item menu (images/markup not optimized — `<img>` used throughout). |
+| **Mobile (Flutter)** | **NOT VERIFIED** | No Flutter SDK here: the 2 Dart edits (token rotation on password change) were not compiled; no device testing; "My Orders" still shows newest 50 only. |
+| **Performance** | **PASS** (fixes) / NOT VERIFIED (prod capacity) | All before/after numbers above. |
+| **Monitoring** | **FAIL** | Logging, crash hooks, and health are in place and verified, but no log drain, alerting, or uptime monitor is configured anywhere. |
+| **Backup & Recovery** | **FAIL** | Procedure written (runbook §5); Neon PITR retention, access, and a restore drill are unverified; no off-platform backup exists. |
+| **Deployment** | **FAIL** | No CI pipeline, no scheduler for the 3 cron jobs, production baseline step pending, line-ending/checksum policy undecided. Rollback procedure documented. |
+| **Load Testing** | **PASS** (method, dev) / NOT VERIFIED (prod-like) | Repeatable suite exists and ran clean (0% errors at 150 users); needs a run in-region against staging. |
+
+**Verdict: not production-ready yet.** The application code passed every integrity, isolation,
+and load test run this session, but three operational gates fail (monitoring, backup/recovery,
+deployment) and those are exactly what decides whether an incident is survivable. None of them
+needs new code.
+
+### Remaining risks (open)
+
+- Tenant-wide counts and all-time aggregates (dashboard total sales, transactions page count, Reports
+  "Top Customers by Spend") still scan the tenant's full history (18–93 ms at 100k sales, linear).
+  Fine for years of a single cafe; revisit with summary tables if a tenant reaches millions of sales.
+- In-process rate limiter and public cache are per instance (limits multiply by instance count;
+  cache staleness ≤ 30 s across instances). A shared store (Redis) is the fix if that matters.
+- FK violations seen under overload were fixed by finding 10, but the exact Prisma/adapter mechanism
+  was inferred from evidence (idle-in-transaction connections + FK failures disappearing), not traced
+  in the Prisma source.
+- Money is still `Float` (M10).
+- Server-side `statement_timeout` can't be set through the Neon pooler (verified); app-side
+  timeouts bound waits, not server work.
+- Lint: 446 pre-existing errors (style, mostly `any`); all files created this session are clean.
+
+---
+
 ## 2026-10-26 — Feature gap analysis + RC-1 backlog fix pass
 
 **Scope:** (1) Whole-project review of billing-web (Next.js admin + public sites + API) and
@@ -501,7 +630,7 @@ redemption cap on `Discount`; the TOCTOU between check and apply exists for stor
 forward, backlog #7). `Transaction`/`Product` have composite indexes that cover most paths; the
 single-column ones are still worth adding for count/filter queries.
 
-**[RESOLVED — rebaselined as 0_baseline_current_schema] D2. `prisma migrate dev` is broken** (carried forward, backlog #19) — shadow-DB replay fails on
+**[CORRECTED 2026-10-28 — the rebaseline existed in the repo but was never registered in any existing database, so `migrate deploy` would fail there; dev DB fixed with `migrate resolve`, prod procedure in runbook §3.1] D2. `prisma migrate dev` is broken** (carried forward, backlog #19) — shadow-DB replay fails on
 `20260708190000_add_stock_check_constraints` (schema drifted from history via an earlier `db
 push`). Only `migrate deploy` works. Needs a proper baselining before release.
 

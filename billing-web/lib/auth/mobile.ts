@@ -46,16 +46,22 @@ export async function getMobileUserFromAuthHeader(request: Request): Promise<Sta
 
   const token = authHeader.split(' ')[1];
   const decoded = verifyMobileToken(token);
-  if (!decoded || typeof decoded === 'string' || !decoded.id) {
+  // Staff and customer tokens share JWT_SECRET, so explicitly refuse a customer token here.
+  // tokenVersion is now mandatory: the grace period for pre-August-2026 tokens without the claim
+  // has long passed (they were 30-day tokens).
+  if (!decoded || typeof decoded === 'string' || !decoded.id || decoded.role === 'CUSTOMER' || typeof decoded.tokenVersion !== 'number') {
     return null;
   }
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.id as string },
-    select: { id: true, role: true, tenantId: true, tenantRoleId: true, tokenVersion: true },
+    select: { id: true, role: true, tenantId: true, tenantRoleId: true, tokenVersion: true, sessionsValidAfter: true },
   });
   if (!user) return null;
-  if (typeof decoded.tokenVersion === 'number' && decoded.tokenVersion !== user.tokenVersion) return null;
+  if (decoded.tokenVersion !== user.tokenVersion) return null;
+  // Revocation (password reset / forced logout): mobile tokens are never re-signed, so `iat` is
+  // exactly when the user authenticated.
+  if (user.sessionsValidAfter && (decoded.iat ?? 0) * 1000 < user.sessionsValidAfter.getTime()) return null;
 
   return {
     id: user.id,

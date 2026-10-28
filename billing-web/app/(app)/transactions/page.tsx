@@ -11,7 +11,7 @@ const ITEMS_PER_PAGE = 20;
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const session = await getServerSession(authOptions);
 
@@ -20,10 +20,11 @@ export default async function TransactionsPage({
   }
 
   const tenantId = session.user.tenantId;
-  const page = Math.max(1, parseInt((searchParams?.page as string) || '1', 10));
-  const query = (searchParams?.q as string) || '';
-  const dateFrom = (searchParams?.from as string) || '';
-  const dateTo = (searchParams?.to as string) || '';
+  const sp = await searchParams; // a Promise in Next 15+ — sync reads were always undefined
+  const page = Math.max(1, parseInt((sp?.page as string) || '1', 10));
+  const query = (sp?.q as string) || '';
+  const dateFrom = (sp?.from as string) || '';
+  const dateTo = (sp?.to as string) || '';
 
   // HELD bills are drafts, not completed sales — they live in the billing page's
   // "Held Bills" panel, not the sales history list.

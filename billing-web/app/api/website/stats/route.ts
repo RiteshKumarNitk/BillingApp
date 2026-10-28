@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/nextauth';
 import prisma from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
-  const tenantId = req.nextUrl.searchParams.get('tenantId');
-  if (!tenantId) {
-    return NextResponse.json({ error: 'tenantId is required' }, { status: 400 });
+  // Tenant isolation: previously any logged-in user of ANY tenant could pass another tenant's id
+  // and read its visit stats and recent contact leads (names/emails/phones/messages). The tenant
+  // now comes from the session; only a superadmin may inspect a different tenant.
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const requested = req.nextUrl.searchParams.get('tenantId');
+  const isSuperAdmin = session.user.role === 'SUPERADMIN';
+  if (requested && requested !== session.user.tenantId && !isSuperAdmin) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  const tenantId = isSuperAdmin && requested ? requested : session.user.tenantId;
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -21,9 +32,11 @@ export async function GET(req: NextRequest) {
     prisma.contactLead.count({ where: { tenantId, read: false } }),
     prisma.websiteVisit.findMany({ where: { tenantId }, orderBy: { createdAt: 'desc' }, take: 10 }),
     prisma.contactLead.findMany({ where: { tenantId }, orderBy: { createdAt: 'desc' }, take: 10 }),
+    // Last 30 days only: an all-time GROUP BY over the fastest-growing table (one row per page
+    // view) got linearly slower forever.
     prisma.websiteVisit.groupBy({
       by: ['path'],
-      where: { tenantId },
+      where: { tenantId, createdAt: { gte: thirtyDaysAgo } },
       _count: true,
       orderBy: { _count: { path: 'desc' } },
       take: 10

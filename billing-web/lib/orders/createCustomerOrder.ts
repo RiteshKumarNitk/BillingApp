@@ -27,8 +27,8 @@ export interface CreateCustomerOrderInput {
   // Client-generated per-checkout-attempt key (e.g. a UUID minted once when the checkout screen
   // loads, reused across retries of the same attempt). A repeat with the same key for the same
   // customer returns the original order instead of creating a duplicate — covers double-taps and
-  // network-retry races that the client's own submit-button guard doesn't. Only meaningful for
-  // logged-in orders (guest checkout has no stable identity to key off).
+  // network-retry races that the client's own submit-button guard doesn't. Applies to guest
+  // checkout too, scoped by tenant (see OrderRequest @@unique([tenantId, idempotencyKey])).
   idempotencyKey?: string;
 }
 
@@ -43,10 +43,17 @@ export type CreateCustomerOrderResult =
 // combo-content snapshotting, and discount application only exist in one place instead of two
 // independently-drifting copies.
 export async function createCustomerOrder(input: CreateCustomerOrderInput): Promise<CreateCustomerOrderResult> {
-  const { tenantIdOrSlug, items, notes, tableToken, customerAccountId, guest, idempotencyKey } = input;
+  const { tenantIdOrSlug, items, notes, tableToken, customerAccountId, guest } = input;
+  const idempotencyKey = input.idempotencyKey || undefined;
 
-  if (!tenantIdOrSlug || !items || items.length === 0) {
+  if (!tenantIdOrSlug || !Array.isArray(items) || items.length === 0) {
     return { ok: false, status: 400, error: 'Tenant and items are required' };
+  }
+  if (items.length > 200) {
+    return { ok: false, status: 400, error: 'Too many items in one order' };
+  }
+  if (idempotencyKey !== undefined && !/^[A-Za-z0-9_-]{8,100}$/.test(idempotencyKey)) {
+    return { ok: false, status: 400, error: 'Invalid idempotency key' };
   }
   if (!customerAccountId && (!guest?.name?.trim() || !guest?.phone?.trim())) {
     return { ok: false, status: 401, error: 'Sign in or provide your name and phone to order' };
@@ -65,6 +72,11 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
     return { ok: false, status: 404, error: 'Store not found or inactive' };
   }
   const tenantId = tenant.id;
+
+  if (idempotencyKey) {
+    const existingOrder = await findOrderByTenantKey(tenantId, idempotencyKey);
+    if (existingOrder) return { ok: true, order: existingOrder };
+  }
 
   let tableId: string | null = null;
   if (tableToken) {
@@ -240,25 +252,27 @@ export async function createCustomerOrder(input: CreateCustomerOrderInput): Prom
       netAmount,
       discountAmount,
       discountLabel,
-      idempotencyKey: customerAccountId ? idempotencyKey || null : null,
+      idempotencyKey: idempotencyKey || null,
       orderItems,
     });
   } catch (err: any) {
     // Two concurrent requests both passed the pre-check above and raced on the DB's unique
     // constraint — the loser here just means the winner already created the real order.
-    if (err?.code === 'P2011' || err?.code === 'P2002') {
-      if (customerAccountId && idempotencyKey) {
-        const existingOrder = await prisma.orderRequest.findUnique({
-          where: { customerAccountId_idempotencyKey: { customerAccountId, idempotencyKey } },
-          include: { items: true },
-        });
-        if (existingOrder) return { ok: true, order: existingOrder };
-      }
+    if ((err?.code === 'P2011' || err?.code === 'P2002') && idempotencyKey) {
+      const existingOrder = await findOrderByTenantKey(tenantId, idempotencyKey);
+      if (existingOrder) return { ok: true, order: existingOrder };
     }
     throw err;
   }
 
   return { ok: true, order };
+}
+
+function findOrderByTenantKey(tenantId: string, idempotencyKey: string) {
+  return prisma.orderRequest.findUnique({
+    where: { tenantId_idempotencyKey: { tenantId, idempotencyKey } },
+    include: { items: true },
+  });
 }
 
 // Best single non-coupon Discount (code: null — a customer-entered coupon flow doesn't exist yet)
@@ -306,15 +320,31 @@ async function findOrCreateCustomer(
     : await prisma.customer.findFirst({ where: { tenantId, phone: guest!.phone.trim(), customerAccountId: null } });
   if (existing) return existing;
 
-  if (customerAccountId) {
-    const account = await prisma.customerAccount.findUnique({ where: { id: customerAccountId } });
-    return prisma.customer.create({
-      data: { name: account?.name || 'Customer', email: account?.email, phone: account?.phone, tenantId, customerAccountId },
+  const account = customerAccountId
+    ? await prisma.customerAccount.findUnique({ where: { id: customerAccountId } })
+    : null;
+  const phone = customerAccountId ? account?.phone || null : guest!.phone.trim();
+
+  try {
+    return await prisma.customer.create({
+      data: customerAccountId
+        ? { name: account?.name || 'Customer', email: account?.email, phone, tenantId, customerAccountId }
+        : { name: guest!.name.trim(), phone, tenantId },
     });
+  } catch (err: any) {
+    // Customer is unique on (tenantId, phone). This fires when (a) two first-time requests for the
+    // same phone race (double-submit) or (b) that phone already belongs to another customer row —
+    // a POS walk-in, or a guest phone already linked to an app account. Both used to fail the
+    // whole order with a 500, deterministically in case (b). Use the existing row for this order.
+    // It is deliberately NOT linked to this app account: the phone isn't verified, so linking
+    // would hand that customer's history to whoever enters the number. The order itself still
+    // records customerAccountId.
+    if (err?.code === 'P2002' && phone) {
+      const byPhone = await prisma.customer.findFirst({ where: { tenantId, phone } });
+      if (byPhone) return byPhone;
+    }
+    throw err;
   }
-  return prisma.customer.create({
-    data: { name: guest!.name.trim(), phone: guest!.phone.trim(), tenantId },
-  });
 }
 
 function createOrderRequest(data: {

@@ -1,10 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  // Needed to declare pg_trgm below (trigram indexes for case-insensitive "contains" search).
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [pg_trgm]
 }
 
 model Tenant {
@@ -67,6 +70,10 @@ model Tenant {
   websiteVisits      WebsiteVisit[]
   contactLeads       ContactLead[]
   favoritedBy        CustomerFavorite[]
+
+  // Storefront slug resolution matches websiteSlug OR website OR domain; the other two are unique
+  // (indexed), this makes the whole OR index-backed instead of a Tenant seq scan per page view.
+  @@index([website])
 }
 
 model Role {
@@ -110,6 +117,11 @@ model User {
   jobTitle          String?
   profilePictureUrl String?
   tokenVersion      Int           @default(0)
+  // Session revocation: every web session / staff-app token authenticated before this instant is
+  // rejected (lib/auth/nextauth.ts + lib/auth/mobile.ts). Set on password reset; set it to now()
+  // to force-logout a user whose session may be compromised. tokenVersion, by contrast, only
+  // means "permissions changed — refresh them" and never logs anyone out.
+  sessionsValidAfter DateTime?
   transactions      Transaction[]            @relation("TransactionCreatedBy")
   editedTransactions Transaction[]           @relation("TransactionEditedBy")
   transactionEdits  TransactionEditHistory[]
@@ -324,6 +336,12 @@ model Customer {
   @@unique([tenantId, phone])
   @@index([tenantId])
   @@index([customerAccountId])
+  // Customers page default sort (highest spend first) without sorting the whole tenant.
+  @@index([tenantId, totalSpent])
+  // Customer search is ILIKE "%term%" on name/phone — a btree can never serve a leading
+  // wildcard; trigram GIN indexes can (measured: seq scan of the tenant before this).
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([phone(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 // QR ordering: one row per physical table. The QR code encodes `qrToken`, not the raw label, so
@@ -386,6 +404,9 @@ model OrderRequest {
   @@index([customerAccountId])
   @@index([tableId])
   @@unique([customerAccountId, idempotencyKey])
+  // Covers guest checkout too (customerAccountId is null there, and Postgres treats NULLs as
+  // distinct, so the constraint above never deduplicated guest double-submits).
+  @@unique([tenantId, idempotencyKey])
 }
 
 model OrderRequestItem {
@@ -532,6 +553,11 @@ model Transaction {
   editedAt              DateTime?
   editedByUserId        String?
   editCount             Int                  @default(0)
+  // POS checkout idempotency: the client generates one key per checkout attempt and resends it on
+  // retries (double-click, network retry, second tab). @@unique([tenantId, idempotencyKey]) below
+  // guarantees at most one sale per key even under concurrent requests. Null for legacy rows and
+  // for sales created by other paths (online-order completion).
+  idempotencyKey        String?
   tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user                  User                 @relation("TransactionCreatedBy", fields: [userId], references: [id])
   customer              Customer?            @relation(fields: [customerId], references: [id])
@@ -540,8 +566,12 @@ model Transaction {
   payments              TransactionPayment[]
   editHistory           TransactionEditHistory[]
 
+  @@unique([tenantId, idempotencyKey])
   @@index([customerId])
   @@index([tenantId, createdAt])
+  // Kitchen Queue polls "this tenant's tickets still PREPARING/READY" every 10s per screen;
+  // without this it scanned every sale the tenant ever made.
+  @@index([tenantId, kitchenStatus])
 }
 
 // One row per edit to a completed Transaction — a frozen snapshot of the FULL pre-edit state
@@ -708,7 +738,8 @@ model AuditLog {
   tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@index([tenantId])
+  // Serves both tenant filtering (prefix) and "latest first" listing.
+  @@index([tenantId, createdAt])
 }
 
 model Website {

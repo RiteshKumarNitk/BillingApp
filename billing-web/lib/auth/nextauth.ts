@@ -36,6 +36,8 @@ type SessionState = {
   role: string;
   tenantRoleId: string | null;
   tenantVersion: number;
+  // Sessions authenticated before this (epoch ms) are revoked — see User.sessionsValidAfter.
+  sessionsValidAfter: number | null;
   // false = force re-login (user deleted, tenant inactive, or no active subscription)
   valid: boolean;
 };
@@ -51,7 +53,7 @@ async function loadSessionState(userId: string, tenantId: string): Promise<Sessi
   if (cached && now - cached.checkedAt < SESSION_CHECK_TTL_MS) return cached.state;
 
   const [dbUser, dbTenant] = await Promise.all([
-    prisma.user.findUnique({ where: { id: userId }, select: { tokenVersion: true, role: true, tenantRoleId: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { tokenVersion: true, role: true, tenantRoleId: true, sessionsValidAfter: true } }),
     prisma.tenant.findUnique({ where: { id: tenantId }, select: { status: true, version: true } }),
   ]);
 
@@ -67,6 +69,7 @@ async function loadSessionState(userId: string, tenantId: string): Promise<Sessi
     role: dbUser?.role ?? '',
     tenantRoleId: dbUser?.tenantRoleId ?? null,
     tenantVersion: dbTenant?.version ?? 0,
+    sessionsValidAfter: dbUser?.sessionsValidAfter ? dbUser.sessionsValidAfter.getTime() : null,
     valid,
   };
 
@@ -225,6 +228,9 @@ export const authOptions: NextAuthOptions = {
         token.permissions = user.permissions;
         token.tokenVersion = 0;
         token.tenantVersion = 0;
+        // When the user actually authenticated — unlike `iat`, this never changes as the session
+        // cookie is refreshed, so it can be compared against User.sessionsValidAfter.
+        token.authTime = Date.now();
       }
 
       // Handle customer tokens - no DB refresh needed
@@ -241,6 +247,16 @@ export const authOptions: NextAuthOptions = {
           // User deleted, tenant deactivated, or no active subscription → force re-login
           if (!state.valid) {
             return {} as any;
+          }
+
+          // Revoked: the user's sessions were invalidated (password reset / forced logout) after
+          // this session authenticated. Sessions from before authTime existed count as revoked
+          // once a revocation has been issued.
+          if (state.sessionsValidAfter !== null) {
+            const authTime = typeof token.authTime === 'number' ? token.authTime : 0;
+            if (authTime < state.sessionsValidAfter) {
+              return {} as any;
+            }
           }
 
           // If user's tokenVersion changed (role/permissions updated), refresh token data

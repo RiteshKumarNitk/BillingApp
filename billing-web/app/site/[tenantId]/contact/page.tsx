@@ -4,6 +4,7 @@ import { resolveTenant, getWebsiteConfig } from '@/lib/website/utils';
 import SitePageShell from '@/components/website/SitePageShell';
 import PageDisabled from '@/components/website/PageDisabled';
 import ContactContent from './ContactContent';
+import { toPublicSiteTenant } from '@/lib/website/publicTenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,15 +26,15 @@ export default async function ContactPage({ params }: { params: Promise<{ tenant
 
   if (config.pages?.contact === false) {
     return (
-      <SitePageShell config={config} tenant={tenant}>
+      <SitePageShell config={config} tenant={toPublicSiteTenant(tenant)}>
         <PageDisabled label="Contact" />
       </SitePageShell>
     );
   }
 
   return (
-    <SitePageShell config={config} tenant={tenant}>
-      <ContactContent config={config} tenant={tenant} />
+    <SitePageShell config={config} tenant={toPublicSiteTenant(tenant)}>
+      <ContactContent config={config} tenant={toPublicSiteTenant(tenant)} />
     </SitePageShell>
   );
 }

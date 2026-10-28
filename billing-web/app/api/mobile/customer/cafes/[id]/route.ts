@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { resolveTenant } from '@/lib/website/utils';
 import { toPublicCafe, getGalleryImages } from '@/lib/cafes/cafePublicFields';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 // Single-cafe detail — the list route (GET /cafes) never had a by-id lookup, needed by the QR
 // scanner (scan -> resolve table -> need the full cafe object, not just a search hit) and by
 // deep-linking into a cafe from Search/Favourites/Recently-Visited. Public, no auth, same as the
 // list route — accepts either the raw tenant id or its websiteSlug via resolveTenant().
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Public read — same per-IP budget style as the cafe list route.
+    if (!checkRateLimit(`mobile-cafe-detail:${getClientIp(request)}`, 120, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
     const { id } = await params;
     const tenant = await resolveTenant(id);
     if (!tenant || tenant.status !== 'ACTIVE' || tenant.businessType !== 'CAFE' || !tenant.websiteSettings) {

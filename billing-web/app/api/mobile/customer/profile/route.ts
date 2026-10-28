@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
-import { getCustomerIdFromAuthHeader } from "@/lib/auth/customer-mobile";
+import { getCustomerIdFromAuthHeader, signCustomerToken } from "@/lib/auth/customer-mobile";
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,6 +48,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { name, phone, currentPassword, newPassword } = await request.json();
+    let newToken: string | null = null;
 
     if (newPassword) {
       if (!currentPassword) {
@@ -65,7 +66,14 @@ export async function PUT(request: NextRequest) {
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await prisma.customerAccount.update({ where: { id: customerAccountId }, data: { password: hashedPassword } });
+      // Bumping tokenVersion revokes every token issued before this change (a stolen token must
+      // not outlive the old password); this device gets a fresh token in the response below.
+      const rotated = await prisma.customerAccount.update({
+        where: { id: customerAccountId },
+        data: { password: hashedPassword, tokenVersion: { increment: 1 } },
+        select: { id: true, email: true, tokenVersion: true },
+      });
+      newToken = signCustomerToken({ id: rotated.id, email: rotated.email, role: "CUSTOMER", tokenVersion: rotated.tokenVersion });
     }
 
     const updated = await prisma.customerAccount.update({
@@ -79,7 +87,7 @@ export async function PUT(request: NextRequest) {
       data: { name: name?.trim() || undefined, phone: phone?.trim() || null },
     });
 
-    return NextResponse.json({ profile: updated });
+    return NextResponse.json({ profile: updated, ...(newToken ? { token: newToken } : {}) });
   } catch (error) {
     console.error("Error updating profile:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

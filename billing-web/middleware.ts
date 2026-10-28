@@ -37,6 +37,8 @@ export async function middleware(request: NextRequest) {
     // Scheduler-invoked jobs (no session cookie); each route checks CRON_SECRET itself via
     // lib/cronAuth.ts. Previously 401'd here, so dunning/auto-refill never actually ran.
     pathname.startsWith('/api/cron/') ||
+    // Uptime monitors / load balancers probe this anonymously; it exposes no data or secrets.
+    pathname === '/api/health' ||
     pathname.startsWith('/api/website/lead') ||
     pathname.startsWith('/api/website/visit') ||
     pathname.startsWith('/api/website/table') ||

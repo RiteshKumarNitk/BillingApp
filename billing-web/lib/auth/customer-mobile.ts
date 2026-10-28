@@ -46,7 +46,9 @@ export async function getCustomerIdFromAuthHeader(request: Request): Promise<str
     select: { tokenVersion: true },
   });
   if (!account) return null;
-  if (typeof decoded.tokenVersion === 'number' && decoded.tokenVersion !== account.tokenVersion) return null;
+  // Every issued customer token carries tokenVersion; a token without it can't be revoked, so
+  // it's rejected rather than trusted.
+  if (typeof decoded.tokenVersion !== 'number' || decoded.tokenVersion !== account.tokenVersion) return null;
 
   return decoded.id;
 }

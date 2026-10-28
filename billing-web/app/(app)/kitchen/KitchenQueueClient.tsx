@@ -63,6 +63,9 @@ export default function KitchenQueueClient() {
   const [, forceTick] = useState(0);
   const knownIds = useRef<Set<string> | null>(null);
   const [newTicketIds, setNewTicketIds] = useState<Set<string>>(new Set());
+  // The API returns the oldest ~150 active tickets per source; anything beyond is counted here so
+  // a backlog is visible instead of silently missing.
+  const [hiddenCount, setHiddenCount] = useState(0);
 
   const fetchTickets = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -71,6 +74,7 @@ export default function KitchenQueueClient() {
       if (!res.ok) throw new Error("Failed to load kitchen tickets");
       const data = await res.json();
       const nextTickets: KitchenTicket[] = data.tickets || [];
+      setHiddenCount(Number(data.hiddenCount) || 0);
 
       // Diff against the previous poll (not the first load) to detect genuinely new tickets, so
       // the kitchen gets an audible/visual nudge instead of having to keep staring at the screen.
@@ -150,6 +154,11 @@ export default function KitchenQueueClient() {
             <ChefHat className="w-6 h-6 text-indigo-600" /> Kitchen Queue
           </h1>
           <p className="text-sm text-gray-500 mt-1">Accepted online orders and POS tickets sent to the kitchen</p>
+          {hiddenCount > 0 && (
+            <p className="text-xs font-medium text-amber-700 bg-amber-50 rounded-lg px-2 py-1 mt-2 inline-block">
+              Showing the oldest tickets first — {hiddenCount} more waiting. Complete or cancel old orders to clear the backlog.
+            </p>
+          )}
         </div>
         <button
           onClick={() => fetchTickets()}

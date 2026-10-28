@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import type { Prisma } from "../../generated/prisma";
 import { checkFeatureLimit } from "@/lib/subscription";
-import { findOrCreateCustomerByPhone } from "@/lib/actions/customers";
+import { findOrCreateCustomerByPhone } from "@/lib/customers";
 import { getTenantTimeZone, isSameDayInTz } from "@/lib/tenantTime";
 
 export class TransactionError extends Error {
@@ -67,6 +67,8 @@ interface CreateTransactionParams {
   // Cafe POS. Nullable/ignored by every other business type.
   tableNumber?: string | null;
   orderType?: string | null;
+  // Client-generated per checkout attempt, resent on retries — see Transaction.idempotencyKey.
+  idempotencyKey?: string | null;
 }
 
 function parseOptionalAmount(value: number | string | null | undefined): number | null {
@@ -75,9 +77,49 @@ function parseOptionalAmount(value: number | string | null | undefined): number 
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9_-]{8,100}$/;
+
 export async function createTransaction(params: CreateTransactionParams) {
+  const key = params.idempotencyKey ?? null;
+  if (key !== null && !IDEMPOTENCY_KEY_PATTERN.test(key)) {
+    throw new TransactionError("Invalid idempotency key", 400);
+  }
+
+  // A retry of a checkout that already succeeded returns the original sale instead of selling
+  // (and decrementing stock) twice.
+  if (key) {
+    const existing = await findTransactionByIdempotencyKey(params.tenantId, key);
+    if (existing) return existing;
+  }
+
   const plan = await buildTransactionPlan(params);
-  return prisma.$transaction((tx) => executeTransactionPlan(tx, plan));
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const created = await executeTransactionPlan(tx, plan);
+      if (!key) return created;
+      // Claimed inside the same DB transaction: if a concurrent request with the same key commits
+      // first, this update hits the unique index and the whole sale (stock, loyalty, payments)
+      // rolls back — exactly one of the two survives.
+      return tx.transaction.update({
+        where: { id: created.id },
+        data: { idempotencyKey: key },
+        include: { items: true, payments: true },
+      });
+    });
+  } catch (err: any) {
+    if (key && err?.code === "P2002") {
+      const winner = await findTransactionByIdempotencyKey(params.tenantId, key);
+      if (winner) return winner;
+    }
+    throw err;
+  }
+}
+
+function findTransactionByIdempotencyKey(tenantId: string, idempotencyKey: string) {
+  return prisma.transaction.findUnique({
+    where: { tenantId_idempotencyKey: { tenantId, idempotencyKey } },
+    include: { items: true, payments: true },
+  });
 }
 
 // Computes everything about a sale that doesn't require mutating the database: item pricing
@@ -1060,6 +1102,18 @@ export async function editTransaction(params: EditTransactionParams) {
   const loyaltyPointsEarnedDelta = newLoyaltyPointsEarned - existing.loyaltyPointsEarned;
 
   return prisma.$transaction(async (tx) => {
+    // 0. Optimistic concurrency: every stock delta below is computed from `existing`, read before
+    // this transaction. If another cashier's edit committed in between, applying these deltas
+    // would double-credit/debit stock — so claim the edit only if editCount is unchanged. A
+    // concurrent edit blocks on this row lock, then matches 0 rows and gets a 409 instead.
+    const claimed = await tx.transaction.updateMany({
+      where: { id: transactionId, tenantId, status: "COMPLETED", editCount: existing.editCount },
+      data: { editCount: { increment: 1 } },
+    });
+    if (claimed.count === 0) {
+      throw new TransactionError("This invoice was changed by someone else while you were editing. Reload it and try again.", 409);
+    }
+
     // 1. Snapshot the full pre-edit state (transaction fields + items) — permanent, never mutated.
     await tx.transactionEditHistory.create({
       data: {
@@ -1199,7 +1253,7 @@ export async function editTransaction(params: EditTransactionParams) {
         notes: notes ?? existing.notes,
         editedAt: new Date(),
         editedByUserId: userId,
-        editCount: { increment: 1 },
+        // editCount was already incremented by the optimistic-concurrency claim in step 0.
         items: {
           create: normalizedItems.map((item) => ({
             product: { connect: { id: item.productId } },

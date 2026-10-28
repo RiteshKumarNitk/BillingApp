@@ -45,13 +45,14 @@ export default function ImageUpload({ label, onUploadSuccess, defaultImage, clas
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Failed to upload image to server.');
 
-      const data = await response.json();
       onUploadSuccess(data.url);
     } catch (err: any) {
       console.error(err);
-      setError('Failed to upload image to server.');
+      // Server messages are user-safe (size limit, wrong type, rate limit) — show them.
+      setError(err?.message || 'Failed to upload image to server.');
       setPreviewUrl(null); // Revert preview on failure
     } finally {
       setIsUploading(false);

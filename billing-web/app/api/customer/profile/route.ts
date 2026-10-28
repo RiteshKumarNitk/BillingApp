@@ -85,7 +85,8 @@ export async function PUT(request: NextRequest) {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await prisma.customerAccount.update({
         where: { id: session.user.id },
-        data: { password: hashedPassword },
+        // Also revokes every mobile-app token issued for this account before the change.
+        data: { password: hashedPassword, tokenVersion: { increment: 1 } },
       });
     }
 

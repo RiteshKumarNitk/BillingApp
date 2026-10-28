@@ -114,6 +114,17 @@ export async function PATCH(
       const costById = new Map(costProducts.map((p) => [p.id, p.purchasePrice]));
 
       const transaction = await prisma.$transaction(async (tx) => {
+        // Atomic claim: the READY check above ran outside this transaction, so two clicks (or two
+        // kitchen screens) could both pass it and each create an invoice. Only the request whose
+        // compare-and-set flips READY → COMPLETED proceeds; the other gets a 409.
+        const claimed = await tx.orderRequest.updateMany({
+          where: { id, tenantId: session.user.tenantId, status: "READY" },
+          data: { status: "COMPLETED" },
+        });
+        if (claimed.count === 0) {
+          throw new OrderCompletionError("This order was already completed or changed by someone else");
+        }
+
         const txn = await tx.transaction.create({
           data: {
             tenantId: session.user.tenantId,
@@ -233,7 +244,16 @@ export async function PATCH(
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.orderRequest.update({ where: { id }, data: { status: transition.to } });
+      // Compare-and-set: the state check above ran outside this transaction, so concurrent actions
+      // (e.g. Cancel racing Complete) could both "win". Only a row still in an allowed `from`
+      // state transitions; otherwise 409.
+      const moved = await tx.orderRequest.updateMany({
+        where: { id, tenantId: session.user.tenantId, status: { in: transition.from } },
+        data: { status: transition.to },
+      });
+      if (moved.count === 0) {
+        throw new OrderCompletionError("This order was changed by someone else — refresh and try again");
+      }
 
       // Guest orders (no CustomerAccount) have no in-app notification/push target.
       if (transition.notify && order.customerAccountId) {

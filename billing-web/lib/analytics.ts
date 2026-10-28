@@ -124,31 +124,51 @@ export async function getAverageBillValue(tenantId: string) {
   return result._avg.netAmount || 0;
 }
 
+// Product-mix widgets look at a recent window, not all-time history: an all-time aggregate grows
+// with every sale ever made (measured 215–510 ms at 100k sales for one tenant, linear beyond), and
+// "best seller"/"slow mover" is only actionable for recent trading anyway. Labels say "90 days".
+export const PRODUCT_MIX_WINDOW_DAYS = 90;
+
+// `FROM ... WHERE ...` fragment yielding one row `l` per line item of this tenant's non-held sales
+// since `since`. Written so the plan is driven by the tenant's (tenantId, createdAt) index and
+// fetches lines per sale through the transactionId index. A plain JOIN let the planner start from
+// the *platform-wide* TransactionItem table instead (measured: 250k-row seq scan + 250k primary-key
+// probes, 1.0M buffers, 576 ms for one tenant's chart) — cost that grows with every other tenant's
+// data. `OFFSET 0` is the standard fence that stops Postgres flattening the LATERAL back into that
+// join (verified: without it the plan was unchanged). Result: ~105k buffers, ~110 ms, and
+// proportional to this tenant's window only.
+function windowedLinesSql(tenantId: string, since: Date) {
+  return Prisma.sql`
+    FROM "Transaction" t
+    CROSS JOIN LATERAL (
+      SELECT ti."productId", ti."quantity", ti."itemTotal"
+      FROM "TransactionItem" ti
+      WHERE ti."transactionId" = t."id"
+      OFFSET 0
+    ) l
+    WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${since}
+  `;
+}
+
 export async function getBestWorstProducts(tenantId: string) {
-  const [bestRaw, worstRaw] = await Promise.all([
-    prisma.$queryRaw<any[]>`
-      SELECT p."id", p."name", p."stock", p."salePrice",
-        SUM(ti."quantity") as soldCount, SUM(ti."itemTotal") as revenue
-      FROM "TransactionItem" ti
-      JOIN "Product" p ON ti."productId" = p."id"
-      JOIN "Transaction" t ON ti."transactionId" = t."id"
-      WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD'
-      GROUP BY p."id", p."name", p."stock", p."salePrice"
-      ORDER BY soldCount DESC
-      LIMIT 5
-    `,
-    prisma.$queryRaw<any[]>`
-      SELECT p."id", p."name", p."stock", p."salePrice",
-        SUM(ti."quantity") as soldCount, SUM(ti."itemTotal") as revenue
-      FROM "TransactionItem" ti
-      JOIN "Product" p ON ti."productId" = p."id"
-      JOIN "Transaction" t ON ti."transactionId" = t."id"
-      WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD'
-      GROUP BY p."id", p."name", p."stock", p."salePrice"
-      ORDER BY soldCount ASC
-      LIMIT 5
-    `,
-  ]);
+  const since = subDays(new Date(), PRODUCT_MIX_WINDOW_DAYS);
+  // One aggregation (at most one row per product sold in the window), then both ends of it —
+  // previously the same full aggregation ran twice, once per sort direction.
+  // Tenant-window-driven plan (see windowedLinesSql): aggregate per product first (≤ one row per
+  // product), then join Product once.
+  const ranked = await prisma.$queryRaw<any[]>`
+    WITH per_product AS (
+      SELECT l."productId", SUM(l."quantity") AS sold, SUM(l."itemTotal") AS revenue
+      ${windowedLinesSql(tenantId, since)}
+      GROUP BY l."productId"
+    )
+    SELECT p."id", p."name", p."stock", p."salePrice", pp.sold as soldCount, pp.revenue as revenue
+    FROM per_product pp
+    JOIN "Product" p ON p."id" = pp."productId"
+    ORDER BY pp.sold DESC, p."id"
+  `;
+  const bestRaw = ranked.slice(0, 5);
+  const worstRaw = ranked.slice(-5).reverse();
 
   const normalize = (rows: any[]) => rows.map((p) => ({
     ...p,
@@ -199,13 +219,19 @@ export async function getSalesChartData(tenantId: string, days: number, endDate?
   }));
 }
 
+// Same recent window as getBestWorstProducts (see PRODUCT_MIX_WINDOW_DAYS).
 export async function getCategoryChartData(tenantId: string, limit = 5) {
+  const since = subDays(new Date(), PRODUCT_MIX_WINDOW_DAYS);
   const rawCategoryData = await prisma.$queryRaw<any[]>`
-    SELECT p."category", SUM(ti."itemTotal") as total
-    FROM "TransactionItem" ti
-    JOIN "Product" p ON ti."productId" = p."id"
-    JOIN "Transaction" t ON ti."transactionId" = t."id"
-    WHERE p."category" IS NOT NULL AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
+    WITH per_product AS (
+      SELECT l."productId", SUM(l."itemTotal") AS total
+      ${windowedLinesSql(tenantId, since)}
+      GROUP BY l."productId"
+    )
+    SELECT p."category", SUM(pp.total) as total
+    FROM per_product pp
+    JOIN "Product" p ON p."id" = pp."productId"
+    WHERE p."category" IS NOT NULL
     GROUP BY p."category"
     ORDER BY total DESC
     LIMIT ${limit}
@@ -225,24 +251,24 @@ export async function getProfitTrendData(tenantId: string, days: number, endDate
   const tz = await getTenantTimeZone(tenantId);
   const end = endDate ?? new Date();
   const startDate = subDays(end, days);
+  // Cost per sale via an aggregating LATERAL: Postgres can't flatten an aggregate subquery, so this
+  // stays "this tenant's in-window sales → their lines by index" instead of hashing every line
+  // item on the platform (measured 73 → 46 ms at 100k sales; independent of other tenants' data).
+  // `cost IS NOT NULL` keeps the old inner-join semantics (sales with no lines are skipped).
   const rawProfitData = await prisma.$queryRaw<any[]>`
-    WITH tx AS (
-      SELECT t."id", t."netAmount", DATE((t."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) AS day
-      FROM "Transaction" t
-      WHERE t."createdAt" >= ${startDate} AND t."createdAt" <= ${end} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
-    ), cost_per_tx AS (
-      SELECT ti."transactionId", SUM(ti."purchasePrice" * ti."quantity") AS cost
+    SELECT DATE((t."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) AS date,
+      SUM(t."netAmount") as revenueSum,
+      SUM(c.cost) as cost
+    FROM "Transaction" t
+    CROSS JOIN LATERAL (
+      SELECT SUM(ti."purchasePrice" * ti."quantity") AS cost
       FROM "TransactionItem" ti
-      JOIN tx ON tx."id" = ti."transactionId"
-      GROUP BY ti."transactionId"
-    )
-    SELECT tx.day as date,
-      SUM(tx."netAmount") as revenueSum,
-      SUM(cost_per_tx.cost) as cost
-    FROM tx
-    JOIN cost_per_tx ON cost_per_tx."transactionId" = tx."id"
-    GROUP BY tx.day
-    ORDER BY tx.day
+      WHERE ti."transactionId" = t."id"
+    ) c
+    WHERE t."createdAt" >= ${startDate} AND t."createdAt" <= ${end} AND t."tenantId" = ${tenantId} AND t."status" != 'HELD'
+      AND c.cost IS NOT NULL
+    GROUP BY 1
+    ORDER BY 1
   `;
   return rawProfitData.map((item) => ({
     date: formatDateKey(item.date),
@@ -337,10 +363,14 @@ export async function getPeakHoursData(tenantId: string) {
 
 export async function getPaymentSummary(tenantId: string) {
   const startDate = subDays(new Date(), 30);
+  // Same tenant-window-driven shape as windowedLinesSql (OFFSET 0 fence), so this never scans the
+  // platform-wide payments table.
   const raw = await prisma.$queryRaw<any[]>`
     SELECT tp."method", SUM(tp."amount") as total, COUNT(*) as count
-    FROM "TransactionPayment" tp
-    JOIN "Transaction" t ON tp."transactionId" = t."id"
+    FROM "Transaction" t
+    CROSS JOIN LATERAL (
+      SELECT p."method", p."amount" FROM "TransactionPayment" p WHERE p."transactionId" = t."id" OFFSET 0
+    ) tp
     WHERE t."tenantId" = ${tenantId} AND t."status" != 'HELD' AND t."createdAt" >= ${startDate}
     GROUP BY tp."method"
     ORDER BY total DESC

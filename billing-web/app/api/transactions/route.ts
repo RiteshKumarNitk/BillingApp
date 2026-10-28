@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getStaffSession } from '@/lib/auth/staffSession';
 import { createTransaction, TransactionError } from '@/lib/services/transactions';
+import { isDatabaseBusyError, DB_BUSY_RESPONSE } from '@/lib/dbErrors';
+import { log } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    const staff = await getStaffSession();
 
-    if (!token?.id) {
+    if (!staff) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -19,10 +18,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const transaction = await createTransaction({
-      tenantId: token.tenantId as string,
-      userId: token.id as string,
-      role: token.role as string,
-      permissions: (token.permissions as string[]) || [],
+      tenantId: staff.tenantId,
+      userId: staff.userId,
+      role: staff.role,
+      permissions: staff.permissions,
       items: body.items,
       discount: body.discount,
       taxAmount: body.taxAmount,
@@ -38,6 +37,8 @@ export async function POST(request: NextRequest) {
       loyaltyPointsRedeemed: body.loyaltyPointsRedeemed,
       tableNumber: body.tableNumber,
       orderType: body.orderType,
+      // Header is the standard place; body is accepted too for simple fetch callers.
+      idempotencyKey: request.headers.get('idempotency-key') || body.idempotencyKey || null,
     });
 
     return NextResponse.json(
@@ -51,7 +52,13 @@ export async function POST(request: NextRequest) {
     if (error instanceof TransactionError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error('Transaction creation error:', error);
+    // Pool saturated / DB unreachable: transient, and the client's idempotency key makes a retry
+    // safe — answer 503 + Retry-After instead of a crash-looking 500.
+    if (isDatabaseBusyError(error)) {
+      log.warn('pos.checkout_db_busy', { error });
+      return NextResponse.json(DB_BUSY_RESPONSE.body, DB_BUSY_RESPONSE.init);
+    }
+    log.error('pos.checkout_failed', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

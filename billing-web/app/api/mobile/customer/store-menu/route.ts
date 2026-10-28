@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { resolveTenant } from "@/lib/website/utils";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { cachedPublic } from "@/lib/publicCache";
 
 const MENU_ITEM_CEILING = 1000;
 
@@ -25,10 +26,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "tenantId is required" }, { status: 400 });
     }
 
+    // Phase 9: the plain (no-search) menu is identical for every visitor of a cafe and is the
+    // highest-volume app request, so it is served from the short-TTL public cache (30s; same-
+    // instance product edits invalidate immediately). Searches are not cached (unbounded keys).
+    const result = search
+      ? await buildStoreMenu(tenantId, search)
+      : await cachedPublic(`store-menu:${tenantId}`, () => buildStoreMenu(tenantId, ""));
+    return NextResponse.json(result.body, { status: result.status });
+  } catch (error) {
+    console.error("Error fetching store menu:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+async function buildStoreMenu(tenantId: string, search: string): Promise<{ status: number; body: unknown }> {
     // Accepts either the raw tenant id or its websiteSlug, same as every other public cafe route.
     const tenantRecord = await resolveTenant(tenantId);
     if (!tenantRecord || tenantRecord.status !== "ACTIVE") {
-      return NextResponse.json({ error: "Store not found or inactive" }, { status: 404 });
+      return { status: 404, body: { error: "Store not found or inactive" } };
     }
     const tenant = tenantRecord;
 
@@ -134,17 +149,16 @@ export async function GET(request: NextRequest) {
       items,
     }));
 
-    return NextResponse.json({
-      tenant: {
-        id: tenant.id,
-        name: tenant.name,
-        address: tenant.address,
-        phone: tenant.phone,
+    return {
+      status: 200,
+      body: {
+        tenant: {
+          id: tenant.id,
+          name: tenant.name,
+          address: tenant.address,
+          phone: tenant.phone,
+        },
+        categorizedProducts,
       },
-      categorizedProducts,
-    });
-  } catch (error) {
-    console.error("Error fetching store menu:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
+    };
 }

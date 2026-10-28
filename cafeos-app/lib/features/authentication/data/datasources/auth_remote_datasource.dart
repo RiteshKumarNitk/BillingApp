@@ -45,7 +45,10 @@ class AuthRemoteDataSource {
     return dio.post('/customer/auth/reset-password', data: {'email': email, 'code': code, 'newPassword': newPassword});
   }
 
-  Future<CustomerModel> updateProfile({
+  /// Returns a new token when the password was changed — the backend revokes every older token for
+  /// the account at that moment (so a stolen token dies with the old password), and this device
+  /// must switch to the fresh one to stay signed in.
+  Future<(String? token, CustomerModel customer)> updateProfile({
     required String name,
     String? phone,
     String? currentPassword,
@@ -58,6 +61,6 @@ class AuthRemoteDataSource {
       if (newPassword != null) 'newPassword': newPassword,
     });
     final data = response.data as Map<String, dynamic>;
-    return CustomerModel.fromJson(data['profile'] as Map<String, dynamic>);
+    return (data['token'] as String?, CustomerModel.fromJson(data['profile'] as Map<String, dynamic>));
   }
 }

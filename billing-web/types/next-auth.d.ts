@@ -33,5 +33,6 @@ declare module "next-auth/jwt" {
     permissions?: string[]
     tokenVersion?: number
     tenantVersion?: number
+    authTime?: number
   }
 }

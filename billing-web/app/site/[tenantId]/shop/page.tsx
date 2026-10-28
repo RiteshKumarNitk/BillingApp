@@ -4,6 +4,7 @@ import WebsiteRenderer from '@/components/website/WebsiteRenderer';
 import PageDisabled from '@/components/website/PageDisabled';
 import ShopClient from './ShopClient';
 import { notFound } from 'next/navigation';
+import { toPublicSiteTenant, PUBLIC_PRODUCT_SELECT, PUBLIC_PRODUCT_WHERE } from '@/lib/website/publicTenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,23 +20,17 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
 
   if (config.pages?.shop === false) {
     return (
-      <WebsiteRenderer config={config} tenant={tenant}>
+      <WebsiteRenderer config={config} tenant={toPublicSiteTenant(tenant)}>
         <PageDisabled label="Shop" />
       </WebsiteRenderer>
     );
   }
 
+  // Public projection only — these rows are serialized into the page for every visitor, so no
+  // purchase price / barcode / batch data (see lib/website/publicTenant.ts).
   const products = await prisma.product.findMany({
-    where: { tenantId: tenant.id },
-    include: {
-      variants: true,
-      comboComponents: {
-        include: {
-          component: { select: { name: true } },
-          componentVariant: { select: { name: true } },
-        },
-      },
-    },
+    where: { tenantId: tenant.id, ...PUBLIC_PRODUCT_WHERE },
+    select: PUBLIC_PRODUCT_SELECT,
     orderBy: { name: 'asc' }
   });
 
@@ -52,7 +47,7 @@ export default async function ShopPage({ params }: { params: Promise<{ tenantId:
   })).sort((a, b) => a.category.localeCompare(b.category));
 
   return (
-    <WebsiteRenderer config={config} tenant={tenant}>
+    <WebsiteRenderer config={config} tenant={toPublicSiteTenant(tenant)}>
       <ShopClient categorizedProducts={categorizedProducts} layoutStyle={tenant.menuTheme} config={config} />
     </WebsiteRenderer>
   );

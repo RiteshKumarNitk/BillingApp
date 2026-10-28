@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { invalidatePublicCache } from "@/lib/publicCache";
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
 import prisma from '@/lib/prisma';
@@ -68,6 +69,8 @@ export async function POST(request: Request) {
       },
     });
 
+    // Public storefront/app menu caches (lib/publicCache.ts) must not serve the pre-edit version.
+    invalidatePublicCache();
     return NextResponse.json({ success: true, website });
   } catch (error: any) {
     console.error('Website save error:', error);

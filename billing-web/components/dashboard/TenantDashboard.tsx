@@ -408,7 +408,7 @@ export default async function TenantDashboard({
             <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
               <h2 className="mb-6 text-xl font-bold text-gray-800 flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-amber-500" />
-                Best Sellers
+                Best Sellers <span className="text-xs font-medium text-gray-400">· last 90 days</span>
               </h2>
               <div className="space-y-4">
                 {bestWorstProducts.best.length === 0 ? (
@@ -441,7 +441,7 @@ export default async function TenantDashboard({
               <div className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
                 <h2 className="mb-4 text-lg font-bold text-gray-800 flex items-center gap-2">
                   <TrendingDownIcon className="h-5 w-5 text-gray-400" />
-                  Slow Movers
+                  Slow Movers <span className="text-xs font-medium text-gray-400">· last 90 days</span>
                 </h2>
                 <div className="space-y-2">
                   {bestWorstProducts.worst.map((product: { id: string; name: string; soldCount: number; revenue: number }) => (

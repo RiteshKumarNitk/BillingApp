@@ -89,7 +89,7 @@ export default function DashboardCharts({
 
       {/* Category Distribution Chart */}
       <section className="rounded-2xl border border-gray-100 bg-white/50 p-6 shadow-xl shadow-gray-200/40 backdrop-blur-xl">
-        <h2 className="mb-6 text-xl font-bold text-gray-800">Sales by Category</h2>
+        <h2 className="mb-6 text-xl font-bold text-gray-800">Sales by Category <span className="text-sm font-medium text-gray-400">· last 90 days</span></h2>
         <div className="h-72 w-full min-w-0">
           {!isMounted ? (
             <div className="flex h-full items-center justify-center">

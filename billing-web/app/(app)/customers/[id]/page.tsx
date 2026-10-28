@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth/nextauth';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Phone, Mail, MapPin, Star, Receipt } from 'lucide-react';
-import { getCustomerDetail } from '@/lib/actions/customers';
+import { getCustomerDetail } from '@/lib/customers';
 import CustomerPhotoUpload from './CustomerPhotoUpload';
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {

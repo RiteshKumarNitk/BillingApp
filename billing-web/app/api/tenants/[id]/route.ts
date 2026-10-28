@@ -91,7 +91,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const hashedPassword = await bcrypt.hash(body.password, 10);
       await prisma.user.updateMany({
         where: { tenantId: id, role: 'ADMIN' },
-        data: { password: hashedPassword, tokenVersion: { increment: 1 } }
+        data: { password: hashedPassword, tokenVersion: { increment: 1 }, sessionsValidAfter: new Date() }
       });
     }
     if (statusChanged || body.password) clearSessionStateCache();

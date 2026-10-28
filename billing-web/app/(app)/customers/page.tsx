@@ -3,14 +3,14 @@ import { authOptions } from '@/lib/auth/nextauth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Search, Users, Star } from 'lucide-react';
-import { listCustomers } from '@/lib/actions/customers';
+import { listCustomers } from '@/lib/customers';
 
 const ITEMS_PER_PAGE = 25;
 
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user.tenantId) {
@@ -18,9 +18,12 @@ export default async function CustomersPage({
   }
 
   const tenantId = session.user.tenantId;
-  const page = Math.max(1, parseInt((searchParams?.page as string) || '1', 10));
-  const query = (searchParams?.q as string) || '';
-  const createdFrom = (searchParams?.from as string) || '';
+  // searchParams is a Promise in Next 15+; reading it synchronously returned undefined, so search,
+  // pagination and the dashboard's "new this month" filter were silently ignored.
+  const sp = await searchParams;
+  const page = Math.max(1, parseInt((sp?.page as string) || '1', 10));
+  const query = (sp?.q as string) || '';
+  const createdFrom = (sp?.from as string) || '';
 
   const { customers, total } = await listCustomers({ tenantId, search: query, page, pageSize: ITEMS_PER_PAGE, createdFrom: createdFrom || undefined });
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);

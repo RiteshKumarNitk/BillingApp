@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
 import { revalidatePath } from "next/cache";
+import { invalidatePublicCache } from "@/lib/publicCache";
 import { checkFeatureLimit } from "@/lib/subscription";
 
 export async function searchProducts(searchTerm: string) {
@@ -258,6 +259,7 @@ export async function createProduct(data: any) {
 
   const product = await prisma.product.create({ data: createData });
 
+  invalidatePublicCache();
   revalidatePath('/products');
   return product;
 }
@@ -360,6 +362,7 @@ export async function updateProduct(productId: string, data: any) {
 
   const product = await prisma.product.update({ where: { id: productId, tenantId: tenantId }, data: updateData });
 
+  invalidatePublicCache();
   revalidatePath('/products');
   return product;
 }
@@ -387,5 +390,6 @@ export async function deleteProduct(productId: string) {
     throw error;
   }
 
+  invalidatePublicCache();
   revalidatePath('/products');
 }
