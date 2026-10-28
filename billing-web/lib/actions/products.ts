@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
@@ -11,7 +12,7 @@ export async function searchProducts(searchTerm: string) {
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
 
   const tenantId = session.user.tenantId;
@@ -52,7 +53,7 @@ export async function getFilteredProducts(searchTerm: string, categoryFilter: st
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
 
   const tenantId = session.user.tenantId;
@@ -158,22 +159,22 @@ export async function getProductsForComboPicker(excludeProductId?: string) {
   });
 }
 
-export async function createProduct(data: any) {
+async function createProductImpl(data: any) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
 
   const tenantId = session.user.tenantId;
 
   const limitCheck = await checkFeatureLimit(tenantId, "products");
   if (!limitCheck.allowed) {
-    throw new Error(limitCheck.reason);
+    throw new UserError(limitCheck.reason);
   }
 
   if (!data.name) {
-    throw new Error("Product name is required");
+    throw new UserError("Product name is required");
   }
 
   const barcode = data.barcode?.trim() || null;
@@ -264,11 +265,11 @@ export async function createProduct(data: any) {
   return product;
 }
 
-export async function updateProduct(productId: string, data: any) {
+async function updateProductImpl(productId: string, data: any) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
 
   const tenantId = session.user.tenantId;
@@ -367,11 +368,11 @@ export async function updateProduct(productId: string, data: any) {
   return product;
 }
 
-export async function deleteProduct(productId: string) {
+async function deleteProductImpl(productId: string) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
 
   const tenantId = session.user.tenantId;
@@ -385,7 +386,7 @@ export async function deleteProduct(productId: string) {
     // hard-deleted without rewriting sales history, so surface that as a clear message instead
     // of a raw FK-violation error.
     if (error?.code === 'P2003') {
-      throw new Error("Can't delete: this product has existing sales or order history. Mark it unavailable instead.");
+      throw new UserError("Can't delete: this product has existing sales or order history. Mark it unavailable instead.");
     }
     throw error;
   }
@@ -393,3 +394,9 @@ export async function deleteProduct(productId: string) {
   invalidatePublicCache();
   revalidatePath('/products');
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const createProduct = serverAction("createProduct", createProductImpl);
+export const updateProduct = serverAction("updateProduct", updateProductImpl);
+export const deleteProduct = serverAction("deleteProduct", deleteProductImpl);

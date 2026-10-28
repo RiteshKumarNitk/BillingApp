@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { toggleTenantStatus } from '@/lib/actions/tenants';
 import { useToast } from '@/components/ui/Toast';
+import { unwrap } from '@/lib/unwrap';
 
 export default function TenantStatusToggle({ tenantId, currentStatus }: { tenantId: string, currentStatus: string }) {
   const { addToast } = useToast();
@@ -14,7 +15,7 @@ export default function TenantStatusToggle({ tenantId, currentStatus }: { tenant
     
     setLoading(true);
     try {
-      await toggleTenantStatus(tenantId);
+      unwrap(await toggleTenantStatus(tenantId));
     } catch (err: any) {
       addToast('error', err.message || 'Failed to update tenant status');
     } finally {

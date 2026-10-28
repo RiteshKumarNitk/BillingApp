@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
@@ -13,9 +14,9 @@ import { SITE_URL } from "@/lib/marketing/seo";
 
 const VALID_BUSINESS_TYPES = ['CAFE', 'LAUNDRY', 'SALON'];
 
-export async function updateBranding(data: { primaryColor: string; fontFamily: string }) {
+async function updateBrandingImpl(data: { primaryColor: string; fontFamily: string }) {
   const session = await getServerSession(authOptions);
-  if (!session) throw new Error("Unauthorized");
+  if (!session) throw new UserError("Unauthorized");
 
   const tenantId = session.user.tenantId;
 
@@ -35,30 +36,30 @@ export async function updateBranding(data: { primaryColor: string; fontFamily: s
 async function requireSuperAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'SUPERADMIN') {
-    throw new Error("Unauthorized: Superadmin access required");
+    throw new UserError("Unauthorized: Superadmin access required");
   }
   return session;
 }
 
-export async function createTenant(data: any) {
+async function createTenantImpl(data: any) {
   await requireSuperAdmin();
 
   // Validate basic data
   if (!data.name || !data.email || !data.password) {
-    throw new Error("Missing required fields (name, email, password)");
+    throw new UserError("Missing required fields (name, email, password)");
   }
 
   // Check if email or phone already exists
   if (data.email) {
     const existingEmail = await prisma.tenant.findFirst({ where: { email: data.email } });
     if (existingEmail) {
-      throw new Error("A tenant with this email already exists.");
+      throw new UserError("A tenant with this email already exists.");
     }
   }
   if (data.phone) {
     const existingPhone = await prisma.tenant.findFirst({ where: { phone: data.phone } });
     if (existingPhone) {
-      throw new Error("A tenant with this phone number already exists.");
+      throw new UserError("A tenant with this phone number already exists.");
     }
   }
 
@@ -69,7 +70,7 @@ export async function createTenant(data: any) {
   });
   
   if (!selectedPlan) {
-    throw new Error(`Invalid subscription plan selected: ${planName}`);
+    throw new UserError(`Invalid subscription plan selected: ${planName}`);
   }
 
   // Generate unique domain
@@ -144,13 +145,13 @@ export async function createTenant(data: any) {
     });
 
     if (!coupon || !coupon.isActive) {
-      throw new Error("Invalid or inactive discount code.");
+      throw new UserError("Invalid or inactive discount code.");
     }
     if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-      throw new Error("Discount code has expired.");
+      throw new UserError("Discount code has expired.");
     }
     if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
-      throw new Error("Discount code redemption limit reached.");
+      throw new UserError("Discount code redemption limit reached.");
     }
 
     if (coupon.discountType === "PERCENTAGE") {
@@ -257,7 +258,7 @@ export async function createTenant(data: any) {
   return tenant;
 }
 
-export async function updateTenant(tenantId: string, data: any) {
+async function updateTenantImpl(tenantId: string, data: any) {
   await requireSuperAdmin();
 
   const updateTenantData: any = {
@@ -314,14 +315,14 @@ export async function updateTenant(tenantId: string, data: any) {
   return tenant;
 }
 
-export async function toggleTenantStatus(tenantId: string) {
+async function toggleTenantStatusImpl(tenantId: string) {
   await requireSuperAdmin();
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId }
   });
 
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new UserError("Tenant not found");
 
   const newStatus = tenant.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
@@ -343,7 +344,7 @@ export async function toggleTenantStatus(tenantId: string) {
 export async function updateTenantTheme(theme: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
 
   await prisma.tenant.update({
@@ -366,13 +367,13 @@ export interface MenuContentInput {
   ownerImageUrl?: string;
 }
 
-export async function updateMenuContent(data: MenuContentInput) {
+async function updateMenuContentImpl(data: MenuContentInput) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized");
+    throw new UserError("Unauthorized");
   }
   if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPERADMIN') {
-    throw new Error("Forbidden - only the store owner can edit the website");
+    throw new UserError("Forbidden - only the store owner can edit the website");
   }
 
   await prisma.tenant.update({
@@ -395,14 +396,14 @@ export async function updateMenuContent(data: MenuContentInput) {
   return true;
 }
 
-export async function deleteTenant(tenantId: string) {
+async function deleteTenantImpl(tenantId: string) {
   await requireSuperAdmin();
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId }
   });
 
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new UserError("Tenant not found");
 
   await prisma.tenant.delete({
     where: { id: tenantId }
@@ -412,3 +413,12 @@ export async function deleteTenant(tenantId: string) {
   revalidatePath('/tenants');
   return true;
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const updateBranding = serverAction("updateBranding", updateBrandingImpl);
+export const createTenant = serverAction("createTenant", createTenantImpl);
+export const updateTenant = serverAction("updateTenant", updateTenantImpl);
+export const toggleTenantStatus = serverAction("toggleTenantStatus", toggleTenantStatusImpl);
+export const updateMenuContent = serverAction("updateMenuContent", updateMenuContentImpl);
+export const deleteTenant = serverAction("deleteTenant", deleteTenantImpl);

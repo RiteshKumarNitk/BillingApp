@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createTenantUser, deleteTenantUser } from '@/lib/actions/users';
 import { useToast } from '@/components/ui/Toast';
 import { Plus, Trash2, User, Mail, Shield, X } from 'lucide-react';
+import { unwrap } from '@/lib/unwrap';
 
 export default function UsersClient({ initialUsers, roles, currentUserId, isSuperAdmin = false }: { initialUsers: any[], roles: any[], currentUserId: string, isSuperAdmin?: boolean }) {
   const { addToast } = useToast();
@@ -35,14 +36,14 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
     setError(null);
 
     try {
-      await createTenantUser({ 
+      unwrap(await createTenantUser({ 
         name, 
         email, 
         phone, 
         password, 
         tenantRoleId: isSuperAdmin ? undefined : roleId,
         isSuperAdminUser: isSuperAdmin 
-      });
+      }));
       // Reload the page to get fresh data instead of complex client state sync
       window.location.reload();
     } catch (err: any) {
@@ -55,7 +56,7 @@ export default function UsersClient({ initialUsers, roles, currentUserId, isSupe
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      await deleteTenantUser(userId);
+      unwrap(await deleteTenantUser(userId));
       setUsers(users.filter(u => u.id !== userId));
       addToast('success', 'User deleted');
     } catch (err: any) {

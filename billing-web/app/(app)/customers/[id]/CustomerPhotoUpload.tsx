@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ImageUpload from '@/components/ImageUpload';
 import { updateCustomerPhoto } from '@/lib/actions/customers';
 import { useToast } from '@/components/ui/Toast';
+import { unwrap } from '@/lib/unwrap';
 
 export default function CustomerPhotoUpload({ customerId, currentPhotoUrl }: { customerId: string; currentPhotoUrl: string | null }) {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function CustomerPhotoUpload({ customerId, currentPhotoUrl }: { c
   const handleUpload = async (url: string) => {
     setSaving(true);
     try {
-      await updateCustomerPhoto(customerId, url);
+      unwrap(await updateCustomerPhoto(customerId, url));
       addToast('success', 'Customer photo updated');
       router.refresh();
     } catch (err: any) {

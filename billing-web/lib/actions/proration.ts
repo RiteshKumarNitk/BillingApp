@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/nextauth';
@@ -15,17 +16,17 @@ function calculateDaysDifference(startDate: Date, endDate: Date) {
 // subscription. Superadmins may act on any tenant; tenant users only on their own.
 async function requireOwnerOrSuperAdmin(tenantId?: string) {
   const session = await getServerSession(authOptions);
-  if (!session) throw new Error("Unauthorized");
+  if (!session) throw new UserError("Unauthorized");
   if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
-    throw new Error("Forbidden: Only the store owner can change the subscription plan");
+    throw new UserError("Forbidden: Only the store owner can change the subscription plan");
   }
   if (tenantId !== undefined && session.user.role !== "SUPERADMIN" && tenantId !== session.user.tenantId) {
-    throw new Error("Forbidden: You can only manage your own tenant's subscription");
+    throw new UserError("Forbidden: You can only manage your own tenant's subscription");
   }
   return session;
 }
 
-export async function calculateProration(tenantId: string, newPlanId: string) {
+async function calculateProrationImpl(tenantId: string, newPlanId: string) {
   await requireOwnerOrSuperAdmin(tenantId);
 
   const currentSubscription = await prisma.tenantSubscription.findFirst({
@@ -38,7 +39,7 @@ export async function calculateProration(tenantId: string, newPlanId: string) {
     where: { id: newPlanId }
   });
 
-  if (!newPlan) throw new Error("Target plan not found");
+  if (!newPlan) throw new UserError("Target plan not found");
 
   if (!currentSubscription) {
     // No active subscription, full price
@@ -90,16 +91,16 @@ export async function calculateProration(tenantId: string, newPlanId: string) {
   };
 }
 
-export async function changeSubscriptionPlan(tenantId: string, newPlanId: string) {
+async function changeSubscriptionPlanImpl(tenantId: string, newPlanId: string) {
   await requireOwnerOrSuperAdmin(tenantId);
 
-  const proration = await calculateProration(tenantId, newPlanId);
+  const proration = await calculateProrationImpl(tenantId, newPlanId);
   
   const newPlan = await prisma.subscriptionPlan.findUnique({
     where: { id: newPlanId }
   });
 
-  if (!newPlan) throw new Error("Target plan not found");
+  if (!newPlan) throw new UserError("Target plan not found");
 
   await prisma.$transaction(async (tx) => {
     // End current active subscriptions
@@ -153,3 +154,8 @@ export async function changeSubscriptionPlan(tenantId: string, newPlanId: string
   revalidatePath('/settings/billing');
   return true;
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const calculateProration = serverAction("calculateProration", calculateProrationImpl);
+export const changeSubscriptionPlan = serverAction("changeSubscriptionPlan", changeSubscriptionPlanImpl);

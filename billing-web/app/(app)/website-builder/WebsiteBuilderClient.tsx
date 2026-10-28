@@ -6,6 +6,7 @@ import { getThemesForBusinessType } from '@/lib/website/registry';
 import { Save, Layout, Palette, Settings, Layers, ChevronDown, ChevronUp, Eye, EyeOff, FileText, ShoppingBag, Info, PhoneCall, ExternalLink, BookOpen, MessageCircle, Search, Lock, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/components/ui/Toast";
 import { updateMenuContent, type MenuContentInput } from '@/lib/actions/tenants';
+import { unwrap } from '@/lib/unwrap';
 import SectionEditor from './SectionEditor';
 import ImageUpload from '@/components/ImageUpload';
 import WebsiteRenderer from '@/components/website/WebsiteRenderer';
@@ -53,7 +54,7 @@ export default function WebsiteBuilderClient({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const [websiteRes] = await Promise.all([
+      const [websiteRes, menuRes] = await Promise.all([
         fetch('/api/website', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -61,6 +62,7 @@ export default function WebsiteBuilderClient({
         }),
         updateMenuContent(aboutInfo),
       ]);
+      unwrap(menuRes);
 
       if (!websiteRes.ok) {
         const body = await websiteRes.json().catch(() => null);

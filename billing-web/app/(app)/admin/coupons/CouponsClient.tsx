@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createCoupon, toggleCouponStatus } from "@/lib/actions/subscription";
 import { useToast } from "@/components/ui/Toast";
 import { Plus, Percent, Clock, Tag, X, Check, EyeOff } from "lucide-react";
+import { unwrap } from '@/lib/unwrap';
 
 type CouponsClientProps = {
   coupons: any[];
@@ -36,7 +37,7 @@ export default function CouponsClient({ coupons }: CouponsClientProps) {
   const handleToggleStatus = async (id: string) => {
     setToggleLoading(id);
     try {
-      await toggleCouponStatus(id);
+      unwrap(await toggleCouponStatus(id));
       window.location.reload();
     } catch (e: any) {
       addToast('error', e.message || "Failed to update status");
@@ -63,7 +64,7 @@ export default function CouponsClient({ coupons }: CouponsClientProps) {
     };
 
     try {
-      await createCoupon(payload);
+      unwrap(await createCoupon(payload));
       setShowModal(false);
       window.location.reload();
     } catch (err: any) {

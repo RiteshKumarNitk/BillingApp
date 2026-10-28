@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
@@ -8,7 +9,7 @@ import { revalidatePath } from "next/cache";
 
 export async function getRoles() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   const roles = await prisma.role.findMany({
     where: { tenantId: session.user.tenantId },
@@ -19,13 +20,13 @@ export async function getRoles() {
   return roles;
 }
 
-export async function createRole(name: string, permissions: string[]) {
+async function createRoleImpl(name: string, permissions: string[]) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
 
-  if (!name.trim()) throw new Error("Role name is required");
+  if (!name.trim()) throw new UserError("Role name is required");
 
   // Filter out invalid permissions just in case
   const validPermissions = permissions.filter(p => Object.keys(PERMISSIONS).includes(p));  const role = await prisma.role.create({
@@ -40,18 +41,18 @@ export async function createRole(name: string, permissions: string[]) {
   return role;
 }
 
-export async function updateRole(roleId: string, name: string, permissions: string[]) {
+async function updateRoleImpl(roleId: string, name: string, permissions: string[]) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
 
-  if (!name.trim()) throw new Error("Role name is required");
+  if (!name.trim()) throw new UserError("Role name is required");
 
   // Prevent editing the default "Owner" role
   const existingRole = await prisma.role.findUnique({ where: { id: roleId } });
   if (existingRole?.name === 'Owner') {
-    throw new Error("Cannot edit the default Owner role");
+    throw new UserError("Cannot edit the default Owner role");
   }
 
   const validPermissions = permissions.filter(p => Object.keys(PERMISSIONS).includes(p));
@@ -75,9 +76,9 @@ export async function updateRole(roleId: string, name: string, permissions: stri
   return role;
 }
 
-export async function deleteRole(roleId: string) {
+async function deleteRoleImpl(roleId: string) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
 
@@ -86,9 +87,9 @@ export async function deleteRole(roleId: string) {
     include: { _count: { select: { users: true } } }
   });
 
-  if (!role) throw new Error("Role not found");
-  if (role.name === 'Owner') throw new Error("Cannot delete the Owner role");
-  if (role._count.users > 0) throw new Error("Cannot delete a role that is assigned to users");
+  if (!role) throw new UserError("Role not found");
+  if (role.name === 'Owner') throw new UserError("Cannot delete the Owner role");
+  if (role._count.users > 0) throw new UserError("Cannot delete a role that is assigned to users");
 
   // Increment tokenVersion for users who had this role (they'll lose this role's permissions)
   await prisma.user.updateMany({
@@ -103,3 +104,9 @@ export async function deleteRole(roleId: string) {
 
   revalidatePath('/roles');
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const createRole = serverAction("createRole", createRoleImpl);
+export const updateRole = serverAction("updateRole", updateRoleImpl);
+export const deleteRole = serverAction("deleteRole", deleteRoleImpl);

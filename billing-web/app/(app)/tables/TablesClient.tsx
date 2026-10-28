@@ -5,6 +5,7 @@ import { createTable, updateTable, deleteTable } from '@/lib/actions/tables';
 import { useToast } from '@/components/ui/Toast';
 import { Plus, Trash2, Download, QrCode, X } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
+import { unwrap } from '@/lib/unwrap';
 
 // U5: QR codes are rendered locally (qrcode.react) instead of via the third-party
 // api.qrserver.com — no external dependency, nothing about the tenant's tables leaks to a third
@@ -42,7 +43,7 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
     if (!newLabel.trim()) return;
     setAdding(true);
     try {
-      const table = await createTable(newLabel.trim());
+      const table = unwrap(await createTable(newLabel.trim()));
       setTables(prev => [...prev, table].sort((a, b) => a.label.localeCompare(b.label)));
       setNewLabel('');
       addToast('success', `${table.label} added`);
@@ -55,7 +56,7 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
 
   const handleToggleActive = async (table: Table) => {
     try {
-      const updated = await updateTable(table.id, { isActive: !table.isActive });
+      const updated = unwrap(await updateTable(table.id, { isActive: !table.isActive }));
       setTables(prev => prev.map(t => (t.id === table.id ? updated : t)));
     } catch (err: any) {
       addToast('error', err.message || 'Failed to update table');
@@ -65,7 +66,7 @@ export default function TablesClient({ tables: initialTables, siteId }: { tables
   const handleDelete = async (table: Table) => {
     if (!window.confirm(`Delete "${table.label}"? Its QR code will stop working, including any copies already printed.`)) return;
     try {
-      await deleteTable(table.id);
+      unwrap(await deleteTable(table.id));
       setTables(prev => prev.filter(t => t.id !== table.id));
       addToast('success', `${table.label} removed`);
     } catch (err: any) {

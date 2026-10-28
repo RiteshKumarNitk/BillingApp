@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Trash2, AlertTriangle, X } from 'lucide-react';
 import { deleteTenant } from '@/lib/actions/tenants';
 import { useToast } from '@/components/ui/Toast';
+import { unwrap } from '@/lib/unwrap';
 
 export default function DeleteTenantButton({ tenantId, tenantName }: { tenantId: string, tenantName: string }) {
   const { addToast } = useToast();
@@ -14,7 +15,7 @@ export default function DeleteTenantButton({ tenantId, tenantName }: { tenantId:
     try {
       setIsDeleting(true);
       setShowModal(false);
-      await deleteTenant(tenantId);
+      unwrap(await deleteTenant(tenantId));
     } catch (error) {
       console.error("Failed to delete tenant:", error);
       addToast('error', "Failed to delete tenant. Please try again.");

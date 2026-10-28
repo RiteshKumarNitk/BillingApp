@@ -19,3 +19,15 @@ export async function runAction<T>(name: string, fn: () => Promise<T>): Promise<
     return { ok: false, error: "Something went wrong. Please try again." };
   }
 }
+
+// Wraps an action implementation so it returns ActionResult instead of throwing. Used as
+//   async function createUnitImpl(name: string) { ... throw new UserError("…") ... }
+//   export const createUnit = serverAction("createUnit", createUnitImpl);
+// Client callers read the result with unwrap() (lib/unwrap.ts), which re-throws the real message
+// so existing try/catch + toast code keeps working.
+export function serverAction<A extends unknown[], R>(
+  name: string,
+  fn: (...args: A) => Promise<R>
+): (...args: A) => Promise<ActionResult<R>> {
+  return async (...args: A) => runAction(name, () => fn(...args));
+}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createUnit, updateUnit, deleteUnit } from '@/lib/actions/units';
 import { useToast } from '@/components/ui/Toast';
 import { Plus, Edit2, Trash2, Ruler, X, Check } from 'lucide-react';
+import { unwrap } from '@/lib/unwrap';
 
 export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
   const { addToast } = useToast();
@@ -22,7 +23,7 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
     setAddLoading(true);
     setError(null);
     try {
-      const unit = await createUnit(newName);
+      const unit = unwrap(await createUnit(newName));
       setUnits([...units, unit].sort((a, b) => a.name.localeCompare(b.name)));
       setNewName('');
     } catch (err: any) {
@@ -48,7 +49,7 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
     setSavingId(unitId);
     setError(null);
     try {
-      const updated = await updateUnit(unitId, editingName);
+      const updated = unwrap(await updateUnit(unitId, editingName));
       setUnits(units.map(u => u.id === unitId ? updated : u).sort((a, b) => a.name.localeCompare(b.name)));
       setEditingId(null);
     } catch (err: any) {
@@ -61,7 +62,7 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
   const handleDelete = async (unit: any) => {
     if (!confirm(`Delete "${unit.name}"? It will no longer appear as an option when adding products.`)) return;
     try {
-      const { productsUsingIt } = await deleteUnit(unit.id);
+      const { productsUsingIt } = unwrap(await deleteUnit(unit.id));
       setUnits(units.filter(u => u.id !== unit.id));
       if (productsUsingIt > 0) {
         addToast('info', `${productsUsingIt} existing product(s) still use "${unit.name}" — they're unaffected, it just won't be offered for new products anymore.`);

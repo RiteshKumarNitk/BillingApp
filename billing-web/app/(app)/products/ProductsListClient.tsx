@@ -6,6 +6,7 @@ import { getFilteredProducts, getProductCategories, deleteProduct } from '@/lib/
 import { Package, Search, ChevronLeft, ChevronRight, X, Barcode, Trash2, AlertCircle } from 'lucide-react';
 import { getProductsAreaLabel, getProductNoun, showAvailabilityToggle } from '@/lib/productForm/businessTypeConfig';
 import { inventoryModeLabel } from '@/lib/products/availability';
+import { unwrap } from '@/lib/unwrap';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -68,7 +69,7 @@ export default function ProductsListClient({ businessType }: { businessType: str
     setDeleteError(null);
     setDeletingId(productId);
     try {
-      await deleteProduct(productId);
+      unwrap(await deleteProduct(productId));
       await fetchProducts();
     } catch (error: any) {
       setDeleteError(error?.message || `Failed to delete ${productNoun.toLowerCase()}.`);

@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions, clearSessionStateCache } from "@/lib/auth/nextauth";
@@ -24,7 +25,7 @@ export async function getMyPermissions() {
 
 export async function getTenantUsers() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   if (session.user.role === 'SUPERADMIN') {
     // Superadmin can see all users in the system
@@ -44,23 +45,23 @@ export async function getTenantUsers() {
   });
 }
 
-export async function createTenantUser(data: { name: string, email: string, password: string, tenantRoleId?: string, phone?: string, isSuperAdminUser?: boolean, tenantId?: string }) {
+async function createTenantUserImpl(data: { name: string, email: string, password: string, tenantRoleId?: string, phone?: string, isSuperAdminUser?: boolean, tenantId?: string }) {
   const session = await getServerSession(authOptions);
   
   if (data.isSuperAdminUser) {
-    if (session?.user?.role !== 'SUPERADMIN') throw new Error("Unauthorized");
+    if (session?.user?.role !== 'SUPERADMIN') throw new UserError("Unauthorized");
     
     if (!data.name || !data.email || !data.password) {
-      throw new Error("Missing required fields");
+      throw new UserError("Missing required fields");
     }
 
     if (data.password.length < 6) {
-      throw new Error("Password must be at least 6 characters");
+      throw new UserError("Password must be at least 6 characters");
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
     if (existingUser) {
-      throw new Error("A user with this email already exists");
+      throw new UserError("A user with this email already exists");
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -83,19 +84,19 @@ export async function createTenantUser(data: { name: string, email: string, pass
   // Superadmin can create users in any tenant
   if (data.tenantId && session?.user?.role === 'SUPERADMIN') {
     if (!data.name || !data.email || !data.password || !data.tenantRoleId) {
-      throw new Error("Missing required fields");
+      throw new UserError("Missing required fields");
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
     if (existingUser) {
-      throw new Error("A user with this email already exists");
+      throw new UserError("A user with this email already exists");
     }
 
     // Verify the role belongs to the specified tenant
     const role = await prisma.role.findUnique({
       where: { id: data.tenantRoleId, tenantId: data.tenantId }
     });
-    if (!role) throw new Error("Invalid role selected for this tenant");
+    if (!role) throw new UserError("Invalid role selected for this tenant");
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -116,29 +117,29 @@ export async function createTenantUser(data: { name: string, email: string, pass
   }
 
   // Tenant user creation path
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
 
   const limitCheck = await checkFeatureLimit(session.user.tenantId, "users");
   if (!limitCheck.allowed) {
-    throw new Error(limitCheck.reason);
+    throw new UserError(limitCheck.reason);
   }
 
   if (!data.name || !data.email || !data.password || !data.tenantRoleId) {
-    throw new Error("Missing required fields");
+    throw new UserError("Missing required fields");
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
   if (existingUser) {
-    throw new Error("A user with this email already exists");
+    throw new UserError("A user with this email already exists");
   }
 
   // Verify the role belongs to this tenant
   const role = await prisma.role.findUnique({
     where: { id: data.tenantRoleId, tenantId: session.user.tenantId }
   });
-  if (!role) throw new Error("Invalid role selected");
+  if (!role) throw new UserError("Invalid role selected");
 
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -158,21 +159,21 @@ export async function createTenantUser(data: { name: string, email: string, pass
   return { id: user.id, name: user.name, email: user.email };
 }
 
-export async function deleteTenantUser(userId: string) {
+async function deleteTenantUserImpl(userId: string) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
 
   await requirePermission('MANAGE_USERS');
 
   if (userId === session.user.id) {
-    throw new Error("You cannot delete yourself");
+    throw new UserError("You cannot delete yourself");
   }
 
   const user = await prisma.user.findUnique({
     where: { id: userId, tenantId: session.user.tenantId }
   });
 
-  if (!user) throw new Error("User not found");
+  if (!user) throw new UserError("User not found");
 
   await prisma.user.delete({
     where: { id: userId }
@@ -184,3 +185,8 @@ export async function deleteTenantUser(userId: string) {
 
   revalidatePath('/users');
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const createTenantUser = serverAction("createTenantUser", createTenantUserImpl);
+export const deleteTenantUser = serverAction("deleteTenantUser", deleteTenantUserImpl);

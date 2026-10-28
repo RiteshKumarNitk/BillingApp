@@ -15,6 +15,7 @@ import {
   showFoodType, showGstFields, showAvailabilityToggle, showFeaturedToggle, showPrepTime,
   getProductNoun, FOOD_TYPE_OPTIONS
 } from '@/lib/productForm/businessTypeConfig';
+import { unwrap } from '@/lib/unwrap';
 
 export default function AddProductClient({ businessType }: { businessType: string | null }) {
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
     if (!newUnitName.trim()) return;
     setAddUnitLoading(true);
     try {
-      const unit = await createUnit(newUnitName);
+      const unit = unwrap(await createUnit(newUnitName));
       setUnits(prev => [...prev, unit].sort((a, b) => a.name.localeCompare(b.name)));
       setFormData(prev => ({ ...prev, unit: unit.name }));
       setNewUnitName('');
@@ -174,7 +175,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
         ? formData.customCategory
         : formData.category;
 
-      await createProduct({
+      unwrap(await createProduct({
         ...formData,
         category: finalCategory || null,
         variants: (formData.productType === 'VARIANT' || formData.productType === 'WEIGHT') ? variants : undefined,
@@ -182,7 +183,7 @@ export default function AddProductClient({ businessType }: { businessType: strin
         serials: formData.productType === 'SERIAL' ? serials : undefined,
         addOns: showAddOns(businessType, formData.productType) ? addOns : undefined,
         comboComponents: showComboComponents(businessType, formData.productType) ? comboComponents : undefined,
-      });
+      }));
 
       setSuccess(true);
       setTimeout(() => router.push('/products'), 1200);

@@ -5,6 +5,7 @@ import { PERMISSIONS, hasClientPermission, Permission } from "@/lib/permissions.
 import { createRole, updateRole, deleteRole } from '@/lib/actions/roles';
 import { useToast } from '@/components/ui/Toast';
 import { Plus, Edit2, Trash2, Shield, X, Check } from 'lucide-react';
+import { unwrap } from '@/lib/unwrap';
 
 export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
   const { addToast } = useToast();
@@ -47,10 +48,10 @@ export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
 
     try {
       if (editingRole) {
-        const updated = await updateRole(editingRole.id, name, selectedPermissions);
+        const updated = unwrap(await updateRole(editingRole.id, name, selectedPermissions));
         setRoles(roles.map(r => r.id === updated.id ? { ...updated, _count: r._count } : r));
       } else {
-        const created = await createRole(name, selectedPermissions);
+        const created = unwrap(await createRole(name, selectedPermissions));
         setRoles([...roles, { ...created, _count: { users: 0 } }]);
       }
       setIsModalOpen(false);
@@ -65,7 +66,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: any[] }) {
     if (!confirm('Are you sure you want to delete this role?')) return;
 
     try {
-      await deleteRole(roleId);
+      unwrap(await deleteRole(roleId));
       setRoles(roles.filter(r => r.id !== roleId));
       addToast('success', 'Role deleted');
     } catch (err: any) {

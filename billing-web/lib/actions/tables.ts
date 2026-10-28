@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
@@ -11,9 +12,9 @@ import { checkFeatureLimit } from "@/lib/subscription";
 // existing tenants' roles (see lib/permissions.client.ts).
 async function requireOwner() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) throw new Error("Unauthorized");
+  if (!session?.user?.tenantId) throw new UserError("Unauthorized");
   if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
-    throw new Error("Forbidden - only the store owner can manage tables");
+    throw new UserError("Forbidden - only the store owner can manage tables");
   }
   return session;
 }
@@ -26,14 +27,14 @@ export async function getTables() {
   });
 }
 
-export async function createTable(label: string) {
+async function createTableImpl(label: string) {
   const session = await requireOwner();
   const trimmed = label.trim();
-  if (!trimmed) throw new Error("Table label is required");
+  if (!trimmed) throw new UserError("Table label is required");
 
   const limitCheck = await checkFeatureLimit(session.user.tenantId, "tables");
   if (!limitCheck.allowed) {
-    throw new Error(limitCheck.reason);
+    throw new UserError(limitCheck.reason);
   }
 
   const table = await prisma.table.create({
@@ -44,13 +45,13 @@ export async function createTable(label: string) {
   return table;
 }
 
-export async function updateTable(tableId: string, data: { label?: string; isActive?: boolean }) {
+async function updateTableImpl(tableId: string, data: { label?: string; isActive?: boolean }) {
   const session = await requireOwner();
 
   const updateData: any = {};
   if (data.label !== undefined) {
     const trimmed = data.label.trim();
-    if (!trimmed) throw new Error("Table label is required");
+    if (!trimmed) throw new UserError("Table label is required");
     updateData.label = trimmed;
   }
   if (data.isActive !== undefined) updateData.isActive = data.isActive;
@@ -64,7 +65,7 @@ export async function updateTable(tableId: string, data: { label?: string; isAct
   return table;
 }
 
-export async function deleteTable(tableId: string) {
+async function deleteTableImpl(tableId: string) {
   const session = await requireOwner();
 
   await prisma.table.delete({
@@ -73,3 +74,9 @@ export async function deleteTable(tableId: string) {
 
   revalidatePath("/tables");
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const createTable = serverAction("createTable", createTableImpl);
+export const updateTable = serverAction("updateTable", updateTableImpl);
+export const deleteTable = serverAction("deleteTable", deleteTableImpl);

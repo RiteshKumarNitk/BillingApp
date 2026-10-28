@@ -5,6 +5,7 @@ import { updateBranding } from "@/lib/actions/tenants";
 import { useToast } from "@/components/ui/Toast";
 import { Palette, Type, CheckCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { unwrap } from '@/lib/unwrap';
 
 export default function BrandingSettingsPage({ tenant }: { tenant: any }) {
   const { addToast } = useToast();
@@ -25,7 +26,7 @@ export default function BrandingSettingsPage({ tenant }: { tenant: any }) {
     setIsSubmitting(true);
     setSuccess(false);
     try {
-      await updateBranding(data);
+      unwrap(await updateBranding(data));
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (e: any) {

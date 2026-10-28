@@ -5,6 +5,7 @@ import { createSubscriptionPlan, updateSubscriptionPlan, deleteSubscriptionPlan 
 import { themes } from "@/lib/website/registry";
 import { useToast } from "@/components/ui/Toast";
 import { Plus, Edit2, ShieldAlert, Check, X } from "lucide-react";
+import { unwrap } from '@/lib/unwrap';
 
 type PlansClientProps = {
   plans: any[];
@@ -89,9 +90,9 @@ export default function PlansClient({ plans }: PlansClientProps) {
 
     try {
       if (editingPlan) {
-        await updateSubscriptionPlan(editingPlan.id, payload);
+        unwrap(await updateSubscriptionPlan(editingPlan.id, payload));
       } else {
-        await createSubscriptionPlan(payload);
+        unwrap(await createSubscriptionPlan(payload));
       }
       setShowModal(false);
       window.location.reload();
@@ -106,7 +107,7 @@ export default function PlansClient({ plans }: PlansClientProps) {
     if (!confirm(`Are you sure you want to delete the plan "${name}"? This cannot be undone.`)) return;
     
     try {
-      await deleteSubscriptionPlan(id);
+      unwrap(await deleteSubscriptionPlan(id));
       window.location.reload();
     } catch (err: any) {
       addToast('error', err.message || "Failed to delete plan");

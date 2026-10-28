@@ -1,5 +1,6 @@
 "use server";
 
+import { serverAction, UserError } from "@/lib/actionResult";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/nextauth";
@@ -13,10 +14,10 @@ import { sendEmail, EmailTemplates } from "@/lib/mail";
 async function requireAuth() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.tenantId) {
-    throw new Error("Unauthorized: Authentication required");
+    throw new UserError("Unauthorized: Authentication required");
   }
   if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
-    throw new Error("Forbidden: Only the store owner can manage billing");
+    throw new UserError("Forbidden: Only the store owner can manage billing");
   }
   return session;
 }
@@ -25,13 +26,13 @@ async function requireAuth() {
 async function requireSuperAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "SUPERADMIN") {
-    throw new Error("Unauthorized: Superadmin access required");
+    throw new UserError("Unauthorized: Superadmin access required");
   }
   return session;
 }
 
 // Create a subscription checkout session (Razorpay)
-export async function createCheckoutSession(planId: string, couponCode?: string) {
+async function createCheckoutSessionImpl(planId: string, couponCode?: string) {
   // S3: refuse to run the billing flow in simulation mode when deployed to production.
   assertRazorpayConfigured();
   const session = await requireAuth();
@@ -41,7 +42,7 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
   const plan = await prisma.subscriptionPlan.findUnique({
     where: { id: planId }
   });
-  if (!plan) throw new Error("Plan not found");
+  if (!plan) throw new UserError("Plan not found");
 
   // 2. Validate Coupon if provided — a supplied-but-invalid code is a hard error, never a silent
   // "no discount" (M2). Redemptions are deliberately NOT incremented here: an abandoned or retried
@@ -54,13 +55,13 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
       where: { code: couponCode.trim().toUpperCase() }
     });
     if (!coupon || !coupon.isActive) {
-      throw new Error("Invalid or inactive coupon code");
+      throw new UserError("Invalid or inactive coupon code");
     }
     if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-      throw new Error("Coupon has expired");
+      throw new UserError("Coupon has expired");
     }
     if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
-      throw new Error("Coupon redemption limit reached");
+      throw new UserError("Coupon redemption limit reached");
     }
     if (coupon.discountType === "PERCENTAGE") {
       discountAmount = (plan.amount * coupon.discountValue) / 100;
@@ -182,7 +183,7 @@ export async function createCheckoutSession(planId: string, couponCode?: string)
 }
 
 // Cancel a subscription (immediate vs end-of-cycle)
-export async function cancelSubscription(subscriptionId: string, cancelAtPeriodEnd: boolean) {
+async function cancelSubscriptionImpl(subscriptionId: string, cancelAtPeriodEnd: boolean) {
   // S3: refuse to run the billing flow in simulation mode when deployed to production.
   assertRazorpayConfigured();
   const session = await requireAuth();
@@ -192,7 +193,7 @@ export async function cancelSubscription(subscriptionId: string, cancelAtPeriodE
     where: { id: subscriptionId, tenantId }
   });
 
-  if (!sub) throw new Error("Subscription not found");
+  if (!sub) throw new UserError("Subscription not found");
 
   if (sub.razorpaySubscriptionId) {
     try {
@@ -253,28 +254,28 @@ export async function cancelSubscription(subscriptionId: string, cancelAtPeriodE
 }
 
 // Apply a Coupon Code to check validity and discount value
-export async function applyCoupon(code: string, planId: string) {
+async function applyCouponImpl(code: string, planId: string) {
   await requireAuth();
 
   const plan = await prisma.subscriptionPlan.findUnique({
     where: { id: planId }
   });
-  if (!plan) throw new Error("Plan not found");
+  if (!plan) throw new UserError("Plan not found");
 
   const coupon = await prisma.coupon.findUnique({
     where: { code: code.trim().toUpperCase() }
   });
 
   if (!coupon || !coupon.isActive) {
-    throw new Error("Invalid or inactive coupon code");
+    throw new UserError("Invalid or inactive coupon code");
   }
 
   if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-    throw new Error("Coupon has expired");
+    throw new UserError("Coupon has expired");
   }
 
   if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
-    throw new Error("Coupon redemption limit reached");
+    throw new UserError("Coupon redemption limit reached");
   }
 
   let discountAmount = 0;
@@ -295,28 +296,28 @@ export async function applyCoupon(code: string, planId: string) {
   };
 }
 
-export async function validateCouponByPlanName(code: string, planName: string) {
+async function validateCouponByPlanNameImpl(code: string, planName: string) {
   await requireSuperAdmin();
 
   const plan = await prisma.subscriptionPlan.findFirst({
     where: { name: planName }
   });
-  if (!plan) throw new Error("Plan not found");
+  if (!plan) throw new UserError("Plan not found");
 
   const coupon = await prisma.coupon.findUnique({
     where: { code: code.trim().toUpperCase() }
   });
 
   if (!coupon || !coupon.isActive) {
-    throw new Error("Invalid or inactive coupon code");
+    throw new UserError("Invalid or inactive coupon code");
   }
 
   if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-    throw new Error("Coupon has expired");
+    throw new UserError("Coupon has expired");
   }
 
   if (coupon.maxRedemptions && coupon.redemptions >= coupon.maxRedemptions) {
-    throw new Error("Coupon redemption limit reached");
+    throw new UserError("Coupon redemption limit reached");
   }
 
   let discountAmount = 0;
@@ -337,7 +338,7 @@ export async function validateCouponByPlanName(code: string, planName: string) {
   };
 }
 
-export async function markInvoiceAsPaid(invoiceId: string, paymentMethod: string = 'Manual Transfer') {
+async function markInvoiceAsPaidImpl(invoiceId: string, paymentMethod: string = 'Manual Transfer') {
   await requireSuperAdmin();
 
   const invoice = await prisma.invoice.findUnique({
@@ -348,8 +349,8 @@ export async function markInvoiceAsPaid(invoiceId: string, paymentMethod: string
     }
   });
 
-  if (!invoice) throw new Error("Invoice not found");
-  if (invoice.status === 'PAID') throw new Error("Invoice is already paid");
+  if (!invoice) throw new UserError("Invoice not found");
+  if (invoice.status === 'PAID') throw new UserError("Invoice is already paid");
 
   await prisma.$transaction(async (tx) => {
     // 1. Mark invoice as paid
@@ -385,11 +386,11 @@ export async function markInvoiceAsPaid(invoiceId: string, paymentMethod: string
 }
 
 // Super Admin actions for managing plans
-export async function createSubscriptionPlan(data: any) {
+async function createSubscriptionPlanImpl(data: any) {
   await requireSuperAdmin();
 
   if (!data.name || data.amount === undefined || !data.interval) {
-    throw new Error("Missing required fields (name, amount, interval)");
+    throw new UserError("Missing required fields (name, amount, interval)");
   }
 
   const plan = await prisma.subscriptionPlan.create({
@@ -412,7 +413,7 @@ export async function createSubscriptionPlan(data: any) {
   return plan;
 }
 
-export async function updateSubscriptionPlan(id: string, data: any) {
+async function updateSubscriptionPlanImpl(id: string, data: any) {
   await requireSuperAdmin();
 
   const plan = await prisma.subscriptionPlan.update({
@@ -436,7 +437,7 @@ export async function updateSubscriptionPlan(id: string, data: any) {
   return plan;
 }
 
-export async function deleteSubscriptionPlan(id: string) {
+async function deleteSubscriptionPlanImpl(id: string) {
   await requireSuperAdmin();
   
   // Verify if it's safe to delete (e.g. no active subscriptions)
@@ -445,7 +446,7 @@ export async function deleteSubscriptionPlan(id: string) {
   });
 
   if (activeSubs > 0) {
-    throw new Error("Cannot delete plan. There are active subscriptions using this plan.");
+    throw new UserError("Cannot delete plan. There are active subscriptions using this plan.");
   }
 
   await prisma.subscriptionPlan.delete({
@@ -457,11 +458,11 @@ export async function deleteSubscriptionPlan(id: string) {
 }
 
 // Super Admin actions for managing coupons
-export async function createCoupon(data: any) {
+async function createCouponImpl(data: any) {
   await requireSuperAdmin();
 
   if (!data.code || !data.discountType || data.discountValue === undefined) {
-    throw new Error("Missing required fields (code, discountType, discountValue)");
+    throw new UserError("Missing required fields (code, discountType, discountValue)");
   }
 
   const coupon = await prisma.coupon.create({
@@ -479,11 +480,11 @@ export async function createCoupon(data: any) {
   return coupon;
 }
 
-export async function toggleCouponStatus(id: string) {
+async function toggleCouponStatusImpl(id: string) {
   await requireSuperAdmin();
 
   const coupon = await prisma.coupon.findUnique({ where: { id } });
-  if (!coupon) throw new Error("Coupon not found");
+  if (!coupon) throw new UserError("Coupon not found");
 
   const updated = await prisma.coupon.update({
     where: { id },
@@ -493,3 +494,16 @@ export async function toggleCouponStatus(id: string) {
   revalidatePath("/admin/coupons");
   return updated;
 }
+
+// Mutations return ActionResult so validation messages survive production error masking
+// (client callers read them with unwrap()). See lib/actionResult.ts.
+export const createCheckoutSession = serverAction("createCheckoutSession", createCheckoutSessionImpl);
+export const cancelSubscription = serverAction("cancelSubscription", cancelSubscriptionImpl);
+export const applyCoupon = serverAction("applyCoupon", applyCouponImpl);
+export const validateCouponByPlanName = serverAction("validateCouponByPlanName", validateCouponByPlanNameImpl);
+export const markInvoiceAsPaid = serverAction("markInvoiceAsPaid", markInvoiceAsPaidImpl);
+export const createSubscriptionPlan = serverAction("createSubscriptionPlan", createSubscriptionPlanImpl);
+export const updateSubscriptionPlan = serverAction("updateSubscriptionPlan", updateSubscriptionPlanImpl);
+export const deleteSubscriptionPlan = serverAction("deleteSubscriptionPlan", deleteSubscriptionPlanImpl);
+export const createCoupon = serverAction("createCoupon", createCouponImpl);
+export const toggleCouponStatus = serverAction("toggleCouponStatus", toggleCouponStatusImpl);

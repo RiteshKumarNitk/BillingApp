@@ -9,6 +9,7 @@ import { toUrlSlug } from '@/lib/website/slug';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
 import ImageUpload from '@/components/ImageUpload';
+import { unwrap } from '@/lib/unwrap';
 
 export default function AddTenantPage() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function AddTenantPage() {
     }
     setValidatingCoupon(true);
     try {
-      const res = await validateCouponByPlanName(formData.discountCode, formData.subscriptionPlan);
+      const res = unwrap(await validateCouponByPlanName(formData.discountCode, formData.subscriptionPlan));
       setCouponResult(res);
       addToast('success', 'Coupon applied successfully!');
     } catch (err: any) {
@@ -78,7 +79,7 @@ export default function AddTenantPage() {
     setError(null);
 
     try {
-      await createTenant(formData);
+      unwrap(await createTenant(formData));
       addToast('success', `Tenant ${formData.name} created successfully!`);
       setTimeout(() => {
         router.push('/tenants');

@@ -6,6 +6,7 @@ import { updateTenant } from '@/lib/actions/tenants';
 import { ArrowLeft, Building2, User, CreditCard, Globe, Clock, IndianRupee, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import ImageUpload from '@/components/ImageUpload';
+import { unwrap } from '@/lib/unwrap';
 
 export default function EditTenantPage() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export default function EditTenantPage() {
     setError(null);
 
     try {
-      await updateTenant(tenantId, formData);
+      unwrap(await updateTenant(tenantId, formData));
       router.push(`/tenants/${tenantId}`);
     } catch (err: any) {
       setError(err.message || 'Failed to update tenant');

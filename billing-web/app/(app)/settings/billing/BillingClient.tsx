@@ -24,6 +24,7 @@ import {
   Info
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
+import { unwrap } from '@/lib/unwrap';
 
 type BillingClientProps = {
   tenant: any;
@@ -85,7 +86,7 @@ export default function BillingClient({
     setCouponLoading(true);
     setCouponStatus(null);
     try {
-      const res = await applyCoupon(couponCode, planId);
+      const res = unwrap(await applyCoupon(couponCode, planId));
       setCouponStatus({
         success: true,
         message: `Coupon "${res.code}" applied successfully! Discount: ₹${res.discountAmount}`,
@@ -111,10 +112,10 @@ export default function BillingClient({
     setCheckoutLoading(planId);
     try {
       const isApplyingCoupon = selectedPlanForCoupon === planId && couponStatus?.success;
-      const res = await createCheckoutSession(
+      const res = unwrap(await createCheckoutSession(
         planId, 
         isApplyingCoupon ? couponStatus.code : undefined
-      );
+      ));
       
       if (res.checkoutUrl) {
         window.location.href = res.checkoutUrl;
@@ -134,7 +135,7 @@ export default function BillingClient({
     
     setCheckoutLoading(planId);
     try {
-      const details = await calculateProration(tenant.id, planId);
+      const details = unwrap(await calculateProration(tenant.id, planId));
       setProrationDetails({ ...details, planId });
       setShowProrationModal(true);
     } catch (e: any) {
@@ -148,7 +149,7 @@ export default function BillingClient({
     if (!prorationDetails) return;
     setProrationLoading(true);
     try {
-      await changeSubscriptionPlan(tenant.id, prorationDetails.planId);
+      unwrap(await changeSubscriptionPlan(tenant.id, prorationDetails.planId));
       setShowProrationModal(false);
       window.location.reload();
     } catch (e: any) {
@@ -162,7 +163,7 @@ export default function BillingClient({
     if (!activeSub) return;
     setCancelLoading(true);
     try {
-      await cancelSubscription(activeSub.id, cancelAtPeriodEnd);
+      unwrap(await cancelSubscription(activeSub.id, cancelAtPeriodEnd));
       setShowCancelModal(false);
       window.location.reload();
     } catch (e: any) {

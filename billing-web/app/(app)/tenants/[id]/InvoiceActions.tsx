@@ -5,6 +5,7 @@ import { markInvoiceAsPaid } from "@/lib/actions/subscription";
 import { useToast } from "@/components/ui/Toast";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { unwrap } from '@/lib/unwrap';
 
 export default function InvoiceActions({ invoiceId, status }: { invoiceId: string, status: string }) {
   const { addToast } = useToast();
@@ -15,7 +16,7 @@ export default function InvoiceActions({ invoiceId, status }: { invoiceId: strin
     if (!confirm("Are you sure you want to mark this invoice as paid?")) return;
     setLoading(true);
     try {
-      await markInvoiceAsPaid(invoiceId);
+      unwrap(await markInvoiceAsPaid(invoiceId));
       router.refresh();
     } catch (err: any) {
       addToast('error', err.message || "Failed to mark as paid");
